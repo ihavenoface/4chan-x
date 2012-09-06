@@ -77,7 +77,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteThreading, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteThreading, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, console, d, g;
 
   Config = {
     main: {
@@ -311,6 +311,7 @@
     HOUR: 1000 * 60 * 60,
     DAY: 1000 * 60 * 60 * 24,
     engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase(),
+    log: !console ? console = unsafeWindow.console : void 0,
     ready: function(fc) {
       var cb;
       if (/interactive|complete/.test(d.readyState)) {
@@ -2585,7 +2586,7 @@
       }));
     },
     submit: function(e) {
-      var callbacks, captcha, captchas, challenge, err, m, opts, post, reply, response, rpc, textOnly, threadID, _base, _ref;
+      var callbacks, captcha, captchas, challenge, err, m, opts, post, reply, response, rpc, textOnly, threadID, _ref;
       if (e != null) {
         e.preventDefault();
       }
@@ -2660,16 +2661,6 @@
         recaptcha_challenge_field: challenge,
         recaptcha_response_field: rpc + ' ' + rpc
       };
-      try {
-        if (typeof (_base = console.log).bind === "function") {
-          _base.bind(console);
-        }
-      } catch (err) {
-        if (!$.get('scriptish')) {
-          $.set('scriptish', true);
-          alert("From here it appears that you're currently using Scriptish on Nightly.\n\nDue to a recent changeset in the Nightly channel Scriptish isn\'t able to log anything to the console right now.\n\nPlease consider using either Greasemonkey or the stable/beta/aurora channel of Firefox until this problem is fixed.");
-        }
-      }
       callbacks = {
         onload: function() {
           return QR.response(this.response);
@@ -5037,10 +5028,6 @@
 
   AutoGif = {
     init: function() {
-      var _ref;
-      if ((_ref = g.BOARD) === 'gif' || _ref === 'wsg') {
-        return;
-      }
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
