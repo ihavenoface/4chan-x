@@ -265,6 +265,7 @@ $.extend $,
   HOUR  : 1000*60*60
   DAY   : 1000*60*60*24
   engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase()
+  log: console = unsafeWindow.console if !console
   ready: (fc) ->
     if /interactive|complete/.test d.readyState
       # Execute the functions in parallel.
@@ -2063,12 +2064,6 @@ QR =
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  rpc + ' ' + rpc
 
-    try
-      console.log.bind? console
-    catch err
-      unless $.get 'scriptish'
-        $.set 'scriptish', true
-        alert "From here it appears that you're currently using Scriptish on Nightly.\n\nDue to a recent changeset in the Nightly channel Scriptish isn\'t able to log anything to the console right now.\n\nPlease consider using either Greasemonkey or the stable/beta/aurora channel of Firefox until this problem is fixed."
 
     callbacks =
       onload: ->
@@ -3942,7 +3937,6 @@ ImageHover =
 
 AutoGif =
   init: ->
-    return if g.BOARD in ['gif', 'wsg']
     Main.callbacks.push @node
   node: (post) ->
     {img} = post
