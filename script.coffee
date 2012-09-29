@@ -6,11 +6,13 @@ Config =
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
       'File Info Formatting':         [true,  'Reformats the file information']
+      'Linkify':                      [true,  'Convert text into links where applicable.']
       'Comment Expansion':            [true,  'Expand too long comments']
       'Thread Expansion':             [true,  'View all replies']
       'Index Navigation':             [true,  'Navigate to previous / next thread']
       'Rollover':                     [true,  'Index navigation will fallback to page navigation.']
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
+      'Custom Navigation':            [false, 'Customize your Navigation bar.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -174,9 +176,76 @@ Config =
     'Interval': 30
     'BGInterval': 60
 
+Navigation =
+  delimiter: "/"
+  links: [
+    ["a",      "Anime & Manga",         "//boards.4chan.org/a/"]
+    ["b",      "Random",                "//boards.4chan.org/b/"]
+    ["c",      "Cute/Anime",            "//boards.4chan.org/c/"]
+    ["d",      "Hentai/Alternative",    "//boards.4chan.org/d/"]
+    ["e",      "Ecchi",                 "//boards.4chan.org/e/"]
+    ["f",      "Flash",                 "//boards.4chan.org/f/"]
+    ["g",      "Technology",            "//boards.4chan.org/g/"]
+    ["gif",    "Animated Gifs",         "//boards.4chan.org/gif/"]
+    ["h",      "Hentai",                "//boards.4chan.org/h/"]
+    ["hr",     "High Resolution",       "//boards.4chan.org/hr/"]
+    ["k",      "Weapons",               "//boards.4chan.org/k/"]
+    ["l",      "Lolicon",               "http://7chan.org/cake/"]
+    ["m",      "Mecha",                 "//boards.4chan.org/m/"]
+    ["o",      "Auto",                  "//boards.4chan.org/o/"]
+    ["p",      "Pictures",              "//boards.4chan.org/p/"]
+    ["r",      "Requests",              "//boards.4chan.org/r/"]
+    ["s",      "Sexy Beautiful Women",  "//boards.4chan.org/s/"]
+    ["t",      "Torrents",              "//boards.4chan.org/t/"]
+    ["u",      "Yuri",                  "//boards.4chan.org/u/"]
+    ["v",      "Video Games",           "//boards.4chan.org/v/"]
+    ["vg",     "Video Game Generals",   "//boards.4chan.org/vg/"]
+    ["w",      "Anime/Wallpapers",      "//boards.4chan.org/w/"]
+    ["wg",     "Wallpapers/General",    "//boards.4chan.org/wg/"]
+    ["i",      "Oekaki",                "//boards.4chan.org/i/"]
+    ["ic",     "Artwork/Critique",      "//boards.4chan.org/ic/"]
+    ["r9k",    "Robot 9K",              "//boards.4chan.org/r9k/"]
+    ["cm",     "Cute/Male",             "//boards.4chan.org/cm/"]
+    ["hm",     "Handsome Men",          "//boards.4chan.org/hm/"]
+    ["y",      "Yaoi",                  "//boards.4chan.org/y/"]
+    ["3",      "3DCG",                  "//boards.4chan.org/3/"]
+    ["adv",    "Advice",                "//boards.4chan.org/adv/"]
+    ["an",     "Animals",               "//boards.4chan.org/an/"]
+    ["cgl",    "Cosplay & EGL",         "//boards.4chan.org/cgl/"]
+    ["ck",     "Food & Cooking",        "//boards.4chan.org/ck/"]
+    ["co",     "Comics & Cartoons",     "//boards.4chan.org/co/"]
+    ["diy",    "Do It Yourself",        "//boards.4chan.org/diy/"]
+    ["fa",     "Fashion",               "//boards.4chan.org/fa/"]
+    ["fit",    "Health & Fitness",      "//boards.4chan.org/fit/"]
+    ["hc",     "Hardcore",              "//boards.4chan.org/hc/"]
+    ["int",    "International",         "//boards.4chan.org/int/"]
+    ["jp",     "Otaku Culture",         "//boards.4chan.org/jp/"]
+    ["lit",    "Literature",            "//boards.4chan.org/lit/"]
+    ["mlp",    "My Little Pony",        "//boards.4chan.org/mlp/"]
+    ["mu",     "Music",                 "//boards.4chan.org/mu/"]
+    ["n",      "Transportation",        "//boards.4chan.org/n/"]
+    ["po",     "Papercraft & Origami",  "//boards.4chan.org/po/"]
+    ["pol",    "Politically Incorrect", "//boards.4chan.org/pol/"]
+    ["sci",    "Science & Math",        "//boards.4chan.org/sci/"]
+    ["soc",    "Social",                "//boards.4chan.org/soc/"]
+    ["sp",     "Sports",                "//boards.4chan.org/sp/"]
+    ["tg",     "Traditional Games",     "//boards.4chan.org/tg/"]
+    ["toy",    "Toys",                  "//boards.4chan.org/toys/"]
+    ["trv",    "Travel",                "//boards.4chan.org/trv/"]
+    ["tv",     "Television & Film",     "//boards.4chan.org/tv/"]
+    ["vp",     "Pok&eacute;mon",        "//boards.4chan.org/vp/"]
+    ["wsg",    "Worksafe GIF",          "//boards.4chan.org/wsg/"]
+    ["x",      "Paranormal",            "//boards.4chan.org/x/"]
+    ["rs",     "Rapidshares",           "http://rs.4chan.org/"]
+    ["status", "4chan Status",          "http://status.4chan.org/"]
+    ["q",      "4chan Discussion",      "//boards.4chan.org/q/"]
+    ["@",      "4chan Twitter",         "http://www.twitter.com/4chan"]
+  ]
+
 Conf = {}
 d = document
 g = {}
+userNavigation = {}
 
 
 UI =
@@ -2145,6 +2214,83 @@ QR =
     delete QR.ajax
     QR.status()
 
+CustomNavigation =
+  init: ->
+    delimiter = " #{userNavigation.delimiter} "
+    html = delimiter
+    navigation = $ "#boardNavDesktop", d.body
+
+    for index of navigation.childNodes
+      unless navigation.firstChild.id == "navtopright"
+        $.rm navigation.firstChild
+
+    for link in userNavigation.links
+      html = "#{html}<a href=\"#{link[2]}\" title=\"#{link[1]}\">#{link[0]}</a>#{delimiter}"
+    navigation.innerHTML = navigation.innerHTML + html
+
+###
+Based on the Linkify scripts located at:
+http://downloads.mozdev.org/greasemonkey/linkify.user.js
+https://github.com/MayhemYDG/LinkifyPlusFork
+
+Originally written by Anthony Lieuallen of http://arantius.com/
+Licensed for unlimited modification and redistribution as long as
+this notice is kept intact.
+
+If possible, please contact me regarding new features, bugfixes
+or changes that I could integrate into the existing code instead of
+creating a different script. Thank you.
+###
+
+Linkify =
+  init: ->
+    Main.callbacks.push @node
+  node: (post) ->
+    # Built based on:
+    # - http://en.wikipedia.org/wiki/URI_scheme
+    # - http://www.regular-expressions.info/regexbuddy/email.html
+
+    blockquote = $ 'blockquote', post.el
+    for child in blockquote.childNodes
+      if child.nodeType == Node.TEXT_NODE
+        Linkify.text child
+
+  text: (child) ->
+    txt = child.textContent
+    span = null
+    p = 0
+    urlRE = new RegExp '(' + '\\b([a-z][-a-z0-9+.]+://|www\\.)' + '[^\\s\'"<>()]+' + '|' + '\\b[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}\\b' + ')',  'gi'
+    while m = urlRE.exec txt
+      if null == span
+        span = $.el 'span'
+          className: 'linkifyplus'
+
+      # Get the link without trailing dots
+      l = m[0].replace /\.*$/, ''
+      lLen = l.length
+      # Put in text up to the link
+      span.appendChild d.createTextNode txt.substring p, m.index
+      # Create a link and put it in the span
+      a = $.el 'a'
+        textContent: l
+        className: 'linkifyplus'
+        rel:       'nofollow noreferrer _new'
+        href:      if l.indexOf(":/") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
+
+      $.add span, a
+      # Track insertion point
+      p = m.index+lLen
+
+    if span
+      # Take the text after the last link
+      span.appendChild d.createTextNode txt.substring p, txt.length
+      # Replace the original text with the new span
+      try
+        child.parentNode.replaceChild(span, child)
+      catch e
+        $.log e
+        $.log child.tagName + "could not be appended..."
+
 Options =
   init: ->
     $.ready Options.initReady
@@ -2246,6 +2392,9 @@ Options =
       <li>Size: %B (Bytes), %K (KB), %M (MB), %s (4chan default)</li>
       <li>Resolution: %r (Displays PDF on /po/, for PDFs)</li>
     </ul>
+    <div class=warning><code>Custom Navigation</code> is disabled.</div>
+    <div id=customNavigation>
+    </div>
     <div class=warning><code>Unread Favicon</code> is disabled.</div>
     Unread favicons<br>
     <select name=favicon>
@@ -2309,6 +2458,8 @@ Options =
     favicon.value = $.get 'favicon', Conf['favicon']
     $.on favicon, 'change', $.cb.value
     $.on favicon, 'change', Options.favicon
+    
+    Options.customNavigation.dialog dialog
 
     #keybinds
     for key, arr of Config.hotkeys
@@ -2341,6 +2492,125 @@ Options =
     Options.time.call     time
     Options.fileInfo.call fileInfo
     Options.favicon.call  favicon
+
+  customNavigation:
+    dialog: (dialog) ->
+      div = $ "#customNavigation", dialog
+      ul = $.el "ul"
+      ul.innerHTML = """
+  Custom Navigation
+  """
+
+      # Delimiter
+      li = $.el "li"
+        className: "delimiter"
+        textContent: "delimiter: "
+      input = $.el "input"
+        className: "field"
+        name:      "delimiter"
+      input.setAttribute "value", userNavigation.delimiter
+      input.setAttribute "placeholder", "delimiter"
+      input.setAttribute "type", "text"
+
+      $.on input, "change", ->
+        if @value == ""
+          alert "Custom Navigation options cannot be blank."
+          return
+        userNavigation.delimiter = @value
+        $.set "userNavigation", userNavigation
+      $.add li, input
+      $.add ul, li
+
+      #Description of Syntax.
+      li = $.el "li"
+        textContent: "Navigation Syntax: Display Name | Title / Alternate Text | URL"
+      $.add ul, li
+
+      # Names and Placeholders for custom navigation inputs.
+      navOptions = ["Display Name", "Title / Alt Text", "URL"]
+
+      #Generate list for custom navigation
+      for index, link of userNavigation.links
+        li = $.el "li"
+        input = $.el "input"
+          className: "hidden"
+        input.setAttribute "value", index
+        input.setAttribute "type", "hidden"
+        input.setAttribute "hidden", "hidden"
+        $.add li, input
+
+        #Generate inputs for list
+        for itemIndex, item of link
+          input = $.el "input"
+            className: "field"
+            name:      itemIndex
+          input.setAttribute "value", item
+          input.setAttribute "placeholder", navOptions[itemIndex]
+          input.setAttribute "type", "text"
+
+          $.on input, "change", ->
+            if @value == ""
+              alert "Custom Navigation options cannot be blank."
+              return
+            userNavigation.links[@parentElement.firstChild.value][@name] = @value
+            $.set "userNavigation", userNavigation
+
+          $.add li, input
+
+        #Add Custom Link
+        addLink = $.el "a"
+          textContent: " + "
+          href: "javascript:;"
+
+        $.on addLink, "click", ->
+          userNavigation.links.add = (at) ->
+            keep = userNavigation.links.slice at
+            userNavigation.links.length = at
+            blankLink = ["ex","example","http://www.example.com/"]
+            userNavigation.links.push blankLink
+            userNavigation.links.push.apply userNavigation.links, keep
+          userNavigation.links.add @parentElement.firstChild.value
+          delete userNavigation.links.add
+          Options.customNavigation.cleanup()
+
+        #Delete Custom Link
+        removeLink = $.el "a"
+          textContent: " x "
+          href: "javascript:;"
+
+        $.on removeLink, "click", ->
+          userNavigation.links.remove = (from) ->
+            keep = userNavigation.links.slice parseInt(from) + 1
+            userNavigation.links.length = from
+            userNavigation.links.push.apply userNavigation.links, keep
+          userNavigation.links.remove @parentElement.firstChild.value
+          delete userNavigation.links.remove
+          Options.customNavigation.cleanup()
+
+        $.add li, addLink
+        $.add li, removeLink
+        $.add ul, li
+
+      # Final addLink Button. Allows the user to add a new item
+      # to the bottom of the list or add an item if none exist.
+      li = $.el "li"
+      addLink = $.el "a"
+        textContent: " + "
+        href: "javascript:;"
+      $.on addLink, "click", ->
+        blankLink = ["ex","example","http://www.example.com/"]
+        userNavigation.links.push blankLink
+        Options.customNavigation.cleanup()
+
+      $.add li, addLink
+      $.add ul, li
+
+      $.add div, ul
+
+    cleanup: ->
+      $.set "userNavigation", userNavigation
+      $.rm $("#customNavigation > ul", d.body)
+      Options.customNavigation.dialog $("#options", d.body)
 
   close: ->
     $.rm this
@@ -4206,6 +4476,8 @@ Main =
     for key, val of Conf
       Conf[key] = $.get key, val
 
+    userNavigation = $.get "userNavigation", Navigation
+
     path = location.pathname
     pathname = path[1..].split '/'
     [g.BOARD, temp] = pathname
@@ -4294,6 +4566,9 @@ Main =
     if Conf['Image Auto-Gif']
       AutoGif.init()
 
+    if Conf['Linkify']
+      Linkify.init()
+
     if Conf['Png Thumbnail Fix']
       PngFix.init()
 
@@ -4347,6 +4622,10 @@ Main =
       return
     $.addClass d.body, $.engine
     $.addClass d.body, 'fourchan_x'
+
+    if Conf['Custom Navigation']
+      CustomNavigation.init()
+
     for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
       if a = $ "a[href$='/#{g.BOARD}/']", $.id nav
         # Gotta make it work in temporary boards.
