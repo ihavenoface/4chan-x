@@ -4695,13 +4695,10 @@ Linkify =
             break
 
         # If there is any content left, we append and parse it.
-        unless rest.textContent == ""
-          $.after embed, rest
-          @text rest
-      else
-        unless rest.textContent == ""
-          $.after a, rest
-          @text rest
+      unless rest.textContent == ""
+        if embed then $.after embed, rest else $.after a, rest
+        embed = false
+        @text rest
 
   embed: ->
     # We setup the link to be replaced by the embedded video
