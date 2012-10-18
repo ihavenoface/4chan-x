@@ -4961,9 +4961,12 @@
         onclick = function() {
           var href, path;
           path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
-          href = Redirect.archiver(path[1], value, type);
-          if ((href = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
-            return false;
+          if (type === 'apost') {
+            if ((href = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+              return false;
+            }
+          } else {
+            href = Redirect.archiver(path[1], value, type);
           }
           return el.href = href;
         };

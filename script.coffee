@@ -4125,9 +4125,10 @@ ArchiveLink =
       $.off el, 'click', onclick
       onclick = ->
         path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
-        href = Redirect.archiver path[1], value, type
-        if (href = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
-          return false
+        if type is 'apost'
+          if (href = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
+            return false
+        else href = Redirect.archiver path[1], value, type
         el.href = href
 
       $.on el, 'click', onclick
