@@ -4097,7 +4097,6 @@ ArchiveLink =
       open: (post) -> 
         path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
         if (Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
-        # Doesn't really do what I want, but leaving this right now.
           return false
         else true
       children: []
@@ -4133,7 +4132,7 @@ ArchiveLink =
         return false
       if type is 'md5'
         value = value.replace /\//g, '_'
-      href = Redirect.archiver path[1], value, type
+      href = Redirect.thread path[1], value, type, true
       if type is 'apost'
         href = rpost
       el.href = href
@@ -4304,39 +4303,65 @@ Redirect =
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-  thread: (board, threadID, postID) ->
-    # keep the number only if the location.hash was sent f.e.
-    postID = postID.match(/\d+/)[0] if postID
-    path   =
-      if threadID
-        "#{board}/thread/#{threadID}"
-      else
-        "#{board}/post/#{postID}"
+  thread: (board, threadID, postID, archiver) ->
+    fuuka = ->
+      switch postID
+        when 'name'
+          postID = 'username'
+        when 'comment'
+          postID = 'text'
+        when 'md5'
+          postID  = 'image'
+      "#{board}/search/#{postID}/#{threadID}"
+    gentoo = ->
+      unless postID is 'md5'
+        "#{board}/?task=search2&search_#{postID}=#{threadID}"
+      else "#{board}/image/#{threadID}"
+    unless archiver
+      # keep the number only if the location.hash was sent f.e.
+      postID = postID.match(/\d+/)[0] if postID
+      path   =
+        if threadID
+          "#{board}/thread/#{threadID}"
+        else
+          "#{board}/post/#{postID}"
     switch board
       when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        url = "//archive.foolz.us/#{path}/"
-        if threadID and postID
-          url += "##{postID}"
+        unless archiver
+          url = "//archive.foolz.us/#{path}/"
+          if threadID and postID
+            url += "##{postID}"
+        else url = "//archive.foolz.us/#{fuuka()}"
       when 'u', 'kuku'
-        url = "//nsfw.foolz.us/#{path}/"
-        if threadID and postID
-          url += "##{postID}"
+        unless archiver
+          url = "//nsfw.foolz.us/#{path}/"
+          if threadID and postID
+            url += "##{postID}"
+        else url = "//nsfw.foolz.us/#{fuuka()}"
       when 'ck', 'jp', 'lit'
-        url = "//fuuka.warosu.org/#{path}"
-        if threadID and postID
-          url += "#p#{postID}"
+        unless archiver
+          url = "//fuuka.warosu.org/#{path}"
+          if threadID and postID
+            url += "#p#{postID}"
+        else url = "//fuuka.warosu.org/#{fuuka()}"
       when 'diy', 'sci'
-        url = "//archive.installgentoo.net/#{path}"
-        if threadID and postID
-          url += "#p#{postID}"
+        unless archiver
+          url = "//archive.installgentoo.net/#{path}"
+          if threadID and postID
+            url += "#p#{postID}"
+        else url = "//archive.installgentoo.net/#{gentoo()}"
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        url = "//archive.rebeccablacktech.com/#{path}"
-        if threadID and postID
-          url += "#p#{postID}"
+        unless archiver
+          url = "//archive.rebeccablacktech.com/#{path}"
+          if threadID and postID
+            url += "#p#{postID}"
+        else url = "//archive.rebeccablacktech.com/#{gentoo()}"
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        url = "http://archive.heinessen.com/#{path}"
-        if threadID and postID
-          url += "#p#{postID}"
+        unless archiver
+          url = "http://archive.heinessen.com/#{path}"
+          if threadID and postID
+            url += "#p#{postID}"
+        else url = "//archive.heinessen.com/#{gentoo()}"
       when 'e'
         url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
         if threadID and postID
@@ -4345,33 +4370,6 @@ Redirect =
         if threadID
           url = "//boards.4chan.org/#{board}/"
     url or null
-  archiver: (board, value, type) ->
-    fuuka = ->
-      switch type 
-        when 'name'
-          type = 'username'
-        when 'comment'
-          type = 'text'
-        when 'md5'
-          type  = 'image'
-      "/#{board}/search/#{type}/#{value}"
-    gentoo = ->
-      unless type is 'md5'
-        "/#{board}/?task=search2&search_#{type}=#{value}"
-      else "/#{board}/image/#{value}"
-    switch board
-      when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg'
-        "//archive.foolz.us#{fuuka()}"
-      when 'u', 'kuku'
-        "//nsfw.foolz.us#{fuuka()}"
-      when 'ck', 'jp', 'lit'
-        "//fuuka.warosu.org#{fuuka()}"
-      when 'diy', 'sci'
-        "//archive.installgentoo.net#{gentoo()}"
-      when 'cgl', 'g', 'mu', 'soc', 'w'
-        "//archive.rebeccablacktech.com#{gentoo()}"
-      when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        "//archive.heinessen.com#{gentoo()}"
 
 ImageHover =
   init: ->
