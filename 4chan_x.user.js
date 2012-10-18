@@ -4959,19 +4959,20 @@
         }
         $.off(el, 'click', onclick);
         onclick = function() {
-          var href, path, thread;
+          var href, path, rthread;
           path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
-          thread = Redirect.thread(path[1], path[3], post.ID);
-          if (type === 'apost') {
-            if ((href = thread) === ("//boards.4chan.org/" + path[1] + "/")) {
-              return false;
-            }
-          } else {
-            if (thread !== ("//boards.4chan.org/" + path[1] + "/")) {
+          if ((rthread = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+            return false;
+          }
+          switch (type) {
+            case 'apost':
+              href = rthread;
+              break;
+            case 'md5':
+              href = 'Put md5 here.';
+              break;
+            default:
               href = Redirect.archiver(path[1], value, type);
-            } else {
-              return false;
-            }
           }
           return el.href = href;
         };
