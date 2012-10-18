@@ -5201,7 +5201,7 @@
           return "//nsfw.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
       }
     },
-    thread: function(board, threadID, postID, archiver) {
+    thread: function(board, threadID, postID, AL) {
       var fuuka, gentoo, path, url;
       fuuka = function() {
         switch (postID) {
@@ -5223,7 +5223,7 @@
           return "" + board + "/image/" + threadID;
         }
       };
-      if (!archiver) {
+      if (!AL) {
         if (postID) {
           postID = postID.match(/\d+/)[0];
         }
@@ -5242,47 +5242,43 @@
         case 'wsg':
         case 'dev':
         case 'foolz':
-          if (!archiver) {
-            url = "//archive.foolz.us/" + path + "/";
-            if (threadID && postID) {
-              url += "#" + postID;
-            }
-          } else {
-            url = "//archive.foolz.us/" + (fuuka());
+          if (AL) {
+            path = fuuka();
+          }
+          url = "//archive.foolz.us/" + path + "/";
+          if (threadID && postID && !AL) {
+            url += "#" + postID;
           }
           break;
         case 'u':
         case 'kuku':
-          if (!archiver) {
-            url = "//nsfw.foolz.us/" + path + "/";
-            if (threadID && postID) {
-              url += "#" + postID;
-            }
-          } else {
-            url = "//nsfw.foolz.us/" + (fuuka());
+          if (AL) {
+            path = fuuka();
+          }
+          url = "//nsfw.foolz.us/" + path + "/";
+          if (threadID && postID && !AL) {
+            url += "#" + postID;
           }
           break;
         case 'ck':
         case 'jp':
         case 'lit':
-          if (!archiver) {
-            url = "//fuuka.warosu.org/" + path;
-            if (threadID && postID) {
-              url += "#p" + postID;
-            }
-          } else {
-            url = "//fuuka.warosu.org/" + (fuuka());
+          if (AL) {
+            path = fuuka();
+          }
+          url = "//fuuka.warosu.org/" + path;
+          if (threadID && postID && !AL) {
+            url += "#" + postID;
           }
           break;
         case 'diy':
         case 'sci':
-          if (!archiver) {
-            url = "//archive.installgentoo.net/" + path;
-            if (threadID && postID) {
-              url += "#p" + postID;
-            }
-          } else {
-            url = "//archive.installgentoo.net/" + (gentoo());
+          if (AL) {
+            path = gentoo();
+          }
+          url = "//archive.installgentoo.net/" + path;
+          if (threadID && postID && !AL) {
+            url += "#p" + postID;
           }
           break;
         case 'cgl':
@@ -5290,13 +5286,12 @@
         case 'mu':
         case 'soc':
         case 'w':
-          if (!archiver) {
-            url = "//archive.rebeccablacktech.com/" + path;
-            if (threadID && postID) {
-              url += "#p" + postID;
-            }
-          } else {
-            url = "//archive.rebeccablacktech.com/" + (gentoo());
+          if (AL) {
+            path = gentoo();
+          }
+          url = "//archive.rebeccablacktech.com/" + path;
+          if (threadID && postID && !AL) {
+            url += "#p" + postID;
           }
           break;
         case 'an':
@@ -5306,13 +5301,12 @@
         case 'r9k':
         case 'toy':
         case 'x':
-          if (!archiver) {
-            url = "http://archive.heinessen.com/" + path;
-            if (threadID && postID) {
-              url += "#p" + postID;
-            }
-          } else {
-            url = "//archive.heinessen.com/" + (gentoo());
+          if (AL) {
+            path = gentoo();
+          }
+          url = "http://archive.heinessen.com/" + path;
+          if (threadID && postID && !AL) {
+            url += "#p" + postID;
           }
           break;
         case 'e':

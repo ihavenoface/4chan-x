@@ -4303,7 +4303,7 @@ Redirect =
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-  thread: (board, threadID, postID, archiver) ->
+  thread: (board, threadID, postID, AL) ->
     fuuka = ->
       switch postID
         when 'name'
@@ -4317,7 +4317,7 @@ Redirect =
       unless postID is 'md5'
         "#{board}/?task=search2&search_#{postID}=#{threadID}"
       else "#{board}/image/#{threadID}"
-    unless archiver
+    unless AL
       # keep the number only if the location.hash was sent f.e.
       postID = postID.match(/\d+/)[0] if postID
       path   =
@@ -4327,41 +4327,35 @@ Redirect =
           "#{board}/post/#{postID}"
     switch board
       when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        unless archiver
-          url = "//archive.foolz.us/#{path}/"
-          if threadID and postID
-            url += "##{postID}"
-        else url = "//archive.foolz.us/#{fuuka()}"
+        path = fuuka() if AL
+        url = "//archive.foolz.us/#{path}/"
+        if threadID and postID and !AL
+          url += "##{postID}"
       when 'u', 'kuku'
-        unless archiver
-          url = "//nsfw.foolz.us/#{path}/"
-          if threadID and postID
-            url += "##{postID}"
-        else url = "//nsfw.foolz.us/#{fuuka()}"
+        path = fuuka() if AL
+        url = "//nsfw.foolz.us/#{path}/"
+        if threadID and postID and !AL
+          url += "##{postID}"
       when 'ck', 'jp', 'lit'
-        unless archiver
-          url = "//fuuka.warosu.org/#{path}"
-          if threadID and postID
-            url += "#p#{postID}"
-        else url = "//fuuka.warosu.org/#{fuuka()}"
+        path = fuuka() if AL
+        url = "//fuuka.warosu.org/#{path}"
+        if threadID and postID and !AL
+          url += "##{postID}"
       when 'diy', 'sci'
-        unless archiver
-          url = "//archive.installgentoo.net/#{path}"
-          if threadID and postID
-            url += "#p#{postID}"
-        else url = "//archive.installgentoo.net/#{gentoo()}"
+        path = gentoo() if AL
+        url = "//archive.installgentoo.net/#{path}"
+        if threadID and postID and !AL
+          url += "#p#{postID}"
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        unless archiver
-          url = "//archive.rebeccablacktech.com/#{path}"
-          if threadID and postID
-            url += "#p#{postID}"
-        else url = "//archive.rebeccablacktech.com/#{gentoo()}"
+        path = gentoo() if AL
+        url = "//archive.rebeccablacktech.com/#{path}"
+        if threadID and postID and !AL
+          url += "#p#{postID}"
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        unless archiver
-          url = "http://archive.heinessen.com/#{path}"
-          if threadID and postID
-            url += "#p#{postID}"
-        else url = "//archive.heinessen.com/#{gentoo()}"
+        path = gentoo() if AL
+        url = "http://archive.heinessen.com/#{path}"
+        if threadID and postID and !AL
+          url += "#p#{postID}"
       when 'e'
         url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
         if threadID and postID
