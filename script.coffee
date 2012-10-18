@@ -4113,8 +4113,6 @@ ArchiveLink =
       ['Tripcode',  'tripcode']
       ['E-mail',    'email']
       ['Subject',   'subject']
-      #['Comment',  'comment']
-      # Oh god the formatting.
       ['Filename',  'filename']
       ['Image MD5', 'md5']
     ]
@@ -4312,7 +4310,6 @@ Redirect =
   thread: (board, threadID, postID, AL) ->
     ar = (a) ->
       postID = 'username' if postID is 'name'
-      postID = 'text'     if postID is 'comment'
       postID = 'image'    if postID is 'md5'
       if a
         "#{board}/search/#{postID}/#{threadID}"

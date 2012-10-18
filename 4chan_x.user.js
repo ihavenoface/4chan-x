@@ -5205,9 +5205,6 @@
         if (postID === 'name') {
           postID = 'username';
         }
-        if (postID === 'comment') {
-          postID = 'text';
-        }
         if (postID === 'md5') {
           postID = 'image';
         }
