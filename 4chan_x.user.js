@@ -5283,44 +5283,63 @@
       return url || null;
     },
     archiver: function(board, value, type) {
-      var foolz;
-      foolz = function() {
+      var fuuka, gentoo;
+      fuuka = function() {
         switch (type) {
           case 'name':
-            return type = 'username';
+            type = 'username';
+            break;
           case 'comment':
-            return type = 'text';
+            type = 'text';
+            break;
           case 'md5':
-            return type = 'image';
-          default:
-            return type = type;
+            type = 'image';
+        }
+        return "/" + board + "/search/" + type + "/" + value;
+      };
+      gentoo = function() {
+        if (type !== 'md5') {
+          return "/" + board + "/?task=search2&search_" + type + "=" + value;
+        } else {
+          return "/" + board + "/image/" + value;
         }
       };
       switch (board) {
         case 'a':
+        case 'co':
         case 'm':
         case 'q':
         case 'sp':
         case 'tg':
+        case 'tv':
+        case 'v':
         case 'vg':
         case 'wsg':
-          return "//archive.foolz.us/" + board + "/search/" + (foolz()) + "/" + value;
+          return "//archive.foolz.us" + (fuuka());
         case 'u':
-          return "//nsfw.foolz.us/" + board + "/search/" + (foolz()) + "/" + value;
+        case 'kuku':
+          return "//nsfw.foolz.us" + (fuuka());
+        case 'ck':
+        case 'jp':
+        case 'lit':
+          return "//fuuka.warosu.org" + (fuuka());
+        case 'diy':
+        case 'sci':
+          return "//archive.installgentoo.net" + (gentoo());
         case 'cgl':
         case 'g':
+        case 'mu':
+        case 'soc':
         case 'w':
-          if (type !== 'md5') {
-            return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + type + "=" + value;
-          } else {
-            return "//archive.rebeccablacktech.com/" + board + "/image/" + value;
-          }
-          break;
+          return "//archive.rebeccablacktech.com" + (gentoo());
         case 'an':
+        case 'fit':
         case 'k':
+        case 'mlp':
+        case 'r9k':
         case 'toy':
         case 'x':
-          return "http://archive.heinessen.com/" + board + "/?task=search2&search_" + type + "=" + value;
+          return "//archive.heinessen.com" + (gentoo());
       }
     }
   };

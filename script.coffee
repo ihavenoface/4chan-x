@@ -4346,7 +4346,7 @@ Redirect =
           url = "//boards.4chan.org/#{board}/"
     url or null
   archiver: (board, value, type) ->
-    foolz = ->
+    fuuka = ->
       switch type 
         when 'name'
           type = 'username'
@@ -4354,18 +4354,24 @@ Redirect =
           type = 'text'
         when 'md5'
           type  = 'image'
-        else type = type
+      "/#{board}/search/#{type}/#{value}"
+    gentoo = ->
+      unless type is 'md5'
+        "/#{board}/?task=search2&search_#{type}=#{value}"
+      else "/#{board}/image/#{value}"
     switch board
-      when 'a', 'm', 'q', 'sp', 'tg', 'vg', 'wsg'
-        "//archive.foolz.us/#{board}/search/#{foolz()}/#{value}" 
-      when 'u'
-        "//nsfw.foolz.us/#{board}/search/#{foolz()}/#{value}"
-      when 'cgl', 'g', 'w'
-        unless type is 'md5'
-          "//archive.rebeccablacktech.com/#{board}/?task=search2&search_#{type}=#{value}"
-        else "//archive.rebeccablacktech.com/#{board}/image/#{value}"
-      when 'an', 'k', 'toy', 'x'
-        "http://archive.heinessen.com/#{board}/?task=search2&search_#{type}=#{value}"
+      when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg'
+        "//archive.foolz.us#{fuuka()}"
+      when 'u', 'kuku'
+        "//nsfw.foolz.us#{fuuka()}"
+      when 'ck', 'jp', 'lit'
+        "//fuuka.warosu.org#{fuuka()}"
+      when 'diy', 'sci'
+        "//archive.installgentoo.net#{gentoo()}"
+      when 'cgl', 'g', 'mu', 'soc', 'w'
+        "//archive.rebeccablacktech.com#{gentoo()}"
+      when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
+        "//archive.heinessen.com#{gentoo()}"
 
 ImageHover =
   init: ->
