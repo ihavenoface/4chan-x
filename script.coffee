@@ -4131,17 +4131,15 @@ ArchiveLink =
       # We want to parse the exact same stuff as Filter does already + maybe a few extras.
       return false if value is false
       path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
-      if (rthread = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
+      if (rpost = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
         return false
       $.off el, 'click', onclick
       onclick = ->
-        console.log 
-        switch type
-          when 'apost'
-            href = rthread
-          when 'md5'
-            type = type.replace /\//g, '_'
         href = Redirect.archiver path[1], value, type
+        if type is 'apost'
+          href = rpost
+        else if type is 'md5'
+          href = Redirect.archiver path[1], value.replace(/\//g, '_'), type
         el.href = href
 
       $.on el, 'click', onclick
@@ -4363,6 +4361,7 @@ Redirect =
           type = 'text'
         when 'md5'
           type  = 'image'
+        else type = type
     switch board
       when 'a', 'm', 'q', 'sp', 'tg', 'vg', 'wsg'
         "//archive.foolz.us/#{board}/search/#{foolz()}/#{value}" 

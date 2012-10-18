@@ -4960,7 +4960,7 @@
       });
       onclick = null;
       open = function(post) {
-        var path, rthread, value;
+        var path, rpost, value;
         if (type !== 'apost') {
           value = Filter[type](post);
         }
@@ -4968,21 +4968,18 @@
           return false;
         }
         path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
-        if ((rthread = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+        if ((rpost = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
           return false;
         }
         $.off(el, 'click', onclick);
         onclick = function() {
           var href;
-          console.log;
-          switch (type) {
-            case 'apost':
-              href = rthread;
-              break;
-            case 'md5':
-              type = type.replace(/\//g, '_');
-          }
           href = Redirect.archiver(path[1], value, type);
+          if (type === 'apost') {
+            href = rpost;
+          } else if (type === 'md5') {
+            href = Redirect.archiver(path[1], value.replace(/\//g, '_'), type);
+          }
           return el.href = href;
         };
         $.on(el, 'click', onclick);
@@ -5301,6 +5298,8 @@
             return type = 'text';
           case 'md5':
             return type = 'image';
+          default:
+            return type = type;
         }
       };
       switch (board) {
