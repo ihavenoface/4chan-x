@@ -853,19 +853,23 @@
     },
     subject: function(post) {
       var subject;
-      if (subject = $('.postInfo .subject', post.el)) {
+      if ((subject = $('.postInfo .subject', post.el)).textContent.length !== 0) {
         return subject.textContent;
       }
       return false;
     },
     comment: function(post) {
-      var data, i, nodes, text, _i, _ref;
+      var data, i, nodes, r, text, _i, _ref;
       text = [];
       nodes = d.evaluate('.//br|.//text()', post.blockquote, null, 7, null);
       for (i = _i = 0, _ref = nodes.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         text.push((data = nodes.snapshotItem(i).data) ? data : '\n');
       }
-      return text.join('');
+      if (r = text.join('').length !== 0) {
+        return r;
+      } else {
+        return false;
+      }
     },
     country: function(post) {
       var flag;
@@ -4923,19 +4927,25 @@
   };
 
   ArchiveLink = {
-    init: function() {
+    init: function(post) {
       var div, entry, type, _i, _len, _ref;
       div = $.el('div', {
         textContent: 'Archive'
       });
       entry = {
         el: div,
-        open: function() {
-          return true;
+        open: function(post) {
+          var path;
+          path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
+          if ((Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+            return false;
+          } else {
+            return true;
+          }
         },
         children: []
       };
-      _ref = [['Post', 'apost'], ['Name', 'name'], ['Tripcode', 'tripcode'], ['E-mail', 'email'], ['Subject', 'subject'], ['Filename', 'filename']];
+      _ref = [['Post', 'apost'], ['Name', 'name'], ['Tripcode', 'tripcode'], ['E-mail', 'email'], ['Subject', 'subject'], ['Filename', 'filename'], ['Image MD5', 'md5']];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
         entry.children.push(ArchiveLink.createSubEntry(type[0], type[1]));
@@ -4950,30 +4960,29 @@
       });
       onclick = null;
       open = function(post) {
-        var value;
+        var path, rthread, value;
         if (type !== 'apost') {
           value = Filter[type](post);
         }
         if (value === false) {
           return false;
         }
+        path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
+        if ((rthread = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+          return false;
+        }
         $.off(el, 'click', onclick);
         onclick = function() {
-          var href, path, rthread;
-          path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
-          if ((rthread = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
-            return false;
-          }
+          var href;
+          console.log;
           switch (type) {
             case 'apost':
               href = rthread;
               break;
             case 'md5':
-              href = 'Put md5 here.';
-              break;
-            default:
-              href = Redirect.archiver(path[1], value, type);
+              type = type.replace(/\//g, '_');
           }
+          href = Redirect.archiver(path[1], value, type);
           return el.href = href;
         };
         $.on(el, 'click', onclick);
@@ -5283,6 +5292,17 @@
       return url || null;
     },
     archiver: function(board, value, type) {
+      var foolz;
+      foolz = function() {
+        switch (type) {
+          case 'name':
+            return type = 'username';
+          case 'comment':
+            return type = 'text';
+          case 'md5':
+            return type = 'image';
+        }
+      };
       switch (board) {
         case 'a':
         case 'm':
@@ -5291,23 +5311,18 @@
         case 'tg':
         case 'vg':
         case 'wsg':
-          if (type !== 'name') {
-            return "//archive.foolz.us/" + board + "/search/" + type + "/" + value;
-          } else {
-            return "//archive.foolz.us/" + board + "/search/username/" + value;
-          }
-          break;
+          return "//archive.foolz.us/" + board + "/search/" + (foolz()) + "/" + value;
         case 'u':
-          if (type !== 'name') {
-            return "//nsfw.foolz.us/" + board + "/search/" + type + "/" + value;
-          } else {
-            return "//nsfw.foolz.us/" + board + "/search/username/" + value;
-          }
-          break;
+          return "//nsfw.foolz.us/" + board + "/search/" + (foolz()) + "/" + value;
         case 'cgl':
         case 'g':
         case 'w':
-          return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + type + "=" + value;
+          if (type !== 'md5') {
+            return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + type + "=" + value;
+          } else {
+            return "//archive.rebeccablacktech.com/" + board + "/image/" + value;
+          }
+          break;
         case 'an':
         case 'k':
         case 'toy':
