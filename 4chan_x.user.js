@@ -4924,24 +4924,51 @@
 
   ArchiveLink = {
     init: function() {
-      var a;
-      a = $.el('a', {
-        className: 'archive_link',
-        target: '_blank',
-        textContent: 'Archived post'
+      var div, entry, type, _i, _len, _ref;
+      div = $.el('div', {
+        textContent: 'Archive'
       });
-      return Menu.addEntry({
-        el: a,
-        open: function(post) {
+      entry = {
+        el: div,
+        open: function() {
+          return true;
+        },
+        children: []
+      };
+      _ref = [['Name', 'name'], ['Tripcode', 'tripcode'], ['E-mail', 'email'], ['Subject', 'subject'], ['Filename', 'filename']];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        entry.children.push(ArchiveLink.createSubEntry(type[0], type[1]));
+      }
+      return Menu.addEntry(entry);
+    },
+    createSubEntry: function(text, type) {
+      var el, onclick, open;
+      el = $.el('a', {
+        textContent: text,
+        target: '_blank'
+      });
+      onclick = null;
+      open = function(post) {
+        var value;
+        value = Filter[type](post);
+        if (value === false) {
+          return false;
+        }
+        $.off(el, 'click', onclick);
+        onclick = function() {
           var href, path;
           path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
-          if ((href = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
-            return false;
-          }
-          a.href = href;
-          return true;
-        }
-      });
+          href = Redirect.archiver(path[1], value, type);
+          return el.href = href;
+        };
+        $.on(el, 'click', onclick);
+        return true;
+      };
+      return {
+        el: el,
+        open: open
+      };
     }
   };
 
@@ -5240,6 +5267,29 @@
           }
       }
       return url || null;
+    },
+    archiver: function(board, type, value) {
+      switch (board) {
+        case 'a':
+        case 'm':
+        case 'q':
+        case 'sp':
+        case 'tg':
+        case 'vg':
+        case 'wsg':
+          return "//archive.foolz.us/" + board + "/search/" + value + "/" + type;
+        case 'u':
+          return "//nsfw.foolz.us/" + board + "/search/" + value + "/" + type;
+        case 'cgl':
+        case 'g':
+        case 'w':
+          return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + value + "=" + type;
+        case 'an':
+        case 'k':
+        case 'toy':
+        case 'x':
+          return "http://archive.heinessen.com/" + board + "/?task=search&ghost=&search_" + value + "=" + type;
+      }
     }
   };
 
