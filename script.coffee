@@ -716,7 +716,9 @@ Filter =
               $.before firstThread.parentNode, [thisThread, thisThread.nextElementSibling]
 
   name: (post) ->
-    $('.name', post.el).textContent
+    if (name = $ '.name', post.el).textContent isnt 'Anonymous' and (name = $ '.name', post.el).textContent.length isnt 0
+      return name.textContent
+    false
   uniqueid: (post) ->
     if uid = $ '.posteruid', post.el
       return uid.textContent[5...-1]

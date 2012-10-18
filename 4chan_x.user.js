@@ -822,7 +822,11 @@
       }
     },
     name: function(post) {
-      return $('.name', post.el).textContent;
+      var name;
+      if ((name = $('.name', post.el)).textContent !== 'Anonymous' && (name = $('.name', post.el)).textContent.length !== 0) {
+        return name.textContent;
+      }
+      return false;
     },
     uniqueid: function(post) {
       var uid;
