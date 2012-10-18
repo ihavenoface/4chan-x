@@ -5276,7 +5276,7 @@
       }
       return url || null;
     },
-    archiver: function(board, type, value) {
+    archiver: function(board, value, type) {
       switch (board) {
         case 'a':
         case 'm':
@@ -5285,18 +5285,28 @@
         case 'tg':
         case 'vg':
         case 'wsg':
-          return "//archive.foolz.us/" + board + "/search/" + value + "/" + type;
+          if (type !== 'name') {
+            return "//archive.foolz.us/" + board + "/search/" + type + "/" + value;
+          } else {
+            return "//archive.foolz.us/" + board + "/search/username/" + value;
+          }
+          break;
         case 'u':
-          return "//nsfw.foolz.us/" + board + "/search/" + value + "/" + type;
+          if (type !== 'name') {
+            return "//nsfw.foolz.us/" + board + "/search/" + type + "/" + value;
+          } else {
+            return "//nsfw.foolz.us/" + board + "/search/username/" + value;
+          }
+          break;
         case 'cgl':
         case 'g':
         case 'w':
-          return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + value + "=" + type;
+          return "//archive.rebeccablacktech.com/" + board + "/?task=search2&search_" + type + "=" + value;
         case 'an':
         case 'k':
         case 'toy':
         case 'x':
-          return "http://archive.heinessen.com/" + board + "/?task=search&ghost=&search_" + value + "=" + type;
+          return "http://archive.heinessen.com/" + board + "/?task=search&ghost=&search_" + type + "=" + value;
       }
     }
   };
