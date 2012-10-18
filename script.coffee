@@ -4352,10 +4352,10 @@ Redirect =
         url = "http://archive.heinessen.com/#{path}"
         if threadID and postID and !AL
           url += "#p#{postID}"
-      when 'e'
-        url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
-        if threadID and postID
-          url += "#p#{postID}"
+      #when 'e'
+      #  url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
+      #  if threadID and postID
+      #    url += "#p#{postID}"
       else
         if threadID
           url = "//boards.4chan.org/#{board}/"

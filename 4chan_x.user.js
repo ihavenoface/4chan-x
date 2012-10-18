@@ -5307,12 +5307,6 @@
             url += "#p" + postID;
           }
           break;
-        case 'e':
-          url = "https://www.cliché.net/4chan/cgi-board.pl/" + path;
-          if (threadID && postID) {
-            url += "#p" + postID;
-          }
-          break;
         default:
           if (threadID) {
             url = "//boards.4chan.org/" + board + "/";
