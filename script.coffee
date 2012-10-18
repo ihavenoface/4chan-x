@@ -2744,7 +2744,6 @@ Updater =
     @thread = $.id "t#{g.THREAD_ID}"
     @ccheck = true
     @cnodes = []
-    @ccount = 1
 
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
@@ -2797,19 +2796,19 @@ Updater =
         save[0] in (node.textContent for node in pposts)
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 1000
-      count = Updater.ccount
+      count = 0
       check = Updater.ccheck
       if !checkpost() and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
         int = setInterval (->
           check = true
           Updater.update()
-          if checkpost() or count is 30
+          if checkpost() or count > 29
             check = false
             Updater.cnodes = []
             clearInterval int
           check = false
           count++
-        ), count * 30
+        ), 500
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'

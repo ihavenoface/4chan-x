@@ -3314,7 +3314,6 @@
       this.thread = $.id("t" + g.THREAD_ID);
       this.ccheck = true;
       this.cnodes = [];
-      this.ccount = 1;
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       _ref = $$('input', dialog);
@@ -3391,20 +3390,20 @@
         };
         Updater.unsuccessfulFetchCount = 0;
         setTimeout(Updater.update, 1000);
-        count = Updater.ccount;
+        count = 0;
         check = Updater.ccheck;
         if (!checkpost() && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
           return int = setInterval((function() {
             check = true;
             Updater.update();
-            if (checkpost() || count === 30) {
+            if (checkpost() || count > 29) {
               check = false;
               Updater.cnodes = [];
               clearInterval(int);
             }
             check = false;
             return count++;
-          }), count * 30);
+          }), 500);
         }
       },
       visibility: function() {
