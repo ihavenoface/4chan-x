@@ -716,7 +716,7 @@ Filter =
               $.before firstThread.parentNode, [thisThread, thisThread.nextElementSibling]
 
   name: (post) ->
-    if (name = $ '.name', post.el).textContent isnt 'Anonymous' and (name = $ '.name', post.el).textContent.length isnt 0
+    if (cont = (name = $ '.name', post.el).textContent) isnt 'Anonymous' and cont.length isnt 0
       return name.textContent
     false
   uniqueid: (post) ->
@@ -2797,16 +2797,15 @@ Updater =
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 1000
       count = 0
-      check = Updater.ccheck
       if !checkpost() and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
         int = setInterval (->
-          check = true
+          Updater.ccheck = true
           Updater.update()
           if checkpost() or count > 29
-            check = false
+            Updater.ccheck = false
             Updater.cnodes = []
             clearInterval int
-          check = false
+          Updater.ccheck = false
           count++
         ), 500
     visibility: ->

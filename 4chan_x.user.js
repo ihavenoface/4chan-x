@@ -822,8 +822,8 @@
       }
     },
     name: function(post) {
-      var name;
-      if ((name = $('.name', post.el)).textContent !== 'Anonymous' && (name = $('.name', post.el)).textContent.length !== 0) {
+      var cont, name;
+      if ((cont = (name = $('.name', post.el)).textContent) !== 'Anonymous' && cont.length !== 0) {
         return name.textContent;
       }
       return false;
@@ -3353,7 +3353,7 @@
     },
     cb: {
       post: function() {
-        var check, checkpost, count, image, int, save, text;
+        var checkpost, count, image, int, save, text;
         if (!Conf['Auto Update This']) {
           return;
         }
@@ -3391,17 +3391,16 @@
         Updater.unsuccessfulFetchCount = 0;
         setTimeout(Updater.update, 1000);
         count = 0;
-        check = Updater.ccheck;
         if (!checkpost() && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
           return int = setInterval((function() {
-            check = true;
+            Updater.ccheck = true;
             Updater.update();
             if (checkpost() || count > 29) {
-              check = false;
+              Updater.ccheck = false;
               Updater.cnodes = [];
               clearInterval(int);
             }
-            check = false;
+            Updater.ccheck = false;
             return count++;
           }), 500);
         }
