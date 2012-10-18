@@ -4122,8 +4122,6 @@ ArchiveLink =
     el = $.el 'a',
       textContent: text
       target: '_blank'
-    # Define the onclick var outside of open's scope to $.off it properly.
-    onclick = null
 
     open = (post) ->
       unless type is 'apost'
@@ -4133,17 +4131,12 @@ ArchiveLink =
       path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
       if (rpost = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
         return false
-      $.off el, 'click', onclick
-      onclick = ->
-        href = Redirect.archiver path[1], value, type
-        if type is 'apost'
-          href = rpost
-        else if type is 'md5'
-          href = Redirect.archiver path[1], value.replace(/\//g, '_'), type
-        el.href = href
-
-      $.on el, 'click', onclick
-      true
+      if type is 'md5'
+        value = value.replace /\//g, '_'
+      href = Redirect.archiver path[1], value, type
+      if type is 'apost'
+        href = rpost
+      el.href = href
 
     return el: el, open: open
 

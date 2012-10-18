@@ -4953,14 +4953,13 @@
       return Menu.addEntry(entry);
     },
     createSubEntry: function(text, type) {
-      var el, onclick, open;
+      var el, open;
       el = $.el('a', {
         textContent: text,
         target: '_blank'
       });
-      onclick = null;
       open = function(post) {
-        var path, rpost, value;
+        var href, path, rpost, value;
         if (type !== 'apost') {
           value = Filter[type](post);
         }
@@ -4971,19 +4970,14 @@
         if ((rpost = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
           return false;
         }
-        $.off(el, 'click', onclick);
-        onclick = function() {
-          var href;
-          href = Redirect.archiver(path[1], value, type);
-          if (type === 'apost') {
-            href = rpost;
-          } else if (type === 'md5') {
-            href = Redirect.archiver(path[1], value.replace(/\//g, '_'), type);
-          }
-          return el.href = href;
-        };
-        $.on(el, 'click', onclick);
-        return true;
+        if (type === 'md5') {
+          value = value.replace(/\//g, '_');
+        }
+        href = Redirect.archiver(path[1], value, type);
+        if (type === 'apost') {
+          href = rpost;
+        }
+        return el.href = href;
       };
       return {
         el: el,
