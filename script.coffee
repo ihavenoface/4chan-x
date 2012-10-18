@@ -4374,7 +4374,6 @@ Redirect =
         else "//archive.rebeccablacktech.com/#{board}/image/#{value}"
       when 'an', 'k', 'toy', 'x'
         "http://archive.heinessen.com/#{board}/?task=search&ghost=&search_#{type}=#{value}"
-        
 
 ImageHover =
   init: ->
