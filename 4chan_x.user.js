@@ -81,7 +81,8 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, CustomNavigation, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Navigation, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, userNavigation;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, CustomNavigation, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Navigation, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, userNavigation,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Config = {
     main: {
@@ -3309,6 +3310,7 @@
       this.thread = $.id("t" + g.THREAD_ID);
       this.ccheck = true;
       this.cnodes = [];
+      this.ccount = 1;
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       _ref = $$('input', dialog);
@@ -3348,7 +3350,7 @@
     },
     cb: {
       post: function() {
-        var checkpost, count, image, int, save, text;
+        var check, checkpost, count, image, int, save, text;
         if (!Conf['Auto Update This']) {
           return;
         }
@@ -3362,51 +3364,43 @@
           image = true;
         }
         checkpost = function() {
-          var iposts, node, nodes;
+          var node, nodes, pposts, _ref;
           nodes = Updater.cnodes.childNodes;
-          if (!Conf['File Info Formatting']) {
-            iposts = $$('span.fileText span', nodes);
-          } else {
-            iposts = $$('span.fileText a', nodes);
-          }
           if (image) {
-            return ((function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = iposts.length; _i < _len; _i++) {
-                node = iposts[_i];
-                _results.push(node.innerHTML);
-              }
-              return _results;
-            })()).indexOf(save[0]);
+            if (Conf['File Info Formatting']) {
+              pposts = $$('span.fileText a', nodes);
+            } else {
+              pposts = $$('span.fileText span', nodes);
+            }
           } else {
-            return ((function() {
-              var _i, _len, _ref, _results;
-              _ref = $$('.postMessage', nodes);
-              _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                node = _ref[_i];
-                _results.push(node.textContent);
-              }
-              return _results;
-            })()).indexOf(save[0]);
+            pposts = $$('.postMessage', nodes);
           }
+          return _ref = save[0], __indexOf.call((function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = pposts.length; _i < _len; _i++) {
+              node = pposts[_i];
+              _results.push(node.textContent);
+            }
+            return _results;
+          })(), _ref) >= 0;
         };
         Updater.unsuccessfulFetchCount = 0;
         setTimeout(Updater.update, 1000);
-        count = 0;
-        if (checkpost() === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
+        count = Updater.ccount;
+        check = Updater.ccheck;
+        if (!checkpost() && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
           return int = setInterval((function() {
-            Updater.ccheck = true;
+            check = true;
             Updater.update();
-            if (checkpost() !== -1 || count === 30) {
-              Updater.ccheck = false;
+            if (checkpost() || count === 30) {
+              check = false;
               Updater.cnodes = [];
               clearInterval(int);
             }
-            Updater.ccheck = false;
+            check = false;
             return count++;
-          }), 500);
+          }), count * 30);
         }
       },
       visibility: function() {

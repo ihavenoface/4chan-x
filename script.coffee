@@ -2742,6 +2742,7 @@ Updater =
     @thread = $.id "t#{g.THREAD_ID}"
     @ccheck = true
     @cnodes = []
+    @ccount = 1
 
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
@@ -2776,7 +2777,7 @@ Updater =
       return unless Conf['Auto Update This']
       save = []
       text = $('textarea', QR.el).value.replace(/^\s\s*/, '').replace /\n/g, ''
-      unless text.length is 0
+      if text.length isnt 0
         save.push text
         image = false
       else
@@ -2784,26 +2785,29 @@ Updater =
         image = true
       checkpost = ->
         nodes = Updater.cnodes.childNodes
-        unless Conf['File Info Formatting']
-          iposts = $$ 'span.fileText span', nodes
-        else iposts = $$ 'span.fileText a', nodes
         if image
-          (node.innerHTML for node in iposts).indexOf save[0]
-        else (node.textContent for node in $$ '.postMessage', nodes).indexOf save[0]
+          if Conf['File Info Formatting']
+            pposts = $$ 'span.fileText a', nodes
+          else
+            pposts = $$ 'span.fileText span', nodes
+        else
+          pposts = $$ '.postMessage', nodes
+        save[0] in (node.textContent for node in pposts)
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 1000
-      count = 0
-      if checkpost() is -1 and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
+      count = Updater.ccount
+      check = Updater.ccheck
+      if !checkpost() and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
         int = setInterval (->
-          Updater.ccheck = true
+          check = true
           Updater.update()
-          if checkpost() isnt -1 or count is 30
-            Updater.ccheck = false
+          if checkpost() or count is 30
+            check = false
             Updater.cnodes = []
             clearInterval int
-          Updater.ccheck = false
+          check = false
           count++
-        ), 500
+        ), count * 30
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'
