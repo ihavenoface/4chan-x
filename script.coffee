@@ -4304,17 +4304,13 @@ Redirect =
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
   thread: (board, threadID, postID, AL) ->
-    fuuka = ->
-      switch postID
-        when 'name'
-          postID = 'username'
-        when 'comment'
-          postID = 'text'
-        when 'md5'
-          postID  = 'image'
-      "#{board}/search/#{postID}/#{threadID}"
-    gentoo = ->
-      unless postID is 'md5'
+    ar = (a) ->
+      postID = 'username' if postID is 'name'
+      postID = 'text'     if postID is 'comment'
+      postID = 'image'    if postID is 'md5'
+      if a
+        "#{board}/search/#{postID}/#{threadID}"
+      else unless postID is 'image'
         "#{board}/?task=search2&search_#{postID}=#{threadID}"
       else "#{board}/image/#{threadID}"
     unless AL
@@ -4327,32 +4323,32 @@ Redirect =
           "#{board}/post/#{postID}"
     switch board
       when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        path = fuuka() if AL
+        path = ar true if AL
         url = "//archive.foolz.us/#{path}/"
         if threadID and postID and !AL
           url += "##{postID}"
       when 'u', 'kuku'
-        path = fuuka() if AL
+        path = ar true if AL
         url = "//nsfw.foolz.us/#{path}/"
         if threadID and postID and !AL
           url += "##{postID}"
       when 'ck', 'jp', 'lit'
-        path = fuuka() if AL
+        path = ar true if AL
         url = "//fuuka.warosu.org/#{path}"
         if threadID and postID and !AL
           url += "##{postID}"
       when 'diy', 'sci'
-        path = gentoo() if AL
+        path = ar false if AL
         url = "//archive.installgentoo.net/#{path}"
         if threadID and postID and !AL
           url += "#p#{postID}"
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        path = gentoo() if AL
+        path = ar false if AL
         url = "//archive.rebeccablacktech.com/#{path}"
         if threadID and postID and !AL
           url += "#p#{postID}"
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        path = gentoo() if AL
+        path = ar false if AL
         url = "http://archive.heinessen.com/#{path}"
         if threadID and postID and !AL
           url += "#p#{postID}"

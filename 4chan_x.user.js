@@ -5202,22 +5202,20 @@
       }
     },
     thread: function(board, threadID, postID, AL) {
-      var fuuka, gentoo, path, url;
-      fuuka = function() {
-        switch (postID) {
-          case 'name':
-            postID = 'username';
-            break;
-          case 'comment':
-            postID = 'text';
-            break;
-          case 'md5':
-            postID = 'image';
+      var ar, path, url;
+      ar = function(a) {
+        if (postID === 'name') {
+          postID = 'username';
         }
-        return "" + board + "/search/" + postID + "/" + threadID;
-      };
-      gentoo = function() {
-        if (postID !== 'md5') {
+        if (postID === 'comment') {
+          postID = 'text';
+        }
+        if (postID === 'md5') {
+          postID = 'image';
+        }
+        if (a) {
+          return "" + board + "/search/" + postID + "/" + threadID;
+        } else if (postID !== 'image') {
           return "" + board + "/?task=search2&search_" + postID + "=" + threadID;
         } else {
           return "" + board + "/image/" + threadID;
@@ -5243,7 +5241,7 @@
         case 'dev':
         case 'foolz':
           if (AL) {
-            path = fuuka();
+            path = ar(true);
           }
           url = "//archive.foolz.us/" + path + "/";
           if (threadID && postID && !AL) {
@@ -5253,7 +5251,7 @@
         case 'u':
         case 'kuku':
           if (AL) {
-            path = fuuka();
+            path = ar(true);
           }
           url = "//nsfw.foolz.us/" + path + "/";
           if (threadID && postID && !AL) {
@@ -5264,7 +5262,7 @@
         case 'jp':
         case 'lit':
           if (AL) {
-            path = fuuka();
+            path = ar(true);
           }
           url = "//fuuka.warosu.org/" + path;
           if (threadID && postID && !AL) {
@@ -5274,7 +5272,7 @@
         case 'diy':
         case 'sci':
           if (AL) {
-            path = gentoo();
+            path = ar(false);
           }
           url = "//archive.installgentoo.net/" + path;
           if (threadID && postID && !AL) {
@@ -5287,7 +5285,7 @@
         case 'soc':
         case 'w':
           if (AL) {
-            path = gentoo();
+            path = ar(false);
           }
           url = "//archive.rebeccablacktech.com/" + path;
           if (threadID && postID && !AL) {
@@ -5302,7 +5300,7 @@
         case 'toy':
         case 'x':
           if (AL) {
-            path = gentoo();
+            path = ar(false);
           }
           url = "http://archive.heinessen.com/" + path;
           if (threadID && postID && !AL) {
