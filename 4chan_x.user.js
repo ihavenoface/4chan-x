@@ -4935,7 +4935,7 @@
         },
         children: []
       };
-      _ref = [['Name', 'name'], ['Tripcode', 'tripcode'], ['E-mail', 'email'], ['Subject', 'subject'], ['Filename', 'filename']];
+      _ref = [['Post', 'apost'], ['Name', 'name'], ['Tripcode', 'tripcode'], ['E-mail', 'email'], ['Subject', 'subject'], ['Filename', 'filename']];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
         entry.children.push(ArchiveLink.createSubEntry(type[0], type[1]));
@@ -4951,7 +4951,9 @@
       onclick = null;
       open = function(post) {
         var value;
-        value = Filter[type](post);
+        if (type !== 'apost') {
+          value = Filter[type](post);
+        }
         if (value === false) {
           return false;
         }
@@ -4960,6 +4962,9 @@
           var href, path;
           path = $('a[title="Highlight this post"]', post.el).pathname.split('/');
           href = Redirect.archiver(path[1], value, type);
+          if ((href = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
+            return false;
+          }
           return el.href = href;
         };
         $.on(el, 'click', onclick);

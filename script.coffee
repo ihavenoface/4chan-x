@@ -4096,6 +4096,7 @@ ArchiveLink =
       children: []
 
     for type in [
+      ['Post',             'apost'] 
       ['Name',             'name']
       ['Tripcode',         'tripcode']
       ['E-mail',           'email']
@@ -4117,13 +4118,16 @@ ArchiveLink =
     onclick = null
 
     open = (post) ->
-      value = Filter[type] post
+      unless type is 'apost'
+        value = Filter[type] post
       # We want to parse the exact same stuff as Filter does already + maybe a few extras.
       return false if value is false
       $.off el, 'click', onclick
       onclick = ->
         path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
         href = Redirect.archiver path[1], value, type
+        if (href = Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
+          return false
         el.href = href
 
       $.on el, 'click', onclick
