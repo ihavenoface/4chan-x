@@ -5320,7 +5320,7 @@
         case 'k':
         case 'toy':
         case 'x':
-          return "http://archive.heinessen.com/" + board + "/?task=search&ghost=&search_" + type + "=" + value;
+          return "http://archive.heinessen.com/" + board + "/?task=search2&search_" + type + "=" + value;
       }
     }
   };
