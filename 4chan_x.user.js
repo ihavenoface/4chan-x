@@ -821,15 +821,8 @@
         }
       }
     },
-    name: function(post, AL) {
-      var name;
-      name = $('.name', post.el).textContent;
-      if (!AL) {
-        return name;
-      } else if (name !== 'Anonymous' && name.length !== 0) {
-        return name;
-      }
-      return false;
+    name: function(post) {
+      return $('.name', post.el).textContent;
     },
     uniqueid: function(post) {
       var uid;
@@ -852,15 +845,10 @@
       }
       return false;
     },
-    email: function(post, AL) {
-      var content, mail;
+    email: function(post) {
+      var mail;
       if (mail = $('.useremail', post.el)) {
-        content = decodeURIComponent(mail.href.slice(7));
-        if (!AL) {
-          return content;
-        } else if (content.toString() !== 'sage' && r.length !== 0) {
-          return content;
-        }
+        return decodeURIComponent(mail.href.slice(7));
       }
       return false;
     },
@@ -4964,7 +4952,7 @@
       open = function(post) {
         var href, path, rpost, value;
         if (type !== 'apost') {
-          value = Filter[type](post, true);
+          value = Filter[type](post);
         }
         if (value === false) {
           return false;
@@ -4973,8 +4961,19 @@
         if ((rpost = Redirect.thread(path[1], path[3], post.ID)) === ("//boards.4chan.org/" + path[1] + "/")) {
           return false;
         }
-        if (type === 'md5') {
-          value = value.replace(/\//g, '_');
+        switch (type) {
+          case 'name':
+            if (value === 'Anonymous' || value.length === 0) {
+              return false;
+            }
+            break;
+          case 'email':
+            if (value === 'sage' || value.length === 0) {
+              return false;
+            }
+            break;
+          case 'md5':
+            value = value.replace(/\//g, '_');
         }
         href = Redirect.thread(path[1], value, type, true);
         if (type === 'apost') {
