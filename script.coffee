@@ -715,9 +715,12 @@ Filter =
             unless firstThread is root
               $.before firstThread.parentNode, [thisThread, thisThread.nextElementSibling]
 
-  name: (post) ->
-    if (cont = (name = $ '.name', post.el).textContent) isnt 'Anonymous' and cont.length isnt 0
-      return name.textContent
+  name: (post, AL) ->
+    name = $('.name', post.el).textContent
+    if !AL
+      return name
+    else if name isnt 'Anonymous' and name.length isnt 0
+      return name
     false
   uniqueid: (post) ->
     if uid = $ '.posteruid', post.el
@@ -731,11 +734,15 @@ Filter =
     if mod = $ '.capcode', post.el
       return mod.textContent
     false
-  email: (post) ->
+  email: (post, AL) ->
     if mail = $ '.useremail', post.el
       # remove 'mailto:'
       # decode %20 into space for example
-      return decodeURIComponent mail.href[7..]
+      content = decodeURIComponent mail.href[7..]
+      if !AL
+        return content
+      else if content.toString() isnt 'sage' and r.length isnt 0
+        return content
     false
   subject: (post) ->
     if (subject = $ '.postInfo .subject', post.el).textContent.length isnt 0
@@ -747,9 +754,9 @@ Filter =
     nodes = d.evaluate './/br|.//text()', post.blockquote, null, 7, null
     for i in [0...nodes.snapshotLength]
       text.push if data = nodes.snapshotItem(i).data then data else '\n'
-    if r = text.join('').length isnt 0
-      r
-    else false
+    if (content = text.join '').length isnt 0
+      return content
+    false
   country: (post) ->
     if flag = $ '.countryFlag', post.el
       return flag.title
@@ -4126,7 +4133,7 @@ ArchiveLink =
 
     open = (post) ->
       unless type is 'apost'
-        value = Filter[type] post
+        value = Filter[type] post, true
       # We want to parse the exact same stuff as Filter does already + maybe a few extras.
       return false if value is false
       path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
