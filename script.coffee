@@ -4086,21 +4086,24 @@ DownloadLink =
         true
 
 ArchiveLink =
-  init: (post) ->
+  init: ->
     div = $.el 'div',
       textContent: 'Archive'
 
     entry =
       el: div
-      open: (post) -> 
+      info: []
+      open: (post) ->
         path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
+        @info[0] = path[1]
+        @info[1] = path[3]
         if (Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
           return false
         true
       children: []
 
     for type in [
-      ['Post',      'apost'] 
+      ['Post',      'apost']
       ['Name',      'name']
       ['Tripcode',  'tripcode']
       ['E-mail',    'email']
@@ -4108,32 +4111,26 @@ ArchiveLink =
       ['Filename',  'filename']
       ['Image MD5', 'md5']
     ]
-      # Add a sub entry for each filter type.
-      entry.children.push @createSubEntry type[0], type[1]
+      # Add a sub entry for each type.
+      entry.children.push @createSubEntry entry.info, type[0], type[1]
 
     Menu.addEntry entry
 
-  createSubEntry: (text, type) ->
+  createSubEntry: (info, text, type) ->
+
     el = $.el 'a',
       textContent: text
       target: '_blank'
 
     open = (post) ->
-      path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
-      unless type is 'apost'
+      if type is 'apost'
+        el.href = Redirect.thread info[0], info[1], post.ID
+        return true
+      else
         value = Filter[type] post
-        # We want to parse the exact same stuff as Filter does already + maybe a few extras.
-      return false if value is false
-      switch type
-        when 'name'
-          if value is 'Anonymous' or value.length is 0
-            return false
-        when 'email'
-          if value is 'sage' or value.length is 0
-            return false
-        when 'apost'
-          return el.href = Redirect.thread path[1], path[3], post.ID
-      el.href = Redirect.thread path[1], value, type, true
+        # We want to parse the exact same stuff as Filter does already.
+        return false unless value
+        el.href = Redirect.thread info[0], value, [type, 'submenu']
 
     return el: el, open: open
 
@@ -4301,65 +4298,64 @@ Redirect =
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-  thread: (board, threadID, postID, AL) ->
-    ar = (a) ->
-      if AL
-        postID = 'username' if postID is 'name'
-        postID = 'image'    if postID is 'md5'
-        if a is 'fuuka'
-          return "#{board}/search/#{postID}/#{encodeURIComponent threadID}"
-        else if a is 'gentoo'
-          if postID is 'image'
-            "#{board}/image/#{encodeURIComponent threadID}"
-          else
-            "#{board}/?task=search2&search_#{postID}=#{encodeURIComponent threadID}"
-      else
-        # keep the number only if the location.hash was sent f.e.
-        postID = postID.match(/\d+/)[0] if postID
-        path   =
-          if threadID
-            "#{board}/thread/#{threadID}"
-          else
-            "#{board}/post/#{postID}"
+  thread: (board, threadID, postID) ->
+    o = {
+      entries:
+        if (postID[1] is 'submenu')
+          board:    board
+          value:    threadID
+          type:     postID[0]
+        else
+          board:    board
+          threadID: threadID
+          postID:   postID
+    }
     switch board
       when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        path = ar 'fuuka'
-        url = "//archive.foolz.us/#{path}/"
-        if threadID and postID and !AL
-          url += "##{postID}"
+        url = Redirect.path '//archive.foolz.us', 'fuuka', o.entries
       when 'u', 'kuku'
-        path = ar 'fuuka'
-        url = "//nsfw.foolz.us/#{path}/"
-        if threadID and postID and !AL
-          url += "##{postID}"
+        url = Redirect.path "//nsfw.foolz.us", 'fuuka', o.entries
       when 'ck', 'jp', 'lit'
-        path = ar 'fuuka'
-        url = "//fuuka.warosu.org/#{path}"
-        if threadID and postID and !AL
-          url += "##{postID}"
+        url = Redirect.path "//fuuka.warosu.org", 'fuuka', o.entries
       when 'diy', 'sci'
-        path = ar 'gentoo'
-        url = "//archive.installgentoo.net/#{path}"
-        if threadID and postID and !AL
-          url += "#p#{postID}"
+        url = Redirect.path "//archive.installgentoo.net", 'gentoo', o.entries
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        path = ar 'gentoo'
-        url = "//archive.rebeccablacktech.com/#{path}"
-        if threadID and postID and !AL
-          url += "#p#{postID}"
+        url = Redirect.path "//archive.rebeccablacktech.com", 'gentoo', o.entries
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        path = ar 'gentoo'
-        url = "http://archive.heinessen.com/#{path}"
-        if threadID and postID and !AL
-          url += "#p#{postID}"
+        url = Redirect.path "http://archive.heinessen.com", 'gentoo', o.entries
       #when 'e'
-      #  url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
-      #  if threadID and postID
-      #    url += "#p#{postID}"
+      # url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
       else
         if threadID
           url = "//boards.4chan.org/#{board}/"
     url or null
+
+  path: (base, archiver, o) ->
+    if o.type
+      {board, value, type} = o
+      type  = 'username' if type is 'name'
+      type  = 'image'    if type is 'md5'
+      if archiver is 'fuuka'
+        return url = "#{base}/#{board}/search/#{type}/#{encodeURIComponent value}"
+      else if archiver is 'gentoo'
+        if type is 'image'
+          url = "#{base}/#{board}/image/#{encodeURIComponent value}"
+        else
+          url = "#{base}/#{board}/?task=search2&search_#{type}=#{encodeURIComponent value}"
+    else
+      {board, threadID, postID} = o
+      # keep the number only if the location.hash was sent f.e.
+      postID = postID.match(/\d+/)[0] if postID
+      path =
+        if threadID
+          url = "#{base}/#{board}/thread/#{threadID}"
+        else
+          url = "#{base}/post/#{postID}"
+      if (archiver is 'fuuka') and threadID and postID
+        url += "##{postID}"
+      else if (archiver is 'gentoo') and threadID and postID
+        url += "#p#{postID}"
+      url
 
 ImageHover =
   init: ->
