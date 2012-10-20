@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, CustomNavigation, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Navigation, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, userNavigation,
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, CustomNavigation, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Navigation, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, userNavigation, _base,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Config = {
@@ -328,6 +328,7 @@
     HOUR: 1000 * 60 * 60,
     DAY: 1000 * 60 * 60 * 24,
     engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase(),
+    log: typeof (_base = console.log).bind === "function" ? _base.bind(console) : void 0,
     ready: function(fc) {
       var cb;
       if (/interactive|complete/.test(d.readyState)) {
@@ -2322,7 +2323,7 @@
       };
 
       _Class.prototype.rmFile = function() {
-        var _base;
+        var _base1;
         QR.resetFileInput();
         delete this.file;
         this.el.title = null;
@@ -2330,7 +2331,7 @@
         if (QR.spoiler) {
           $('label', this.el).hidden = true;
         }
-        return typeof (_base = window.URL || window.webkitURL).revokeObjectURL === "function" ? _base.revokeObjectURL(this.url) : void 0;
+        return typeof (_base1 = window.URL || window.webkitURL).revokeObjectURL === "function" ? _base1.revokeObjectURL(this.url) : void 0;
       };
 
       _Class.prototype.select = function() {
@@ -2395,7 +2396,7 @@
       };
 
       _Class.prototype.rm = function() {
-        var index, _base;
+        var index, _base1;
         QR.resetFileInput();
         $.rm(this.el);
         index = QR.replies.indexOf(this);
@@ -2405,7 +2406,7 @@
           (QR.replies[index - 1] || QR.replies[index + 1]).select();
         }
         QR.replies.splice(index, 1);
-        return typeof (_base = window.URL || window.webkitURL).revokeObjectURL === "function" ? _base.revokeObjectURL(this.url) : void 0;
+        return typeof (_base1 = window.URL || window.webkitURL).revokeObjectURL === "function" ? _base1.revokeObjectURL(this.url) : void 0;
       };
 
       return _Class;
@@ -2625,7 +2626,7 @@
       }));
     },
     submit: function(e) {
-      var callbacks, captcha, captchas, challenge, err, m, opts, post, reply, response, textOnly, threadID, _base, _ref;
+      var callbacks, captcha, captchas, challenge, err, m, opts, post, reply, response, textOnly, threadID, _ref;
       if (e != null) {
         e.preventDefault();
       }
@@ -2704,16 +2705,6 @@
         recaptcha_challenge_field: challenge,
         recaptcha_response_field: response
       };
-      try {
-        if (typeof (_base = console.log).bind === "function") {
-          _base.bind(console);
-        }
-      } catch (err) {
-        if (!$.get('scriptish')) {
-          $.set('scriptish', true);
-          alert("From here it appears that you're currently using Scriptish on Nightly.\n\nDue to a recent changeset in the Nightly channel Scriptish isn\'t able to log anything to the console right now.\n\nPlease consider using either Greasemonkey or the stable/beta/aurora channel of Firefox until this problem is fixed.");
-        }
-      }
       callbacks = {
         onload: function() {
           return QR.response(this.response);

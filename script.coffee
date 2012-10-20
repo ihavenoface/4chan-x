@@ -337,6 +337,9 @@ $.extend $,
   HOUR  : 1000*60*60
   DAY   : 1000*60*60*24
   engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase()
+  log:
+    # XXX GreaseMonkey can't into console.log.bind
+    console.log.bind? console
   ready: (fc) ->
     if /interactive|complete/.test d.readyState
       # Execute the functions in parallel.
@@ -2179,13 +2182,6 @@ QR =
       pwd:      if m = d.cookie.match(/4chan_pass=([^;]+)/) then decodeURIComponent m[1] else $('input[name=pwd]').value
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  response
-
-    try
-      console.log.bind? console
-    catch err
-      unless $.get 'scriptish'
-        $.set 'scriptish', true
-        alert "From here it appears that you're currently using Scriptish on Nightly.\n\nDue to a recent changeset in the Nightly channel Scriptish isn\'t able to log anything to the console right now.\n\nPlease consider using either Greasemonkey or the stable/beta/aurora channel of Firefox until this problem is fixed."
 
     callbacks =
       onload: ->
