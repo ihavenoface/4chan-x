@@ -4796,8 +4796,8 @@ Linkify =
 
   concat: (a) ->
     $.on a, 'click', (e) ->
-      # Shift + CTRL + Click
-      if e.shiftKey and e.ctrlKey
+      # Shift + Click
+      if e.shiftKey
 
         # Let's not accidentally open the link while we're editting it.
         e.preventDefault()

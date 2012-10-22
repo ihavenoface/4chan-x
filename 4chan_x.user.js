@@ -5788,7 +5788,7 @@
     concat: function(a) {
       return $.on(a, 'click', function(e) {
         var child, el;
-        if (e.shiftKey && e.ctrlKey) {
+        if (e.shiftKey) {
           e.preventDefault();
           e.stopPropagation();
           if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
