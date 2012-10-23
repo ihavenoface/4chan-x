@@ -4602,29 +4602,24 @@ Linkify =
     # Add Linkification to callbacks, which will call linkification on every post parsed by Appchan X.
     Main.callbacks.push @node
 
-  # I didn't write most of this RegEx.
-  regString: [
-    '('
-    # leading scheme:// or "www."
-    '\\b('
-    '[a-z][-a-z0-9+.]+://'
-    '|'
-    'www\\.'
-    '|'
-    # Various link handlers:
-    'magnet:'
-    '|'
-    'mailto:'
-    '|'
-    'news:'
-    ')'
-    # everything until non-URL character
-    '[^\\s\'"<>()]+'
-    '|'
-    # emails. We don't need everything until a non-URL character because emails follow a consistent syntax.
-    '\\b[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}\\b'
-    ')'
-  ].join("")
+  regString: ///
+    (
+      \b(
+        [a-z][-a-z0-9+.]+:// # Leading handler (http://, ftp://). Matches any *://
+        |
+        www\.
+        |
+        magnet:
+        |
+        mailto:
+        |
+        news:
+      )
+      [^\s'"<>()]+ # Non-URL characters. We cut of the string here.
+      |
+      \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b # E-mails. Basically *@*.???
+    )
+  ///i
 
   sites:
     yt:
@@ -4641,31 +4636,33 @@ Linkify =
     # - http://en.wikipedia.org/wiki/URI_scheme
     # - http://www.regular-expressions.info/regexbuddy/email.html
 
-    nodes = []
-
     comment = post.blockquote or $ 'blockquote', post.el
     subject = $ '.subject', post.el
 
     # We collect all the text children before editting them so that further children don't
     # get offset and therefore don't get parsed.
-    for child in comment.childNodes
-      if child.nodeType == Node.TEXT_NODE
-        nodes.push child
-      # Quotes can contain links, too.
-      else if child.className == "quote"
-        for node in child.childNodes
-          if node.nodeType == Node.TEXT_NODE
-            nodes.push node
+    nodes = Linkify.collector comment
 
     # We only try to touch the subject if it exists.
     if subject?
-      for child in subject.childNodes
-        if child.nodeType == Node.TEXT_NODE
-          nodes.push child
+      nodes.push subject.childNodes
 
     # After we generate our list of nodes to parse we can edit it without worrying about nodes getting orphaned.
     for node in nodes
       Linkify.text node
+
+  collector: (node) ->
+    nodes = []
+
+    for child in node.childNodes
+      if child.nodeType is Node.TEXT_NODE
+        nodes.push child
+      else unless child.tagName.toLowerCase() is "br"
+        results = @collector(child)
+        for result in results
+          nodes.push result
+
+    return nodes
 
   text: (child, link) ->
     # We need text to parse.
@@ -4674,8 +4671,7 @@ Linkify =
     # position tracker.
     p = 0
 
-    urlRegExp = new RegExp Linkify.regString, 'i'
-    if m = urlRegExp.exec txt
+    if m = Linkify.regString.exec txt
 
       # Get the link without trailing dots as to not create an invalid link.
       l = m[0].replace /\.*$/, ''
@@ -4717,10 +4713,10 @@ Linkify =
 
         # We gather our list of embeddable sites
         for key, site of Linkify.sites
-        
+
           # Check if our current link matches any of them
           if match = a.href.match(site.regExp)
-        
+
             # We create a new element
             embed = $.el 'a'
               name:         match[1]
@@ -4735,7 +4731,7 @@ Linkify =
             # Then add a space before the embed link / after the pre-existing link
             $.after a, embed
             $.after a, $.tn ' '
-            
+
             # And we break out of the loop because no further embedding checks are needed.
             break
 
@@ -4752,7 +4748,7 @@ Linkify =
     # We create an iframe to embed
     iframe = $.el 'iframe'
       src: Linkify.sites[@className].url + @name
-        
+
     # We style the iframe with respectable boundaries.
     iframe.style.border = '0'
     iframe.style.width  = '640px'
@@ -4760,21 +4756,21 @@ Linkify =
 
     # We replace the link with the iframe and kill the embedding element.
     $.replace link, iframe
-    
+
     unembed = $.el 'a'
       name:        @name
       className:   @className
       href:        'javascript:;'
       textContent: '(unembed)'
-    
+
     $.on unembed, 'click', Linkify.unembed
-    
+
     $.replace @, unembed
-  
+
   unembed: ->
     url = Linkify.sites[@className].safeurl + @name
     embedded = @.previousSibling.previousSibling
-    
+
     a = $.el 'a'
       textContent: url
       rel:         'nofollow noreferrer'
@@ -4788,7 +4784,7 @@ Linkify =
       textContent:  '(embed)'
 
     $.on embed, 'click', Linkify.embed
-    
+
     $.replace embedded, a
     $.replace @, embed
 

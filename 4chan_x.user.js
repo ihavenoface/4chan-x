@@ -5629,7 +5629,7 @@
     init: function() {
       return Main.callbacks.push(this.node);
     },
-    regString: ['(', '\\b(', '[a-z][-a-z0-9+.]+://', '|', 'www\\.', '|', 'magnet:', '|', 'mailto:', '|', 'news:', ')', '[^\\s\'"<>()]+', '|', '\\b[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}\\b', ')'].join(""),
+    regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/i,
     sites: {
       yt: {
         regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
@@ -5643,47 +5643,43 @@
       }
     },
     node: function(post) {
-      var child, comment, node, nodes, subject, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _results;
-      nodes = [];
+      var comment, node, nodes, subject, _i, _len, _results;
       comment = post.blockquote || $('blockquote', post.el);
       subject = $('.subject', post.el);
-      _ref = comment.childNodes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        if (child.nodeType === Node.TEXT_NODE) {
-          nodes.push(child);
-        } else if (child.className === "quote") {
-          _ref1 = child.childNodes;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            node = _ref1[_j];
-            if (node.nodeType === Node.TEXT_NODE) {
-              nodes.push(node);
-            }
-          }
-        }
-      }
+      nodes = Linkify.collector(comment);
       if (subject != null) {
-        _ref2 = subject.childNodes;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          child = _ref2[_k];
-          if (child.nodeType === Node.TEXT_NODE) {
-            nodes.push(child);
-          }
-        }
+        nodes.push(subject.childNodes);
       }
       _results = [];
-      for (_l = 0, _len3 = nodes.length; _l < _len3; _l++) {
-        node = nodes[_l];
+      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+        node = nodes[_i];
         _results.push(Linkify.text(node));
       }
       return _results;
     },
+    collector: function(node) {
+      var child, nodes, result, results, _i, _j, _len, _len1, _ref;
+      nodes = [];
+      _ref = node.childNodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        if (child.nodeType === Node.TEXT_NODE) {
+          nodes.push(child);
+        } else if (child.tagName.toLowerCase() !== "br") {
+          results = this.collector(child);
+          for (_j = 0, _len1 = results.length; _j < _len1; _j++) {
+            result = results[_j];
+            nodes.push(result);
+          }
+        }
+      }
+      return nodes;
+    },
     text: function(child, link) {
-      var a, embed, key, l, lLen, m, match, node, p, rest, site, txt, urlRegExp, _ref;
+      var a, embed, key, l, lLen, m, match, node, p, rest, site, txt, _ref;
       txt = child.textContent;
       p = 0;
-      urlRegExp = new RegExp(Linkify.regString, 'i');
-      if (m = urlRegExp.exec(txt)) {
+      if (m = Linkify.regString.exec(txt)) {
         l = m[0].replace(/\.*$/, '');
         lLen = l.length;
         node = $.tn(txt.substring(p, m.index));
