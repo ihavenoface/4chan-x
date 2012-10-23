@@ -4163,7 +4163,7 @@ Unread =
     @title = d.title
     $.on d, 'QRPostSuccessful', @post
     @update()
-    $.on window, 'scroll', Unread.scroll
+    $.on window, 'scroll focus', Unread.scroll
     Main.callbacks.push @node
 
   replies: []
