@@ -3913,7 +3913,11 @@ Quotify =
           a.href      = "#p#{id}"
           a.className = 'quotelink'
         else
-          a.href      = Redirect.thread board, 0, id
+          a.href =
+            Redirect.to
+              board:    board
+              threadID: 0
+              postID:   id
           a.className = 'deadlink'
           a.target    = '_blank'
           if Redirect.post board, id
@@ -4094,7 +4098,7 @@ ArchiveLink =
       el: div
       open: (post) ->
         path = $('a[title="Highlight this post"]', post.el).pathname.split '/'
-        if (Redirect.thread path[1], path[3], post.ID) is "//boards.4chan.org/#{path[1]}/"
+        if (Redirect.to {board: path[1], threadID: path[3], postID: post.ID}) is "//boards.4chan.org/#{path[1]}/"
           return false
         post.info = [path[1], path[3]]
         true
@@ -4122,12 +4126,21 @@ ArchiveLink =
 
     open = (post) ->
       if type is 'apost'
-        el.href = Redirect.thread post.info[0], post.info[1], post.ID
+        el.href =
+          Redirect.to 
+            board:    post.info[0]
+            threadID: post.info[1]
+            postID:   post.ID
         return true
       value = Filter[type] post
       # We want to parse the exact same stuff as Filter does already.
       return false unless value
-      el.href = Redirect.thread post.info[0], value, [type, 'submenu']
+      el.href =
+        Redirect.to
+          board:    post.info[0]
+          type:     type
+          value:    value
+          isSearch: true
 
     return el: el, open: open
 
@@ -4287,43 +4300,37 @@ Redirect =
         "//archive.rebeccablacktech.com/#{board}/full_image/#{filename}"
       when 'an', 'k', 'toy', 'x'
         "http://archive.heinessen.com/#{board}/full_image/#{filename}"
-      # when 'e'
-      #   "https://www.cliché.net/4chan/cgi-board.pl/#{board}/full_image/#{filename}"
   post: (board, postID) ->
     switch board
       when 'a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-  thread: (board, threadID, postID) ->
-    o = board: board
-    o.value = threadID
-    o.type  = postID[0] if (postID[1] is 'submenu')
-    o.threadID = threadID
-    o.postID   = postID
+  to: (data) ->
+    unless data.isSearch
+      {threadID} = data
+    {board} = data
     switch board
       when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        url = Redirect.path '//archive.foolz.us', 'foolfuuka', o
+        url = Redirect.path '//archive.foolz.us', 'foolfuuka', data
       when 'u', 'kuku'
-        url = Redirect.path "//nsfw.foolz.us", 'foolfuuka', o
+        url = Redirect.path "//nsfw.foolz.us", 'foolfuuka', data
       when 'ck', 'jp', 'lit'
-        url = Redirect.path "//fuuka.warosu.org", 'fuuka', o
+        url = Redirect.path "//fuuka.warosu.org", 'fuuka', data
       when 'diy', 'sci'
-        url = Redirect.path "//archive.installgentoo.net", 'fuuka', o
+        url = Redirect.path "//archive.installgentoo.net", 'fuuka', data
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        url = Redirect.path "//archive.rebeccablacktech.com", 'fuuka', o
+        url = Redirect.path "//archive.rebeccablacktech.com", 'fuuka', data
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        url = Redirect.path "http://archive.heinessen.com", 'fuuka', o
-      #when 'e'
-      # url = "https://www.cliché.net/4chan/cgi-board.pl/#{path}"
+        url = Redirect.path "http://archive.heinessen.com", 'fuuka', data
       else
         if threadID
           url = "//boards.4chan.org/#{board}/"
     url or null
 
-  path: (base, archiver, o) ->
-    if o.type
-      {board, value, type} = o
+  path: (base, archiver, data) ->
+    if data.isSearch
+      {board, type, value} = data
       type =
         if type is 'name'
           'username'
@@ -4339,7 +4346,7 @@ Redirect =
         else
           "#{base}/#{board}/?task=search2&search_#{type}=#{value}"
 
-    {board, threadID, postID} = o
+    {board, threadID, postID} = data
     # keep the number only if the location.hash was sent f.e.
     postID = postID.match(/\d+/)[0] if postID
     path =
@@ -4961,7 +4968,11 @@ Main =
   ready: ->
     if /^4chan - 404/.test d.title
       if Conf['404 Redirect'] and /^\d+$/.test g.THREAD_ID
-        location.href = Redirect.thread g.BOARD, g.THREAD_ID, location.hash
+        location.href =
+          Redirect.to
+            board:    g.BOARD
+            threadID: g.THREAD_ID
+            postID:   location.hash
       return
     unless $.id 'navtopright'
       return
