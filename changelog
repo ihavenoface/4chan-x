@@ -1,4 +1,6 @@
 master
+- Mayhem
+  Added possibility to display unix timestamps with File Info Formatting.
 
 2.36.1
 - noface
