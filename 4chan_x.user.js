@@ -5009,7 +5009,7 @@
         case 'cgl':
         case 'g':
         case 'w':
-          return "//archive.rebeccablacktech.com/" + board + "/full_image/" + filename;
+          return "//rbt.asia/" + board + "/full_image/" + filename;
         case 'an':
         case 'k':
         case 'toy':
@@ -5077,7 +5077,7 @@
         case 'mu':
         case 'soc':
         case 'w':
-          url = Redirect.path("//archive.rebeccablacktech.com", 'fuuka', data);
+          url = Redirect.path("//rbt.asia", 'fuuka', data);
           break;
         case 'an':
         case 'fit':
@@ -5104,7 +5104,7 @@
         if (archiver === 'foolfuuka') {
           return "" + base + "/" + board + "/search/" + type + "/" + value;
         } else if (type === 'image') {
-          return "" + base + "/" + board + "/" + type + "/" + value;
+          return "" + base + "/" + board + "/?task=search2&search_media_hash=" + value;
         } else {
           return "" + base + "/" + board + "/?task=search2&search_" + type + "=" + value;
         }

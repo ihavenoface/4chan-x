@@ -4093,7 +4093,7 @@ Redirect =
       when 'ck', 'lit'
         "//fuuka.warosu.org/#{board}/full_image/#{filename}"
       when 'cgl', 'g', 'w'
-        "//archive.rebeccablacktech.com/#{board}/full_image/#{filename}"
+        "//rbt.asia/#{board}/full_image/#{filename}"
       when 'an', 'k', 'toy', 'x'
         "http://archive.heinessen.com/#{board}/full_image/#{filename}"
   post: (board, postID) ->
@@ -4116,7 +4116,7 @@ Redirect =
       when 'diy', 'sci'
         url = Redirect.path "//archive.installgentoo.net", 'fuuka', data
       when 'cgl', 'g', 'mu', 'soc', 'w'
-        url = Redirect.path "//archive.rebeccablacktech.com", 'fuuka', data
+        url = Redirect.path "//rbt.asia", 'fuuka', data
       when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
         url = Redirect.path "http://archive.heinessen.com", 'fuuka', data
       else
@@ -4138,7 +4138,7 @@ Redirect =
       return if archiver is 'foolfuuka'
           "#{base}/#{board}/search/#{type}/#{value}"
         else if type is 'image'
-          "#{base}/#{board}/#{type}/#{value}"
+          "#{base}/#{board}/?task=search2&search_media_hash=#{value}"
         else
           "#{base}/#{board}/?task=search2&search_#{type}=#{value}"
 
