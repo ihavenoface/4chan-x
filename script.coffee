@@ -2154,7 +2154,7 @@ QR =
             "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
     else if err = doc.getElementById 'errmsg' # error!
       if /4chan Pass/.test(err.textContent)
-        err.textContent = 'You seem to have mistyped the CAPTCHA. Please try again.'
+        err.textContent = 'You seem to have mistyped the CAPTCHA.'
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc
       err = 'Connection error with sys.4chan.org.'

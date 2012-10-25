@@ -2738,7 +2738,7 @@
         });
       } else if (err = doc.getElementById('errmsg')) {
         if (/4chan Pass/.test(err.textContent)) {
-          err.textContent = 'You seem to have mistyped the CAPTCHA. Please try again.';
+          err.textContent = 'You seem to have mistyped the CAPTCHA.';
         }
         if ((_ref = $('a', err)) != null) {
           _ref.target = '_blank';
