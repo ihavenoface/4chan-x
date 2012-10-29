@@ -2831,7 +2831,7 @@
       }
     },
     dialog: function() {
-      var arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, obj, overlay, sauce, time, tr, ul, updateIncrease, updateIncreaseB, _i, _len, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, data, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
       dialog = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -2856,6 +2856,7 @@
   <div></div>\
   <input type=radio name=tab hidden id=sauces_tab>\
   <div>\
+    Select an Archiver for this board: <select name=archiver></select><br><br>\
     <div class=warning><code>Sauce</code> is disabled.</div>\
     Lines starting with a <code>#</code> will be ignored.<br>\
     You can specify a certain display text by appending <code>;text:[text]</code> to the url.\
@@ -2971,6 +2972,20 @@
       $.add($('ul:nth-child(2)', dialog), li);
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
+      archiver = $('select[name=archiver]', dialog);
+      _ref1 = data = Redirect.select('options');
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        name = _ref1[_i];
+        if (archiver.length >= data.length) {
+          return;
+        }
+        (option = d.createElement('option')).textContent = name;
+        $.add(archiver, option);
+      }
+      if (data.length > 1 && data) {
+        archiver.value = $.get("archiver/" + g.BOARD + "/");
+        $.on(archiver, 'mouseup', Options.archiver);
+      }
       sauce = $('#sauces', dialog);
       sauce.value = $.get(sauce.name, Conf[sauce.name]);
       $.on(sauce, 'change', $.cb.value);
@@ -2991,9 +3006,9 @@
       $.on(updateIncrease, 'input', $.cb.value);
       (updateIncreaseB = $('[name=updateIncreaseB]', dialog)).value = $.get('updateIncreaseB', Conf['updateIncreaseB']);
       $.on(updateIncreaseB, 'input', $.cb.value);
-      _ref1 = Config.hotkeys;
-      for (key in _ref1) {
-        arr = _ref1[key];
+      _ref2 = Config.hotkeys;
+      for (key in _ref2) {
+        arr = _ref2[key];
         tr = $.el('tr', {
           innerHTML: "<td>" + arr[1] + "</td><td><input name=" + key + " class=field></td>"
         });
@@ -3003,9 +3018,9 @@
         $.add($('#keybinds_tab + div tbody', dialog), tr);
       }
       indicators = {};
-      _ref2 = $$('.warning', dialog);
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        indicator = _ref2[_i];
+      _ref3 = $$('.warning', dialog);
+      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+        indicator = _ref3[_j];
         key = indicator.firstChild.textContent;
         indicator.hidden = $.get(key, Conf[key]);
         indicators[key] = indicator;
@@ -3097,6 +3112,9 @@
     </li>\
   </ul>'
       }));
+    },
+    archiver: function() {
+      return $.set("archiver/" + g.BOARD + "/", "" + this.value);
     },
     time: function() {
       Time.foo();
@@ -4994,6 +5012,7 @@
   };
 
   Redirect = {
+    current: [],
     image: function(board, filename) {
       switch (board) {
         case 'a':
@@ -5042,55 +5061,100 @@
           return "//nsfw.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
       }
     },
+    archiver: [
+      {
+        'name': 'Foolz',
+        'base': '//archive.foolz.us',
+        'boards': ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+      }, {
+        'name': 'NSFWFoolz',
+        'base': '//nsfw.foolz.us',
+        'boards': ['u', 'kuku']
+      }, {
+        'name': 'Warosu',
+        'base': '//fuuka.warosu.org',
+        'boards': ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+      }, {
+        'name': 'InstallGentoo',
+        'base': '//archive.installgentoo.net',
+        'boards': ['diy', 'g', 'sci']
+      }, {
+        'name': 'RebeccaBlackTech',
+        'base': '//rbt.asia',
+        'boards': ['cgl', 'g', 'mu', 'soc', 'w']
+      }, {
+        'name': 'Heinessen',
+        'base': 'http://archive.heinessen.com',
+        'boards': ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+      }
+    ],
+    select: function(origin, data, board) {
+      var arch, current, type, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      arch = [];
+      if (origin === 'options') {
+        _ref = this.archiver;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          type = _ref[_i];
+          if (!(type.boards.indexOf(g.BOARD) >= 0)) {
+            continue;
+          } else {
+            arch.push(type.name);
+          }
+        }
+        if (arch.length === 0) {
+          return false;
+        } else {
+          return arch;
+        }
+      }
+      if (origin === 'to') {
+        _ref1 = data.boards;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          type = _ref1[_j];
+          if ((current = $.get("archiver/" + board + "/")) === void 0) {
+            return board;
+          }
+          if (current === data.name) {
+            this.current.push(data.name);
+            return board;
+          }
+        }
+      }
+      if (origin === 'to_base') {
+        _ref2 = data.boards;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          type = _ref2[_k];
+          if (type === board) {
+            return data.base;
+          }
+        }
+      }
+    },
     to: function(data) {
-      var board, threadID, url;
+      var a, board, threadID, url;
       if (!data.isSearch) {
         threadID = data.threadID;
       }
       board = data.board;
+      a = this.archiver;
       switch (board) {
-        case 'a':
-        case 'co':
-        case 'm':
-        case 'q':
-        case 'sp':
-        case 'tg':
-        case 'tv':
-        case 'v':
-        case 'vg':
-        case 'wsg':
-        case 'dev':
-        case 'foolz':
-          url = Redirect.path('//archive.foolz.us', 'foolfuuka', data);
+        case this.select('to', a[0], board):
+          url = this.path(this.select('to_base', a[0], board), 'foolfuuka', data);
           break;
-        case 'u':
-        case 'kuku':
-          url = Redirect.path("//nsfw.foolz.us", 'foolfuuka', data);
+        case this.select('to', a[1], board):
+          url = this.path(this.select('to_base', a[1], board), 'foolfuuka', data);
           break;
-        case 'ck':
-        case 'jp':
-        case 'lit':
-          url = Redirect.path("//fuuka.warosu.org", 'fuuka', data);
+        case this.select('to', a[2], board):
+          url = this.path(this.select('to_base', a[2], board), 'fuuka', data);
           break;
-        case 'diy':
-        case 'sci':
-          url = Redirect.path("//archive.installgentoo.net", 'fuuka', data);
+        case this.select('to', a[3], board):
+          url = this.path(this.select('to_base', a[3], board), 'fuuka', data);
           break;
-        case 'cgl':
-        case 'g':
-        case 'mu':
-        case 'soc':
-        case 'w':
-          url = Redirect.path("//rbt.asia", 'fuuka', data);
+        case this.select('to', a[4], board):
+          url = this.path(this.select('to_base', a[4], board), 'fuuka', data);
           break;
-        case 'an':
-        case 'fit':
-        case 'k':
-        case 'mlp':
-        case 'r9k':
-        case 'toy':
-        case 'x':
-          url = Redirect.path("http://archive.heinessen.com", 'fuuka', data);
+        case this.select('to', a[5], board):
+          url = this.path(this.select('to_base', a[5], board), 'fuuka', data);
           break;
         default:
           if (threadID) {

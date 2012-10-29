@@ -455,7 +455,7 @@ Markdown =
     for tag, pattern of tag_patterns
       unless text?
         text = '\u0020'
-      else text = text.replace pattern, Markdown.unicode_convert 
+      else text = text.replace pattern, Markdown.unicode_convert
     text
 
   unicode_convert: (str, tag, inner) ->
@@ -1511,7 +1511,7 @@ QR =
     if QR.captchaIsEnabled and /captcha|verification/i.test el.textContent
       # Focus the captcha input on captcha error.
       $('[autocomplete]', QR.el).focus()
-    if Conf['Focus on Alert'] 
+    if Conf['Focus on Alert']
       if d.hidden or d.oHidden or d.mozHidden or d.webkitHidden then alert el.textContent
   cleanError: ->
     $('.warning', QR.el).textContent = null
@@ -2262,6 +2262,7 @@ Options =
   <div></div>
   <input type=radio name=tab hidden id=sauces_tab>
   <div>
+    Select an Archiver for this board: <select name=archiver></select><br><br>
     <div class=warning><code>Sauce</code> is disabled.</div>
     Lines starting with a <code>#</code> will be ignored.<br>
     You can specify a certain display text by appending <code>;text:[text]</code> to the url.
@@ -2373,6 +2374,17 @@ Options =
     #filter
     filter = $ 'select[name=filter]', dialog
     $.on filter, 'change', Options.filter
+
+    #archiver
+    archiver = $ 'select[name=archiver]', dialog
+    for name in data = Redirect.select 'options'
+      return if archiver.length >= data.length
+      (option = d.createElement 'option').textContent = name
+      $.add archiver, option
+    if data.length > 1 and data
+    # Might needs some nicer transition.
+      archiver.value = $.get "archiver/#{g.BOARD}/"
+      $.on archiver, 'mouseup', Options.archiver
 
     #sauce
     sauce = $ '#sauces', dialog
@@ -2488,6 +2500,8 @@ Options =
       For example: <code>top:yes;</code> or <code>top:no;</code>.
     </li>
   </ul>'
+  archiver: ->
+    $.set "archiver/#{g.BOARD}/", "#{@value}"
   time: ->
     Time.foo()
     Time.date = new Date()
@@ -3931,7 +3945,7 @@ ArchiveLink =
     open = (post) ->
       if type is 'apost'
         el.href =
-          Redirect.to 
+          Redirect.to
             board:    post.info[0]
             threadID: post.info[1]
             postID:   post.ID
@@ -4091,6 +4105,7 @@ Favicon =
   dead: 'data:image/gif;base64,R0lGODlhEAAQAKECAAAAAP8AAP///////yH5BAEKAAIALAAAAAAQABAAAAIvlI+pq+D9DAgUoFkPDlbs7lFZKIJOJJ3MyraoB14jFpOcVMpzrnF3OKlZYsMWowAAOw=='
 
 Redirect =
+  current: []
   image: (board, filename) ->
     # Do not use g.BOARD, the image url can originate from a cross-quote.
     switch board
@@ -4110,23 +4125,79 @@ Redirect =
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
+  archiver: [
+    {
+      'name':    'Foolz'
+      'base':    '//archive.foolz.us'
+      'boards':  ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+    }
+    {
+      'name':    'NSFWFoolz'
+      'base':    '//nsfw.foolz.us'
+      'boards':  ['u', 'kuku']
+    }
+    {
+      'name':    'Warosu'
+      'base':    '//fuuka.warosu.org'
+      'boards':  ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+    }
+    {
+      'name':    'InstallGentoo'
+      'base':    '//archive.installgentoo.net'
+      'boards':  ['diy', 'g', 'sci']
+    }
+    {
+      'name':    'RebeccaBlackTech'
+      'base':    '//rbt.asia'
+      'boards':  ['cgl', 'g', 'mu', 'soc', 'w']
+    }
+    {
+      'name':    'Heinessen'
+      'base':    'http://archive.heinessen.com'
+      'boards':  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+    }
+  ]
+  select: (origin, data, board) ->
+    arch = []
+    if origin is 'options'
+      for type in @archiver
+        unless type.boards.indexOf(g.BOARD) >= 0
+          continue
+        else
+          arch.push type.name
+      return if arch.length is 0
+        false
+      else
+        arch
+    if origin is 'to'
+      for type in data.boards
+        if (current = $.get "archiver/#{board}/") is undefined
+          return board
+        if current is data.name
+          @current.push data.name
+          return board
+    if origin is 'to_base'
+      for type in data.boards
+        if type is board
+          return data.base
   to: (data) ->
     unless data.isSearch
       {threadID} = data
     {board} = data
+    a = @archiver
     switch board
-      when 'a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
-        url = Redirect.path '//archive.foolz.us', 'foolfuuka', data
-      when 'u', 'kuku'
-        url = Redirect.path "//nsfw.foolz.us", 'foolfuuka', data
-      when 'ck', 'jp', 'lit'
-        url = Redirect.path "//fuuka.warosu.org", 'fuuka', data
-      when 'diy', 'sci'
-        url = Redirect.path "//archive.installgentoo.net", 'fuuka', data
-      when 'cgl', 'g', 'mu', 'soc', 'w'
-        url = Redirect.path "//rbt.asia", 'fuuka', data
-      when 'an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'
-        url = Redirect.path "http://archive.heinessen.com", 'fuuka', data
+      when @select 'to', a[0], board
+        url = @path (@select 'to_base', a[0], board), 'foolfuuka', data
+      when @select 'to', a[1], board
+        url = @path (@select 'to_base', a[1], board), 'foolfuuka', data
+      when @select 'to', a[2], board
+        url = @path (@select 'to_base', a[2], board), 'fuuka', data
+      when @select 'to', a[3], board
+        url = @path (@select 'to_base', a[3], board), 'fuuka', data
+      when @select 'to', a[4], board
+        url = @path (@select 'to_base', a[4], board), 'fuuka', data
+      when @select 'to', a[5], board
+        url = @path (@select 'to_base', a[5], board), 'fuuka', data
       else
         if threadID
           url = "//boards.4chan.org/#{board}/"
