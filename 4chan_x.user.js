@@ -2982,7 +2982,7 @@
         (option = d.createElement('option')).textContent = name;
         $.add(archiver, option);
       }
-      if (data.length > 1 && data) {
+      if (data.length > 1 && data[0] !== 'No archiver available.') {
         archiver.value = $.get("archiver/" + g.BOARD + "/");
         $.on(archiver, 'mouseup', Options.archiver);
       }
@@ -5102,7 +5102,7 @@
           }
         }
         if (arch.length === 0) {
-          return false;
+          return ['No archiver available.'];
         } else {
           return arch;
         }

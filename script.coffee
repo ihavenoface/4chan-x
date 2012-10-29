@@ -2381,7 +2381,7 @@ Options =
       return if archiver.length >= data.length
       (option = d.createElement 'option').textContent = name
       $.add archiver, option
-    if data.length > 1 and data
+    if data.length > 1 and data[0] isnt 'No archiver available.'
     # Might needs some nicer transition.
       archiver.value = $.get "archiver/#{g.BOARD}/"
       $.on archiver, 'mouseup', Options.archiver
@@ -4166,7 +4166,7 @@ Redirect =
         else
           arch.push type.name
       return if arch.length is 0
-        false
+        ['No archiver available.']
       else
         arch
     if origin is 'to'
