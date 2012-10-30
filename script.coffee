@@ -148,6 +148,7 @@ Config =
     code:            ['alt+c',  'Quick code tags']
     sageru:          ['alt+n',  'Sage keybind']
     submit:          ['alt+s',  'Submit post']
+    hideQR:          ['alt+h',  'Toggle hide status of QR']
     # Thread related
     watch:           ['w',      'Watch thread']
     update:          ['u',      'Update now']
@@ -1240,6 +1241,11 @@ Keybinds =
           QR.close()
       when Conf.submit
         QR.submit() if QR.el and !QR.status()
+      when Conf.hideQR
+        if ($ '#autohide', QR.el).checked
+          QR.unhide()
+        else
+          QR.hide()
       when Conf.spoiler
         return if target.nodeName isnt 'TEXTAREA'
         Keybinds.tags 'spoiler', target

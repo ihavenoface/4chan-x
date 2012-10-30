@@ -193,6 +193,7 @@
       code: ['alt+c', 'Quick code tags'],
       sageru: ['alt+n', 'Sage keybind'],
       submit: ['alt+s', 'Submit post'],
+      hideQR: ['alt+h', 'Toggle hide status of QR'],
       watch: ['w', 'Watch thread'],
       update: ['u', 'Update now'],
       unreadCountTo0: ['z', 'Reset unread status'],
@@ -1560,6 +1561,13 @@
         case Conf.submit:
           if (QR.el && !QR.status()) {
             QR.submit();
+          }
+          break;
+        case Conf.hideQR:
+          if (($('#autohide', QR.el)).checked) {
+            QR.unhide();
+          } else {
+            QR.hide();
           }
           break;
         case Conf.spoiler:
