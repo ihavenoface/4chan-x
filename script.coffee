@@ -2294,7 +2294,7 @@ Options =
   </div>
   <input type=radio name=tab hidden id=rice_tab>
   <div>
-    Select an Archiver for this board (takes effect immediantly)<br>
+    Select an Archiver for this board (takes effect immediately)<br>
     <select name=archiver></select><br>
     <div class=warning><code>Quote Backlinks</code> are disabled.</div>
     <ul>
@@ -2378,11 +2378,16 @@ Options =
 
     #archiver
     archiver = $ 'select[name=archiver]', dialog
-    for name in data = Redirect.select()
+    data =
+      if Redirect.select()
+         Redirect.select()
+      else
+        ['No archiver available.']
+    for name in data
       return if archiver.length >= data.length
       (option = d.createElement 'option').textContent = name
       $.add archiver, option
-    if data.length > 1 and data[0] isnt 'No archiver available.'
+    if data.length > 1
       archiver.value = $.get "archiver/#{g.BOARD}/"
       $.on archiver, 'mouseup', Options.archiver
 
@@ -4165,12 +4170,12 @@ Redirect =
         else
           arch.push type.name
       return if arch.length is 0
-        ['No archiver available.']
+        false
       else
         arch
     for type in data.boards
-      if (current = $.get "archiver/#{board}/") is undefined
-        $.set "archiver/#{board}/", "#{@select()[0]}"
+      if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[0])
+        $.set "archiver/#{board}/", "#{name}"
         continue
       if current is data.name
         return board

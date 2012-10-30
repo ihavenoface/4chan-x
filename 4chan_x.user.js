@@ -2831,7 +2831,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, data, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var archiver, arr, back, checked, data, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -2888,7 +2888,7 @@
   </div>\
   <input type=radio name=tab hidden id=rice_tab>\
   <div>\
-    Select an Archiver for this board (takes effect immediantly)<br>\
+    Select an Archiver for this board (takes effect immediately)<br>\
     <select name=archiver></select><br>\
     <div class=warning><code>Quote Backlinks</code> are disabled.</div>\
     <ul>\
@@ -2974,16 +2974,16 @@
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
       archiver = $('select[name=archiver]', dialog);
-      _ref1 = data = Redirect.select();
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        name = _ref1[_i];
+      data = Redirect.select() ? Redirect.select() : ['No archiver available.'];
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        name = data[_i];
         if (archiver.length >= data.length) {
           return;
         }
         (option = d.createElement('option')).textContent = name;
         $.add(archiver, option);
       }
-      if (data.length > 1 && data[0] !== 'No archiver available.') {
+      if (data.length > 1) {
         archiver.value = $.get("archiver/" + g.BOARD + "/");
         $.on(archiver, 'mouseup', Options.archiver);
       }
@@ -3007,9 +3007,9 @@
       $.on(updateIncrease, 'input', $.cb.value);
       (updateIncreaseB = $('[name=updateIncreaseB]', dialog)).value = $.get('updateIncreaseB', Conf['updateIncreaseB']);
       $.on(updateIncreaseB, 'input', $.cb.value);
-      _ref2 = Config.hotkeys;
-      for (key in _ref2) {
-        arr = _ref2[key];
+      _ref1 = Config.hotkeys;
+      for (key in _ref1) {
+        arr = _ref1[key];
         tr = $.el('tr', {
           innerHTML: "<td>" + arr[1] + "</td><td><input name=" + key + " class=field></td>"
         });
@@ -3019,9 +3019,9 @@
         $.add($('#keybinds_tab + div tbody', dialog), tr);
       }
       indicators = {};
-      _ref3 = $$('.warning', dialog);
-      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-        indicator = _ref3[_j];
+      _ref2 = $$('.warning', dialog);
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        indicator = _ref2[_j];
         key = indicator.firstChild.textContent;
         indicator.hidden = $.get(key, Conf[key]);
         indicators[key] = indicator;
@@ -5089,7 +5089,7 @@
       }
     ],
     select: function(data, board) {
-      var arch, current, type, _i, _j, _len, _len1, _ref, _ref1;
+      var arch, current, name, type, _i, _j, _len, _len1, _ref, _ref1;
       if (!board) {
         arch = [];
         _ref = this.archiver;
@@ -5102,7 +5102,7 @@
           }
         }
         if (arch.length === 0) {
-          return ['No archiver available.'];
+          return false;
         } else {
           return arch;
         }
@@ -5110,8 +5110,8 @@
       _ref1 = data.boards;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         type = _ref1[_j];
-        if ((current = $.get("archiver/" + board + "/")) === void 0) {
-          $.set("archiver/" + board + "/", "" + (this.select()[0]));
+        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select()[0])) {
+          $.set("archiver/" + board + "/", "" + name);
           continue;
         }
         if (current === data.name) {
