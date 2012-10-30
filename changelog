@@ -1,4 +1,6 @@
 master
+
+2.36.2
 - noface
   Per-board archivers can now be selected under the rice tab.  
 - Mayhem
