@@ -4161,6 +4161,7 @@ Redirect =
       'boards':  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
     }
   ]
+
   select: (data, board) ->
     unless board
       arch = []
@@ -4177,8 +4178,9 @@ Redirect =
       if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[0])
         $.set "archiver/#{board}/", "#{name}"
         continue
-      if current is data.name
+      if current is data.name and data.boards.indexOf(board) >= 0
         return board
+
   to: (data) ->
     unless data.isSearch
       {threadID} = data

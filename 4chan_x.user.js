@@ -5114,7 +5114,7 @@
           $.set("archiver/" + board + "/", "" + name);
           continue;
         }
-        if (current === data.name) {
+        if (current === data.name && data.boards.indexOf(board) >= 0) {
           return board;
         }
       }
