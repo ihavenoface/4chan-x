@@ -2294,7 +2294,7 @@ Options =
   </div>
   <input type=radio name=tab hidden id=rice_tab>
   <div>
-    Select an Archiver for this board<br>
+    Select an Archiver for this board (takes effect immediantly)<br>
     <select name=archiver></select><br>
     <div class=warning><code>Quote Backlinks</code> are disabled.</div>
     <ul>
@@ -2383,7 +2383,6 @@ Options =
       (option = d.createElement 'option').textContent = name
       $.add archiver, option
     if data.length > 1 and data[0] isnt 'No archiver available.'
-    # Might needs some nicer transition.
       archiver.value = $.get "archiver/#{g.BOARD}/"
       $.on archiver, 'mouseup', Options.archiver
 

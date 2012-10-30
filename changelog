@@ -1,4 +1,6 @@
 master
+- noface
+  Per-board archivers can now be selected under the rice tab.  
 - Mayhem
   Added possibility to display unix timestamps with File Info Formatting.
 

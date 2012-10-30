@@ -2888,7 +2888,7 @@
   </div>\
   <input type=radio name=tab hidden id=rice_tab>\
   <div>\
-    Select an Archiver for this board<br>\
+    Select an Archiver for this board (takes effect immediantly)<br>\
     <select name=archiver></select><br>\
     <div class=warning><code>Quote Backlinks</code> are disabled.</div>\
     <ul>\
