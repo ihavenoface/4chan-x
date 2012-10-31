@@ -1238,14 +1238,18 @@ Keybinds =
         if o = $.id 'overlay'
           Options.close.call o
         else if QR.el
-          QR.close()
+          if Conf['Persistent QR']
+            unless ($ '#autohide', QR.el).checked
+              QR.hide()
+            else QR.unhide()
+          else
+            QR.close()
       when Conf.submit
         QR.submit() if QR.el and !QR.status()
       when Conf.hideQR
-        if ($ '#autohide', QR.el).checked
-          QR.unhide()
-        else
+        unless ($ '#autohide', QR.el).checked
           QR.hide()
+        else QR.unhide()
       when Conf.spoiler
         return if target.nodeName isnt 'TEXTAREA'
         Keybinds.tags 'spoiler', target

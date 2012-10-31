@@ -1555,7 +1555,15 @@
           if (o = $.id('overlay')) {
             Options.close.call(o);
           } else if (QR.el) {
-            QR.close();
+            if (Conf['Persistent QR']) {
+              if (!($('#autohide', QR.el)).checked) {
+                QR.hide();
+              } else {
+                QR.unhide();
+              }
+            } else {
+              QR.close();
+            }
           }
           break;
         case Conf.submit:
@@ -1564,10 +1572,10 @@
           }
           break;
         case Conf.hideQR:
-          if (($('#autohide', QR.el)).checked) {
-            QR.unhide();
-          } else {
+          if (!($('#autohide', QR.el)).checked) {
             QR.hide();
+          } else {
+            QR.unhide();
           }
           break;
         case Conf.spoiler:
