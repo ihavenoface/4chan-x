@@ -2839,7 +2839,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, data, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, select, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -2982,18 +2982,20 @@
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
       archiver = $('select[name=archiver]', dialog);
-      data = Redirect.select() ? Redirect.select() : ['No archiver available.'];
-      for (_i = 0, _len = data.length; _i < _len; _i++) {
-        name = data[_i];
-        if (archiver.length >= data.length) {
+      select = Redirect.select().slice(0);
+      for (_i = 0, _len = select.length; _i < _len; _i++) {
+        name = select[_i];
+        if (archiver.length >= select.length) {
           return;
         }
         (option = d.createElement('option')).textContent = name;
         $.add(archiver, option);
       }
-      if (data.length > 1) {
+      if (select.length > 1) {
         archiver.value = $.get("archiver/" + g.BOARD + "/");
-        $.on(archiver, 'mouseup', Options.archiver);
+        $.on(archiver, 'mouseup', (function() {
+          return $.set("archiver/" + g.BOARD + "/", "" + this.value);
+        }));
       }
       sauce = $('#sauces', dialog);
       sauce.value = $.get(sauce.name, Conf[sauce.name]);
@@ -3121,9 +3123,6 @@
     </li>\
   </ul>'
       }));
-    },
-    archiver: function() {
-      return $.set("archiver/" + g.BOARD + "/", "" + this.value);
     },
     time: function() {
       Time.foo();
@@ -5097,7 +5096,8 @@
       }
     ],
     select: function(data, board) {
-      var arch, current, name, type, _i, _j, _len, _len1, _ref, _ref1;
+      var arch, current, name, noarch, type, _i, _j, _len, _len1, _ref, _ref1;
+      noarch = 'No archiver available.';
       if (!board) {
         arch = [];
         _ref = this.archiver;
@@ -5110,7 +5110,7 @@
           }
         }
         if (arch.length === 0) {
-          return false;
+          return [noarch];
         } else {
           return arch;
         }
@@ -5118,7 +5118,7 @@
       _ref1 = data.boards;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         type = _ref1[_j];
-        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select()[0])) {
+        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select().slice(0)[0]) !== noarch) {
           $.set("archiver/" + board + "/", "" + name);
           continue;
         }

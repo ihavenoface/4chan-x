@@ -2384,18 +2384,14 @@ Options =
 
     #archiver
     archiver = $ 'select[name=archiver]', dialog
-    data =
-      if Redirect.select()
-         Redirect.select()
-      else
-        ['No archiver available.']
-    for name in data
-      return if archiver.length >= data.length
+    select = Redirect.select()[..]
+    for name in select
+      return if archiver.length >= select.length
       (option = d.createElement 'option').textContent = name
       $.add archiver, option
-    if data.length > 1
+    if select.length > 1
       archiver.value = $.get "archiver/#{g.BOARD}/"
-      $.on archiver, 'mouseup', Options.archiver
+      $.on archiver, 'mouseup', (-> $.set "archiver/#{g.BOARD}/", "#{@value}")
 
     #sauce
     sauce = $ '#sauces', dialog
@@ -2511,8 +2507,6 @@ Options =
       For example: <code>top:yes;</code> or <code>top:no;</code>.
     </li>
   </ul>'
-  archiver: ->
-    $.set "archiver/#{g.BOARD}/", "#{@value}"
   time: ->
     Time.foo()
     Time.date = new Date()
@@ -4169,6 +4163,7 @@ Redirect =
   ]
 
   select: (data, board) ->
+    noarch = 'No archiver available.'
     unless board
       arch = []
       for type in @archiver
@@ -4177,11 +4172,11 @@ Redirect =
         else
           arch.push type.name
       return if arch.length is 0
-        false
+        [noarch]
       else
         arch
     for type in data.boards
-      if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[0])
+      if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[..][0]) isnt noarch
         $.set "archiver/#{board}/", "#{name}"
         continue
       if current is data.name and data.boards.indexOf(board) >= 0
