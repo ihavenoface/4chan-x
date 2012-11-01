@@ -2,6 +2,7 @@ master
 - noface
   Added keybind to toggle the hide status of the QR.
   If Persistent QR is enabled the close keybind will only hide the QR.
+  Fix Linkify not detecting blank spoiler tags.
 
 2.36.2
 - noface
