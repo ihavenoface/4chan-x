@@ -97,7 +97,8 @@
         'Thread Expansion': [true, 'View all replies'],
         'Index Navigation': [true, 'Navigate to previous / next thread'],
         'Rollover': [true, 'Index navigation will fallback to page navigation.'],
-        'Reply Navigation': [false, 'Navigate to top / bottom of thread']
+        'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
+        'Check for Updates': [true, 'Check for updated versions of 4chan X']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -5797,6 +5798,15 @@
       }
       $.addStyle(Main.css);
       now = Date.now();
+      if (Conf['Check for Updates'] && $.get('lastUpdate', 0) < now - 6 * $.HOUR) {
+        $.ready(function() {
+          $.on(window, 'message', Main.message);
+          $.set('lastUpdate', now);
+          return $.add(d.head, $.el('script', {
+            src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
+          }));
+        });
+      }
       g.hiddenReplies = $.get("hiddenReplies/" + g.BOARD + "/", {});
       if ($.get('lastChecked', 0) < now - 1 * $.DAY) {
         $.set('lastChecked', now);
@@ -6006,6 +6016,40 @@
         }
       } else {
         Conf[parent] = obj;
+      }
+    },
+    message: function(e) {
+      var a, da, db, version, x;
+      version = e.data.version;
+      if (version && version !== Main.version) {
+        a = $.el('a', {
+          textContent: "4chan X",
+          className: "xupdater",
+          href: "https://raw.github.com/ihavenoface/4chan-x/" + version + "/4chan_x.user.js"
+        });
+        db = $.el('span', {
+          textContent: "An updated version of ",
+          className: "xupdater"
+        });
+        da = $.el('span', {
+          textContent: " is available.",
+          className: "xupdater"
+        });
+        x = $.el('a', {
+          textContent: '  ×',
+          className: "xupdater",
+          href: "javascript:;"
+        });
+        $.after($('h1'), db);
+        $.after(db, a);
+        $.after(a, da);
+        $.after(da, x);
+        return $.on(x, 'click', function() {
+          $.rm(db);
+          $.rm(a);
+          $.rm(da);
+          return $.rm(x);
+        });
       }
     },
     preParse: function(node) {
