@@ -5607,8 +5607,18 @@
       return nodes;
     },
     text: function(child, link) {
-      var a, embed, key, l, lLen, m, match, node, p, rest, site, txt, _ref;
+      var a, c, content, embed, key, l, lLen, m, match, node, p, rest, site, spoiler, txt, _i, _len, _ref, _ref1;
       txt = child.textContent;
+      c = child.nextSibling;
+      if ((c != null) && c.className === 'spoiler' && c.textContent.length === 0) {
+        _ref = $$('.spoiler', c.parentNode);
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          spoiler = _ref[_i];
+          txt += (content = spoiler.nextSibling).textContent;
+          $.rm(content);
+          $.rm(spoiler);
+        }
+      }
       p = 0;
       if (m = Linkify.regString.exec(txt)) {
         l = m[0].replace(/\.*$/, '');
@@ -5631,9 +5641,9 @@
         p = m.index + lLen;
         rest = $.tn(txt.substring(p, txt.length));
         if (Conf['Youtube Embed']) {
-          _ref = Linkify.sites;
-          for (key in _ref) {
-            site = _ref[key];
+          _ref1 = Linkify.sites;
+          for (key in _ref1) {
+            site = _ref1[key];
             if (match = a.href.match(site.regExp)) {
               embed = $.el('a', {
                 name: match[1],
