@@ -6019,37 +6019,17 @@
       }
     },
     message: function(e) {
-      var a, da, db, version, x;
+      var version, xupdate;
       version = e.data.version;
       if (version && version !== Main.version) {
-        a = $.el('a', {
-          textContent: "4chan X",
-          className: "xupdater",
-          href: "https://raw.github.com/ihavenoface/4chan-x/" + version + "/4chan_x.user.js"
+        xupdate = $.el('div', {
+          id: 'xupdater',
+          innerHTML: "An updated version of <a href=https://raw.github.com/ihavenoface/4chan-x/" + version + "/4chan_x.user.js>4chan X</a> (v" + version + ") is available.<a href=javascript:; id=dismiss_xupdate>  ×</a>"
         });
-        db = $.el('span', {
-          textContent: "An updated version of ",
-          className: "xupdater"
-        });
-        da = $.el('span', {
-          textContent: " is available.",
-          className: "xupdater"
-        });
-        x = $.el('a', {
-          textContent: '  ×',
-          className: "xupdater",
-          href: "javascript:;"
-        });
-        $.after($('h1'), db);
-        $.after(db, a);
-        $.after(a, da);
-        $.after(da, x);
-        return $.on(x, 'click', function() {
-          $.rm(db);
-          $.rm(a);
-          $.rm(da);
-          return $.rm(x);
-        });
+        $.before($('#imgControls'), xupdate);
+        return $.on($('#dismiss_xupdate'), 'click', (function() {
+          return $.rm(xupdate);
+        }));
       }
     },
     preParse: function(node) {
@@ -6639,6 +6619,9 @@ div.opContainer {\
 .threadContainer {\
   margin-left: 20px;\
   border-left: 1px solid black;\
+}\
+#xupdater {\
+  margin-bottom: 2px;\
 }\
 '
   };
