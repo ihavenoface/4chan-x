@@ -2396,7 +2396,8 @@ Options =
       $.add archiver, option
     if select.length > 1
       archiver.value = $.get "archiver/#{g.BOARD}/"
-      $.on archiver, 'mouseup', (-> $.set "archiver/#{g.BOARD}/", "#{@value}")
+      $.on archiver, 'mouseup', ->
+        $.set "archiver/#{g.BOARD}/", "#{@value}"
 
     #sauce
     sauce = $ '#sauces', dialog
@@ -4136,78 +4137,75 @@ Redirect =
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
   archiver: [
     {
-      'name':    'Foolz'
-      'base':    '//archive.foolz.us'
-      'boards':  ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+      name:    'Foolz'
+      base:    '//archive.foolz.us'
+      boards:  ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+      type:    'foolfuuka'
     }
     {
-      'name':    'NSFWFoolz'
-      'base':    '//nsfw.foolz.us'
-      'boards':  ['u', 'kuku']
+      name:    'NSFWFoolz'
+      base:    '//nsfw.foolz.us'
+      boards:  ['u', 'kuku']
+      type:    'foolfuuka'
     }
     {
-      'name':    'Warosu'
-      'base':    '//fuuka.warosu.org'
-      'boards':  ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+      name:    'Warosu'
+      base:    '//fuuka.warosu.org'
+      boards:  ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+      type:    'fuuka'
     }
     {
-      'name':    'InstallGentoo'
-      'base':    '//archive.installgentoo.net'
-      'boards':  ['diy', 'g', 'sci']
+      name:    'RebeccaBlackTech'
+      base:    '//rbt.asia'
+      boards:  ['cgl', 'g', 'mu', 'soc', 'w']
+      type:    'fuuka'
     }
     {
-      'name':    'RebeccaBlackTech'
-      'base':    '//rbt.asia'
-      'boards':  ['cgl', 'g', 'mu', 'soc', 'w']
+      name:    'InstallGentoo'
+      base:    '//archive.installgentoo.net'
+      boards:  ['diy', 'g', 'sci']
+      type:    'fuuka'
     }
     {
-      'name':    'Heinessen'
-      'base':    'http://archive.heinessen.com'
-      'boards':  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+      name:    'Heinessen'
+      base:    'http://archive.heinessen.com'
+      boards:  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+      type:    'fuuka'
     }
   ]
 
   select: (data, board) ->
     noarch = 'No archiver available.'
     unless board
-      arch = []
-      for type in @archiver
+      arch = for type in @archiver
         unless type.boards.indexOf(g.BOARD) >= 0
           continue
         else
-          arch.push type.name
-      return if arch.length is 0
-        [noarch]
-      else
-        arch
+          type.name
+      return if arch.length > 0 then arch else [noarch]
     for type in data.boards
-      if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[..][0]) isnt noarch
+      if (current = $.get "archiver/#{board}/") is undefined and (name = @select()[..][0]) isnt [noarch]
         $.set "archiver/#{board}/", "#{name}"
         continue
-      if current is data.name and data.boards.indexOf(board) >= 0
-        return board
+      return board if current is data.name and data.boards.indexOf(board) >= 0
 
   to: (data) ->
     unless data.isSearch
       {threadID} = data
     {board} = data
     a = @archiver
-    switch board
-      when @select a[0], board
-        url = @path a[0].base, 'foolfuuka', data
-      when @select a[1], board
-        url = @path a[1].base, 'foolfuuka', data
-      when @select a[2], board
-        url = @path a[2].base, 'fuuka', data
-      when @select a[3], board
-        url = @path a[3].base, 'fuuka', data
-      when @select a[4], board
-        url = @path a[4].base, 'fuuka', data
-      when @select a[5], board
-        url = @path a[5].base, 'fuuka', data
-      else
-        if threadID
-          url = "//boards.4chan.org/#{board}/"
+
+    for archiver in a
+      if board is @select archiver, board
+        archive = archiver
+        break
+
+    if archive?
+      url = @path archive.base, archive.type, data
+    else
+      if threadID
+        return url = "//boards.4chan.org/#{board}/"
+
     url or null
 
   path: (base, archiver, data) ->

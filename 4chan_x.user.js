@@ -3002,9 +3002,9 @@
       }
       if (select.length > 1) {
         archiver.value = $.get("archiver/" + g.BOARD + "/");
-        $.on(archiver, 'mouseup', (function() {
+        $.on(archiver, 'mouseup', function() {
           return $.set("archiver/" + g.BOARD + "/", "" + this.value);
-        }));
+        });
       }
       sauce = $('#sauces', dialog);
       sauce.value = $.get(sauce.name, Conf[sauce.name]);
@@ -5079,55 +5079,65 @@
     },
     archiver: [
       {
-        'name': 'Foolz',
-        'base': '//archive.foolz.us',
-        'boards': ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+        name: 'Foolz',
+        base: '//archive.foolz.us',
+        boards: ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'],
+        type: 'foolfuuka'
       }, {
-        'name': 'NSFWFoolz',
-        'base': '//nsfw.foolz.us',
-        'boards': ['u', 'kuku']
+        name: 'NSFWFoolz',
+        base: '//nsfw.foolz.us',
+        boards: ['u', 'kuku'],
+        type: 'foolfuuka'
       }, {
-        'name': 'Warosu',
-        'base': '//fuuka.warosu.org',
-        'boards': ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+        name: 'Warosu',
+        base: '//fuuka.warosu.org',
+        boards: ['cgl', 'ck', 'jp', 'lit', 'q', 'tg'],
+        type: 'fuuka'
       }, {
-        'name': 'InstallGentoo',
-        'base': '//archive.installgentoo.net',
-        'boards': ['diy', 'g', 'sci']
+        name: 'RebeccaBlackTech',
+        base: '//rbt.asia',
+        boards: ['cgl', 'g', 'mu', 'soc', 'w'],
+        type: 'fuuka'
       }, {
-        'name': 'RebeccaBlackTech',
-        'base': '//rbt.asia',
-        'boards': ['cgl', 'g', 'mu', 'soc', 'w']
+        name: 'InstallGentoo',
+        base: '//archive.installgentoo.net',
+        boards: ['diy', 'g', 'sci'],
+        type: 'fuuka'
       }, {
-        'name': 'Heinessen',
-        'base': 'http://archive.heinessen.com',
-        'boards': ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+        name: 'Heinessen',
+        base: 'http://archive.heinessen.com',
+        boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'],
+        type: 'fuuka'
       }
     ],
     select: function(data, board) {
-      var arch, current, name, noarch, type, _i, _j, _len, _len1, _ref, _ref1;
+      var arch, current, name, noarch, type, _i, _len, _ref;
       noarch = 'No archiver available.';
       if (!board) {
-        arch = [];
-        _ref = this.archiver;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          type = _ref[_i];
-          if (!(type.boards.indexOf(g.BOARD) >= 0)) {
-            continue;
-          } else {
-            arch.push(type.name);
+        arch = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.archiver;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            type = _ref[_i];
+            if (!(type.boards.indexOf(g.BOARD) >= 0)) {
+              continue;
+            } else {
+              _results.push(type.name);
+            }
           }
-        }
-        if (arch.length === 0) {
-          return [noarch];
-        } else {
+          return _results;
+        }).call(this);
+        if (arch.length > 0) {
           return arch;
+        } else {
+          return [noarch];
         }
       }
-      _ref1 = data.boards;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        type = _ref1[_j];
-        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select().slice(0)[0]) !== noarch) {
+      _ref = data.boards;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select().slice(0)[0]) !== [noarch]) {
           $.set("archiver/" + board + "/", "" + name);
           continue;
         }
@@ -5137,35 +5147,25 @@
       }
     },
     to: function(data) {
-      var a, board, threadID, url;
+      var a, archive, archiver, board, threadID, url, _i, _len;
       if (!data.isSearch) {
         threadID = data.threadID;
       }
       board = data.board;
       a = this.archiver;
-      switch (board) {
-        case this.select(a[0], board):
-          url = this.path(a[0].base, 'foolfuuka', data);
+      for (_i = 0, _len = a.length; _i < _len; _i++) {
+        archiver = a[_i];
+        if (board === this.select(archiver, board)) {
+          archive = archiver;
           break;
-        case this.select(a[1], board):
-          url = this.path(a[1].base, 'foolfuuka', data);
-          break;
-        case this.select(a[2], board):
-          url = this.path(a[2].base, 'fuuka', data);
-          break;
-        case this.select(a[3], board):
-          url = this.path(a[3].base, 'fuuka', data);
-          break;
-        case this.select(a[4], board):
-          url = this.path(a[4].base, 'fuuka', data);
-          break;
-        case this.select(a[5], board):
-          url = this.path(a[5].base, 'fuuka', data);
-          break;
-        default:
-          if (threadID) {
-            url = "//boards.4chan.org/" + board + "/";
-          }
+        }
+      }
+      if (archive != null) {
+        url = this.path(archive.base, archive.type, data);
+      } else {
+        if (threadID) {
+          return url = "//boards.4chan.org/" + board + "/";
+        }
       }
       return url || null;
     },
