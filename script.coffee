@@ -4892,7 +4892,7 @@ Main =
         id: 'xupdater'
         innerHTML:
           "An updated version of <a href=https://raw.github.com/ihavenoface/4chan-x/#{version}/4chan_x.user.js>4chan X</a> (v#{version}) is available.<a href=javascript:; id=dismiss_xupdate>  ×</a>"
-      $.before $('#imgControls'), xupdate
+      $.prepend $.id('delform'), xupdate
       $.on $('#dismiss_xupdate'), 'click', (-> $.rm xupdate)
 
   preParse: (node) ->
