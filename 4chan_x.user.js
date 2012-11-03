@@ -5077,6 +5077,7 @@
           return "//nsfw.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
       }
     },
+    archive: {},
     archiver: [
       {
         name: 'Foolz',
@@ -5134,34 +5135,35 @@
           return [noarch];
         }
       }
+      if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select().slice(0)[0]) !== noarch) {
+        $.set("archiver/" + board + "/", "" + name);
+      }
       _ref = data.boards;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
-        if ((current = $.get("archiver/" + board + "/")) === void 0 && (name = this.select().slice(0)[0]) !== [noarch]) {
-          $.set("archiver/" + board + "/", "" + name);
-          continue;
-        }
         if (current === data.name && data.boards.indexOf(board) >= 0) {
           return board;
         }
       }
     },
     to: function(data) {
-      var a, archive, archiver, board, threadID, url, _i, _len;
+      var archiver, board, threadID, url, _i, _len, _ref;
       if (!data.isSearch) {
         threadID = data.threadID;
       }
       board = data.board;
-      a = this.archiver;
-      for (_i = 0, _len = a.length; _i < _len; _i++) {
-        archiver = a[_i];
-        if (board === this.select(archiver, board)) {
-          archive = archiver;
-          break;
+      if (!Redirect.archive[board]) {
+        _ref = this.archiver;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          archiver = _ref[_i];
+          if (board === this.select(archiver, board)) {
+            Redirect.archive[board] = archiver;
+            break;
+          }
         }
       }
-      if (archive != null) {
-        url = this.path(archive.base, archive.type, data);
+      if (Redirect.archive[board] != null) {
+        url = this.path(Redirect.archive[board].base, Redirect.archive[board].type, data);
       } else {
         if (threadID) {
           return url = "//boards.4chan.org/" + board + "/";
