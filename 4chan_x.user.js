@@ -3002,6 +3002,9 @@
       }
       if (select.length > 1) {
         archiver.value = $.get("archiver/" + g.BOARD + "/");
+        if (Redirect.archive[g.BOARD]) {
+          delete Redirect.archive[g.BOARD];
+        }
         $.on(archiver, 'mouseup', function() {
           return $.set("archiver/" + g.BOARD + "/", "" + this.value);
         });
