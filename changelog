@@ -1,4 +1,6 @@
 master
+
+2.36.3
 - noface
   Added keybind to toggle the hide status of the QR.
   If Persistent QR is enabled the close keybind will only hide the QR.
