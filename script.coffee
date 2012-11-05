@@ -4195,15 +4195,18 @@ Redirect =
     unless data.isSearch
       {threadID} = data
     {board} = data
+    aboard  = Redirect.archive[board]
 
-    unless Redirect.archive[board]
+    unless aboard
       for archiver in @archiver
         if board is @select archiver, board
-          Redirect.archive[board] = archiver
+          aboard = archiver
           break
+      unless aboard
+        aboard = 'none'
 
-    if Redirect.archive[board]?
-      url = @path Redirect.archive[board].base, Redirect.archive[board].type, data
+    if aboard isnt 'none'
+      url = @path aboard.base, aboard.type, data
     else
       if threadID
         return url = "//boards.4chan.org/#{board}/"
