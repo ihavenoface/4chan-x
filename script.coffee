@@ -4870,7 +4870,10 @@ Main =
     nodes = []
     for node in $$ '.postContainer', board
       nodes.push Main.preParse node
-    Main.node nodes, true
+    Main.node nodes, ->
+      if d.readyState is "complete"
+        return true
+      false
 
     # Execute these scripts on inserted posts, not page init.
     Main.hasCodeTags = !! $ 'script[src^="//static.4chan.org/js/prettify/prettify"]'
