@@ -4550,12 +4550,6 @@ Linkify =
 
   text: (child, link) ->
     txt = child.textContent
-    c = child.nextSibling
-    if c? and c.className is 'spoiler' and c.textContent.length is 0
-      for spoiler in $$ '.spoiler', c.parentNode
-        txt += (content = spoiler.nextSibling).textContent
-        $.rm content
-        $.rm spoiler
     p = 0
     if m = Linkify.regString.exec txt
       l = m[0].replace /\.*$/, ''
