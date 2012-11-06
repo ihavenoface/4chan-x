@@ -2389,7 +2389,7 @@ Options =
 
     #archiver
     archiver = $ 'select[name=archiver]', dialog
-    select = Redirect.select()[..]
+    select = Redirect.select()
     for name in select
       return if archiver.length >= select.length
       (option = d.createElement 'option').textContent = name
@@ -2399,7 +2399,7 @@ Options =
       if Redirect.archive[g.BOARD]
         delete Redirect.archive[g.BOARD]
       $.on archiver, 'mouseup', ->
-        $.set "archiver/#{g.BOARD}/", "#{@value}"
+        $.set "archiver/#{g.BOARD}/", @value
 
     #sauce
     sauce = $ '#sauces', dialog
@@ -4186,14 +4186,10 @@ Redirect =
         else
           type.name
       return if arch.length > 0 then arch else [noarch]
-    for name in data.name
-      if (current = $.get "archiver/#{board}/") is data.name
-        break
-      else
-        $.set "archiver/#{board}/", "#{@select()[0]}"
-        break
-    if current is undefined and (name = @select()[..][0]) isnt noarch
-      $.set "archiver/#{board}/", "#{name}"
+    if (name.name for name in @archiver).indexOf(current = $.get "archiver/#{board}/") is -1 and (name = @select()[0]) isnt noarch
+      $.set "archiver/#{board}/", name
+    if current is undefined and (name = @select()[0]) isnt noarch
+      $.set "archiver/#{board}/", name
     for type in data.boards
       return board if current is data.name and data.boards.indexOf(board) >= 0
 
