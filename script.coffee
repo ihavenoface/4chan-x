@@ -2130,13 +2130,13 @@ QR =
       sub:      reply.sub
       com:      if Conf['Markdown'] then Markdown.format reply.com else reply.com
       upfile:   reply.file
+      filetag:  ($ 'select[name="filetag"]').value if (g.BOARD is 'f') and !g.REPLY
       spoiler:  reply.spoiler
       textonly: textOnly
       mode:     'regist'
       pwd:      if m = d.cookie.match(/4chan_pass=([^;]+)/) then decodeURIComponent m[1] else $('input[name=pwd]').value
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  response
-    post.filetag = ($ 'select[name="filetag"]').value if (g.BOARD is 'f') and !g.REPLY
 
     callbacks =
       onload: ->

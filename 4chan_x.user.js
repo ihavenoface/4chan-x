@@ -2713,6 +2713,7 @@
         sub: reply.sub,
         com: Conf['Markdown'] ? Markdown.format(reply.com) : reply.com,
         upfile: reply.file,
+        filetag: (g.BOARD === 'f') && !g.REPLY ? ($('select[name="filetag"]')).value : void 0,
         spoiler: reply.spoiler,
         textonly: textOnly,
         mode: 'regist',
@@ -2720,9 +2721,6 @@
         recaptcha_challenge_field: challenge,
         recaptcha_response_field: response
       };
-      if ((g.BOARD === 'f') && !g.REPLY) {
-        post.filetag = ($('select[name="filetag"]')).value;
-      }
       callbacks = {
         onload: function() {
           return QR.response(this.response);
