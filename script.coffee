@@ -4824,7 +4824,7 @@ Main =
     if Conf['Quick Reply']
       QR.init()
 
-    if Conf['Image Expansion']
+    if Conf['Image Expansion'] and g.BOARD isnt 'f'
       ImageExpand.init()
 
     if Conf['Thread Watcher']
@@ -4834,7 +4834,7 @@ Main =
       setTimeout -> Keybinds.init()
 
     if g.REPLY
-      if Conf['Prefetch']
+      if Conf['Prefetch'] and g.BOARD isnt 'f'
         Prefetch.init()
 
       if Conf['Thread Updater']

@@ -5954,7 +5954,7 @@
       if (Conf['Quick Reply']) {
         QR.init();
       }
-      if (Conf['Image Expansion']) {
+      if (Conf['Image Expansion'] && g.BOARD !== 'f') {
         ImageExpand.init();
       }
       if (Conf['Thread Watcher']) {
@@ -5968,7 +5968,7 @@
         });
       }
       if (g.REPLY) {
-        if (Conf['Prefetch']) {
+        if (Conf['Prefetch'] && g.BOARD !== 'f') {
           Prefetch.init();
         }
         if (Conf['Thread Updater']) {
