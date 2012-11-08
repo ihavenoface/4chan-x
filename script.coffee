@@ -2012,9 +2012,13 @@ QR =
       for thread in $$ '.thread'
         id = thread.id[1..]
         threads += "<option value=#{id}>Thread #{id}</option>"
-      QR.threadSelector = $.el 'select'
-        innerHTML: threads
-        title: 'Create a new thread / Reply to a thread'
+      QR.threadSelector =
+        unless g.BOARD is 'f'
+          $.el 'select'
+            innerHTML: threads
+            title: 'Create a new thread / Reply to a thread'
+        else
+          $ 'select[name="filetag"]'
       $.prepend $('.move > span', QR.el), QR.threadSelector
       $.on QR.threadSelector,   'mousedown', (e) -> e.stopPropagation()
     $.on $('#autohide', QR.el), 'change',    QR.toggleHide
@@ -2060,7 +2064,7 @@ QR =
     QR.abort()
 
     reply = QR.replies[0]
-    threadID = g.THREAD_ID or QR.threadSelector.value
+    threadID = g.THREAD_ID or QR.threadSelector.value unless g.BOARD is 'f'
 
     # prevent errors
     if threadID is 'new'
@@ -2127,6 +2131,7 @@ QR =
       pwd:      if m = d.cookie.match(/4chan_pass=([^;]+)/) then decodeURIComponent m[1] else $('input[name=pwd]').value
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  response
+    post.filetag = ($ 'select[name="filetag"]').value if g.BOARD is 'f'
 
     callbacks =
       onload: ->
@@ -2163,9 +2168,11 @@ QR =
             "You were issued a warning on #{bs[0].innerHTML} as #{bs[3].innerHTML}.<br>Warning reason: #{bs[1].innerHTML}"
           else
             "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
-    else if err = doc.getElementById 'errmsg' # error!
-      if /4chan Pass/.test(err.textContent)
+    else if err = doc.getElementById('errmsg') or err = $('center', doc) # error!
+      if /4chan Pass/.test err.textContent
         err.textContent = 'You seem to have mistyped the CAPTCHA.'
+      if $ 'font', err
+        err.textContent = err.textContent.replace /Return$/, ''
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc
       err = 'Connection error with sys.4chan.org.'
