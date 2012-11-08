@@ -2178,6 +2178,8 @@ QR =
       err = 'Connection error with sys.4chan.org.'
 
     if err
+      if err.nodeName is 'CENTER'
+        err = err.textContent
       if /captcha|verification/i.test(err.textContent) or err is 'Connection error with sys.4chan.org.'
         # Enable auto-post if we have some cached captchas.
         QR.cooldown.auto =

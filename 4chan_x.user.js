@@ -2772,6 +2772,9 @@
         err = 'Connection error with sys.4chan.org.';
       }
       if (err) {
+        if (err.nodeName === 'CENTER') {
+          err = err.textContent;
+        }
         if (/captcha|verification/i.test(err.textContent) || err === 'Connection error with sys.4chan.org.') {
           QR.cooldown.auto = QR.captchaIsEnabled ? !!$.get('captchas', []).length : true;
           QR.cooldown.set({
