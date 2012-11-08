@@ -2650,7 +2650,7 @@
       }
       QR.abort();
       reply = QR.replies[0];
-      if (g.BOARD !== 'f') {
+      if (!((g.BOARD === 'f') && !g.REPLY)) {
         threadID = g.THREAD_ID || QR.threadSelector.value;
       }
       if (threadID === 'new') {
@@ -2720,7 +2720,7 @@
         recaptcha_challenge_field: challenge,
         recaptcha_response_field: response
       };
-      if (g.BOARD === 'f') {
+      if ((g.BOARD === 'f') && !g.REPLY) {
         post.filetag = ($('select[name="filetag"]')).value;
       }
       callbacks = {
