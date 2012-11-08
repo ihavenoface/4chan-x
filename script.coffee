@@ -1468,7 +1468,12 @@ QR =
       link = $.el 'h1', innerHTML: "<a href=javascript:;>#{if g.REPLY then 'Reply to Thread' else 'Start a Thread'}</a>"
       $.on link.firstChild, 'click', ->
         QR.open()
-        QR.threadSelector.value = 'new' unless g.REPLY
+        unless g.BOARD is 'f'
+          unless g.REPLY
+            QR.threadSelector.value =
+              'new' 
+        else
+          '9999'
         $('textarea', QR.el).focus()
       $.before $.id('postForm'), link
 
@@ -2603,7 +2608,7 @@ Updater =
     post: ->
       return unless Conf['Auto Update This']
       search = []
-      if (text = QR.replies[0].com)?  and text.length isnt 0
+      if (text = QR.replies[0].com)? and text.length isnt 0
         search[0] = text.trim()
       else
         search[0] = QR.replies[0].file.name
