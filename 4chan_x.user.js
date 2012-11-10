@@ -5123,6 +5123,11 @@
         base: 'http://archive.heinessen.com',
         boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'],
         type: 'fuuka'
+      }, {
+        name: 'TheDarkCave',
+        base: '//archive.thedarkcave.org',
+        boards: ['c', 'po'],
+        type: 'foolfuuka'
       }
     ],
     select: function(data, board) {
