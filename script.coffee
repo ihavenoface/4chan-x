@@ -4205,7 +4205,7 @@ Redirect =
       if (current = $.get "archiver/#{board}/") is undefined or name.indexOf(current) is -1
         $.set "archiver/#{board}/", name[0]
       for type in data.boards
-        if data.name is name[name.indexOf(current)] and type is board
+        if data.name is name[name.indexOf(current)]
           return board
     else if name[0] isnt noarch
       for type in data.boards

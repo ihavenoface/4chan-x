@@ -5161,7 +5161,7 @@
         _ref = data.boards;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           type = _ref[_i];
-          if (data.name === name[name.indexOf(current)] && type === board) {
+          if (data.name === name[name.indexOf(current)]) {
             return board;
           }
         }
