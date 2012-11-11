@@ -5121,7 +5121,7 @@
         name: 'RebeccaBlackTech',
         base: '//rbt.asia',
         boards: ['cgl', 'g', 'mu', 'soc', 'w'],
-        type: 'fuuka'
+        type: 'fuuka_mail'
       }, {
         name: 'InstallGentoo',
         base: '//archive.installgentoo.net',
@@ -5210,8 +5210,12 @@
           return "" + base + "/" + board + "/search/" + type + "/" + value;
         } else if (type === 'image') {
           return "" + base + "/" + board + "/?task=search2&search_media_hash=" + value;
-        } else {
-          return "" + base + "/" + board + "/?task=search2&search_" + type + "=" + value;
+        } else if (/fuuka/.test(archiver)) {
+          if (archiver === 'fuuka_mail' || type !== 'email') {
+            return "" + base + "/" + board + "/?task=search2&search_" + type + "=" + value;
+          } else {
+            return false;
+          }
         }
       }
       board = data.board, threadID = data.threadID, postID = data.postID;
