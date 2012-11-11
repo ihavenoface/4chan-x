@@ -2408,12 +2408,15 @@ Options =
       return if archiver.length >= select.length
       (option = d.createElement 'option').textContent = name
       $.add archiver, option
-    if select.length > 1
-      archiver.value = $.get "archiver/#{g.BOARD}/"
+    if select[1]
+      value = "archiver/#{g.BOARD}/"
+      archiver.value = $.get value
       if Redirect.archive[g.BOARD]
         delete Redirect.archive[g.BOARD]
       $.on archiver, 'mouseup', ->
-        $.set "archiver/#{g.BOARD}/", @value
+        $.set value, @value
+        if select[0] is $.get value
+          $.delete value
 
     #sauce
     sauce = $ '#sauces', dialog

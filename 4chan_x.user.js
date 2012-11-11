@@ -2862,7 +2862,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, select, time, tr, ul, updateIncrease, updateIncreaseB, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, select, time, tr, ul, updateIncrease, updateIncreaseB, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -3014,13 +3014,17 @@
         (option = d.createElement('option')).textContent = name;
         $.add(archiver, option);
       }
-      if (select.length > 1) {
-        archiver.value = $.get("archiver/" + g.BOARD + "/");
+      if (select[1]) {
+        value = "archiver/" + g.BOARD + "/";
+        archiver.value = $.get(value);
         if (Redirect.archive[g.BOARD]) {
           delete Redirect.archive[g.BOARD];
         }
         $.on(archiver, 'mouseup', function() {
-          return $.set("archiver/" + g.BOARD + "/", this.value);
+          $.set(value, this.value);
+          if (select[0] === $.get(value)) {
+            return $["delete"](value);
+          }
         });
       }
       sauce = $('#sauces', dialog);
