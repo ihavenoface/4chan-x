@@ -5154,9 +5154,8 @@
           return [noarch];
         }
       }
-      name = [this.select()][0];
-      if (name[1]) {
-        if ((current = $.get("archiver/" + board + "/")) === void 0 || name.indexOf(current) >= 0) {
+      if ((name = this.select())[1]) {
+        if ((current = $.get("archiver/" + board + "/")) === void 0 || name.indexOf(current) === -1) {
           $.set("archiver/" + board + "/", name[0]);
         }
         _ref = data.boards;
