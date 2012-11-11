@@ -5176,31 +5176,23 @@
       }
     },
     to: function(data) {
-      var aboard, archiver, board, threadID, url, _i, _len, _ref;
+      var archiver, board, threadID, url, _i, _len, _ref;
       if (!data.isSearch) {
         threadID = data.threadID;
       }
       board = data.board;
-      aboard = Redirect.archive[board];
-      if (!aboard) {
+      if (!Redirect.archive[board]) {
         _ref = this.archiver;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           archiver = _ref[_i];
           if (board === this.select(archiver, board)) {
-            aboard = archiver;
+            url = this.path(archiver.base, archiver.type, data);
             break;
           }
         }
-        if (!aboard) {
-          aboard = 'none';
-        }
       }
-      if (aboard !== 'none') {
-        url = this.path(aboard.base, aboard.type, data);
-      } else {
-        if (threadID) {
-          return url = "//boards.4chan.org/" + board + "/";
-        }
+      if (!url && threadID) {
+        return "//boards.4chan.org/" + board + "/";
       }
       return url || null;
     },
