@@ -4542,7 +4542,7 @@ Linkify =
 
   node: (post) ->
     for blank in $$ '.spoiler', post.blockquote
-      if blank.textContent.length < 1
+      if blank.textContent.length < 2 or !/\w/.test blank.textContent
         blank.previousSibling.textContent += blank.nextSibling.textContent
         $.rm blank.nextSibling
         $.rm blank
