@@ -1,4 +1,6 @@
 master
+
+2.36.4
 - noface
   Added support for posting with QR and tags on /f/.
   Added redirection for /c/ and /po/.
