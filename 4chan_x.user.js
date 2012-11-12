@@ -3201,7 +3201,8 @@
       this.timer = $('#timer', dialog);
       this.thread = $.id("t" + g.THREAD_ID);
       this.ccheck = true;
-      this.cnodes = [];
+      this.ccount = 0;
+      this.postID = [];
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       _ref = $$('input', dialog);
@@ -3239,43 +3240,27 @@
       $.on(d, 'QRPostSuccessful', this.cb.post);
       return $.on(d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', this.cb.visibility);
     },
-    postID: '',
+    checkpost: function(search) {
+      if (search.indexOf(this.postID[0]) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
+        this.ccheck = true;
+        if (this.ccount > 25) {
+          return this.ccheck = false;
+        } else {
+          this.ccount++;
+          this.ccheck = false;
+          return this.update();
+        }
+      } else {
+        return this.postID = [];
+      }
+    },
     cb: {
       post: function() {
         if (!Conf['Auto Update This']) {
           return;
         }
         Updater.unsuccessfulFetchCount = 0;
-        return setTimeout(function() {
-          var checkpost, count, int;
-          checkpost = function() {
-            var node, nodes, postIDs, _i, _len;
-            nodes = Updater.cnodes.childNodes;
-            postIDs = $$('[title="Quote this post"]', nodes);
-            for (_i = 0, _len = postIDs.length; _i < _len; _i++) {
-              node = postIDs[_i];
-              if (node.text === Updater.postID) {
-                return true;
-              }
-            }
-            return false;
-          };
-          Updater.update();
-          if (!checkpost() && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
-            count = 0;
-            return int = setInterval((function() {
-              Updater.ccheck = true;
-              Updater.update();
-              if (checkpost() || count > 25) {
-                Updater.ccheck = false;
-                Updater.cnodes = [];
-                clearInterval(int);
-              }
-              Updater.ccheck = false;
-              return count++;
-            }), 500);
-          }
-        }, 1000);
+        return setTimeout(Updater.update, 1000);
       },
       visibility: function() {
         var state;
@@ -3371,14 +3356,15 @@
         }
         return delete Updater.request;
       },
-      update: function(posts) {
-        var count, id, lastPost, nodes, post, scroll, spoilerRange, _i, _len, _ref;
+      update: function(posts, postID) {
+        var count, id, lastPost, nodes, post, scroll, search, spoilerRange, _i, _len, _ref;
         if (spoilerRange = posts[0].custom_spoiler) {
           Build.spoilerRange[g.BOARD] = spoilerRange;
         }
         lastPost = Updater.thread.lastElementChild;
         id = +lastPost.id.slice(2);
         nodes = [];
+        search = [];
         _ref = posts.reverse();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           post = _ref[_i];
@@ -3386,7 +3372,12 @@
             break;
           }
           nodes.push(Build.postFromObject(post, g.BOARD));
-          Updater.cnodes.push(Build.postFromObject(post, g.BOARD));
+          search.push(post.no);
+        }
+        if (Updater.postID[0]) {
+          Updater.checkpost(search);
+        } else {
+          this.ccheck = false;
         }
         count = nodes.length;
         if (Conf['Verbose']) {

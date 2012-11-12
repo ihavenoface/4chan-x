@@ -2211,7 +2211,6 @@ QR =
     $.set 'QR.persona', persona
 
     [_, threadID, postID] = msg.lastChild.textContent.match /thread:(\d+),no:(\d+)/
-
     Updater.postID = postID
 
     # Post/upload confirmed as successful.
@@ -2579,7 +2578,8 @@ Updater =
     @timer  = $ '#timer', dialog
     @thread = $.id "t#{g.THREAD_ID}"
     @ccheck = true
-    @cnodes = []
+    @ccount = 0
+    @postID = []
 
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
@@ -2609,34 +2609,24 @@ Updater =
     $.on d, 'QRPostSuccessful', @cb.post
     $.on d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', @cb.visibility
 
-  postID: ''
+  checkpost: (search) ->
+    if search.indexOf(@postID[0]) is -1 and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
+      @ccheck = true
+      return if @ccount > 25
+        @ccheck = false
+      else
+        @ccount++
+        @ccheck = false
+        @update()
+    else
+      @postID = []
 
   cb:
     post: ->
       return unless Conf['Auto Update This']
       Updater.unsuccessfulFetchCount = 0
-      setTimeout ->
-        checkpost = ->
-          nodes = Updater.cnodes.childNodes
-          postIDs = ($$ '[title="Quote this post"]', nodes)
-          for node in postIDs
-            if node.text is Updater.postID
-              return true
-          false
-        Updater.update()
-        if !checkpost() and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
-        # This was still too bloated for just getting the value of the timer.
-          count = 0
-          int = setInterval (->
-            Updater.ccheck = true
-            Updater.update()
-            if checkpost() or count > 25
-              Updater.ccheck = false
-              Updater.cnodes = []
-              clearInterval int
-            Updater.ccheck = false
-            count++), 500
-      , 1000
+      setTimeout Updater.update, 1000
+
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'
@@ -2709,17 +2699,23 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       delete Updater.request
-    update: (posts) ->
+    update: (posts, postID) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
 
       lastPost = Updater.thread.lastElementChild
       id = +lastPost.id[2..]
-      nodes = []
+      nodes  = []
+      search = []
       for post in posts.reverse()
         break if post.no <= id # Make sure to not insert older posts.
         nodes.push Build.postFromObject post, g.BOARD
-        Updater.cnodes.push Build.postFromObject post, g.BOARD
+        search.push post.no
+
+      if Updater.postID[0]
+        Updater.checkpost search
+      else
+        @ccheck = false
 
       count = nodes.length
       if Conf['Verbose']
