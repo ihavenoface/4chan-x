@@ -4541,6 +4541,11 @@ Linkify =
       safeurl: "http://www.vimeo.com/"
 
   node: (post) ->
+    for blank in $$ '.spoiler', post.blockquote
+      if blank.textContent.length < 1
+        blank.previousSibling.textContent += blank.nextSibling.textContent
+        $.rm blank.nextSibling
+        $.rm blank
     comment = post.blockquote or $ 'blockquote', post.el
     subject = $ '.subject', post.el
     nodes = Linkify.collector comment

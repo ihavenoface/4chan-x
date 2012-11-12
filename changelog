@@ -2,6 +2,7 @@ master
 - noface
   Added support for posting with QR and tags on /f/.
   Added redirection for /c/ and /po/.
+  Fixed spoiler detection not working on rare occasions.
 
 2.36.3
 - noface

@@ -5610,7 +5610,16 @@
       }
     },
     node: function(post) {
-      var comment, node, nodes, subject, _i, _len, _results;
+      var blank, comment, node, nodes, subject, _i, _j, _len, _len1, _ref, _results;
+      _ref = $$('.spoiler', post.blockquote);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        blank = _ref[_i];
+        if (blank.textContent.length < 1) {
+          blank.previousSibling.textContent += blank.nextSibling.textContent;
+          $.rm(blank.nextSibling);
+          $.rm(blank);
+        }
+      }
       comment = post.blockquote || $('blockquote', post.el);
       subject = $('.subject', post.el);
       nodes = Linkify.collector(comment);
@@ -5618,8 +5627,8 @@
         nodes.push(subject.childNodes);
       }
       _results = [];
-      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
-        node = nodes[_i];
+      for (_j = 0, _len1 = nodes.length; _j < _len1; _j++) {
+        node = nodes[_j];
         _results.push(Linkify.text(node));
       }
       return _results;
