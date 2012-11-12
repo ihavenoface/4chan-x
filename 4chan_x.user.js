@@ -5614,7 +5614,7 @@
       _ref = $$('.spoiler', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         blank = _ref[_i];
-        if (blank.textContent.length < 2 || !/\w/.test(blank.textContent)) {
+        if (!/\w/.test(blank.textContent)) {
           blank.previousSibling.textContent += blank.nextSibling.textContent;
           $.rm(blank.nextSibling);
           $.rm(blank);
