@@ -4197,18 +4197,18 @@ Redirect =
 
   select: (data, board) ->
     noarch = 'No archiver available.'
-    unless board
+    unless data
       arch = for type in @archiver
-        unless type.boards.indexOf(g.BOARD) >= 0
+        unless type.boards.indexOf(board or g.BOARD) >= 0
           continue
         else
           type.name
       return if arch.length > 0 then arch else [noarch]
-    if (name = @select())[1]
+    if (name = @select false, board)[1]
       if (current = $.get "archiver/#{board}/") is undefined or name.indexOf(current) is -1
         $.set "archiver/#{board}/", name[0]
       for type in data.boards
-        if data.name is name[name.indexOf(current)]
+        if data.name is name[name.indexOf current]
           return board
     else if name[0] isnt noarch
       for type in data.boards

@@ -5137,14 +5137,14 @@
     select: function(data, board) {
       var arch, current, name, noarch, type, _i, _j, _len, _len1, _ref, _ref1;
       noarch = 'No archiver available.';
-      if (!board) {
+      if (!data) {
         arch = (function() {
           var _i, _len, _ref, _results;
           _ref = this.archiver;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             type = _ref[_i];
-            if (!(type.boards.indexOf(g.BOARD) >= 0)) {
+            if (!(type.boards.indexOf(board || g.BOARD) >= 0)) {
               continue;
             } else {
               _results.push(type.name);
@@ -5158,7 +5158,7 @@
           return [noarch];
         }
       }
-      if ((name = this.select())[1]) {
+      if ((name = this.select(false, board))[1]) {
         if ((current = $.get("archiver/" + board + "/")) === void 0 || name.indexOf(current) === -1) {
           $.set("archiver/" + board + "/", name[0]);
         }
