@@ -1471,7 +1471,7 @@ QR =
         unless g.BOARD is 'f'
           unless g.REPLY
             QR.threadSelector.value =
-              'new' 
+              'new'
         else
           '9999'
         $('textarea', QR.el).focus()
@@ -2212,6 +2212,8 @@ QR =
 
     [_, threadID, postID] = msg.lastChild.textContent.match /thread:(\d+),no:(\d+)/
 
+    Updater.postID = postID
+
     # Post/upload confirmed as successful.
     $.event QR.el, new CustomEvent 'QRPostSuccessful',
       bubbles: true
@@ -2607,26 +2609,17 @@ Updater =
     $.on d, 'QRPostSuccessful', @cb.post
     $.on d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', @cb.visibility
 
+  postID: []
+
   cb:
     post: ->
       return unless Conf['Auto Update This']
-      search = []
-      if (text = QR.replies[0].com)? and text.length isnt 0
-        search[0] = text.trim()
-      else
-        search[0] = QR.replies[0].file.name
-        text = false
+      search = Updater.postID
       checkpost = ->
         return if search is undefined
         nodes = Updater.cnodes.childNodes
-        cpost =
-          if text
-            $ '.postMessage', nodes
-          else if Conf['File Info Formatting']
-            $ 'span.fileText a', nodes
-          else
-            $ 'span.fileText span', nodes
-        if (node.textContent for node in cpost).indexOf search[0] >= 0
+        postIDs = ($ '[title="Quote this post"]', nodes).textContent
+        if (node.textContent for node in postIDs).indexOf search >= 0
           return true
         false
       Updater.unsuccessfulFetchCount = 0
