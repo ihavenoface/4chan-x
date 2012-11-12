@@ -3241,9 +3241,9 @@
       return $.on(d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', this.cb.visibility);
     },
     checkpost: function(search) {
-      if (search.indexOf(this.postID[0]) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
+      if (search.indexOf(this.postID) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
         this.ccheck = true;
-        if (this.ccount > 25) {
+        if (this.ccount > 10) {
           return this.ccheck = false;
         } else {
           this.ccount++;
@@ -3251,7 +3251,8 @@
           return this.update();
         }
       } else {
-        return this.postID = [];
+        this.ccount = 0;
+        return delete this.postID;
       }
     },
     cb: {
@@ -3356,7 +3357,7 @@
         }
         return delete Updater.request;
       },
-      update: function(posts, postID) {
+      update: function(posts) {
         var count, id, lastPost, nodes, post, scroll, search, spoilerRange, _i, _len, _ref;
         if (spoilerRange = posts[0].custom_spoiler) {
           Build.spoilerRange[g.BOARD] = spoilerRange;
@@ -3374,7 +3375,7 @@
           nodes.push(Build.postFromObject(post, g.BOARD));
           search.push(post.no);
         }
-        if (Updater.postID[0]) {
+        if (Updater.postID) {
           Updater.checkpost(search);
         } else {
           this.ccheck = false;
