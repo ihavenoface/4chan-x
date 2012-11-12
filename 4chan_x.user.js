@@ -3200,9 +3200,6 @@
       this.count = $('#count', dialog);
       this.timer = $('#timer', dialog);
       this.thread = $.id("t" + g.THREAD_ID);
-      this.ccheck = true;
-      this.ccount = 0;
-      this.postID = [];
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       _ref = $$('input', dialog);
@@ -3241,18 +3238,12 @@
       return $.on(d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', this.cb.visibility);
     },
     checkpost: function(search) {
-      if (search.indexOf(this.postID) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
-        this.ccheck = true;
-        if (this.ccount > 10) {
-          return this.ccheck = false;
-        } else {
-          this.ccount++;
-          this.ccheck = false;
-          return this.update();
-        }
+      if (search.indexOf(Updater.postID) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
+        Updater.checkPostCount++;
+        return this.update();
       } else {
-        this.ccount = 0;
-        return delete this.postID;
+        Updater.checkPostCount = 0;
+        return delete Updater.postID;
       }
     },
     cb: {
@@ -3375,10 +3366,11 @@
           nodes.push(Build.postFromObject(post, g.BOARD));
           search.push(post.no);
         }
-        if (Updater.postID) {
+        if (Updater.postID && Updater.checkPostCount < 11) {
+          Updater.isChecking = true;
           Updater.checkpost(search);
         } else {
-          this.ccheck = false;
+          Updater.isChecking = false;
         }
         count = nodes.length;
         if (Conf['Verbose']) {
@@ -3466,10 +3458,10 @@
     },
     update: function() {
       var request, url;
-      if (!this.ccheck) {
+      if (!Updater.isChecking) {
         Updater.set('timer', 0);
       } else {
-        this.ccheck = false;
+        Updater.isChecking = false;
       }
       request = Updater.request;
       if (request) {

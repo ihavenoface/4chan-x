@@ -2577,9 +2577,6 @@ Updater =
     @count  = $ '#count', dialog
     @timer  = $ '#timer', dialog
     @thread = $.id "t#{g.THREAD_ID}"
-    @ccheck = true
-    @ccount = 0
-    @postID = []
 
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
@@ -2610,17 +2607,12 @@ Updater =
     $.on d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', @cb.visibility
 
   checkpost: (search) ->
-    if search.indexOf(@postID) is -1 and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
-      @ccheck = true
-      return if @ccount > 10
-        @ccheck = false
-      else
-        @ccount++
-        @ccheck = false
-        @update()
+    if search.indexOf(Updater.postID) is -1 and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
+      Updater.checkPostCount++
+      @update()
     else
-      @ccount = 0
-      delete @postID
+      Updater.checkPostCount = 0
+      delete Updater.postID
 
   cb:
     post: ->
@@ -2712,11 +2704,11 @@ Updater =
         break if post.no <= id # Make sure to not insert older posts.
         nodes.push Build.postFromObject post, g.BOARD
         search.push post.no
-
-      if Updater.postID
+      if Updater.postID and Updater.checkPostCount < 11
+        Updater.isChecking = true
         Updater.checkpost search
       else
-        @ccheck = false
+        Updater.isChecking = false
 
       count = nodes.length
       if Conf['Verbose']
@@ -2784,9 +2776,10 @@ Updater =
       Updater.set 'timer', n
 
   update: ->
-    unless @ccheck
+    unless Updater.isChecking
       Updater.set 'timer', 0
-    else @ccheck = false
+    else
+      Updater.isChecking = false
     {request} = Updater
     if request
       # Don't reset the counter when aborting.
