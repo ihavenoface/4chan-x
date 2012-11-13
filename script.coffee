@@ -2577,7 +2577,9 @@ Updater =
     @count  = $ '#count', dialog
     @timer  = $ '#timer', dialog
     @thread = $.id "t#{g.THREAD_ID}"
+    @save   = []
 
+    @checkPostCount = 0
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
 
@@ -2606,20 +2608,26 @@ Updater =
     $.on d, 'QRPostSuccessful', @cb.post
     $.on d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', @cb.visibility
 
-  checkpost: (search) ->
-    if search.indexOf(Updater.postID) is -1 and Conf['Interval'] > 10 and ($ '#timer', Updater.dialog).textContent.replace(/^-/, '') > 5
-      Updater.checkPostCount++
-      @update()
-    else
-      Updater.checkPostCount = 0
-      delete Updater.postID
-
   cb:
     post: ->
       return unless Conf['Auto Update This']
       Updater.unsuccessfulFetchCount = 0
-      setTimeout Updater.update, 1000
-
+      setTimeout Updater.update, 500
+    checkpost: ->
+      $.log if Updater.postID isnt undefined
+        "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
+      else
+        "Fetched posts:  #{Updater.save}\n"
+      if Updater.save.join(' ').indexOf(Updater.postID) is -1 and Updater.checkPostCount < 11
+        $.log "Our own post isn't there yet.\nHere's the amount of times we have failed already: #{Updater.checkPostCount + 1}"
+        Updater.checkPostCount++
+        return int = setTimeout Updater.update, 300
+      clearTimeout int
+      if Updater.postID isnt undefined
+        $.log "\nLooks like we have found our post. Exiting."
+      Updater.checkPostCount = 0
+      Updater.save = []
+      delete Updater.postID
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'
@@ -2692,23 +2700,18 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       delete Updater.request
+      Updater.cb.checkpost() if Updater.postID #isnt undefined
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
 
       lastPost = Updater.thread.lastElementChild
       id = +lastPost.id[2..]
-      nodes  = []
-      search = []
+      nodes = []
       for post in posts.reverse()
         break if post.no <= id # Make sure to not insert older posts.
         nodes.push Build.postFromObject post, g.BOARD
-        search.push post.no
-      if Updater.postID and Updater.checkPostCount < 11
-        Updater.isChecking = true
-        Updater.checkpost search
-      else
-        Updater.isChecking = false
+        Updater.save.push post.no
 
       count = nodes.length
       if Conf['Verbose']
@@ -2776,10 +2779,10 @@ Updater =
       Updater.set 'timer', n
 
   update: ->
-    unless Updater.isChecking
-      Updater.set 'timer', 0
+    if Updater.postID
+      $.log "(Re)starting the updater."
     else
-      Updater.isChecking = false
+      Updater.set 'timer', 0
     {request} = Updater
     if request
       # Don't reset the counter when aborting.
@@ -4525,11 +4528,11 @@ Linkify =
       safeurl: "http://www.vimeo.com/"
 
   node: (post) ->
-    for blank in $$ '.spoiler', post.blockquote
-      if !/\w/.test blank.textContent
-        blank.previousSibling.textContent += blank.nextSibling.textContent
-        $.rm blank.nextSibling
-        $.rm blank
+    for spoiler in $$ '.spoiler', post.blockquote
+      if (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and !/\w/.test(spoiler.textContent) and (n.nodeName and p.nodeName is '#text')
+        spoiler.previousSibling.textContent += spoiler.nextSibling.textContent
+        $.rm spoiler.nextSibling
+        $.rm spoiler
     comment = post.blockquote or $ 'blockquote', post.el
     subject = $ '.subject', post.el
     nodes = Linkify.collector comment
@@ -4954,7 +4957,7 @@ Main =
     $.globalEval "(#{code})()".replace '_id_', bq.id
 
   namespace: '4chan_x.'
-  version: '2.36.4'
+  version: '2.36.6'
   callbacks: []
   css: '
 /* dialog styling */

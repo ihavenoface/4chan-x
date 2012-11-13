@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           4chan x
-// @version        2.36.4
+// @version        2.36.6
 // @namespace      aeosynth
 // @description    Adds various features.
 // @copyright      2009-2011 James Campos <james.r.campos@gmail.com>
@@ -27,7 +27,7 @@
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
  * Copyright (c) 2012 Nicolas Stepien <stepien.nicolas@gmail.com>
  * http://mayhemydg.github.com/4chan-x/
- * 4chan X 2.36.4
+ * 4chan X 2.36.6
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -3200,6 +3200,8 @@
       this.count = $('#count', dialog);
       this.timer = $('#timer', dialog);
       this.thread = $.id("t" + g.THREAD_ID);
+      this.save = [];
+      this.checkPostCount = 0;
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       _ref = $$('input', dialog);
@@ -3237,22 +3239,29 @@
       $.on(d, 'QRPostSuccessful', this.cb.post);
       return $.on(d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', this.cb.visibility);
     },
-    checkpost: function(search) {
-      if (search.indexOf(Updater.postID) === -1 && Conf['Interval'] > 10 && ($('#timer', Updater.dialog)).textContent.replace(/^-/, '') > 5) {
-        Updater.checkPostCount++;
-        return this.update();
-      } else {
-        Updater.checkPostCount = 0;
-        return delete Updater.postID;
-      }
-    },
     cb: {
       post: function() {
         if (!Conf['Auto Update This']) {
           return;
         }
         Updater.unsuccessfulFetchCount = 0;
-        return setTimeout(Updater.update, 1000);
+        return setTimeout(Updater.update, 500);
+      },
+      checkpost: function() {
+        var int;
+        $.log(Updater.postID !== void 0 ? "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n" : "Fetched posts:  " + Updater.save + "\n");
+        if (Updater.save.join(' ').indexOf(Updater.postID) === -1 && Updater.checkPostCount < 11) {
+          $.log("Our own post isn't there yet.\nHere's the amount of times we have failed already: " + (Updater.checkPostCount + 1));
+          Updater.checkPostCount++;
+          return int = setTimeout(Updater.update, 300);
+        }
+        clearTimeout(int);
+        if (Updater.postID !== void 0) {
+          $.log("\nLooks like we have found our post. Exiting.");
+        }
+        Updater.checkPostCount = 0;
+        Updater.save = [];
+        return delete Updater.postID;
       },
       visibility: function() {
         var state;
@@ -3346,17 +3355,19 @@
               Updater.count.className = 'warning';
             }
         }
-        return delete Updater.request;
+        delete Updater.request;
+        if (Updater.postID) {
+          return Updater.cb.checkpost();
+        }
       },
       update: function(posts) {
-        var count, id, lastPost, nodes, post, scroll, search, spoilerRange, _i, _len, _ref;
+        var count, id, lastPost, nodes, post, scroll, spoilerRange, _i, _len, _ref;
         if (spoilerRange = posts[0].custom_spoiler) {
           Build.spoilerRange[g.BOARD] = spoilerRange;
         }
         lastPost = Updater.thread.lastElementChild;
         id = +lastPost.id.slice(2);
         nodes = [];
-        search = [];
         _ref = posts.reverse();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           post = _ref[_i];
@@ -3364,13 +3375,7 @@
             break;
           }
           nodes.push(Build.postFromObject(post, g.BOARD));
-          search.push(post.no);
-        }
-        if (Updater.postID && Updater.checkPostCount < 11) {
-          Updater.isChecking = true;
-          Updater.checkpost(search);
-        } else {
-          Updater.isChecking = false;
+          Updater.save.push(post.no);
         }
         count = nodes.length;
         if (Conf['Verbose']) {
@@ -3458,10 +3463,10 @@
     },
     update: function() {
       var request, url;
-      if (!Updater.isChecking) {
-        Updater.set('timer', 0);
+      if (Updater.postID) {
+        $.log("(Re)starting the updater.");
       } else {
-        Updater.isChecking = false;
+        Updater.set('timer', 0);
       }
       request = Updater.request;
       if (request) {
@@ -5583,14 +5588,14 @@
       }
     },
     node: function(post) {
-      var blank, comment, node, nodes, subject, _i, _j, _len, _len1, _ref, _results;
+      var comment, n, node, nodes, p, spoiler, subject, _i, _j, _len, _len1, _ref, _results;
       _ref = $$('.spoiler', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        blank = _ref[_i];
-        if (!/\w/.test(blank.textContent)) {
-          blank.previousSibling.textContent += blank.nextSibling.textContent;
-          $.rm(blank.nextSibling);
-          $.rm(blank);
+        spoiler = _ref[_i];
+        if ((p = spoiler.previousSibling) && (n = spoiler.nextSibling) && !/\w/.test(spoiler.textContent) && (n.nodeName && p.nodeName === '#text')) {
+          spoiler.previousSibling.textContent += spoiler.nextSibling.textContent;
+          $.rm(spoiler.nextSibling);
+          $.rm(spoiler);
         }
       }
       comment = post.blockquote || $('blockquote', post.el);
@@ -6127,7 +6132,7 @@
       return $.globalEval(("(" + code + ")()").replace('_id_', bq.id));
     },
     namespace: '4chan_x.',
-    version: '2.36.4',
+    version: '2.36.6',
     callbacks: [],
     css: '\
 /* dialog styling */\
