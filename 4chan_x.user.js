@@ -5078,7 +5078,7 @@
       {
         name: 'Foolz',
         base: '//archive.foolz.us',
-        boards: ['a', 'co', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'],
+        boards: ['a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'],
         type: 'foolfuuka'
       }, {
         name: 'NSFWFoolz',
