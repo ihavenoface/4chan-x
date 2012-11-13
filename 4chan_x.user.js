@@ -5593,8 +5593,8 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         spoiler = _ref[_i];
         if ((p = spoiler.previousSibling) && (n = spoiler.nextSibling) && !/\w/.test(spoiler.textContent) && (n.nodeName && p.nodeName === '#text')) {
-          spoiler.previousSibling.textContent += spoiler.nextSibling.textContent;
-          $.rm(spoiler.nextSibling);
+          p.textContent += n.textContent;
+          $.rm(n);
           $.rm(spoiler);
         }
       }

@@ -4530,8 +4530,8 @@ Linkify =
   node: (post) ->
     for spoiler in $$ '.spoiler', post.blockquote
       if (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and !/\w/.test(spoiler.textContent) and (n.nodeName and p.nodeName is '#text')
-        spoiler.previousSibling.textContent += spoiler.nextSibling.textContent
-        $.rm spoiler.nextSibling
+        p.textContent += n.textContent
+        $.rm n
         $.rm spoiler
     comment = post.blockquote or $ 'blockquote', post.el
     subject = $ '.subject', post.el
