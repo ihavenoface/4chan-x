@@ -2711,7 +2711,7 @@ Updater =
       for post in posts.reverse()
         break if post.no <= id # Make sure to not insert older posts.
         nodes.push Build.postFromObject post, g.BOARD
-        Updater.save.push post.no
+        Updater.save.push post.no if Updater.postID
 
       count = nodes.length
       if Conf['Verbose']

@@ -3375,7 +3375,9 @@
             break;
           }
           nodes.push(Build.postFromObject(post, g.BOARD));
-          Updater.save.push(post.no);
+          if (Updater.postID) {
+            Updater.save.push(post.no);
+          }
         }
         count = nodes.length;
         if (Conf['Verbose']) {
