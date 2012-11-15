@@ -2675,12 +2675,13 @@ Updater =
           if Conf['Verbose']
             Updater.set 'count', '+0'
             Updater.count.className = null
-          Updater.checkPostCount++
           if Updater.postID
-            setTimeout Updater.update, 300
             if Updater.checkPostCount > 15
-              $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
+              $.log "\nFor some reason we weren't able to retrieve our post. Exiting.\n"
               delete Updater.postID
+            Updater.checkPostCount++
+            $.log "Here's the amount of times we have failed already: #{Updater.checkPostCount}"
+            return (-> setTimeout Updater.update, Updater.checkPostCount * 20)()
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts
@@ -2691,16 +2692,17 @@ Updater =
           if Conf['Verbose']
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
-      delete Updater.request
-      $.log unless Updater.save.join(' ').indexOf(Updater.postID) is -1
-        "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
-      else
-        "Fetched posts:  #{Updater.save}\n"
-      if Updater.postID and Updater.save.join(' ').indexOf(Updater.postID) is -1
-        $.log "Our own post isn't there yet.\nHere's the amount of times we have failed already: #{Updater.checkPostCount + 1}"
-        return Updater.update()
       if Updater.postID
-        $.log "\nLooks like we have found our post. Exiting."
+        check = Updater.save.join(' ').indexOf Updater.postID
+        $.log if check is -1
+          "Fetched posts:  #{Updater.save}\n"
+        else
+          "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
+        if check is -1
+          return Updater.update()
+      delete Updater.request
+      if Updater.postID
+        $.log "\nLooks like we have found our post. Exiting.\n"
       Updater.checkPostCount = 0
       Updater.save = []
       delete Updater.postID

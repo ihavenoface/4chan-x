@@ -3291,6 +3291,7 @@
         };
       },
       load: function() {
+        var check;
         switch (this.status) {
           case 404:
             Updater.set('timer', '');
@@ -3320,13 +3321,16 @@
               Updater.set('count', '+0');
               Updater.count.className = null;
             }
-            Updater.checkPostCount++;
             if (Updater.postID) {
-              setTimeout(Updater.update, 300);
               if (Updater.checkPostCount > 15) {
-                $.log("\nFor some reason we weren't able to retrieve our post. Exiting.");
+                $.log("\nFor some reason we weren't able to retrieve our post. Exiting.\n");
                 delete Updater.postID;
               }
+              Updater.checkPostCount++;
+              $.log("Here's the amount of times we have failed already: " + Updater.checkPostCount);
+              return (function() {
+                return setTimeout(Updater.update, Updater.checkPostCount * 20);
+              })();
             }
             break;
           case 200:
@@ -3342,14 +3346,16 @@
               Updater.count.className = 'warning';
             }
         }
-        delete Updater.request;
-        $.log(Updater.save.join(' ').indexOf(Updater.postID) !== -1 ? "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n" : "Fetched posts:  " + Updater.save + "\n");
-        if (Updater.postID && Updater.save.join(' ').indexOf(Updater.postID) === -1) {
-          $.log("Our own post isn't there yet.\nHere's the amount of times we have failed already: " + (Updater.checkPostCount + 1));
-          return Updater.update();
-        }
         if (Updater.postID) {
-          $.log("\nLooks like we have found our post. Exiting.");
+          check = Updater.save.join(' ').indexOf(Updater.postID);
+          $.log(check === -1 ? "Fetched posts:  " + Updater.save + "\n" : "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n");
+          if (check === -1) {
+            return Updater.update();
+          }
+        }
+        delete Updater.request;
+        if (Updater.postID) {
+          $.log("\nLooks like we have found our post. Exiting.\n");
         }
         Updater.checkPostCount = 0;
         Updater.save = [];
