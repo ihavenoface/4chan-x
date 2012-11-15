@@ -2614,22 +2614,6 @@ Updater =
       return unless Conf['Auto Update This']
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 500
-    checkpost: ->
-      $.log unless Updater.save.join(' ').indexOf(Updater.postID) is -1
-        "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
-      else
-        "Fetched posts:  #{Updater.save}\n"
-      if Updater.save.join(' ').indexOf(Updater.postID) is -1 and Updater.checkPostCount < 11
-        $.log "Our own post isn't there yet.\nHere's the amount of times we have failed already: #{Updater.checkPostCount + 1}"
-        Updater.checkPostCount++
-        return Updater.update()#setTimeout Updater.update, 50 * Updater.checkPostCount
-      if Updater.checkPostCount > 10
-        $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
-      if Updater.postID
-        $.log "\nLooks like we have found our post. Exiting."
-      Updater.checkPostCount = 0
-      Updater.save = []
-      delete Updater.postID
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'
@@ -2691,13 +2675,16 @@ Updater =
           if Conf['Verbose']
             Updater.set 'count', '+0'
             Updater.count.className = null
+          Updater.checkPostCount++
           if Updater.postID
             setTimeout Updater.update, 50 * Updater.checkPostCount
+          if Updater.checkPostCount > 15
+            $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
+            delete Updater.postID
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts
           Updater.set 'timer', -Updater.getInterval()
-          Updater.cb.checkpost() if Updater.postID
         else
           Updater.unsuccessfulFetchCount++
           Updater.set 'timer', -Updater.getInterval()
@@ -2705,6 +2692,18 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       delete Updater.request
+      $.log unless Updater.save.join(' ').indexOf(Updater.postID) is -1
+        "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
+      else
+        "Fetched posts:  #{Updater.save}\n"
+      if Updater.postID and Updater.save.join(' ').indexOf(Updater.postID) is -1
+        $.log "Our own post isn't there yet.\nHere's the amount of times we have failed already: #{Updater.checkPostCount + 1}"
+        return Updater.update()
+      if Updater.postID
+        $.log "\nLooks like we have found our post. Exiting."
+      Updater.checkPostCount = 0
+      Updater.save = []
+      delete Updater.postID
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
