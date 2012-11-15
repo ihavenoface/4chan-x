@@ -2677,10 +2677,10 @@ Updater =
             Updater.count.className = null
           Updater.checkPostCount++
           if Updater.postID
-            setTimeout Updater.update, 50 * Updater.checkPostCount
-          if Updater.checkPostCount > 15
-            $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
-            delete Updater.postID
+            setTimeout Updater.update, 300
+            if Updater.checkPostCount > 15
+              $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
+              delete Updater.postID
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts

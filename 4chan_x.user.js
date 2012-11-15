@@ -3322,11 +3322,11 @@
             }
             Updater.checkPostCount++;
             if (Updater.postID) {
-              setTimeout(Updater.update, 50 * Updater.checkPostCount);
-            }
-            if (Updater.checkPostCount > 15) {
-              $.log("\nFor some reason we weren't able to retrieve our post. Exiting.");
-              delete Updater.postID;
+              setTimeout(Updater.update, 300);
+              if (Updater.checkPostCount > 15) {
+                $.log("\nFor some reason we weren't able to retrieve our post. Exiting.");
+                delete Updater.postID;
+              }
             }
             break;
           case 200:
