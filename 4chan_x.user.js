@@ -3243,14 +3243,12 @@
         return setTimeout(Updater.update, 500);
       },
       checkpost: function() {
-        var int;
         $.log(Updater.save.join(' ').indexOf(Updater.postID) !== -1 ? "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n" : "Fetched posts:  " + Updater.save + "\n");
         if (Updater.save.join(' ').indexOf(Updater.postID) === -1 && Updater.checkPostCount < 11) {
           $.log("Our own post isn't there yet.\nHere's the amount of times we have failed already: " + (Updater.checkPostCount + 1));
           Updater.checkPostCount++;
-          return int = setTimeout(Updater.update, 300);
+          return Updater.update();
         }
-        clearTimeout(int);
         if (Updater.checkPostCount > 10) {
           $.log("\nFor some reason we weren't able to retrieve our post. Exiting.");
         }
@@ -3339,11 +3337,17 @@
               Updater.set('count', '+0');
               Updater.count.className = null;
             }
+            if (Updater.postID) {
+              setTimeout(Updater.update, 50 * Updater.checkPostCount);
+            }
             break;
           case 200:
             Updater.lastModified = this.getResponseHeader('Last-Modified');
             Updater.cb.update(JSON.parse(this.response).posts);
             Updater.set('timer', -Updater.getInterval());
+            if (Updater.postID) {
+              Updater.cb.checkpost();
+            }
             break;
           default:
             Updater.unsuccessfulFetchCount++;
@@ -3353,10 +3357,7 @@
               Updater.count.className = 'warning';
             }
         }
-        delete Updater.request;
-        if (Updater.postID) {
-          return Updater.cb.checkpost();
-        }
+        return delete Updater.request;
       },
       update: function(posts) {
         var count, id, lastPost, nodes, post, scroll, spoilerRange, _i, _len, _ref;
@@ -3461,7 +3462,7 @@
     update: function() {
       var request, url;
       if (Updater.postID) {
-        $.log("(Re)starting the updater.");
+        $.log("Restarted the updater.");
       } else {
         Updater.set('timer', 0);
       }
@@ -5180,7 +5181,6 @@
           return "//boards.4chan.org/" + board + "/";
         }
       }
-      return url || null;
     },
     path: function(base, archiver, data) {
       var board, path, postID, threadID, type, value;

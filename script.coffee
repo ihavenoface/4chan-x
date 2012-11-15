@@ -2622,8 +2622,7 @@ Updater =
       if Updater.save.join(' ').indexOf(Updater.postID) is -1 and Updater.checkPostCount < 11
         $.log "Our own post isn't there yet.\nHere's the amount of times we have failed already: #{Updater.checkPostCount + 1}"
         Updater.checkPostCount++
-        return int = setTimeout Updater.update, 300
-      clearTimeout int
+        return Updater.update()#setTimeout Updater.update, 50 * Updater.checkPostCount
       if Updater.checkPostCount > 10
         $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
       if Updater.postID
@@ -2692,10 +2691,13 @@ Updater =
           if Conf['Verbose']
             Updater.set 'count', '+0'
             Updater.count.className = null
+          if Updater.postID
+            setTimeout Updater.update, 50 * Updater.checkPostCount
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts
           Updater.set 'timer', -Updater.getInterval()
+          Updater.cb.checkpost() if Updater.postID
         else
           Updater.unsuccessfulFetchCount++
           Updater.set 'timer', -Updater.getInterval()
@@ -2703,7 +2705,6 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       delete Updater.request
-      Updater.cb.checkpost() if Updater.postID
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
@@ -2782,7 +2783,7 @@ Updater =
 
   update: ->
     if Updater.postID
-      $.log "(Re)starting the updater."
+      $.log "Restarted the updater."
     else
       Updater.set 'timer', 0
     {request} = Updater
@@ -4221,8 +4222,6 @@ Redirect =
     else
       if threadID
         return "//boards.4chan.org/#{board}/"
-
-    url or null
 
   path: (base, archiver, data) ->
     if data.isSearch
