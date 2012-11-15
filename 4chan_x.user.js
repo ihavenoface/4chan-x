@@ -3249,14 +3249,17 @@
       },
       checkpost: function() {
         var int;
-        $.log(Updater.postID !== void 0 ? "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n" : "Fetched posts:  " + Updater.save + "\n");
+        $.log(Updater.save.join(' ').indexOf(Updater.postID) !== -1 ? "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n" : "Fetched posts:  " + Updater.save + "\n");
         if (Updater.save.join(' ').indexOf(Updater.postID) === -1 && Updater.checkPostCount < 11) {
           $.log("Our own post isn't there yet.\nHere's the amount of times we have failed already: " + (Updater.checkPostCount + 1));
           Updater.checkPostCount++;
           return int = setTimeout(Updater.update, 300);
         }
         clearTimeout(int);
-        if (Updater.postID !== void 0) {
+        if (Updater.checkPostCount > 10) {
+          $.log("\nFor some reason we weren't able to retrieve our post. Exiting.");
+        }
+        if (Updater.postID) {
           $.log("\nLooks like we have found our post. Exiting.");
         }
         Updater.checkPostCount = 0;
@@ -3392,10 +3395,7 @@
         }
         scroll = Conf['Scrolling'] && Updater.scrollBG() && lastPost.getBoundingClientRect().bottom - d.documentElement.clientHeight < 25;
         $.add(Updater.thread, nodes.reverse());
-        if (scroll) {
-          if (nodes === void 0) {
-            return;
-          }
+        if (scroll && nodes) {
           return nodes[0].scrollIntoView();
         }
       }
@@ -5160,13 +5160,14 @@
       }
     },
     to: function(data) {
-      var aboard, archiver, board, threadID, url, _i, _len, _ref;
+      var aboard, archiver, board, threadID, _i, _len, _ref;
       if (!data.isSearch) {
         threadID = data.threadID;
       }
       board = data.board;
       aboard = Redirect.archive[board];
       if (!aboard) {
+        aboard = true;
         _ref = this.archiver;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           archiver = _ref[_i];
@@ -5175,15 +5176,13 @@
             break;
           }
         }
-        if (!aboard) {
-          aboard = 'none';
-        }
+        Redirect.archive[board] = aboard;
       }
-      if (aboard !== 'none') {
-        url = this.path(aboard.base, aboard.type, data);
+      if (aboard.base) {
+        return this.path(aboard.base, aboard.type, data);
       } else {
         if (threadID) {
-          return url = "//boards.4chan.org/" + board + "/";
+          return "//boards.4chan.org/" + board + "/";
         }
       }
       return url || null;

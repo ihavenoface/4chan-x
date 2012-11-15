@@ -2614,7 +2614,7 @@ Updater =
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 500
     checkpost: ->
-      $.log if Updater.postID isnt undefined
+      $.log unless Updater.save.join(' ').indexOf(Updater.postID) is -1
         "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
       else
         "Fetched posts:  #{Updater.save}\n"
@@ -2623,7 +2623,9 @@ Updater =
         Updater.checkPostCount++
         return int = setTimeout Updater.update, 300
       clearTimeout int
-      if Updater.postID isnt undefined
+      if Updater.checkPostCount > 10
+        $.log "\nFor some reason we weren't able to retrieve our post. Exiting."
+      if Updater.postID
         $.log "\nLooks like we have found our post. Exiting."
       Updater.checkPostCount = 0
       Updater.save = []
@@ -2700,7 +2702,7 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       delete Updater.request
-      Updater.cb.checkpost() if Updater.postID #isnt undefined
+      Updater.cb.checkpost() if Updater.postID
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
@@ -2727,8 +2729,7 @@ Updater =
       scroll = Conf['Scrolling'] and Updater.scrollBG() and
         lastPost.getBoundingClientRect().bottom - d.documentElement.clientHeight < 25
       $.add Updater.thread, nodes.reverse()
-      if scroll
-        return if nodes is undefined
+      if scroll and nodes
         nodes[0].scrollIntoView()
 
   set: (name, text) ->
@@ -4207,20 +4208,18 @@ Redirect =
       {threadID} = data
     {board} = data
     aboard  = Redirect.archive[board]
-
     unless aboard
+      aboard = true
       for archiver in @archiver
         if board is @select archiver, board
           aboard = archiver
           break
-      unless aboard
-        aboard = 'none'
-
-    if aboard isnt 'none'
-      url = @path aboard.base, aboard.type, data
+      Redirect.archive[board] = aboard
+    if aboard.base
+      return @path aboard.base, aboard.type, data
     else
       if threadID
-        return url = "//boards.4chan.org/#{board}/"
+        return "//boards.4chan.org/#{board}/"
 
     url or null
 
