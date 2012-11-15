@@ -1468,12 +1468,12 @@ QR =
       link = $.el 'h1', innerHTML: "<a href=javascript:;>#{if g.REPLY then 'Reply to Thread' else 'Start a Thread'}</a>"
       $.on link.firstChild, 'click', ->
         QR.open()
-        unless g.BOARD is 'f'
-          unless g.REPLY
-            QR.threadSelector.value =
-              'new'
-        else
-          '9999'
+        unless g.REPLY
+         QR.threadSelector.value =
+           unless g.BOARD is 'f'
+             'new'
+           else
+             '9999'
         $('textarea', QR.el).focus()
       $.before $.id('postForm'), link
 
@@ -2069,7 +2069,8 @@ QR =
     QR.abort()
 
     reply = QR.replies[0]
-    threadID = g.THREAD_ID or QR.threadSelector.value unless (g.BOARD is 'f') and !g.REPLY
+    unless (g.BOARD is 'f') and not g.REPLY
+      threadID = g.THREAD_ID or QR.threadSelector.value
 
     # prevent errors
     if threadID is 'new'
@@ -2130,7 +2131,7 @@ QR =
       sub:      reply.sub
       com:      if Conf['Markdown'] then Markdown.format reply.com else reply.com
       upfile:   reply.file
-      filetag:  ($ 'select[name="filetag"]').value if (g.BOARD is 'f') and !g.REPLY
+      filetag:  QR.threadSelector.value unless g.REPLY#if g.BOARD is 'f'
       spoiler:  reply.spoiler
       textonly: textOnly
       mode:     'regist'
@@ -2412,9 +2413,9 @@ Options =
     if select[1]
       value = "archiver/#{g.BOARD}/"
       archiver.value = $.get value
-      if Redirect.archive[g.BOARD]
-        delete Redirect.archive[g.BOARD]
       $.on archiver, 'mouseup', ->
+        if Redirect.archive[g.BOARD]
+          delete Redirect.archive[g.BOARD]
         $.set value, @value
         if select[0] is $.get value
           $.delete value
@@ -4948,12 +4949,12 @@ Main =
     nodes = []
     for mutation in mutations
       for addedNode in mutation.addedNodes
-        if /\bpostContainer\b/.test(addedNode.className) and addedNode.parentNode.className isnt 'threadContainer'
+        if /\bpostContainer\b/.test(addedNode.className)
           nodes.push Main.preParse addedNode
     Main.node nodes if nodes.length
   listener: (e) ->
     {target} = e
-    if /\bpostContainer\b/.test(target.className) and target.parentNode.className isnt 'threadContainer'
+    if /\bpostContainer\b/.test(target.className)
       Main.node [Main.preParse target]
 
   prettify: (bq) ->

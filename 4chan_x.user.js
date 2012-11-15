@@ -1897,13 +1897,8 @@
         });
         $.on(link.firstChild, 'click', function() {
           QR.open();
-          if (g.BOARD !== 'f') {
-            if (!g.REPLY) {
-              QR.threadSelector.value = 'new';
-            }
-          } else {
-            '9999';
-
+          if (!g.REPLY) {
+            QR.threadSelector.value = g.BOARD !== 'f' ? 'new' : '9999';
           }
           return $('textarea', QR.el).focus();
         });
@@ -2713,7 +2708,7 @@
         sub: reply.sub,
         com: Conf['Markdown'] ? Markdown.format(reply.com) : reply.com,
         upfile: reply.file,
-        filetag: (g.BOARD === 'f') && !g.REPLY ? ($('select[name="filetag"]')).value : void 0,
+        filetag: !g.REPLY ? QR.threadSelector.value : void 0,
         spoiler: reply.spoiler,
         textonly: textOnly,
         mode: 'regist',
@@ -3018,10 +3013,10 @@
       if (select[1]) {
         value = "archiver/" + g.BOARD + "/";
         archiver.value = $.get(value);
-        if (Redirect.archive[g.BOARD]) {
-          delete Redirect.archive[g.BOARD];
-        }
         $.on(archiver, 'mouseup', function() {
+          if (Redirect.archive[g.BOARD]) {
+            delete Redirect.archive[g.BOARD];
+          }
           $.set(value, this.value);
           if (select[0] === $.get(value)) {
             return $["delete"](value);
@@ -6109,7 +6104,7 @@
         _ref = mutation.addedNodes;
         for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
           addedNode = _ref[_j];
-          if (/\bpostContainer\b/.test(addedNode.className) && addedNode.parentNode.className !== 'threadContainer') {
+          if (/\bpostContainer\b/.test(addedNode.className)) {
             nodes.push(Main.preParse(addedNode));
           }
         }
@@ -6121,7 +6116,7 @@
     listener: function(e) {
       var target;
       target = e.target;
-      if (/\bpostContainer\b/.test(target.className) && target.parentNode.className !== 'threadContainer') {
+      if (/\bpostContainer\b/.test(target.className)) {
         return Main.node([Main.preParse(target)]);
       }
     },
