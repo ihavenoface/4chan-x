@@ -1582,7 +1582,7 @@
           }
           break;
         case Conf.spoiler:
-          if (target.nodeName !== 'TEXTAREA') {
+          if (!(/Spoiler/.test(($.id('postFile')).nextElementSibling.textContent) && target.nodeName === 'TEXTAREA')) {
             return;
           }
           Keybinds.tags('spoiler', target);
