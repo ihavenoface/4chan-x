@@ -5047,6 +5047,7 @@
           return "//fuuka.warosu.org/" + board + "/full_image/" + filename;
         case 'cgl':
         case 'g':
+        case 'mu':
         case 'w':
           return "//rbt.asia/" + board + "/full_image/" + filename;
         case 'an':
@@ -5180,7 +5181,7 @@
         }
         Redirect.archive[board] = aboard;
       }
-      if (aboard.base) {
+      if (aboard.base && !(board === 'soc')) {
         return this.path(aboard.base, aboard.type, data);
       } else {
         if (threadID) {

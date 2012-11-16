@@ -1,6 +1,8 @@
 master
 - noface
   Added keybinds for math and eqn tags on /sci/.
+  Added full image redirection to /mu/.
+  Removed ArchiveLink redirection from /soc/ (URLs will still be redirected).
 
 2.36.6
 - noface
