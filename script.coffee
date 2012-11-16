@@ -146,6 +146,8 @@ Config =
     openOptions:     ['ctrl+o', 'Open Options']
     close:           ['Esc',    'Close Options or QR']
     spoiler:         ['ctrl+s', 'Quick spoiler tags']
+    math:            ['ctrl+m', 'Quick math tags']
+    eqn:             ['ctrl+e', 'Quick eqn tags']
     code:            ['alt+c',  'Quick code tags']
     sageru:          ['alt+n',  'Sage keybind']
     submit:          ['alt+s',  'Submit post']
@@ -183,7 +185,6 @@ Config =
 Conf = {}
 d = document
 g = {}
-
 
 UI =
   dialog: (id, position, html) ->
@@ -1254,8 +1255,14 @@ Keybinds =
       when Conf.spoiler
         return if target.nodeName isnt 'TEXTAREA'
         Keybinds.tags 'spoiler', target
+      when Conf.math
+        return unless g.BOARD is 'sci' and target.nodeName is 'TEXTAREA'
+        Keybinds.tags 'math', target
+      when Conf.eqn
+        return unless g.BOARD is 'sci' and target.nodeName is 'TEXTAREA'
+        Keybinds.tags 'eqn', target
       when Conf.code
-        return if target.nodeName isnt 'TEXTAREA'
+        return unless g.BOARD is 'g' and target.nodeName is 'TEXTAREA'
         Keybinds.tags 'code', target
       when Conf.sageru
         $("[name=email]", QR.el).value = "sage"

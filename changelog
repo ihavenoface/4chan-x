@@ -1,4 +1,6 @@
 master
+- noface
+  Added keybinds for math and eqn tags on /sci/.
 
 2.36.6
 - noface
@@ -21,7 +23,7 @@ master
 
 2.36.2
 - noface
-  Per-board archivers can now be selected under the rice tab.  
+  Per-board archivers can now be selected under the rice tab.
 - Mayhem
   Added possibility to display unix timestamps with File Info Formatting.
 
@@ -62,7 +64,7 @@ master
 
 2.35.6
 - noface
-  Don't automatically expand spoilers when using Expand Images. 
+  Don't automatically expand spoilers when using Expand Images.
 - Mayhem
   Fix 'Administrator/Moderator/Developer Replies' creating extra backlinks on /q/, again.
 
@@ -105,7 +107,7 @@ master
 2.34.10
 - Mayhem
   Fix 4chan X. Blame moot.
-  
+
 2.34.9
 - noface
   Re-adjust to new recaptcha - now only the control word is needed.
