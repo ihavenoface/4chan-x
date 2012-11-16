@@ -2677,11 +2677,9 @@ Updater =
             Updater.count.className = null
           if Updater.postID
             if Updater.checkPostCount > 15
-              $.log "\nFor some reason we weren't able to retrieve our post. Exiting.\n"
               delete Updater.postID
             Updater.checkPostCount++
-            $.log "Here's the amount of times we have failed already: #{Updater.checkPostCount}"
-            return (-> setTimeout Updater.update, Updater.checkPostCount * 20)()
+            return ((timeout) -> setTimeout Updater.update, timeout) Updater.checkPostCount * 20
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts
@@ -2693,19 +2691,12 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       if Updater.postID
-        check = Updater.save.join(' ').indexOf Updater.postID
-        $.log if check is -1
-          "Fetched posts:  #{Updater.save}\n"
-        else
-          "ID of own post: #{Updater.postID}\nFetched posts:  #{Updater.save}\n"
-        if check is -1
+        if Updater.save.join(' ').indexOf(Updater.postID) is -1
           return Updater.update()
+        Updater.checkPostCount = 0
+        Updater.save = []
+        delete Updater.postID
       delete Updater.request
-      if Updater.postID
-        $.log "\nLooks like we have found our post. Exiting.\n"
-      Updater.checkPostCount = 0
-      Updater.save = []
-      delete Updater.postID
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
         Build.spoilerRange[g.BOARD] = spoilerRange
@@ -2783,9 +2774,7 @@ Updater =
       Updater.set 'timer', n
 
   update: ->
-    if Updater.postID
-      $.log "Restarted the updater."
-    else
+    unless Updater.postID
       Updater.set 'timer', 0
     {request} = Updater
     if request

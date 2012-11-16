@@ -3291,7 +3291,6 @@
         };
       },
       load: function() {
-        var check;
         switch (this.status) {
           case 404:
             Updater.set('timer', '');
@@ -3323,14 +3322,12 @@
             }
             if (Updater.postID) {
               if (Updater.checkPostCount > 15) {
-                $.log("\nFor some reason we weren't able to retrieve our post. Exiting.\n");
                 delete Updater.postID;
               }
               Updater.checkPostCount++;
-              $.log("Here's the amount of times we have failed already: " + Updater.checkPostCount);
-              return (function() {
-                return setTimeout(Updater.update, Updater.checkPostCount * 20);
-              })();
+              return (function(timeout) {
+                return setTimeout(Updater.update, timeout);
+              })(Updater.checkPostCount * 20);
             }
             break;
           case 200:
@@ -3347,19 +3344,14 @@
             }
         }
         if (Updater.postID) {
-          check = Updater.save.join(' ').indexOf(Updater.postID);
-          $.log(check === -1 ? "Fetched posts:  " + Updater.save + "\n" : "ID of own post: " + Updater.postID + "\nFetched posts:  " + Updater.save + "\n");
-          if (check === -1) {
+          if (Updater.save.join(' ').indexOf(Updater.postID) === -1) {
             return Updater.update();
           }
+          Updater.checkPostCount = 0;
+          Updater.save = [];
+          delete Updater.postID;
         }
-        delete Updater.request;
-        if (Updater.postID) {
-          $.log("\nLooks like we have found our post. Exiting.\n");
-        }
-        Updater.checkPostCount = 0;
-        Updater.save = [];
-        return delete Updater.postID;
+        return delete Updater.request;
       },
       update: function(posts) {
         var count, id, lastPost, nodes, post, scroll, spoilerRange, _i, _len, _ref;
@@ -3463,9 +3455,7 @@
     },
     update: function() {
       var request, url;
-      if (Updater.postID) {
-        $.log("Restarted the updater.");
-      } else {
+      if (!Updater.postID) {
         Updater.set('timer', 0);
       }
       request = Updater.request;
