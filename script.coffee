@@ -1476,11 +1476,11 @@ QR =
       $.on link.firstChild, 'click', ->
         QR.open()
         unless g.REPLY
-         QR.threadSelector.value =
-           unless g.BOARD is 'f'
-             'new'
-           else
-             '9999'
+          QR.threadSelector.value =
+            if g.BOARD is 'f'
+              '9999'
+            else
+              'new'
         $('textarea', QR.el).focus()
       $.before $.id('postForm'), link
 
@@ -1534,8 +1534,7 @@ QR =
     if QR.captchaIsEnabled and /captcha|verification/i.test el.textContent
       # Focus the captcha input on captcha error.
       $('[autocomplete]', QR.el).focus()
-    if Conf['Focus on Alert']
-      if d.hidden or d.oHidden or d.mozHidden or d.webkitHidden then alert el.textContent
+    alert el.textContent if Conf['Focus on Alert'] and (d.hidden or d.oHidden or d.mozHidden or d.webkitHidden)
   cleanError: ->
     $('.warning', QR.el).textContent = null
 
@@ -1764,7 +1763,7 @@ QR =
       prev     = QR.replies[QR.replies.length-1]
       persona  = $.get 'QR.persona', {}
       @name    = if prev then prev.name else persona.name or null
-      @email   = if prev and !/^sage$/.test prev.email then prev.email   else if Conf['Sage on /jp/'] and g.BOARD is 'jp' then 'sage' else persona.email or null
+      @email   = if prev and !/^sage$/.test prev.email then prev.email   else persona.email or null
       @sub     = if prev and Conf['Remember Subject']  then prev.sub     else if Conf['Remember Subject'] then persona.sub else null
       @spoiler = if prev and Conf['Remember Spoiler']  then prev.spoiler else false
       @com = null
@@ -2025,12 +2024,12 @@ QR =
         id = thread.id[1..]
         threads += "<option value=#{id}>Thread #{id}</option>"
       QR.threadSelector =
-        unless g.BOARD is 'f'
+        if g.BOARD is 'f'
+          $('select[name=filetag]').cloneNode true
+        else
           $.el 'select'
             innerHTML: threads
             title: 'Create a new thread / Reply to a thread'
-        else
-          $ 'select[name="filetag"]'
       $.prepend $('.move > span', QR.el), QR.threadSelector
       $.on QR.threadSelector,   'mousedown', (e) -> e.stopPropagation()
     $.on $('#autohide', QR.el), 'change',    QR.toggleHide
@@ -2076,17 +2075,22 @@ QR =
     QR.abort()
 
     reply = QR.replies[0]
-    unless (g.BOARD is 'f') and not g.REPLY
+    if g.BOARD is 'f' and not g.REPLY
+      filetag  = QR.threadSelector.value
+      threadID = 'new'
+    else
       threadID = g.THREAD_ID or QR.threadSelector.value
 
     # prevent errors
     if threadID is 'new'
+      threadID = null
       if g.BOARD in ['vg', 'q'] and !reply.sub
         err = 'New threads require a subject.'
       else unless reply.file or textOnly = !!$ 'input[name=textonly]', $.id 'postForm'
         err = 'No file selected.'
-    else
-      unless reply.com or reply.file
+      else if g.BOARD is 'f' and filetag is '9999'
+        err = 'Invalid tag specified.'
+    else unless reply.com or reply.file
         err = 'No file selected.'
 
     if QR.captchaIsEnabled and !err
@@ -2138,7 +2142,7 @@ QR =
       sub:      reply.sub
       com:      if Conf['Markdown'] then Markdown.format reply.com else reply.com
       upfile:   reply.file
-      filetag:  QR.threadSelector.value unless g.REPLY#if g.BOARD is 'f'
+      filetag:  filetag
       spoiler:  reply.spoiler
       textonly: textOnly
       mode:     'regist'
@@ -2181,19 +2185,16 @@ QR =
             "You were issued a warning on #{bs[0].innerHTML} as #{bs[3].innerHTML}.<br>Warning reason: #{bs[1].innerHTML}"
           else
             "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
-    else if err = doc.getElementById('errmsg') or err = $('center', doc) # error!
-      if /4chan Pass/.test err.textContent
-        err.textContent = 'You seem to have mistyped the CAPTCHA.'
-      if $ 'font', err
-        err.textContent = err.textContent.replace /Return$/, ''
+    else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc
       err = 'Connection error with sys.4chan.org.'
 
     if err
-      if err.nodeName is 'CENTER'
-        err = err.textContent
       if /captcha|verification/i.test(err.textContent) or err is 'Connection error with sys.4chan.org.'
+        # Remove the obnoxious 4chan Pass ad.
+        if /mistyped/i.test err.textContent
+          err.textContent = 'Error: You seem to have mistyped the CAPTCHA.'
         # Enable auto-post if we have some cached captchas.
         QR.cooldown.auto =
           if QR.captchaIsEnabled
@@ -2685,6 +2686,7 @@ Updater =
           if Updater.postID
             if Updater.checkPostCount > 15
               delete Updater.postID
+              break
             Updater.checkPostCount++
             return ((timeout) -> setTimeout Updater.update, timeout) Updater.checkPostCount * 20
         when 200
