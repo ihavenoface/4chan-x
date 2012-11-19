@@ -3709,11 +3709,8 @@ IDColor =
     $.addStyle ".posteruid .hand {#{css}}"
     Main.callbacks.push @node
   node: (post) ->
-    uid  = $ '.hand', post.el
-    cont = uid.textContent
-    unless IDColor.ids[cont] is 'true'
-      $.addStyle "[class$='#{cont}'] .hand {#{IDColor.apply uid}}"
-      IDColor.ids[cont] = 'true'
+    uid  = ($$ '.posteruid', post.el)[1].firstElementChild
+    uid.style.cssText = IDColor.apply uid
   compute: (str) ->
     rgb = []
     hash = @hash str

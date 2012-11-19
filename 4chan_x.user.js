@@ -4562,13 +4562,9 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var cont, uid;
-      uid = $('.hand', post.el);
-      cont = uid.textContent;
-      if (IDColor.ids[cont] !== 'true') {
-        $.addStyle("[class$='" + cont + "'] .hand {" + (IDColor.apply(uid)) + "}");
-        return IDColor.ids[cont] = 'true';
-      }
+      var uid;
+      uid = ($$('.posteruid', post.el))[1].firstElementChild;
+      return uid.style.cssText = IDColor.apply(uid);
     },
     compute: function(str) {
       var hash, rgb;
