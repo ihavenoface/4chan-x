@@ -4553,18 +4553,23 @@
   IDColor = {
     init: function() {
       var css;
-      if (g.BOARD !== ('b' || 'q' || 'soc')) {
+      if (!(g.BOARD === 'b' || 'q' || 'soc')) {
         return;
       }
       this.ids = {};
+      this.painted = {};
       css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;';
       $.addStyle(".posteruid .hand {" + css + "}");
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var uid;
+      var cont, uid;
       uid = $('.hand', post.el);
-      return $.addStyle("[class$='" + uid.textContent + "'] .hand {" + (IDColor.apply(uid)) + "}");
+      cont = uid.textContent;
+      if (!IDColor.painted[cont]) {
+        $.addStyle("[class$='" + cont + "'] .hand {" + (IDColor.apply(uid)) + "}");
+        return IDColor.painted[cont] = 'true';
+      }
     },
     compute: function(str) {
       var hash, rgb;
@@ -5425,7 +5430,9 @@
 
   ImageExpand = {
     init: function() {
-      return g.BOARD === 'f';
+      if (g.BOARD === 'f') {
+        return;
+      }
       Main.callbacks.push(this.node);
       return this.dialog();
     },

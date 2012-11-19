@@ -3703,14 +3703,18 @@ QuoteCT =
 
 IDColor =
   init: ->
-    return unless g.BOARD is ('b' or 'q' or 'soc')
+    return unless g.BOARD is 'b' or 'q' or 'soc'
     @ids = {}
+    @painted = {}
     css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;'
     $.addStyle ".posteruid .hand {#{css}}"
     Main.callbacks.push @node
   node: (post) ->
-    uid = $ '.hand', post.el
-    $.addStyle "[class$='#{uid.textContent}'] .hand {#{IDColor.apply uid}}"
+    uid  = $ '.hand', post.el
+    cont = uid.textContent
+    unless IDColor.painted[cont]
+      $.addStyle "[class$='#{cont}'] .hand {#{IDColor.apply uid}}"
+      IDColor.painted[cont] = 'true'
   compute: (str) ->
     rgb = []
     hash = @hash str
@@ -4400,7 +4404,7 @@ PngFix =
 
 ImageExpand =
   init: ->
-    return g.BOARD is 'f'
+    return if g.BOARD is 'f'
     Main.callbacks.push @node
     @dialog()
 
