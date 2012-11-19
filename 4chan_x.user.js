@@ -4564,24 +4564,24 @@
     node: function(post) {
       var uid;
       uid = $('.hand', post.el);
-      return $.addStyle(IDColor.apply(uid));
+      return $.addStyle("[class$='" + uid.textContent + "'] .hand {" + (IDColor.apply(uid)) + "}");
     },
     compute: function(str) {
       var hash, rgb;
       rgb = [];
       hash = this.hash(str);
-      rgb[0] = hash >> 24 & 0xFF;
-      rgb[1] = hash >> 16 & 0xFF;
-      rgb[2] = hash >> 8 & 0xFF;
+      rgb[0] = (hash >> 24) & 0xFF;
+      rgb[1] = (hash >> 16) & 0xFF;
+      rgb[2] = (hash >> 8) & 0xFF;
       rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125;
-      IDColor.ids[str] = rgb;
+      this.ids[str] = rgb;
       return rgb;
     },
     apply: function(uid) {
       var rgb;
       uid = uid.textContent;
-      rgb = IDColor.ids[uid] || IDColor.compute(uid);
-      return ("[class$=" + uid + "] .hand {background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;}" : "white;}");
+      rgb = this.ids[uid] || this.compute(uid);
+      return ("background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;" : "white;");
     },
     hash: function(str) {
       var i, j, msg;

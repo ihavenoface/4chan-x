@@ -3710,29 +3710,28 @@ IDColor =
     Main.callbacks.push @node
   node: (post) ->
     uid = $ '.hand', post.el
-    $.addStyle IDColor.apply uid
+    $.addStyle "[class$='#{uid.textContent}'] .hand {#{IDColor.apply uid}}"
   compute: (str) ->
     rgb = []
     hash = @hash str
 
-    rgb[0] = hash >> 24 & 0xFF
-    rgb[1] = hash >> 16 & 0xFF
-    rgb[2] = hash >> 8  & 0xFF
+    rgb[0] = (hash >> 24) & 0xFF
+    rgb[1] = (hash >> 16) & 0xFF
+    rgb[2] = (hash >> 8)  & 0xFF
     rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125
 
-    IDColor.ids[str] = rgb
+    @ids[str] = rgb
     rgb
   apply: (uid) ->
     uid = uid.textContent
-    rgb = IDColor.ids[uid] or IDColor.compute uid
-    "[class$=#{uid}] .hand {background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]}); color: " + if rgb[3] then "black;}" else "white;}"
+    rgb = @ids[uid] or @compute uid
+    "background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]}); color: " + if rgb[3] then "black;" else "white;"
   hash: (str) ->
     msg = 0
     i = 0
     j = str.length
-
     while i < j
-      msg = ((msg << 5) - msg) + str.charCodeAt(i)
+      msg = ((msg << 5) - msg) + str.charCodeAt i
       ++i
     msg
 
