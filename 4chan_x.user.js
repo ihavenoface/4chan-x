@@ -4557,7 +4557,6 @@
         return;
       }
       this.ids = {};
-      this.painted = {};
       css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;';
       $.addStyle(".posteruid .hand {" + css + "}");
       return Main.callbacks.push(this.node);
@@ -4566,9 +4565,9 @@
       var cont, uid;
       uid = $('.hand', post.el);
       cont = uid.textContent;
-      if (!IDColor.painted[cont]) {
+      if (IDColor.ids[cont] !== 'true') {
         $.addStyle("[class$='" + cont + "'] .hand {" + (IDColor.apply(uid)) + "}");
-        return IDColor.painted[cont] = 'true';
+        return IDColor.ids[cont] = 'true';
       }
     },
     compute: function(str) {
