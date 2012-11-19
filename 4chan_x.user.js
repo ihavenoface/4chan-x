@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -136,7 +136,8 @@
         'Thread Stats': [true, 'Display reply and image count'],
         'Thread Watcher': [true, 'Bookmark threads'],
         'Auto Watch': [true, 'Automatically watch threads that you start'],
-        'Auto Watch Reply': [false, 'Automatically watch threads that you reply to']
+        'Auto Watch Reply': [false, 'Automatically watch threads that you reply to'],
+        'Color user IDs': [false, 'Assign unique colors to user IDs on boards that use them']
       },
       Posting: {
         'Quick Reply': [true, 'Reply without leaving the page.'],
@@ -4549,6 +4550,52 @@
     }
   };
 
+  IDColor = {
+    init: function() {
+      var css;
+      if (g.BOARD !== ('b' || 'q' || 'soc')) {
+        return;
+      }
+      this.ids = {};
+      css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;';
+      $.addStyle(".posteruid .hand {" + css + "}");
+      return Main.callbacks.push(this.node);
+    },
+    node: function(post) {
+      var uid;
+      uid = $('.hand', post.el);
+      return $.addStyle(IDColor.apply(uid));
+    },
+    compute: function(str) {
+      var hash, rgb;
+      rgb = [];
+      hash = this.hash(str);
+      rgb[0] = hash >> 24 & 0xFF;
+      rgb[1] = hash >> 16 & 0xFF;
+      rgb[2] = hash >> 8 & 0xFF;
+      rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125;
+      IDColor.ids[str] = rgb;
+      return rgb;
+    },
+    apply: function(uid) {
+      var rgb;
+      uid = uid.textContent;
+      rgb = IDColor.ids[uid] || IDColor.compute(uid);
+      return ("[class$=" + uid + "] .hand {background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;}" : "white;}");
+    },
+    hash: function(str) {
+      var i, j, msg;
+      msg = 0;
+      i = 0;
+      j = str.length;
+      while (i < j) {
+        msg = ((msg << 5) - msg) + str.charCodeAt(i);
+        ++i;
+      }
+      return msg;
+    }
+  };
+
   Quotify = {
     init: function() {
       return Main.callbacks.push(this.node);
@@ -5311,6 +5358,9 @@
 
   Prefetch = {
     init: function() {
+      if (g.BOARD === 'f') {
+        return;
+      }
       return this.dialog();
     },
     dialog: function() {
@@ -5375,6 +5425,7 @@
 
   ImageExpand = {
     init: function() {
+      return g.BOARD === 'f';
       Main.callbacks.push(this.node);
       return this.dialog();
     },
@@ -5914,6 +5965,9 @@
       if (Conf['Indicate Cross-thread Quotes']) {
         QuoteCT.init();
       }
+      if (Conf['Color user IDs']) {
+        IDColor.init();
+      }
       return $.ready(Main.ready);
     },
     ready: function() {
@@ -5944,7 +5998,7 @@
       if (Conf['Quick Reply']) {
         QR.init();
       }
-      if (Conf['Image Expansion'] && g.BOARD !== 'f') {
+      if (Conf['Image Expansion']) {
         ImageExpand.init();
       }
       if (Conf['Thread Watcher']) {
@@ -5958,7 +6012,7 @@
         });
       }
       if (g.REPLY) {
-        if (Conf['Prefetch'] && g.BOARD !== 'f') {
+        if (Conf['Prefetch']) {
           Prefetch.init();
         }
         if (Conf['Thread Updater']) {

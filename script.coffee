@@ -48,6 +48,7 @@ Config =
       'Thread Watcher':               [true,  'Bookmark threads']
       'Auto Watch':                   [true,  'Automatically watch threads that you start']
       'Auto Watch Reply':             [false, 'Automatically watch threads that you reply to']
+      'Color user IDs':               [false, 'Assign unique colors to user IDs on boards that use them']
     Posting:
       'Quick Reply':                  [true,  'Reply without leaving the page.']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
@@ -3700,6 +3701,41 @@ QuoteCT =
         $.add quote, $.tn '\u00A0(Cross-thread)'
     return
 
+IDColor =
+  init: ->
+    return unless g.BOARD is ('b' or 'q' or 'soc')
+    @ids = {}
+    css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;'
+    $.addStyle ".posteruid .hand {#{css}}"
+    Main.callbacks.push @node
+  node: (post) ->
+    uid = $ '.hand', post.el
+    $.addStyle IDColor.apply uid
+  compute: (str) ->
+    rgb = []
+    hash = @hash str
+
+    rgb[0] = hash >> 24 & 0xFF
+    rgb[1] = hash >> 16 & 0xFF
+    rgb[2] = hash >> 8  & 0xFF
+    rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125
+
+    IDColor.ids[str] = rgb
+    rgb
+  apply: (uid) ->
+    uid = uid.textContent
+    rgb = IDColor.ids[uid] or IDColor.compute uid
+    "[class$=#{uid}] .hand {background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]}); color: " + if rgb[3] then "black;}" else "white;}"
+  hash: (str) ->
+    msg = 0
+    i = 0
+    j = str.length
+
+    while i < j
+      msg = ((msg << 5) - msg) + str.charCodeAt(i)
+      ++i
+    msg
+
 Quotify =
   init: ->
     Main.callbacks.push @node
@@ -4321,6 +4357,7 @@ AutoGif =
 
 Prefetch =
   init: ->
+    return if g.BOARD is 'f'
     @dialog()
   dialog: ->
     controls = $.el 'label',
@@ -4364,6 +4401,7 @@ PngFix =
 
 ImageExpand =
   init: ->
+    return g.BOARD is 'f'
     Main.callbacks.push @node
     @dialog()
 
@@ -4802,6 +4840,9 @@ Main =
     if Conf['Indicate Cross-thread Quotes']
       QuoteCT.init()
 
+    if Conf['Color user IDs']
+      IDColor.init()
+
     $.ready Main.ready
 
   ready: ->
@@ -4827,7 +4868,7 @@ Main =
     if Conf['Quick Reply']
       QR.init()
 
-    if Conf['Image Expansion'] and g.BOARD isnt 'f'
+    if Conf['Image Expansion']
       ImageExpand.init()
 
     if Conf['Thread Watcher']
@@ -4837,7 +4878,7 @@ Main =
       setTimeout -> Keybinds.init()
 
     if g.REPLY
-      if Conf['Prefetch'] and g.BOARD isnt 'f'
+      if Conf['Prefetch']
         Prefetch.init()
 
       if Conf['Thread Updater']
