@@ -4552,8 +4552,8 @@
 
   IDColor = {
     init: function() {
-      var css;
-      if (!(g.BOARD === 'b' || 'q' || 'soc')) {
+      var css, _ref;
+      if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
         return;
       }
       this.ids = {};

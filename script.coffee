@@ -3703,7 +3703,7 @@ QuoteCT =
 
 IDColor =
   init: ->
-    return unless g.BOARD is 'b' or 'q' or 'soc'
+    return unless g.BOARD in ['b', 'q', 'soc']
     @ids = {}
     @painted = {}
     css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;'
