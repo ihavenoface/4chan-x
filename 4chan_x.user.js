@@ -4563,8 +4563,12 @@
     },
     node: function(post) {
       var uid;
-      uid = ($$('.posteruid', post.el))[1].firstElementChild;
-      return uid.style.cssText = IDColor.apply(uid);
+      uid = $$('.posteruid', post.el);
+      if (!uid[1]) {
+        return;
+      }
+      uid = uid[1].firstElementChild;
+      return uid.style.cssText = IDColor.apply(uid.textContent);
     },
     compute: function(str) {
       var hash, rgb;
@@ -4579,7 +4583,6 @@
     },
     apply: function(uid) {
       var rgb;
-      uid = uid.textContent;
       rgb = this.ids[uid] || this.compute(uid);
       return ("background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;" : "white;");
     },
