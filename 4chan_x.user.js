@@ -4472,7 +4472,10 @@
           FileInfo.node(post);
         }
         if (Conf['Resurrect Quotes']) {
-          return Quotify.node(post);
+          Quotify.node(post);
+        }
+        if (Conf['Color user IDs'] && (board === 'b' || board === 'q' || board === 'soc')) {
+          return IDColor.node(post);
         }
       });
       $.on(this, 'mousemove', UI.hover);
