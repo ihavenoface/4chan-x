@@ -1254,7 +1254,7 @@ Keybinds =
           QR.hide()
         else QR.unhide()
       when Conf.spoiler
-        return unless /Spoiler/.test(($.id 'postFile').nextElementSibling.textContent) and target.nodeName is 'TEXTAREA'
+        return unless ($ '[name=spoiler]') and target.nodeName is 'TEXTAREA'
         Keybinds.tags 'spoiler', target
       when Conf.math
         return unless g.BOARD is 'sci' and target.nodeName is 'TEXTAREA'
