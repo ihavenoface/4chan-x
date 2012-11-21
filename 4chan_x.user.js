@@ -1589,19 +1589,19 @@
           Keybinds.tags('spoiler', target);
           break;
         case Conf.math:
-          if (!(g.BOARD === 'sci' && target.nodeName === 'TEXTAREA')) {
+          if (!((!!$('script[src^="//boards.4chan.org/jsMath/"]', d.head)) && target.nodeName === 'TEXTAREA')) {
             return;
           }
           Keybinds.tags('math', target);
           break;
         case Conf.eqn:
-          if (!(g.BOARD === 'sci' && target.nodeName === 'TEXTAREA')) {
+          if (!((!!$('script[src^="//boards.4chan.org/jsMath/"]', d.head)) && target.nodeName === 'TEXTAREA')) {
             return;
           }
           Keybinds.tags('eqn', target);
           break;
         case Conf.code:
-          if (!(g.BOARD === 'g' && target.nodeName === 'TEXTAREA')) {
+          if (!(Main.hasCodeTags && target.nodeName === 'TEXTAREA')) {
             return;
           }
           Keybinds.tags('code', target);
