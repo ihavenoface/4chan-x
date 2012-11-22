@@ -4571,7 +4571,10 @@
         return;
       }
       uid = uid[1].firstElementChild;
-      return uid.style.cssText = IDColor.apply(uid.textContent);
+      uid.style.cssText = IDColor.apply(uid.textContent);
+      return $.on(uid, 'click', function() {
+        return IDColor.idClick(uid.textContent);
+      });
     },
     compute: function(str) {
       var hash, rgb;
@@ -4599,6 +4602,30 @@
         ++i;
       }
       return msg;
+    },
+    currentHighlighted: [],
+    idClick: function(uid) {
+      var el, paint, self, _i, _j, _k, _len, _len1, _len2, _ref;
+      paint = d.getElementsByClassName('id_' + uid);
+      if (((self = this.currentHighlighted[0]) != null) && self.firstElementChild.textContent === uid) {
+        for (_i = 0, _len = paint.length; _i < _len; _i++) {
+          el = paint[_i];
+          $.rmClass(el.parentNode.parentNode.parentNode, 'highlight');
+          this.currentHighlighted = [];
+        }
+        return;
+      }
+      _ref = this.currentHighlighted;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        el = _ref[_j];
+        $.rmClass(el.parentNode.parentNode.parentNode, 'highlight');
+        this.currentHighlighted = [];
+      }
+      for (_k = 0, _len2 = paint.length; _k < _len2; _k++) {
+        el = paint[_k];
+        $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
+        this.currentHighlighted.push(el);
+      }
     }
   };
 
