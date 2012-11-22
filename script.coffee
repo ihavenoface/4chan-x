@@ -3715,7 +3715,7 @@ IDColor =
     return unless uid[1]
     uid = uid[1].firstElementChild
     uid.style.cssText = IDColor.apply uid.textContent
-    $.on uid, 'click', -> IDColor.idClick(uid.textContent)
+    $.on uid, 'click', -> IDColor.idClick uid.textContent
   compute: (str) ->
     rgb = []
     hash = @hash str
@@ -3741,18 +3741,16 @@ IDColor =
   currentHighlighted: []
   idClick: (uid) ->
     paint = d.getElementsByClassName 'id_' + uid
-    if (self = @currentHighlighted[0])? and self.firstElementChild.textContent is uid
-      for el in paint
-        $.rmClass el.parentNode.parentNode.parentNode, 'highlight'
-        @currentHighlighted = []
-      return
+    current = null
     for el in @currentHighlighted
+      current = uid
       $.rmClass el.parentNode.parentNode.parentNode, 'highlight'
       @currentHighlighted = []
-    for el in paint
-      $.addClass el.parentNode.parentNode.parentNode, 'highlight'
-      @currentHighlighted.push el
-    return
+    unless current is uid
+      for el in paint
+        $.addClass el.parentNode.parentNode.parentNode, 'highlight'
+        @currentHighlighted.push el
+      return
 
 Quotify =
   init: ->
