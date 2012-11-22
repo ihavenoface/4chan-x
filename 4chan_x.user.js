@@ -3366,7 +3366,7 @@
         return delete Updater.request;
       },
       update: function(posts) {
-        var count, id, lastPost, nodes, post, scroll, spoilerRange, _i, _len, _ref;
+        var count, el, id, lastPost, nodes, post, scroll, spoilerRange, uid, _i, _j, _len, _len1, _ref;
         if (spoilerRange = posts[0].custom_spoiler) {
           Build.spoilerRange[g.BOARD] = spoilerRange;
         }
@@ -3382,6 +3382,16 @@
           nodes.push(Build.postFromObject(post, g.BOARD));
           if (Updater.postID) {
             Updater.save.push(post.no);
+          }
+        }
+        if (IDColor.current.clicked) {
+          for (_j = 0, _len1 = nodes.length; _j < _len1; _j++) {
+            el = nodes[_j];
+            uid = $('.hand', el);
+            if (uid.textContent === IDColor.current.highlighted[0].firstElementChild.textContent) {
+              $.addClass(uid.parentNode.parentNode.parentNode.parentNode, 'highlight');
+              IDColor.current.highlighted.push(uid.parentNode);
+            }
           }
         }
         count = nodes.length;

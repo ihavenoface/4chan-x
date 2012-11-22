@@ -2719,6 +2719,13 @@ Updater =
         nodes.push Build.postFromObject post, g.BOARD
         Updater.save.push post.no if Updater.postID
 
+      if IDColor.current.clicked
+        for el in nodes
+          uid = $ '.hand', el
+          if uid.textContent is IDColor.current.highlighted[0].firstElementChild.textContent
+            $.addClass uid.parentNode.parentNode.parentNode.parentNode, 'highlight'
+            IDColor.current.highlighted.push uid.parentNode
+
       count = nodes.length
       if Conf['Verbose']
         Updater.set 'count', "+#{count}"
