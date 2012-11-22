@@ -3738,19 +3738,22 @@ IDColor =
       msg = ((msg << 5) - msg) + str.charCodeAt i
       ++i
     msg
-  currentHighlighted: []
+  current:
+    highlighted: []
+    uid :        null
+    clicked:     false
   idClick: (uid) ->
-    paint = d.getElementsByClassName 'id_' + uid
-    current = null
-    for el in @currentHighlighted
-      current = uid
+    for el in @current.highlighted
       $.rmClass el.parentNode.parentNode.parentNode, 'highlight'
-      @currentHighlighted = []
-    unless current is uid
-      for el in paint
-        $.addClass el.parentNode.parentNode.parentNode, 'highlight'
-        @currentHighlighted.push el
+    @current.highlighted = []
+    if @current.uid is uid and @current.clicked
+      @current.clicked = false
       return
+    for el in d.getElementsByClassName 'id_' + uid
+      $.addClass el.parentNode.parentNode.parentNode, 'highlight'
+      @current.highlighted.push el
+    @current.uid = uid
+    @current.clicked = true
 
 Quotify =
   init: ->

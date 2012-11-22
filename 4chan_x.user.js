@@ -4603,25 +4603,31 @@
       }
       return msg;
     },
-    currentHighlighted: [],
+    current: {
+      highlighted: [],
+      uid: null,
+      clicked: false
+    },
     idClick: function(uid) {
-      var current, el, paint, _i, _j, _len, _len1, _ref;
-      paint = d.getElementsByClassName('id_' + uid);
-      current = null;
-      _ref = this.currentHighlighted;
+      var el, _i, _j, _len, _len1, _ref, _ref1;
+      _ref = this.current.highlighted;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
-        current = uid;
         $.rmClass(el.parentNode.parentNode.parentNode, 'highlight');
-        this.currentHighlighted = [];
       }
-      if (current !== uid) {
-        for (_j = 0, _len1 = paint.length; _j < _len1; _j++) {
-          el = paint[_j];
-          $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
-          this.currentHighlighted.push(el);
-        }
+      this.current.highlighted = [];
+      if (this.current.uid === uid && this.current.clicked) {
+        this.current.clicked = false;
+        return;
       }
+      _ref1 = d.getElementsByClassName('id_' + uid);
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        el = _ref1[_j];
+        $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
+        this.current.highlighted.push(el);
+      }
+      this.current.uid = uid;
+      return this.current.clicked = true;
     }
   };
 
