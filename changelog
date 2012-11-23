@@ -1,4 +1,6 @@
 master
+
+2.36.8
 - noface
   Added support for coloured IDs and post highlighting from the native 4chan extension.
 
