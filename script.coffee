@@ -2719,12 +2719,12 @@ Updater =
         nodes.push Build.postFromObject post, g.BOARD
         Updater.save.push post.no if Updater.postID
 
-      if IDColor.current.clicked
+      if IDColor.clicked
         for el in nodes
           uid = $ '.hand', el
-          if uid.textContent is IDColor.current.highlighted[0].firstElementChild.textContent
+          if uid.textContent is IDColor.highlighted[0].firstElementChild.textContent
             $.addClass uid.parentNode.parentNode.parentNode.parentNode, 'highlight'
-            IDColor.current.highlighted.push uid.parentNode
+            IDColor.highlighted.push uid.parentNode
 
       count = nodes.length
       if Conf['Verbose']
@@ -3745,22 +3745,22 @@ IDColor =
       msg = ((msg << 5) - msg) + str.charCodeAt i
       ++i
     msg
-  current:
-    highlighted: []
-    uid :        null
-    clicked:     false
+  highlighted: []
+  uid :        null
+  clicked:     false
   idClick: (uid) ->
-    for el in @current.highlighted
+    for el in @highlighted
       $.rmClass el.parentNode.parentNode.parentNode, 'highlight'
-    @current.highlighted = []
-    if @current.uid is uid and @current.clicked
-      @current.clicked = false
+    @highlighted = []
+    if @uid is uid and @clicked
+      @clicked = false
       return
     for el in d.getElementsByClassName 'id_' + uid
+      continue if el.parentNode.parentNode.parentNode.parentNode.parentNode.className is 'inline'
       $.addClass el.parentNode.parentNode.parentNode, 'highlight'
-      @current.highlighted.push el
-    @current.uid = uid
-    @current.clicked = true
+      @highlighted.push el
+    @uid = uid
+    @clicked = true
 
 Quotify =
   init: ->

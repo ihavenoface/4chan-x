@@ -3384,13 +3384,13 @@
             Updater.save.push(post.no);
           }
         }
-        if (IDColor.current.clicked) {
+        if (IDColor.clicked) {
           for (_j = 0, _len1 = nodes.length; _j < _len1; _j++) {
             el = nodes[_j];
             uid = $('.hand', el);
-            if (uid.textContent === IDColor.current.highlighted[0].firstElementChild.textContent) {
+            if (uid.textContent === IDColor.highlighted[0].firstElementChild.textContent) {
               $.addClass(uid.parentNode.parentNode.parentNode.parentNode, 'highlight');
-              IDColor.current.highlighted.push(uid.parentNode);
+              IDColor.highlighted.push(uid.parentNode);
             }
           }
         }
@@ -4613,31 +4613,32 @@
       }
       return msg;
     },
-    current: {
-      highlighted: [],
-      uid: null,
-      clicked: false
-    },
+    highlighted: [],
+    uid: null,
+    clicked: false,
     idClick: function(uid) {
       var el, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.current.highlighted;
+      _ref = this.highlighted;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
         $.rmClass(el.parentNode.parentNode.parentNode, 'highlight');
       }
-      this.current.highlighted = [];
-      if (this.current.uid === uid && this.current.clicked) {
-        this.current.clicked = false;
+      this.highlighted = [];
+      if (this.uid === uid && this.clicked) {
+        this.clicked = false;
         return;
       }
       _ref1 = d.getElementsByClassName('id_' + uid);
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         el = _ref1[_j];
+        if (el.parentNode.parentNode.parentNode.parentNode.parentNode.className === 'inline') {
+          continue;
+        }
         $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
-        this.current.highlighted.push(el);
+        this.highlighted.push(el);
       }
-      this.current.uid = uid;
-      return this.current.clicked = true;
+      this.uid = uid;
+      return this.clicked = true;
     }
   };
 
