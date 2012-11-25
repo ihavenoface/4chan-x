@@ -5697,7 +5697,7 @@
       comment = post.blockquote || $('blockquote', post.el);
       subject = $('.subject', post.el);
       nodes = Linkify.collector(comment);
-      if (subject != null) {
+      if (subject = $('.subject', post.el)) {
         nodes.push(subject.childNodes);
       }
       _results = [];
@@ -5708,7 +5708,7 @@
       return _results;
     },
     collector: function(node) {
-      var child, nodes, result, results, _i, _j, _len, _len1, _ref;
+      var child, nodes, _i, _len, _ref;
       nodes = [];
       _ref = node.childNodes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -5716,11 +5716,7 @@
         if (child.nodeType === Node.TEXT_NODE) {
           nodes.push(child);
         } else if (child.tagName.toLowerCase() !== "br") {
-          results = this.collector(child);
-          for (_j = 0, _len1 = results.length; _j < _len1; _j++) {
-            result = results[_j];
-            nodes.push(result);
-          }
+          nodes.push.apply(this.collector(child));
         }
       }
       return nodes;

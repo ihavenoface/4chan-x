@@ -4598,14 +4598,14 @@ Linkify =
 
   node: (post) ->
     for spoiler in $$ '.spoiler', post.blockquote
-      if (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and !/\w/.test(spoiler.textContent) and (n.nodeName and p.nodeName is '#text')
+      if (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n.nodeName and p.nodeName is '#text')
         p.textContent += n.textContent
         $.rm n
         $.rm spoiler
     comment = post.blockquote or $ 'blockquote', post.el
     subject = $ '.subject', post.el
     nodes = Linkify.collector comment
-    if subject?
+    if subject = $ '.subject', post.el
       nodes.push subject.childNodes
     for node in nodes
       Linkify.text node
@@ -4616,9 +4616,7 @@ Linkify =
       if child.nodeType is Node.TEXT_NODE
         nodes.push child
       else unless child.tagName.toLowerCase() is "br"
-        results = @collector(child)
-        for result in results
-          nodes.push result
+        nodes.push.apply @collector child
     nodes
 
   text: (child, link) ->
