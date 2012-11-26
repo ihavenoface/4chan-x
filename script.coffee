@@ -3753,7 +3753,7 @@ IDColor =
       $.delete value
       return @clicked = false
     for el in d.getElementsByClassName 'id_' + uid
-      continue if el.parentNode.parentNode.parentNode.parentNode.parentNode.className is 'inline'
+      continue if /\binline\b/.test el.parentNode.parentNode.parentNode.parentNode.parentNode.className
       $.addClass el.parentNode.parentNode.parentNode, 'highlight'
       @highlighted.push el
     $.set value, uid

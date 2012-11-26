@@ -4626,7 +4626,7 @@
       _ref1 = d.getElementsByClassName('id_' + uid);
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         el = _ref1[_j];
-        if (el.parentNode.parentNode.parentNode.parentNode.parentNode.className === 'inline') {
+        if (/\binline\b/.test(el.parentNode.parentNode.parentNode.parentNode.parentNode.className)) {
           continue;
         }
         $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
