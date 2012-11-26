@@ -5695,7 +5695,6 @@
         }
       }
       comment = post.blockquote || $('blockquote', post.el);
-      subject = $('.subject', post.el);
       nodes = Linkify.collector(comment);
       if (subject = $('.subject', post.el)) {
         nodes.push(subject.childNodes);

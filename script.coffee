@@ -4603,7 +4603,6 @@ Linkify =
         $.rm n
         $.rm spoiler
     comment = post.blockquote or $ 'blockquote', post.el
-    subject = $ '.subject', post.el
     nodes = Linkify.collector comment
     if subject = $ '.subject', post.el
       nodes.push subject.childNodes
