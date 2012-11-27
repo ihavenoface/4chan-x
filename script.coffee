@@ -2293,7 +2293,7 @@ Options =
     | <label for=sauces_tab>Sauce</label>
     | <label for=rice_tab>Rice</label>
     | <label for=keybinds_tab>Keybinds</label>
-    | <label onClick="document.location.reload(true)">Refresh</label>
+    | <label onclick="document.location.reload()">Refresh</label>
   </div>
 </div>
 <hr>
