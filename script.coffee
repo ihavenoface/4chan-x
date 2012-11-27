@@ -2045,7 +2045,6 @@ QR =
     $.on ta,                    'input',     -> QR.selected.el.lastChild.textContent = @value
     $.on ta,                    'input',     QR.characterCount
     $.on fileInput,             'change',    QR.fileInput
-    $.on fileInput,             'mouseover', -> fileInput.title = 'Shift+Click to remove the selected file.'
     $.on fileInput,             'click',     (e) -> if e.shiftKey then QR.selected.rmFile() or e.preventDefault()
     $.on spoiler.firstChild,    'change',    -> $('input', QR.selected.el).click()
     $.on $('.warning',  QR.el), 'click',     QR.cleanError
