@@ -4694,19 +4694,6 @@
       }
     },
     linkify: function(link, node) {
-      var a, embed, key, l, match, site, _ref, _results;
-      Quotify.sites = {
-        yt: {
-          regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
-          url: "http://www.youtube.com/embed/",
-          safeurl: "http://www.youtube.com/watch/"
-        },
-        vm: {
-          regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
-          url: "https://player.vimeo.com/video/",
-          safeurl: "http://www.vimeo.com/"
-        }
-      };
       /*
           Based on the Linkify scripts located at:
           http://downloads.mozdev.org/greasemonkey/linkify.user.js
@@ -4721,6 +4708,7 @@
           creating a different script. Thank you.
       */
 
+      var a, embed, key, l, match, site, _ref;
       l = link;
       a = $.el('a', {
         textContent: l,
@@ -4749,8 +4737,19 @@
         }
       });
       if (Conf['Youtube Embed']) {
+        Quotify.sites = {
+          yt: {
+            regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
+            url: "http://www.youtube.com/embed/",
+            safeurl: "http://www.youtube.com/watch/"
+          },
+          vm: {
+            regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
+            url: "https://player.vimeo.com/video/",
+            safeurl: "http://www.vimeo.com/"
+          }
+        };
         _ref = Quotify.sites;
-        _results = [];
         for (key in _ref) {
           site = _ref[key];
           if (match = a.href.match(site.regExp)) {
@@ -4764,11 +4763,9 @@
             $.after(a, embed);
             $.after(a, $.tn(' '));
             break;
-          } else {
-            _results.push(void 0);
           }
+          return;
         }
-        return _results;
       }
     },
     embed: function() {

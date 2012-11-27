@@ -3796,6 +3796,7 @@ Quotify =
             \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
           )
         ///i)
+        # $.log node
         Quotify.linkify link[0], node
 
       unless quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g
@@ -3852,15 +3853,6 @@ Quotify =
       $.replace node, nodes
     return
   linkify: (link, node) ->
-    Quotify.sites =
-      yt:
-        regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-        url:     "http://www.youtube.com/embed/"
-        safeurl: "http://www.youtube.com/watch/"
-      vm:
-        regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-        url:     "https://player.vimeo.com/video/"
-        safeurl: "http://www.vimeo.com/"
     ###
     Based on the Linkify scripts located at:
     http://downloads.mozdev.org/greasemonkey/linkify.user.js
@@ -3898,6 +3890,19 @@ Quotify =
           Linkify.text(child, @)
 
     if Conf['Youtube Embed']
+      Quotify.sites =
+        yt:
+          regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
+          url:     "http://www.youtube.com/embed/"
+          safeurl: "http://www.youtube.com/watch/"
+        vm:
+          regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
+          url:     "https://player.vimeo.com/video/"
+          safeurl: "http://www.vimeo.com/"
+        # audio:
+        #   regExp:  /.*\.(mp3|ogg|wav)/
+        #   url:     l.replace /\.(mp3|ogg|wav)/, ''
+        #   safeurl: url
       for key, site of Quotify.sites
         if match = a.href.match(site.regExp)
           embed = $.el 'a'
@@ -3909,6 +3914,7 @@ Quotify =
           $.after a, embed
           $.after a, $.tn ' '
           break
+        return
 
   embed: ->
     link = @.previousSibling.previousSibling
