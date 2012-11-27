@@ -3777,6 +3777,27 @@ Quotify =
       node = snapshot.snapshotItem i
       data = node.data
 
+      if Conf['Linkify'] and link = data.match(regString =
+        ///
+          (
+            \b(
+              [a-z][-a-z0-9+.]+://
+              |
+              www\.
+              |
+              magnet:
+              |
+              mailto:
+              |
+              news:
+            )
+            [^\s'"<>()]+
+            |
+            \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
+          )
+        ///i)
+        Quotify.linkify link[0], node
+
       unless quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g
         # Only accept nodes with potentially valid links
         continue
@@ -3830,6 +3851,93 @@ Quotify =
 
       $.replace node, nodes
     return
+  linkify: (link, node) ->
+    ###
+    Based on the Linkify scripts located at:
+    http://downloads.mozdev.org/greasemonkey/linkify.user.js
+    https://github.com/MayhemYDG/LinkifyPlusFork
+
+    Originally written by Anthony Lieuallen of http://arantius.com/
+    Licensed for unlimited modification and redistribution as long as
+    this notice is kept intact.
+
+    If possible, please contact me regarding new features, bugfixes
+    or changes that I could integrate into the existing code instead of
+    creating a different script. Thank you.
+    ###
+    l = link
+    a = $.el 'a',
+      textContent: l
+      className: 'linkify'
+      rel:       'nofollow noreferrer'
+      target:    'blank'
+      href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
+    $.replace node, a
+
+    $.on a, 'click', (e) ->
+      if e.shiftKey
+        e.preventDefault()
+        e.stopPropagation()
+        if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
+          el = @.nextSibling
+          if el.textContent
+            child = $.tn(@textContent + el.textContent + el.nextSibling.textContent)
+          else
+            child = $.tn(@textContent + el.nextSibling.textContent)
+          $.rm el
+          $.rm @.nextSibling
+          Linkify.text(child, @)
+
+    if Conf['Youtube Embed']
+      for key, site of Linkify.sites
+        if match = a.href.match(site.regExp)
+          embed = $.el 'a'
+            name:         match[1]
+            className:    key
+            href:         'javascript:;'
+            textContent:  '(embed)'
+          $.on embed, 'click', Quotify.embed
+          $.after a, embed
+          $.after a, $.tn ' '
+          break
+
+  embed: ->
+    link = @.previousSibling.previousSibling
+    iframe = $.el 'iframe'
+      src: Linkify.sites[@className].url + @name
+    iframe.style.border = '0'
+    iframe.style.width  = '640px'
+    iframe.style.height = '390px'
+    $.replace link, iframe
+
+    unembed = $.el 'a'
+      name:        @name
+      className:   @className
+      href:        'javascript:;'
+      textContent: '(unembed)'
+
+    $.on unembed, 'click', Quotify.unembed
+    $.replace @, unembed
+
+  unembed: ->
+    url = Quotify.sites[@className].safeurl + @name
+    embedded = @.previousSibling.previousSibling
+
+    a = $.el 'a'
+      textContent: url
+      rel:         'nofollow noreferrer'
+      target:      'blank'
+      href:        url
+
+    embed = $.el 'a'
+      name:         @name
+      className:    @className
+      href:         'javascript:;'
+      textContent:  '(embed)'
+
+    $.on embed, 'click', Quotify.embed
+    $.replace embedded, a
+    $.replace @, embed
 
 DeleteLink =
   init: ->
@@ -4549,168 +4657,6 @@ ImageExpand =
   resize: ->
     ImageExpand.style.textContent = ".fitheight img[data-md5] + img {max-height:#{d.documentElement.clientHeight}px;}"
 
-###
-Based on the Linkify scripts located at:
-http://downloads.mozdev.org/greasemonkey/linkify.user.js
-https://github.com/MayhemYDG/LinkifyPlusFork
-
-Originally written by Anthony Lieuallen of http://arantius.com/
-Licensed for unlimited modification and redistribution as long as
-this notice is kept intact.
-
-If possible, please contact me regarding new features, bugfixes
-or changes that I could integrate into the existing code instead of
-creating a different script. Thank you.
-###
-
-Linkify =
-  init: ->
-    Main.callbacks.push @node
-
-  regString: ///
-    (
-      \b(
-        [a-z][-a-z0-9+.]+://
-        |
-        www\.
-        |
-        magnet:
-        |
-        mailto:
-        |
-        news:
-      )
-      [^\s'"<>()]+
-      |
-      \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
-    )
-  ///i
-
-  sites:
-    yt:
-      regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-      url:     "http://www.youtube.com/embed/"
-      safeurl: "http://www.youtube.com/watch/"
-    vm:
-      regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-      url:     "https://player.vimeo.com/video/"
-      safeurl: "http://www.vimeo.com/"
-
-  node: (post) ->
-    for spoiler in $$ '.spoiler', post.blockquote
-      if (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n.nodeName and p.nodeName is '#text')
-        p.textContent += n.textContent
-        $.rm n
-        $.rm spoiler
-    comment = post.blockquote or $ 'blockquote', post.el
-    nodes = Linkify.collector comment
-    if subject = $ '.subject', post.el
-      nodes.push subject.childNodes
-    for node in nodes
-      Linkify.text node
-
-  collector: (node) ->
-    nodes = []
-    for child in node.childNodes
-      if child.nodeType is Node.TEXT_NODE
-        nodes.push child
-      else unless child.tagName.toLowerCase() is "br"
-        nodes.push.apply @collector child
-    nodes
-
-  text: (child, link) ->
-    txt = child.textContent
-    p = 0
-    if m = Linkify.regString.exec txt
-      l = m[0].replace /\.*$/, ''
-      lLen = l.length
-      node = $.tn(txt.substring(p, m.index))
-      if link
-        $.replace link, node
-      else
-        $.replace child, node
-      a = $.el 'a'
-        textContent: l
-        className: 'linkify'
-        rel:       'nofollow noreferrer'
-        target:    'blank'
-        href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
-      Linkify.concat(a)
-      $.after node, a
-      p = m.index+lLen
-      rest = $.tn(txt.substring(p, txt.length))
-
-      if Conf['Youtube Embed']
-        for key, site of Linkify.sites
-          if match = a.href.match(site.regExp)
-            embed = $.el 'a'
-              name:         match[1]
-              className:    key
-              href:         'javascript:;'
-              textContent:  '(embed)'
-            $.on embed, 'click', Linkify.embed
-            $.after a, embed
-            $.after a, $.tn ' '
-            break
-
-      unless rest.textContent == ""
-        if embed then $.after embed, rest else $.after a, rest
-        embed = false
-        @text rest
-
-  embed: ->
-    link = @.previousSibling.previousSibling
-    iframe = $.el 'iframe'
-      src: Linkify.sites[@className].url + @name
-    iframe.style.border = '0'
-    iframe.style.width  = '640px'
-    iframe.style.height = '390px'
-    $.replace link, iframe
-
-    unembed = $.el 'a'
-      name:        @name
-      className:   @className
-      href:        'javascript:;'
-      textContent: '(unembed)'
-
-    $.on unembed, 'click', Linkify.unembed
-    $.replace @, unembed
-
-  unembed: ->
-    url = Linkify.sites[@className].safeurl + @name
-    embedded = @.previousSibling.previousSibling
-
-    a = $.el 'a'
-      textContent: url
-      rel:         'nofollow noreferrer'
-      target:      'blank'
-      href:        url
-
-    embed = $.el 'a'
-      name:         @name
-      className:    @className
-      href:         'javascript:;'
-      textContent:  '(embed)'
-
-    $.on embed, 'click', Linkify.embed
-    $.replace embedded, a
-    $.replace @, embed
-
-  concat: (a) ->
-    $.on a, 'click', (e) ->
-      if e.shiftKey
-        e.preventDefault()
-        e.stopPropagation()
-        if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
-          el = @.nextSibling
-          if el.textContent
-            child = $.tn(@textContent + el.textContent + el.nextSibling.textContent)
-          else
-            child = $.tn(@textContent + el.nextSibling.textContent)
-          $.rm el
-          $.rm @.nextSibling
-          Linkify.text(child, @)
-
 Main =
   init: ->
     Main.flatten null, Config
@@ -4842,9 +4788,6 @@ Main =
 
       if Conf['Archive Link']
         ArchiveLink.init()
-
-    if Conf['Linkify']
-      Linkify.init()
 
     if Conf['Resurrect Quotes']
       Quotify.init()

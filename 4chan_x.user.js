@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -4642,7 +4642,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, i, id, index, m, node, nodes, quote, quotes, snapshot, text, _i, _j, _len, _ref;
+      var a, board, data, i, id, index, link, m, node, nodes, quote, quotes, regString, snapshot, text, _i, _j, _len, _ref;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4650,6 +4650,9 @@
       for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         node = snapshot.snapshotItem(i);
         data = node.data;
+        if (Conf['Linkify'] && (link = data.match(regString = /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/i))) {
+          Quotify.linkify(link[0], node);
+        }
         if (!(quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g))) {
           continue;
         }
@@ -4689,6 +4692,111 @@
         }
         $.replace(node, nodes);
       }
+    },
+    linkify: function(link, node) {
+      /*
+          Based on the Linkify scripts located at:
+          http://downloads.mozdev.org/greasemonkey/linkify.user.js
+          https://github.com/MayhemYDG/LinkifyPlusFork
+      
+          Originally written by Anthony Lieuallen of http://arantius.com/
+          Licensed for unlimited modification and redistribution as long as
+          this notice is kept intact.
+      
+          If possible, please contact me regarding new features, bugfixes
+          or changes that I could integrate into the existing code instead of
+          creating a different script. Thank you.
+      */
+
+      var a, embed, key, l, match, site, _ref, _results;
+      l = link;
+      a = $.el('a', {
+        textContent: l,
+        className: 'linkify',
+        rel: 'nofollow noreferrer',
+        target: 'blank',
+        href: l.indexOf(":") < 0 ? (l.indexOf("@") > 0 ? "mailto:" + l : "http://" + l) : l
+      });
+      $.replace(node, a);
+      $.on(a, 'click', function(e) {
+        var child, el;
+        if (e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
+            el = this.nextSibling;
+            if (el.textContent) {
+              child = $.tn(this.textContent + el.textContent + el.nextSibling.textContent);
+            } else {
+              child = $.tn(this.textContent + el.nextSibling.textContent);
+            }
+            $.rm(el);
+            $.rm(this.nextSibling);
+            return Linkify.text(child, this);
+          }
+        }
+      });
+      if (Conf['Youtube Embed']) {
+        _ref = Linkify.sites;
+        _results = [];
+        for (key in _ref) {
+          site = _ref[key];
+          if (match = a.href.match(site.regExp)) {
+            embed = $.el('a', {
+              name: match[1],
+              className: key,
+              href: 'javascript:;',
+              textContent: '(embed)'
+            });
+            $.on(embed, 'click', Quotify.embed);
+            $.after(a, embed);
+            $.after(a, $.tn(' '));
+            break;
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      }
+    },
+    embed: function() {
+      var iframe, link, unembed;
+      link = this.previousSibling.previousSibling;
+      iframe = $.el('iframe', {
+        src: Linkify.sites[this.className].url + this.name
+      });
+      iframe.style.border = '0';
+      iframe.style.width = '640px';
+      iframe.style.height = '390px';
+      $.replace(link, iframe);
+      unembed = $.el('a', {
+        name: this.name,
+        className: this.className,
+        href: 'javascript:;',
+        textContent: '(unembed)'
+      });
+      $.on(unembed, 'click', Quotify.unembed);
+      return $.replace(this, unembed);
+    },
+    unembed: function() {
+      var a, embed, embedded, url;
+      url = Quotify.sites[this.className].safeurl + this.name;
+      embedded = this.previousSibling.previousSibling;
+      a = $.el('a', {
+        textContent: url,
+        rel: 'nofollow noreferrer',
+        target: 'blank',
+        href: url
+      });
+      embed = $.el('a', {
+        name: this.name,
+        className: this.className,
+        href: 'javascript:;',
+        textContent: '(embed)'
+      });
+      $.on(embed, 'click', Quotify.embed);
+      $.replace(embedded, a);
+      return $.replace(this, embed);
     }
   };
 
@@ -5651,189 +5759,6 @@
     }
   };
 
-  /*
-  Based on the Linkify scripts located at:
-  http://downloads.mozdev.org/greasemonkey/linkify.user.js
-  https://github.com/MayhemYDG/LinkifyPlusFork
-  
-  Originally written by Anthony Lieuallen of http://arantius.com/
-  Licensed for unlimited modification and redistribution as long as
-  this notice is kept intact.
-  
-  If possible, please contact me regarding new features, bugfixes
-  or changes that I could integrate into the existing code instead of
-  creating a different script. Thank you.
-  */
-
-
-  Linkify = {
-    init: function() {
-      return Main.callbacks.push(this.node);
-    },
-    regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/i,
-    sites: {
-      yt: {
-        regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
-        url: "http://www.youtube.com/embed/",
-        safeurl: "http://www.youtube.com/watch/"
-      },
-      vm: {
-        regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
-        url: "https://player.vimeo.com/video/",
-        safeurl: "http://www.vimeo.com/"
-      }
-    },
-    node: function(post) {
-      var comment, n, node, nodes, p, spoiler, subject, _i, _j, _len, _len1, _ref, _results;
-      _ref = $$('.spoiler', post.blockquote);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        spoiler = _ref[_i];
-        if ((p = spoiler.previousSibling) && (n = spoiler.nextSibling) && !/\w/.test(spoiler.textContent) && (n.nodeName && p.nodeName === '#text')) {
-          p.textContent += n.textContent;
-          $.rm(n);
-          $.rm(spoiler);
-        }
-      }
-      comment = post.blockquote || $('blockquote', post.el);
-      nodes = Linkify.collector(comment);
-      if (subject = $('.subject', post.el)) {
-        nodes.push(subject.childNodes);
-      }
-      _results = [];
-      for (_j = 0, _len1 = nodes.length; _j < _len1; _j++) {
-        node = nodes[_j];
-        _results.push(Linkify.text(node));
-      }
-      return _results;
-    },
-    collector: function(node) {
-      var child, nodes, _i, _len, _ref;
-      nodes = [];
-      _ref = node.childNodes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        if (child.nodeType === Node.TEXT_NODE) {
-          nodes.push(child);
-        } else if (child.tagName.toLowerCase() !== "br") {
-          nodes.push.apply(this.collector(child));
-        }
-      }
-      return nodes;
-    },
-    text: function(child, link) {
-      var a, embed, key, l, lLen, m, match, node, p, rest, site, txt, _ref;
-      txt = child.textContent;
-      p = 0;
-      if (m = Linkify.regString.exec(txt)) {
-        l = m[0].replace(/\.*$/, '');
-        lLen = l.length;
-        node = $.tn(txt.substring(p, m.index));
-        if (link) {
-          $.replace(link, node);
-        } else {
-          $.replace(child, node);
-        }
-        a = $.el('a', {
-          textContent: l,
-          className: 'linkify',
-          rel: 'nofollow noreferrer',
-          target: 'blank',
-          href: l.indexOf(":") < 0 ? (l.indexOf("@") > 0 ? "mailto:" + l : "http://" + l) : l
-        });
-        Linkify.concat(a);
-        $.after(node, a);
-        p = m.index + lLen;
-        rest = $.tn(txt.substring(p, txt.length));
-        if (Conf['Youtube Embed']) {
-          _ref = Linkify.sites;
-          for (key in _ref) {
-            site = _ref[key];
-            if (match = a.href.match(site.regExp)) {
-              embed = $.el('a', {
-                name: match[1],
-                className: key,
-                href: 'javascript:;',
-                textContent: '(embed)'
-              });
-              $.on(embed, 'click', Linkify.embed);
-              $.after(a, embed);
-              $.after(a, $.tn(' '));
-              break;
-            }
-          }
-        }
-        if (rest.textContent !== "") {
-          if (embed) {
-            $.after(embed, rest);
-          } else {
-            $.after(a, rest);
-          }
-          embed = false;
-          return this.text(rest);
-        }
-      }
-    },
-    embed: function() {
-      var iframe, link, unembed;
-      link = this.previousSibling.previousSibling;
-      iframe = $.el('iframe', {
-        src: Linkify.sites[this.className].url + this.name
-      });
-      iframe.style.border = '0';
-      iframe.style.width = '640px';
-      iframe.style.height = '390px';
-      $.replace(link, iframe);
-      unembed = $.el('a', {
-        name: this.name,
-        className: this.className,
-        href: 'javascript:;',
-        textContent: '(unembed)'
-      });
-      $.on(unembed, 'click', Linkify.unembed);
-      return $.replace(this, unembed);
-    },
-    unembed: function() {
-      var a, embed, embedded, url;
-      url = Linkify.sites[this.className].safeurl + this.name;
-      embedded = this.previousSibling.previousSibling;
-      a = $.el('a', {
-        textContent: url,
-        rel: 'nofollow noreferrer',
-        target: 'blank',
-        href: url
-      });
-      embed = $.el('a', {
-        name: this.name,
-        className: this.className,
-        href: 'javascript:;',
-        textContent: '(embed)'
-      });
-      $.on(embed, 'click', Linkify.embed);
-      $.replace(embedded, a);
-      return $.replace(this, embed);
-    },
-    concat: function(a) {
-      return $.on(a, 'click', function(e) {
-        var child, el;
-        if (e.shiftKey) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
-            el = this.nextSibling;
-            if (el.textContent) {
-              child = $.tn(this.textContent + el.textContent + el.nextSibling.textContent);
-            } else {
-              child = $.tn(this.textContent + el.nextSibling.textContent);
-            }
-            $.rm(el);
-            $.rm(this.nextSibling);
-            return Linkify.text(child, this);
-          }
-        }
-      });
-    }
-  };
-
   Main = {
     init: function() {
       var cutoff, hiddenThreads, id, key, now, path, pathname, settings, temp, timestamp, val, _ref;
@@ -5981,9 +5906,6 @@
         if (Conf['Archive Link']) {
           ArchiveLink.init();
         }
-      }
-      if (Conf['Linkify']) {
-        Linkify.init();
       }
       if (Conf['Resurrect Quotes']) {
         Quotify.init();
