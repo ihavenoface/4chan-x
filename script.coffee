@@ -3852,6 +3852,15 @@ Quotify =
       $.replace node, nodes
     return
   linkify: (link, node) ->
+    Quotify.sites =
+      yt:
+        regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
+        url:     "http://www.youtube.com/embed/"
+        safeurl: "http://www.youtube.com/watch/"
+      vm:
+        regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
+        url:     "https://player.vimeo.com/video/"
+        safeurl: "http://www.vimeo.com/"
     ###
     Based on the Linkify scripts located at:
     http://downloads.mozdev.org/greasemonkey/linkify.user.js
@@ -3889,7 +3898,7 @@ Quotify =
           Linkify.text(child, @)
 
     if Conf['Youtube Embed']
-      for key, site of Linkify.sites
+      for key, site of Quotify.sites
         if match = a.href.match(site.regExp)
           embed = $.el 'a'
             name:         match[1]
@@ -3904,7 +3913,7 @@ Quotify =
   embed: ->
     link = @.previousSibling.previousSibling
     iframe = $.el 'iframe'
-      src: Linkify.sites[@className].url + @name
+      src: Quotify.sites[@className].url + @name
     iframe.style.border = '0'
     iframe.style.width  = '640px'
     iframe.style.height = '390px'
