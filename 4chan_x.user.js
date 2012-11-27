@@ -2616,6 +2616,9 @@
       });
       $.on(ta, 'input', QR.characterCount);
       $.on(fileInput, 'change', QR.fileInput);
+      $.on(fileInput, 'mouseover', function() {
+        return fileInput.title = 'Shift+Click to remove the selected file.';
+      });
       $.on(fileInput, 'click', function(e) {
         if (e.shiftKey) {
           return QR.selected.rmFile() || e.preventDefault();
