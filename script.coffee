@@ -3781,18 +3781,43 @@ Quotify =
             \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
           )
         ///gi
+
       if Conf['Youtube Embed']
-        Quotify.sites =
-          yt:
+        @types =
+          youtube:
             regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-            url:     "http://www.youtube.com/embed/"
-            safeurl: "http://www.youtube.com/watch/"
-          vm:
+            style:
+              border: '0'
+              width:  '640px'
+              height: '390px'
+            el: ->
+              $.el 'iframe'
+                src:  "http://www.youtube.com/embed/#{@name}"
+          vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-            url:     "https://player.vimeo.com/video/"
-            safeurl: "http://www.vimeo.com/"
+            style:
+              border: '0'
+              width:  '640px'
+              height: '390px'
+            el: ->
+              $.el 'iframe'
+                src:  "https://player.vimeo.com/video/#{@name}"
+          vocaroo:
+            regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
+            style:
+              border: '0'
+              width:  '148px'
+              height: '44px'
+            el: ->
+              $.el 'iframe'
+                src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
           audio:
-            regExp:  /.*(?:\.(mp3|ogg|wav))/
+            regExp:  /(.*\.(mp3|ogg|wav))$/
+            el: ->
+              $.el 'audio'
+                controls:    'controls'
+                src:         @name
+                textContent: 'You should get a better browser.'
 
     Main.callbacks.push @node
   node: (post) ->
@@ -3873,8 +3898,8 @@ Quotify =
       if a and links
         Quotify.concat a
         if Conf['Youtube Embed']
-          for key, site of Quotify.sites
-            if match = a.href.match site.regExp
+          for key, type of Quotify.types
+            if match = a.href.match(type.regExp)
               embed = $.el 'a'
                 name:         match[1]
                 className:    key
@@ -3888,19 +3913,13 @@ Quotify =
 
   embed: ->
     link = @previousSibling.previousSibling
-    if @className is 'audio'
-      iframe = $.el 'audio'
-        controls:    'controls'
-        src:         link.href
-        textContent: 'You should get a better browser.'
-    else
-      iframe = $.el 'iframe'
-        src: Quotify.sites[@className].url + @name
-      iframe.style.border = '0'
-      iframe.style.width  = '640px'
-      iframe.style.height = '390px'
-    $.replace link, iframe
+    el = (type = Quotify.types[@className]).el.call @
+    if type.style
+      for key, value of type.style
+        el.style[key] = value
 
+    el.setAttribute 'data-originalURL', link.textContent
+    $.replace link, el
     unembed = $.el 'a'
       name:        @name
       className:   @className
@@ -3911,12 +3930,8 @@ Quotify =
     $.replace @, unembed
 
   unembed: ->
-    embedded = @previousSibling.previousSibling
-    url  =
-      if @className is 'audio'
-        embedded.src
-      else
-        Quotify.sites[@className].safeurl + @name
+    embedded = @.previousSibling.previousSibling
+    url = embedded.getAttribute("data-originalURL")
 
     a = $.el 'a'
       textContent: url
