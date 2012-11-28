@@ -4719,21 +4719,24 @@
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
-        if (Conf['Youtube Embed'] && links && a) {
-          _ref2 = Quotify.sites;
-          for (key in _ref2) {
-            site = _ref2[key];
-            if (match = a.href.match(site.regExp)) {
-              embed = $.el('a', {
-                name: match[1],
-                className: key,
-                href: 'javascript:;',
-                textContent: '(embed)'
-              });
-              $.on(embed, 'click', Quotify.embed);
-              $.after(a, embed);
-              $.after(a, $.tn(' '));
-              break;
+        if (a && links) {
+          Quotify.concat(a);
+          if (Conf['Youtube Embed']) {
+            _ref2 = Quotify.sites;
+            for (key in _ref2) {
+              site = _ref2[key];
+              if (match = a.href.match(site.regExp)) {
+                embed = $.el('a', {
+                  name: match[1],
+                  className: key,
+                  href: 'javascript:;',
+                  textContent: '(embed)'
+                });
+                $.on(embed, 'click', Quotify.embed);
+                $.after(a, embed);
+                $.after(a, $.tn(' '));
+                break;
+              }
             }
           }
         }
@@ -4787,13 +4790,14 @@
           if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
             el = this.nextSibling;
             if (el.textContent) {
-              child = $.tn(this.textContent + el.textContent + el.nextSibling.textContent);
+              child = this.textContent + el.textContent + el.nextSibling.textContent;
             } else {
-              child = $.tn(this.textContent + el.nextSibling.textContent);
+              child = this.textContent + el.nextSibling.textContent;
             }
             $.rm(el);
             $.rm(this.nextSibling);
-            return Quotify.text(child, this);
+            this.textContent = child;
+            return this.href = child;
           }
         }
       });

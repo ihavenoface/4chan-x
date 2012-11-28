@@ -3872,18 +3872,20 @@ Quotify =
         nodes.push $.tn data
 
       $.replace node, nodes
-      if Conf['Youtube Embed'] and links and a
-        for key, site of Quotify.sites
-          if match = a.href.match(site.regExp)
-            embed = $.el 'a'
-              name:         match[1]
-              className:    key
-              href:         'javascript:;'
-              textContent:  '(embed)'
-            $.on embed, 'click', Quotify.embed
-            $.after a, embed
-            $.after a, $.tn ' '
-            break
+      if a and links
+        Quotify.concat a
+        if Conf['Youtube Embed']
+          for key, site of Quotify.sites
+            if match = a.href.match site.regExp
+              embed = $.el 'a'
+                name:         match[1]
+                className:    key
+                href:         'javascript:;'
+                textContent:  '(embed)'
+              $.on embed, 'click', Quotify.embed
+              $.after a, embed
+              $.after a, $.tn ' '
+              break
     return
 
   embed: ->
@@ -3932,12 +3934,13 @@ Quotify =
         if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
           el = @.nextSibling
           if el.textContent
-            child = $.tn(@textContent + el.textContent + el.nextSibling.textContent)
+            child = @textContent + el.textContent + el.nextSibling.textContent
           else
-            child = $.tn(@textContent + el.nextSibling.textContent)
+            child = @textContent + el.nextSibling.textContent
           $.rm el
-          $.rm @.nextSibling
-          Quotify.text(child, @)
+          $.rm @nextSibling
+          @textContent = child
+          @href = child
 
 DeleteLink =
   init: ->
