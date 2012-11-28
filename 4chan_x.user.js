@@ -1078,9 +1078,6 @@
         QuoteCT.node(post);
       }
       $.replace(bq, clone);
-      if (Conf['Linkify']) {
-        Linkify.node(post);
-      }
       return Main.prettify(clone);
     }
   };
