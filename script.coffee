@@ -3811,7 +3811,7 @@ Quotify =
       node = snapshot.snapshotItem i
       data = node.data
 
-      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g) or Conf['Linkify'] and links = data.match Quotify.regString
+      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g) or links = data.match Quotify.regString
         # Only accept nodes with potentially valid links
         continue
 

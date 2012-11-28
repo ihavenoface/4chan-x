@@ -4669,7 +4669,7 @@
       for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         node = snapshot.snapshotItem(i);
         data = node.data;
-        if (!((quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g)) || Conf['Linkify'] && (links = data.match(Quotify.regString)))) {
+        if (!((quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g)) || (links = data.match(Quotify.regString)))) {
           continue;
         }
         nodes = [];
