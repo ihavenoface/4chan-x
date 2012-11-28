@@ -48,7 +48,7 @@ Config =
       'Thread Watcher':               [true,  'Bookmark threads']
       'Auto Watch':                   [true,  'Automatically watch threads that you start']
       'Auto Watch Reply':             [false, 'Automatically watch threads that you reply to']
-      'Color user IDs':               [false, 'Assign unique colors to user IDs on boards that use them']
+      'Color user IDs':               [true, 'Assign unique colors to user IDs on boards that use them']
     Posting:
       'Quick Reply':                  [true,  'Reply without leaving the page.']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
@@ -3765,19 +3765,8 @@ IDColor =
 
 Quotify =
   init: ->
-    Main.callbacks.push @node
-  node: (post) ->
-    return if post.isInlined and not post.isCrosspost
-
-    # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
-    # Get all the text nodes that are not inside an anchor.
-    snapshot = d.evaluate './/text()[not(parent::a)]', post.blockquote, null, 6, null
-
-    for i in [0...snapshot.snapshotLength]
-      node = snapshot.snapshotItem i
-      data = node.data
-
-      if Conf['Linkify'] and link = data.match(regString =
+    if Conf['Linkify']
+      Quotify.regString =
         ///
           (
             \b(
@@ -3795,54 +3784,90 @@ Quotify =
             |
             \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
           )
-        ///i)
-        # $.log node
-        Quotify.linkify link[0], node
+        ///gi
+      if Conf['Youtube Embed']
+        Quotify.sites =
+          yt:
+            regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
+            url:     "http://www.youtube.com/embed/"
+            safeurl: "http://www.youtube.com/watch/"
+          vm:
+            regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
+            url:     "https://player.vimeo.com/video/"
+            safeurl: "http://www.vimeo.com/"
+          # audio:
+          #   regExp:  /.*\.(mp3|ogg|wav)/
+          #   url:     l.replace /\.(mp3|ogg|wav)/, ''
+          #   safeurl: url
+    Main.callbacks.push @node
+  node: (post) ->
+    return if post.isInlined and not post.isCrosspost
+    while (spoiler = $ '.spoiler', post.blockquote) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n and p).nodeName is '#text'
+      p.textContent += n.textContent
+      $.rm n
+      $.rm spoiler
 
-      unless quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g
+    # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
+    # Get all the text nodes that are not inside an anchor.
+    snapshot = d.evaluate './/text()[not(parent::a)]', post.blockquote, null, 6, null
+
+    for i in [0...snapshot.snapshotLength]
+      node = snapshot.snapshotItem i
+      data = node.data
+
+      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g) or Conf['Linkify'] and links = data.match Quotify.regString
         # Only accept nodes with potentially valid links
         continue
 
       nodes = []
 
-      for quote in quotes
+      for quote in quotes or links
         index   = data.indexOf quote
         if text = data[...index]
           # Potential text before this valid quote.
           nodes.push $.tn text
 
-        id = quote.match(/\d+$/)[0]
-        board =
-          if m = quote.match /^>>>\/([a-z\d]+)/
-            m[1]
+        if quotes
+          id = quote.match(/\d+$/)[0]
+          board =
+            if m = quote.match /^>>>\/([a-z\d]+)/
+              m[1]
+            else
+              # Get the post's board, whether it's inlined or not.
+              $('a[title="Highlight this post"]', post.el).pathname.split('/')[1]
+
+          nodes.push a = $.el 'a',
+            # \u00A0 is nbsp
+            textContent: "#{quote}\u00A0(Dead)"
+
+          if board is g.BOARD and $.id "p#{id}"
+            a.href      = "#p#{id}"
+            a.className = 'quotelink'
           else
-            # Get the post's board, whether it's inlined or not.
-            $('a[title="Highlight this post"]', post.el).pathname.split('/')[1]
-
-        nodes.push a = $.el 'a',
-          # \u00A0 is nbsp
-          textContent: "#{quote}\u00A0(Dead)"
-
-        if board is g.BOARD and $.id "p#{id}"
-          a.href      = "#p#{id}"
-          a.className = 'quotelink'
+            a.href =
+              Redirect.to
+                board:    board
+                threadID: 0
+                postID:   id
+            a.className = 'deadlink'
+            a.target    = '_blank'
+            if Redirect.post board, id
+              $.addClass a, 'quotelink'
+              # XXX WTF Scriptish/Greasemonkey?
+              # Setting dataset attributes that way doesn't affect the HTML,
+              # but are, I suspect, kept as object key/value pairs and GC'd later.
+              # a.dataset.board = board
+              # a.dataset.id    = id
+              a.setAttribute 'data-board', board
+              a.setAttribute 'data-id',    id
         else
-          a.href =
-            Redirect.to
-              board:    board
-              threadID: 0
-              postID:   id
-          a.className = 'deadlink'
-          a.target    = '_blank'
-          if Redirect.post board, id
-            $.addClass a, 'quotelink'
-            # XXX WTF Scriptish/Greasemonkey?
-            # Setting dataset attributes that way doesn't affect the HTML,
-            # but are, I suspect, kept as object key/value pairs and GC'd later.
-            # a.dataset.board = board
-            # a.dataset.id    = id
-            a.setAttribute 'data-board', board
-            a.setAttribute 'data-id',    id
+          l = quote
+          nodes.push a = $.el 'a',
+            textContent: quote
+            className: 'linkify'
+            rel:       'nofollow noreferrer'
+            target:    'blank'
+            href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
 
         data = data[index + quote.length..]
 
@@ -3851,70 +3876,19 @@ Quotify =
         nodes.push $.tn data
 
       $.replace node, nodes
+      if Conf['Youtube Embed'] and a
+        for key, site of Quotify.sites
+          if match = a.href.match(site.regExp)
+            embed = $.el 'a'
+              name:         match[1]
+              className:    key
+              href:         'javascript:;'
+              textContent:  '(embed)'
+            $.on embed, 'click', Quotify.embed
+            $.after a, embed
+            $.after a, $.tn ' '
+            break
     return
-  linkify: (link, node) ->
-    ###
-    Based on the Linkify scripts located at:
-    http://downloads.mozdev.org/greasemonkey/linkify.user.js
-    https://github.com/MayhemYDG/LinkifyPlusFork
-
-    Originally written by Anthony Lieuallen of http://arantius.com/
-    Licensed for unlimited modification and redistribution as long as
-    this notice is kept intact.
-
-    If possible, please contact me regarding new features, bugfixes
-    or changes that I could integrate into the existing code instead of
-    creating a different script. Thank you.
-    ###
-    l = link
-    a = $.el 'a',
-      textContent: l
-      className: 'linkify'
-      rel:       'nofollow noreferrer'
-      target:    'blank'
-      href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
-    $.replace node, a
-
-    $.on a, 'click', (e) ->
-      if e.shiftKey
-        e.preventDefault()
-        e.stopPropagation()
-        if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
-          el = @.nextSibling
-          if el.textContent
-            child = $.tn(@textContent + el.textContent + el.nextSibling.textContent)
-          else
-            child = $.tn(@textContent + el.nextSibling.textContent)
-          $.rm el
-          $.rm @.nextSibling
-          Linkify.text(child, @)
-
-    if Conf['Youtube Embed']
-      Quotify.sites =
-        yt:
-          regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-          url:     "http://www.youtube.com/embed/"
-          safeurl: "http://www.youtube.com/watch/"
-        vm:
-          regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-          url:     "https://player.vimeo.com/video/"
-          safeurl: "http://www.vimeo.com/"
-        # audio:
-        #   regExp:  /.*\.(mp3|ogg|wav)/
-        #   url:     l.replace /\.(mp3|ogg|wav)/, ''
-        #   safeurl: url
-      for key, site of Quotify.sites
-        if match = a.href.match(site.regExp)
-          embed = $.el 'a'
-            name:         match[1]
-            className:    key
-            href:         'javascript:;'
-            textContent:  '(embed)'
-          $.on embed, 'click', Quotify.embed
-          $.after a, embed
-          $.after a, $.tn ' '
-          break
-        return
 
   embed: ->
     link = @.previousSibling.previousSibling
@@ -3953,6 +3927,21 @@ Quotify =
     $.on embed, 'click', Quotify.embed
     $.replace embedded, a
     $.replace @, embed
+
+  concat: (a) ->
+    $.on a, 'click', (e) ->
+      if e.shiftKey
+        e.preventDefault()
+        e.stopPropagation()
+        if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
+          el = @.nextSibling
+          if el.textContent
+            child = $.tn(@textContent + el.textContent + el.nextSibling.textContent)
+          else
+            child = $.tn(@textContent + el.nextSibling.textContent)
+          $.rm el
+          $.rm @.nextSibling
+          Quotify.text(child, @)
 
 DeleteLink =
   init: ->
