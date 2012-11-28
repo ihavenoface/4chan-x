@@ -3793,8 +3793,9 @@ Quotify =
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
             url:     "https://player.vimeo.com/video/"
             safeurl: "http://www.vimeo.com/"
-          # audio:
-          #   regExp:  /.*(?:\.(mp3|ogg|wav))/
+          audio:
+            regExp:  /.*(?:\.(mp3|ogg|wav))/
+
     Main.callbacks.push @node
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
@@ -3888,12 +3889,18 @@ Quotify =
     return
 
   embed: ->
-    link = @.previousSibling.previousSibling
-    iframe = $.el 'iframe'
-      src: Quotify.sites[@className].url + @name
-    iframe.style.border = '0'
-    iframe.style.width  = '640px'
-    iframe.style.height = '390px'
+    link = @previousSibling.previousSibling
+    if @className is 'audio'
+      iframe = $.el 'audio'
+        controls:    'controls'
+        src:         link.href
+        textContent: 'You should get a better browser.'
+    else
+      iframe = $.el 'iframe'
+        src: Quotify.sites[@className].url + @name
+      iframe.style.border = '0'
+      iframe.style.width  = '640px'
+      iframe.style.height = '390px'
     $.replace link, iframe
 
     unembed = $.el 'a'
@@ -3906,8 +3913,12 @@ Quotify =
     $.replace @, unembed
 
   unembed: ->
-    url = Quotify.sites[@className].safeurl + @name
-    embedded = @.previousSibling.previousSibling
+    embedded = @previousSibling.previousSibling
+    url  =
+      if @className is 'audio'
+        embedded.src
+      else
+        Quotify.sites[@className].safeurl + @name
 
     a = $.el 'a'
       textContent: url

@@ -4649,6 +4649,9 @@
               regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
               url: "https://player.vimeo.com/video/",
               safeurl: "http://www.vimeo.com/"
+            },
+            audio: {
+              regExp: /.*(?:\.(mp3|ogg|wav))/
             }
           };
         }
@@ -4744,12 +4747,20 @@
     embed: function() {
       var iframe, link, unembed;
       link = this.previousSibling.previousSibling;
-      iframe = $.el('iframe', {
-        src: Quotify.sites[this.className].url + this.name
-      });
-      iframe.style.border = '0';
-      iframe.style.width = '640px';
-      iframe.style.height = '390px';
+      if (this.className === 'audio') {
+        iframe = $.el('audio', {
+          controls: 'controls',
+          src: link.href,
+          textContent: 'You should get a better browser.'
+        });
+      } else {
+        iframe = $.el('iframe', {
+          src: Quotify.sites[this.className].url + this.name
+        });
+        iframe.style.border = '0';
+        iframe.style.width = '640px';
+        iframe.style.height = '390px';
+      }
       $.replace(link, iframe);
       unembed = $.el('a', {
         name: this.name,
@@ -4762,8 +4773,8 @@
     },
     unembed: function() {
       var a, embed, embedded, url;
-      url = Quotify.sites[this.className].safeurl + this.name;
       embedded = this.previousSibling.previousSibling;
+      url = this.className === 'audio' ? embedded.src : Quotify.sites[this.className].safeurl + this.name;
       a = $.el('a', {
         textContent: url,
         rel: 'nofollow noreferrer',
