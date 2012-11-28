@@ -4783,21 +4783,17 @@
     },
     concat: function(a) {
       return $.on(a, 'click', function(e) {
-        var child, el;
+        var el, txt;
         if (e.shiftKey) {
           e.preventDefault();
           e.stopPropagation();
           if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
             el = this.nextSibling;
-            if (el.textContent) {
-              child = this.textContent + el.textContent + el.nextSibling.textContent;
-            } else {
-              child = this.textContent + el.nextSibling.textContent;
-            }
+            txt = el.textContent ? this.textContent + el.textContent + el.nextSibling.textContent : this.textContent + el.nextSibling.textContent;
             $.rm(el);
             $.rm(this.nextSibling);
-            this.textContent = child;
-            return this.href = child;
+            this.textContent = txt;
+            return this.href = txt;
           }
         }
       });

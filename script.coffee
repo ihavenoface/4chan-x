@@ -3933,14 +3933,15 @@ Quotify =
         e.stopPropagation()
         if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
           el = @.nextSibling
-          if el.textContent
-            child = @textContent + el.textContent + el.nextSibling.textContent
-          else
-            child = @textContent + el.nextSibling.textContent
+          txt =
+            if el.textContent
+              @textContent + el.textContent + el.nextSibling.textContent
+            else
+              @textContent + el.nextSibling.textContent
           $.rm el
           $.rm @nextSibling
-          @textContent = child
-          @href = child
+          @textContent = txt
+          @href = txt
 
 DeleteLink =
   init: ->
