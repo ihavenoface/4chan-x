@@ -5279,6 +5279,8 @@
         case 'toy':
         case 'x':
           return "http://archive.heinessen.com/" + board + "/full_image/" + filename;
+        case 'e':
+          return "//www.xn--clich-fsa.net/4chan/cgi-board.pl/" + board + "/img/" + filename;
       }
     },
     post: function(board, postID) {
@@ -5338,6 +5340,11 @@
         name: 'Heinessen',
         base: 'http://archive.heinessen.com',
         boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'],
+        type: 'fuuka'
+      }, {
+        name: 'Cliché',
+        base: '//www.xn--clich-fsa.net/4chan/cgi-board.pl',
+        boards: ['e'],
         type: 'fuuka'
       }
     ],

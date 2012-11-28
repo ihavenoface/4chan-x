@@ -4326,6 +4326,8 @@ Redirect =
         "//rbt.asia/#{board}/full_image/#{filename}"
       when 'an', 'k', 'toy', 'x'
         "http://archive.heinessen.com/#{board}/full_image/#{filename}"
+      when 'e'
+        "//www.xn--clich-fsa.net/4chan/cgi-board.pl/#{board}/img/#{filename}"
   post: (board, postID) ->
     switch board
       when 'a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
@@ -4374,6 +4376,12 @@ Redirect =
       name:    'Heinessen'
       base:    'http://archive.heinessen.com'
       boards:  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
+      type:    'fuuka'
+    }
+    {
+      name:    'Cliché'
+      base:    '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
+      boards:  ['e']
       type:    'fuuka'
     }
   ]
