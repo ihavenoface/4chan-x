@@ -681,7 +681,7 @@ Filter =
       return decodeURIComponent mail.href[7..]
     false
   subject: (post) ->
-    if (subject = $ '.postInfo .subject', post.el).textContent.length isnt 0
+    if subject = $ '.postInfo .subject', post.el
       return subject.textContent
     false
   comment: (post) ->
@@ -690,9 +690,7 @@ Filter =
     nodes = d.evaluate './/br|.//text()', post.blockquote, null, 7, null
     for i in [0...nodes.snapshotLength]
       text.push if data = nodes.snapshotItem(i).data then data else '\n'
-    if (content = text.join '').length isnt 0
-      return content
-    false
+    text.join ''
   country: (post) ->
     if flag = $ '.countryFlag', post.el
       return flag.title

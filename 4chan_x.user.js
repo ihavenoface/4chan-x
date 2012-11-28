@@ -851,22 +851,19 @@
     },
     subject: function(post) {
       var subject;
-      if ((subject = $('.postInfo .subject', post.el)).textContent.length !== 0) {
+      if (subject = $('.postInfo .subject', post.el)) {
         return subject.textContent;
       }
       return false;
     },
     comment: function(post) {
-      var content, data, i, nodes, text, _i, _ref;
+      var data, i, nodes, text, _i, _ref;
       text = [];
       nodes = d.evaluate('.//br|.//text()', post.blockquote, null, 7, null);
       for (i = _i = 0, _ref = nodes.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         text.push((data = nodes.snapshotItem(i).data) ? data : '\n');
       }
-      if ((content = text.join('')).length !== 0) {
-        return content;
-      }
-      return false;
+      return text.join('');
     },
     country: function(post) {
       var flag;
