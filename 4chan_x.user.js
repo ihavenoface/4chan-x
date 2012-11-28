@@ -4722,7 +4722,7 @@
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
-        if (Conf['Youtube Embed'] && a) {
+        if (Conf['Youtube Embed'] && links && a) {
           _ref2 = Quotify.sites;
           for (key in _ref2) {
             site = _ref2[key];

@@ -3796,9 +3796,7 @@ Quotify =
             url:     "https://player.vimeo.com/video/"
             safeurl: "http://www.vimeo.com/"
           # audio:
-          #   regExp:  /.*\.(mp3|ogg|wav)/
-          #   url:     l.replace /\.(mp3|ogg|wav)/, ''
-          #   safeurl: url
+          #   regExp:  /.*(?:\.(mp3|ogg|wav))/
     Main.callbacks.push @node
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
@@ -3876,7 +3874,7 @@ Quotify =
         nodes.push $.tn data
 
       $.replace node, nodes
-      if Conf['Youtube Embed'] and a
+      if Conf['Youtube Embed'] and links and a
         for key, site of Quotify.sites
           if match = a.href.match(site.regExp)
             embed = $.el 'a'
