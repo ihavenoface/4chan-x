@@ -3800,8 +3800,7 @@ Quotify =
     return if post.isInlined and not post.isCrosspost
     while (spoiler = $ '.spoiler', post.blockquote) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n and p).nodeName is '#text'
       p.textContent += n.textContent
-      $.rm n
-      $.rm spoiler
+      $.rm(n) and $.rm spoiler
 
     # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
     # Get all the text nodes that are not inside an anchor.
@@ -3932,16 +3931,15 @@ Quotify =
         e.preventDefault()
         e.stopPropagation()
         if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
-          el = @.nextSibling
+          el = @nextSibling
           txt =
             if el.textContent
               @textContent + el.textContent + el.nextSibling.textContent
             else
               @textContent + el.nextSibling.textContent
-          $.rm el
-          $.rm @nextSibling
           @textContent = txt
           @href = txt
+          $.rm(el) and $.rm @nextSibling
 
 DeleteLink =
   init: ->

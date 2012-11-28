@@ -4662,8 +4662,7 @@
       }
       while ((spoiler = $('.spoiler', post.blockquote)) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && !/\w/.test(spoiler.textContent) && (n && p).nodeName === '#text') {
         p.textContent += n.textContent;
-        $.rm(n);
-        $.rm(spoiler);
+        $.rm(n) && $.rm(spoiler);
       }
       snapshot = d.evaluate('.//text()[not(parent::a)]', post.blockquote, null, 6, null);
       for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -4790,10 +4789,9 @@
           if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
             el = this.nextSibling;
             txt = el.textContent ? this.textContent + el.textContent + el.nextSibling.textContent : this.textContent + el.nextSibling.textContent;
-            $.rm(el);
-            $.rm(this.nextSibling);
             this.textContent = txt;
-            return this.href = txt;
+            this.href = txt;
+            return $.rm(el) && $.rm(this.nextSibling);
           }
         }
       });
