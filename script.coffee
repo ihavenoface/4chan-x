@@ -3811,6 +3811,17 @@ Quotify =
             el: ->
               $.el 'iframe'
                 src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
+          soundcloud:
+            regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
+            el: ->
+              Quotify.url =
+                "https://soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{Quotify.link.textContent}"
+              $.ajax Quotify.url, onloadend: ->
+                Quotify.embedFromObject $.el 'div'
+                  innerHTML: JSON.parse(@responseText).html
+                  className: 'soundcloud'
+                  name:      'soundcloud'
+              false
           audio:
             regExp:  /(.*\.(mp3|ogg|wav))$/
             el: ->
@@ -3820,6 +3831,7 @@ Quotify =
                 textContent: 'You should get a better browser.'
 
     Main.callbacks.push @node
+
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
     while (spoiler = $ '.spoiler', post.blockquote) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n and p).nodeName is '#text'
@@ -3912,14 +3924,15 @@ Quotify =
     return
 
   embed: ->
-    link = @previousSibling.previousSibling
-    el = (type = Quotify.types[@className]).el.call @
+    Quotify.link = @previousSibling.previousSibling
+    return unless el = (type = Quotify.types[@className]).el.call @
     if type.style
       for key, value of type.style
         el.style[key] = value
 
-    el.setAttribute 'data-originalURL', link.textContent
-    $.replace link, el
+    el.setAttribute 'data-originalURL', Quotify.link.textContent
+    $.replace Quotify.link, el
+
     unembed = $.el 'a'
       name:        @name
       className:   @className
@@ -3929,8 +3942,22 @@ Quotify =
     $.on unembed, 'click', Quotify.unembed
     $.replace @, unembed
 
+  embedFromObject: (el) ->
+    # It's retarded to have a different method for this but whatever for now.
+    el.setAttribute 'data-originalURL', Quotify.link.textContent
+    $.replace Quotify.link, el
+
+    unembed = $.el 'a'
+      name:        el.name
+      className:   el.className
+      href:        'javascript:;'
+      textContent: '(unembed)'
+
+    $.on unembed, 'click', Quotify.unembed
+    $.replace el.nextElementSibling, unembed
+
   unembed: ->
-    embedded = @.previousSibling.previousSibling
+    embedded = @previousSibling.previousSibling
     url = embedded.getAttribute("data-originalURL")
 
     a = $.el 'a'

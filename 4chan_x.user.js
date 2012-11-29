@@ -4676,6 +4676,22 @@
                 });
               }
             },
+            soundcloud: {
+              regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
+              el: function() {
+                Quotify.url = "https://soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + Quotify.link.textContent;
+                $.ajax(Quotify.url, {
+                  onloadend: function() {
+                    return Quotify.embedFromObject($.el('div', {
+                      innerHTML: JSON.parse(this.responseText).html,
+                      className: 'soundcloud',
+                      name: 'soundcloud'
+                    }));
+                  }
+                });
+                return false;
+              }
+            },
             audio: {
               regExp: /(.*\.(mp3|ogg|wav))$/,
               el: function() {
@@ -4778,9 +4794,11 @@
       }
     },
     embed: function() {
-      var el, key, link, type, unembed, value, _ref;
-      link = this.previousSibling.previousSibling;
-      el = (type = Quotify.types[this.className]).el.call(this);
+      var el, key, type, unembed, value, _ref;
+      Quotify.link = this.previousSibling.previousSibling;
+      if (!(el = (type = Quotify.types[this.className]).el.call(this))) {
+        return;
+      }
       if (type.style) {
         _ref = type.style;
         for (key in _ref) {
@@ -4788,8 +4806,8 @@
           el.style[key] = value;
         }
       }
-      el.setAttribute('data-originalURL', link.textContent);
-      $.replace(link, el);
+      el.setAttribute('data-originalURL', Quotify.link.textContent);
+      $.replace(Quotify.link, el);
       unembed = $.el('a', {
         name: this.name,
         className: this.className,
@@ -4798,6 +4816,19 @@
       });
       $.on(unembed, 'click', Quotify.unembed);
       return $.replace(this, unembed);
+    },
+    embedFromObject: function(el) {
+      var unembed;
+      el.setAttribute('data-originalURL', Quotify.link.textContent);
+      $.replace(Quotify.link, el);
+      unembed = $.el('a', {
+        name: el.name,
+        className: el.className,
+        href: 'javascript:;',
+        textContent: '(unembed)'
+      });
+      $.on(unembed, 'click', Quotify.unembed);
+      return $.replace(el.nextElementSibling, unembed);
     },
     unembed: function() {
       var a, embed, embedded, url;
