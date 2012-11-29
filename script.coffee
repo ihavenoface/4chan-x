@@ -3817,10 +3817,9 @@ Quotify =
               Quotify.url =
                 "https://soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{Quotify.link.textContent}"
               $.ajax Quotify.url, onloadend: ->
-                Quotify.embedFromObject $.el 'div'
+                Quotify.embed $.el 'div'
                   innerHTML: JSON.parse(@responseText).html
                   className: 'soundcloud'
-                  name:      'soundcloud'
               false
           audio:
             regExp:  /(.*\.(mp3|ogg|wav))$/
@@ -3923,33 +3922,20 @@ Quotify =
               break
     return
 
-  embed: ->
-    Quotify.link = @previousSibling.previousSibling
-    return unless el = (type = Quotify.types[@className]).el.call @
-    if type.style
-      for key, value of type.style
-        el.style[key] = value
+  embed: (el)->
+    unless el.firstChild
+      Quotify.link = @previousElementSibling
+      return unless el = (type = Quotify.types[@className]).el.call @
+      if type.style
+        for key, value of type.style
+          el.style[key] = value
 
     el.setAttribute 'data-originalURL', Quotify.link.textContent
     $.replace Quotify.link, el
 
     unembed = $.el 'a'
-      name:        @name
-      className:   @className
-      href:        'javascript:;'
-      textContent: '(unembed)'
-
-    $.on unembed, 'click', Quotify.unembed
-    $.replace @, unembed
-
-  embedFromObject: (el) ->
-    # It's retarded to have a different method for this but whatever for now.
-    el.setAttribute 'data-originalURL', Quotify.link.textContent
-    $.replace Quotify.link, el
-
-    unembed = $.el 'a'
-      name:        el.name
-      className:   el.className
+      name:        @name or ''
+      className:   el.className or @className
       href:        'javascript:;'
       textContent: '(unembed)'
 
@@ -3957,11 +3943,12 @@ Quotify =
     $.replace el.nextElementSibling, unembed
 
   unembed: ->
-    embedded = @previousSibling.previousSibling
+    embedded = @previousElementSibling
     url = embedded.getAttribute("data-originalURL")
 
     a = $.el 'a'
       textContent: url
+      className:   'linkify'
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        url
