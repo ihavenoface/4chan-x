@@ -4636,6 +4636,7 @@
       if (Conf['Linkify']) {
         Quotify.regString = /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi;
         if (Conf['Youtube Embed']) {
+          this.prot = d.location.protocol;
           this.types = {
             youtube: {
               regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
@@ -4646,7 +4647,7 @@
               },
               el: function() {
                 return $.el('iframe', {
-                  src: "http://www.youtube.com/embed/" + this.name
+                  src: "" + Quotify.prot + "//www.youtube.com/embed/" + this.name
                 });
               }
             },
@@ -4659,7 +4660,7 @@
               },
               el: function() {
                 return $.el('iframe', {
-                  src: "https://player.vimeo.com/video/" + this.name
+                  src: "" + Quotify.prot + "//player.vimeo.com/video/" + this.name
                 });
               }
             },
@@ -4679,7 +4680,7 @@
             soundcloud: {
               regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
               el: function() {
-                Quotify.url = "https://soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + Quotify.link.textContent;
+                Quotify.url = "" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + Quotify.link.textContent;
                 $.ajax(Quotify.url, {
                   onloadend: function() {
                     return Quotify.embed($.el('div', {

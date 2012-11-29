@@ -3783,6 +3783,7 @@ Quotify =
         ///gi
 
       if Conf['Youtube Embed']
+        @prot = d.location.protocol
         @types =
           youtube:
             regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
@@ -3792,7 +3793,7 @@ Quotify =
               height: '390px'
             el: ->
               $.el 'iframe'
-                src:  "http://www.youtube.com/embed/#{@name}"
+                src:  "#{Quotify.prot}//www.youtube.com/embed/#{@name}"
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
             style:
@@ -3801,7 +3802,7 @@ Quotify =
               height: '390px'
             el: ->
               $.el 'iframe'
-                src:  "https://player.vimeo.com/video/#{@name}"
+                src:  "#{Quotify.prot}//player.vimeo.com/video/#{@name}"
           vocaroo:
             regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
             style:
@@ -3815,7 +3816,7 @@ Quotify =
             regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
             el: ->
               Quotify.url =
-                "https://soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{Quotify.link.textContent}"
+                "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{Quotify.link.textContent}"
               $.ajax Quotify.url, onloadend: ->
                 Quotify.embed $.el 'div'
                   innerHTML: JSON.parse(@responseText).html
