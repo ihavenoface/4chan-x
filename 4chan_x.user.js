@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -124,7 +124,8 @@
         'Report Link': [true, 'Add a report link to the menu.'],
         'Delete Link': [true, 'Add post and image deletion links to the menu.'],
         'Download Link': [true, 'Add a download with original filename link to the menu. Chrome-only currently.'],
-        'Archive Link': [true, 'Add an archive link to the menu.']
+        'Archive Link': [true, 'Add an archive link to the menu.'],
+        'Embed Link': [true, 'Add an embed link to the menu to embed all supported formats in a post.']
       },
       Monitoring: {
         'Thread Updater': [true, 'Update threads. Has more options in its own dialog.'],
@@ -5111,6 +5112,43 @@
     }
   };
 
+  EmbedLink = {
+    init: function() {
+      this.a = $.el('a', {
+        className: 'embed_link',
+        textContent: 'Embed all in post'
+      });
+      this.toggle = [];
+      return Menu.addEntry({
+        el: this.a,
+        open: function(post) {
+          var link, press, toggle, _i, _len, _ref;
+          toggle = EmbedLink.toggle;
+          _ref = $$('a', post.blockquote);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            link = _ref[_i];
+            if (((press = link.nextElementSibling) != null) && press.textContent === '(embed)') {
+              toggle.push(press);
+            }
+          }
+          if (toggle.length >= 1) {
+            $.on(this.el, 'click', this.embed);
+            return true;
+          }
+        },
+        embed: function() {
+          var embed, _i, _len, _ref;
+          _ref = EmbedLink.toggle;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            embed = _ref[_i];
+            $.event(embed, new Event('click'));
+          }
+          return EmbedLink.toggle = [];
+        }
+      });
+    }
+  };
+
   ThreadStats = {
     init: function() {
       var dialog;
@@ -5975,6 +6013,9 @@
         }
         if (Conf['Archive Link']) {
           ArchiveLink.init();
+        }
+        if (Conf['Embed Link']) {
+          EmbedLink.init();
         }
       }
       if (Conf['Resurrect Quotes']) {

@@ -1,4 +1,10 @@
 master
+- noface
+  Improved Linkifier to be much lighter.
+  Readded archiver for /e/.
+  Embedding:
+    - Added support for SoundCloud, Vocaroo, mp3/ogg/wav files.
+    - Adds a menu button 'Embed all in post'.
 - Mayhem
   Fix next/previous page keybinds.
 

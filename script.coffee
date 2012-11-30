@@ -37,6 +37,7 @@ Config =
       'Delete Link':                  [true,  'Add post and image deletion links to the menu.']
       'Download Link':                [true,  'Add a download with original filename link to the menu. Chrome-only currently.']
       'Archive Link':                 [true,  'Add an archive link to the menu.']
+      'Embed Link':                   [true,  'Add an embed link to the menu to embed all supported formats in a post.']
     Monitoring:
       'Thread Updater':               [true,  'Update threads. Has more options in its own dialog.']
       'Optional Increase':            [false, 'Increase value of Updater over time.']
@@ -4186,6 +4187,29 @@ ArchiveLink =
 
     return el: el, open: open
 
+EmbedLink =
+  init: ->
+    @a = $.el 'a',
+      className: 'embed_link'
+      textContent: 'Embed all in post'
+    @toggle = []
+
+    Menu.addEntry
+      el: @a
+      open: (post) ->
+        {toggle} = EmbedLink
+        for link in $$ 'a', post.blockquote
+          if (press = link.nextElementSibling)? and press.textContent is '(embed)'
+            toggle.push press
+        if toggle.length >= 1
+          $.on @el, 'click', @embed
+          return true
+
+      embed: ->
+        for embed in EmbedLink.toggle
+          $.event embed, new Event 'click'
+        EmbedLink.toggle = []
+
 ThreadStats =
   init: ->
     dialog = UI.dialog 'stats', 'bottom: 0; left: 0;', '<div class=move><span id=postcount>0</span> / <span id=imagecount>0</span></div>'
@@ -4838,6 +4862,9 @@ Main =
 
       if Conf['Archive Link']
         ArchiveLink.init()
+
+      if Conf['Embed Link']
+        EmbedLink.init()
 
     if Conf['Resurrect Quotes']
       Quotify.init()
