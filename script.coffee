@@ -3807,8 +3807,8 @@ Quotify =
             regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
             style:
               border: '0'
-              width:  '148px'
-              height: '44px'
+              width:  '150px'
+              height: '45px'
             el: ->
               $.el 'iframe'
                 src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
@@ -3834,9 +3834,12 @@ Quotify =
 
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
-    while (spoiler = $ '.spoiler', post.blockquote) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and not /\w/.test(spoiler.textContent) and (n and p).nodeName is '#text'
-      p.textContent += n.textContent
-      $.rm(n) and $.rm spoiler
+    for spoiler in $$ '.spoiler', post.blockquote
+      if not /\w/.test(spoiler.textContent) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and (n and p).nodeName is '#text'
+        if spoiler.textContent is '.'
+          p.textContent += '.'
+        p.textContent += n.textContent
+        $.rm(n) and $.rm spoiler
 
     # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
     # Get all the text nodes that are not inside an anchor.

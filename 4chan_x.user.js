@@ -4668,8 +4668,8 @@
               regExp: /.*(?:vocaroo.com\/)([^#\&\?]*).*/,
               style: {
                 border: '0',
-                width: '148px',
-                height: '44px'
+                width: '150px',
+                height: '45px'
               },
               el: function() {
                 return $.el('iframe', {
@@ -4708,25 +4708,32 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, l, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, type, _i, _j, _len, _ref, _ref1, _ref2;
+      var a, board, data, embed, i, id, index, key, l, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
-      while ((spoiler = $('.spoiler', post.blockquote)) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && !/\w/.test(spoiler.textContent) && (n && p).nodeName === '#text') {
-        p.textContent += n.textContent;
-        $.rm(n) && $.rm(spoiler);
+      _ref = $$('.spoiler', post.blockquote);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        spoiler = _ref[_i];
+        if (!/\w/.test(spoiler.textContent) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && (n && p).nodeName === '#text') {
+          if (spoiler.textContent === '.') {
+            p.textContent += '.';
+          }
+          p.textContent += n.textContent;
+          $.rm(n) && $.rm(spoiler);
+        }
       }
       snapshot = d.evaluate('.//text()[not(parent::a)]', post.blockquote, null, 6, null);
-      for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         node = snapshot.snapshotItem(i);
         data = node.data;
         if (!((quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g)) || (links = data.match(Quotify.regString)))) {
           continue;
         }
         nodes = [];
-        _ref1 = quotes || links;
-        for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
-          quote = _ref1[_j];
+        _ref2 = quotes || links;
+        for (_k = 0, _len1 = _ref2.length; _k < _len1; _k++) {
+          quote = _ref2[_k];
           index = data.indexOf(quote);
           if (text = data.slice(0, index)) {
             nodes.push($.tn(text));
@@ -4772,9 +4779,9 @@
         if (a && links) {
           Quotify.concat(a);
           if (Conf['Embed']) {
-            _ref2 = Quotify.types;
-            for (key in _ref2) {
-              type = _ref2[key];
+            _ref3 = Quotify.types;
+            for (key in _ref3) {
+              type = _ref3[key];
               if (match = a.href.match(type.regExp)) {
                 embed = $.el('a', {
                   name: match[1],
