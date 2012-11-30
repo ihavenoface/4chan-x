@@ -91,8 +91,8 @@
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
         'File Info Formatting': [true, 'Reformats the file information'],
-        'Linkify': [true, 'Convert text into links where applicable. If a link is too long and only partially linkified, shift+ctrl+click it to merge the next line.'],
-        'Youtube Embed': [true, 'Add a link to linkified youtube links to embed the video inline.'],
+        'Linkify': [true, 'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.'],
+        'Embed': [true, 'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.'],
         'Comment Expansion': [true, 'Expand too long comments'],
         'Thread Expansion': [true, 'View all replies'],
         'Index Navigation': [true, 'Navigate to previous / next thread'],
@@ -4635,7 +4635,7 @@
     init: function() {
       if (Conf['Linkify']) {
         Quotify.regString = /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi;
-        if (Conf['Youtube Embed']) {
+        if (Conf['Embed']) {
           this.prot = d.location.protocol;
           this.types = {
             youtube: {
@@ -4758,7 +4758,6 @@
             l = quote;
             nodes.push(a = $.el('a', {
               textContent: quote,
-              className: 'linkify',
               rel: 'nofollow noreferrer',
               target: 'blank',
               href: l.indexOf(":") < 0 ? (l.indexOf("@") > 0 ? "mailto:" + l : "http://" + l) : l
@@ -4772,7 +4771,7 @@
         $.replace(node, nodes);
         if (a && links) {
           Quotify.concat(a);
-          if (Conf['Youtube Embed']) {
+          if (Conf['Embed']) {
             _ref2 = Quotify.types;
             for (key in _ref2) {
               type = _ref2[key];
@@ -4825,7 +4824,6 @@
       url = embedded.getAttribute("data-originalURL");
       a = $.el('a', {
         textContent: url,
-        className: 'linkify',
         rel: 'nofollow noreferrer',
         target: 'blank',
         href: url

@@ -6,8 +6,8 @@ Config =
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
       'File Info Formatting':         [true,  'Reformats the file information']
-      'Linkify':                      [true,  'Convert text into links where applicable. If a link is too long and only partially linkified, shift+ctrl+click it to merge the next line.']
-      'Youtube Embed':                [true,  'Add a link to linkified youtube links to embed the video inline.']
+      'Linkify':                      [true,  'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.']
+      'Embed':                        [true,  'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.']
       'Comment Expansion':            [true,  'Expand too long comments']
       'Thread Expansion':             [true,  'View all replies']
       'Index Navigation':             [true,  'Navigate to previous / next thread']
@@ -3782,7 +3782,7 @@ Quotify =
           )
         ///gi
 
-      if Conf['Youtube Embed']
+      if Conf['Embed']
         @prot = d.location.protocol
         @types =
           youtube:
@@ -3895,7 +3895,6 @@ Quotify =
           l = quote
           nodes.push a = $.el 'a',
             textContent: quote
-            className: 'linkify'
             rel:       'nofollow noreferrer'
             target:    'blank'
             href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
@@ -3909,7 +3908,7 @@ Quotify =
       $.replace node, nodes
       if a and links
         Quotify.concat a
-        if Conf['Youtube Embed']
+        if Conf['Embed']
           for key, type of Quotify.types
             if match = a.href.match(type.regExp)
               embed = $.el 'a'
@@ -3923,7 +3922,7 @@ Quotify =
               break
     return
 
-  embed: (el)->
+  embed: (el) ->
     unless el.firstChild
       Quotify.link = @previousElementSibling
       return unless el = (type = Quotify.types[@className]).el.call @
@@ -3949,7 +3948,6 @@ Quotify =
 
     a = $.el 'a'
       textContent: url
-      className:   'linkify'
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        url
