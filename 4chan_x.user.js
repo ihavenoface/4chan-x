@@ -98,7 +98,7 @@
         'Index Navigation': [true, 'Navigate to previous / next thread'],
         'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
         'Check for Updates': [true, 'Check for updated versions of 4chan X'],
-        'Check for Bans': [true, 'Obtain ban status on every refresh.']
+        'Check for Bans': [true, 'Obtain ban status and prepend it to the top of the page.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -1893,11 +1893,11 @@
 
   BanChecker = {
     init: function() {
-      if (!(this.postform = $.id('postForm'))) {
+      if (!$.id('postForm')) {
         return;
       }
       this.now = Date.now();
-      if (this.msg = $.get('isBanned')) {
+      if ($.get('isBanned')) {
         return this.prepend();
       }
       if ($.get('lastBanCheck', 0) < this.now - 6 * $.HOUR) {
@@ -1914,18 +1914,32 @@
             doc.documentElement.innerHTML = this.response;
             if (/no entry in our database/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
               return $["delete"]('isBanned');
-            } else {
-              $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;');
-              return BanChecker.prepend();
             }
+            $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;');
+            return BanChecker.prepend();
           }
         }
       });
     },
     prepend: function() {
-      return $.before(this.postform, $.el('h2', {
-        textContent: this.msg
-      }));
+      var el, h1, h2;
+      el = $.el('h2', {
+        textContent: $.get('isBanned'),
+        href: 'javascript:;',
+        title: 'Click to recheck.'
+      });
+      $.on(el, 'click', function() {
+        $["delete"]('lastBanCheck');
+        $["delete"]('isBanned');
+        this.style.opacity = '.5';
+        return BanChecker.load();
+      });
+      if (h2 = $('h2')) {
+        return $.replace(h2, el);
+      } else if (h1 = $('h1')) {
+        return $.after(h1, el);
+      }
+      return $.before($.id('postForm'), el);
     }
   };
 
@@ -1952,6 +1966,7 @@
         });
         $.before($.id('postForm'), link);
       }
+      BanChecker.init();
       if (Conf['Persistent QR']) {
         QR.dialog();
         if (Conf['Auto Hide QR']) {
@@ -2773,11 +2788,13 @@
         onerror: function() {
           QR.cooldown.auto = false;
           QR.status();
-          return QR.error($.el('a', {
+          QR.error($.el('a', {
             href: '//www.4chan.org/banned',
             target: '_blank',
             textContent: 'Connection error, or you are banned.'
           }));
+          $["delete"]('lastBanCheck');
+          return BanChecker.init();
         }
       };
       opts = {
@@ -2807,7 +2824,7 @@
           innerHTML: /^You were issued a warning/.test($('.boxcontent', doc).textContent.trim()) ? "You were issued a warning on " + bs[0].innerHTML + " as " + bs[3].innerHTML + ".<br>Warning reason: " + bs[1].innerHTML : "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
         });
         if (/You are banned/.test(err.textContent)) {
-          $.set('lastBanCheck', 0);
+          $["delete"]('lastBanCheck');
           BanChecker.init();
         }
       } else if (err = doc.getElementById('errmsg')) {
@@ -6108,9 +6125,6 @@
         }
       }
       Favicon.init();
-      if (Conf['Check for Bans']) {
-        BanChecker.init();
-      }
       if (Conf['Quick Reply']) {
         QR.init();
       }
@@ -6392,7 +6406,6 @@ a[href="javascript:;"] {\
   top: 0;\
   margin-top: -1px;\
 }\
-\
 h1,\
 h2 {\
   text-align: center;\

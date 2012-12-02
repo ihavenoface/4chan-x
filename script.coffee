@@ -13,7 +13,7 @@ Config =
       'Index Navigation':             [true,  'Navigate to previous / next thread']
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
-      'Check for Bans':               [true,  'Obtain ban status on every refresh.']
+      'Check for Bans':               [true,  'Obtain ban status and prepend it to the top of the page.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -49,7 +49,7 @@ Config =
       'Thread Watcher':               [true,  'Bookmark threads']
       'Auto Watch':                   [true,  'Automatically watch threads that you start']
       'Auto Watch Reply':             [false, 'Automatically watch threads that you reply to']
-      'Color user IDs':               [true, 'Assign unique colors to user IDs on boards that use them']
+      'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them']
     Posting:
       'Quick Reply':                  [true,  'Reply without leaving the page.']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
@@ -1468,12 +1468,11 @@ Nav =
 
 BanChecker =
   init: ->
-    return unless @postform = $.id 'postForm'
+    return unless $.id 'postForm'
     @now = Date.now()
-    if @msg = $.get 'isBanned'
+    if $.get 'isBanned'
       return @prepend()
-    if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
-      @load()
+    @load() if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
 
   load: ->
     $.ajax 'https://www.4chan.org/banned',
@@ -1483,17 +1482,29 @@ BanChecker =
           doc = d.implementation.createHTMLDocument ''
           doc.documentElement.innerHTML = @response
           if /no entry in our database/i.test (msg = $('.boxcontent', doc).textContent.trim())
-            $.delete 'isBanned'
-          else
-            $.set 'isBanned',
-              if /This ban will not expire/i.test msg
-                'You are banned, forever! ;_;'
-              else
-                'You are banned! ;_;'
-            BanChecker.prepend()
+            return $.delete 'isBanned'
+          $.set 'isBanned',
+            if /This ban will not expire/i.test msg
+              'You are banned, forever! ;_;'
+            else
+              'You are banned! ;_;'
+          BanChecker.prepend()
 
   prepend: ->
-    $.before @postform, $.el 'h2', textContent: @msg
+    el = $.el 'h2',
+      textContent: $.get 'isBanned'
+      href:        'javascript:;'
+      title:       'Click to recheck.'
+    $.on el, 'click', ->
+      $.delete 'lastBanCheck'
+      $.delete 'isBanned'
+      @style.opacity = '.5'
+      BanChecker.load()
+    return if h2 = $ 'h2'
+      $.replace h2, el
+    else if h1 = $ 'h1'
+      $.after h1, el
+    $.before $.id('postForm'), el
 
 QR =
   init: ->
@@ -1514,6 +1525,7 @@ QR =
               'new'
         $('textarea', QR.el).focus()
       $.before $.id('postForm'), link
+    BanChecker.init()
 
     if Conf['Persistent QR']
       QR.dialog()
@@ -1562,6 +1574,7 @@ QR =
       el.innerHTML = null
       $.add el, err
     QR.open()
+
     if QR.captchaIsEnabled and /captcha|verification/i.test el.textContent
       # Focus the captcha input on captcha error.
       $('[autocomplete]', QR.el).focus()
@@ -2193,6 +2206,8 @@ QR =
           href: '//www.4chan.org/banned',
           target: '_blank',
           textContent: 'Connection error, or you are banned.'
+        $.delete 'lastBanCheck'
+        BanChecker.init()
     opts =
       form: $.formData post
       upCallbacks:
@@ -2217,7 +2232,7 @@ QR =
           else
             "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
       if /You are banned/.test err.textContent
-        $.set 'lastBanCheck', 0
+        $.delete 'lastBanCheck'
         BanChecker.init()
     else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
@@ -4941,9 +4956,6 @@ Main =
     Favicon.init()
 
     # Major features.
-    if Conf['Check for Bans']
-      BanChecker.init()
-
     if Conf['Quick Reply']
       QR.init()
 
@@ -5170,7 +5182,6 @@ a[href="javascript:;"] {
   top: 0;
   margin-top: -1px;
 }
-
 h1,
 h2 {
   text-align: center;
