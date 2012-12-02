@@ -97,7 +97,8 @@
         'Thread Expansion': [true, 'View all replies'],
         'Index Navigation': [true, 'Navigate to previous / next thread'],
         'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
-        'Check for Updates': [true, 'Check for updated versions of 4chan X']
+        'Check for Updates': [true, 'Check for updated versions of 4chan X'],
+        'Check for Bans': [false, 'Check ban status on every refresh.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -1899,7 +1900,23 @@
       return setTimeout(this.asyncInit);
     },
     asyncInit: function() {
-      var link;
+      var callbacks, link;
+      if (Conf['Check for Bans']) {
+        $.ajax('https://www.4chan.org/banned', callbacks = {
+          onloadend: function() {
+            var doc, h2, msg;
+            if (this.status === 200 || 304) {
+              doc = d.implementation.createHTMLDocument('');
+              doc.documentElement.innerHTML = this.response;
+              if (!/There was no entry in our database for your ban/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
+                return $.before($.id('postForm'), h2 = $.el('h2', {
+                  textContent: /This ban will not expire./i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;'
+                }));
+              }
+            }
+          }
+        });
+      }
       if (Conf['Hide Original Post Form']) {
         link = $.el('h1', {
           innerHTML: "<a href=javascript:;>" + (g.REPLY ? 'Reply to Thread' : 'Start a Thread') + "</a>"
@@ -6347,7 +6364,8 @@ a[href="javascript:;"] {\
   margin-top: -1px;\
 }\
 \
-h1 {\
+h1,\
+h2 {\
   text-align: center;\
 }\
 #qr > .move {\
