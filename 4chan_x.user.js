@@ -98,7 +98,7 @@
         'Index Navigation': [true, 'Navigate to previous / next thread'],
         'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
         'Check for Updates': [true, 'Check for updated versions of 4chan X'],
-        'Check for Bans': [false, 'Check ban status on every refresh.']
+        'Check for Bans': [false, 'Obtain ban status on every refresh.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -1900,16 +1900,16 @@
       return setTimeout(this.asyncInit);
     },
     asyncInit: function() {
-      var callbacks, link;
+      var link;
       if (Conf['Check for Bans']) {
-        $.ajax('https://www.4chan.org/banned', callbacks = {
+        $.ajax('https://www.4chan.org/banned', {
           onloadend: function() {
-            var doc, h2, msg;
+            var doc, msg;
             if (this.status === 200 || 304) {
               doc = d.implementation.createHTMLDocument('');
               doc.documentElement.innerHTML = this.response;
               if (!/There was no entry in our database for your ban/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
-                return $.before($.id('postForm'), h2 = $.el('h2', {
+                return $.before($.id('postForm'), $.el('h2', {
                   textContent: /This ban will not expire./i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;'
                 }));
               }

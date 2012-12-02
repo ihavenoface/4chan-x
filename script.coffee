@@ -13,7 +13,7 @@ Config =
       'Index Navigation':             [true,  'Navigate to previous / next thread']
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
-      'Check for Bans':               [false, 'Check ban status on every refresh.']
+      'Check for Bans':               [false, 'Obtain ban status on every refresh.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -1475,18 +1475,17 @@ QR =
   asyncInit: ->
     if Conf['Check for Bans']
       $.ajax 'https://www.4chan.org/banned',
-        callbacks =
-          onloadend: ->
-            if @status is 200 or 304
-              doc = d.implementation.createHTMLDocument ''
-              doc.documentElement.innerHTML = @response
-              unless /There was no entry in our database for your ban/i.test (msg = $('.boxcontent', doc).textContent.trim())
-                $.before $.id('postForm'), h2 = $.el 'h2',
-                  textContent:
-                    if /This ban will not expire./i.test msg
-                      'You are banned, forever! ;_;'
-                    else
-                      'You are banned! ;_;'
+        onloadend: ->
+          if @status is 200 or 304
+            doc = d.implementation.createHTMLDocument ''
+            doc.documentElement.innerHTML = @response
+            unless /There was no entry in our database for your ban/i.test (msg = $('.boxcontent', doc).textContent.trim())
+              $.before $.id('postForm'), $.el 'h2',
+                textContent:
+                  if /This ban will not expire./i.test msg
+                    'You are banned, forever! ;_;'
+                  else
+                    'You are banned! ;_;'
 
     if Conf['Hide Original Post Form']
       link = $.el 'h1', innerHTML: "<a href=javascript:;>#{if g.REPLY then 'Reply to Thread' else 'Start a Thread'}</a>"
