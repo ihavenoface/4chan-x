@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, Build, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, BanChecker, Build, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -98,7 +98,7 @@
         'Index Navigation': [true, 'Navigate to previous / next thread'],
         'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
         'Check for Updates': [true, 'Check for updated versions of 4chan X'],
-        'Check for Bans': [false, 'Obtain ban status on every refresh.']
+        'Check for Bans': [true, 'Obtain ban status on every refresh.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -1891,6 +1891,43 @@
     }
   };
 
+  BanChecker = {
+    init: function() {
+      if (!(this.postform = $.id('postForm'))) {
+        return;
+      }
+      this.now = Date.now();
+      if (this.msg = $.get('isBanned')) {
+        return this.prepend();
+      }
+      if ($.get('lastBanCheck', 0) < this.now - 6 * $.HOUR) {
+        return this.load();
+      }
+    },
+    load: function() {
+      return $.ajax('https://www.4chan.org/banned', {
+        onloadend: function() {
+          var doc, msg;
+          if (this.status === 200 || 304) {
+            $.set('lastBanCheck', BanChecker.now);
+            doc = d.implementation.createHTMLDocument('');
+            doc.documentElement.innerHTML = this.response;
+            if (/no entry in our database/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
+              return $["delete"]('isBanned');
+            } else {
+              return $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;', BanChecker.prepend());
+            }
+          }
+        }
+      });
+    },
+    prepend: function() {
+      return $.before(this.postform, $.el('h2', {
+        textContent: this.msg
+      }));
+    }
+  };
+
   QR = {
     init: function() {
       if (!$.id('postForm')) {
@@ -1901,22 +1938,6 @@
     },
     asyncInit: function() {
       var link;
-      if (Conf['Check for Bans']) {
-        $.ajax('https://www.4chan.org/banned', {
-          onloadend: function() {
-            var doc, msg;
-            if (this.status === 200 || 304) {
-              doc = d.implementation.createHTMLDocument('');
-              doc.documentElement.innerHTML = this.response;
-              if (!/There was no entry in our database for your ban/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
-                return $.before($.id('postForm'), $.el('h2', {
-                  textContent: /This ban will not expire./i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;'
-                }));
-              }
-            }
-          }
-        });
-      }
       if (Conf['Hide Original Post Form']) {
         link = $.el('h1', {
           innerHTML: "<a href=javascript:;>" + (g.REPLY ? 'Reply to Thread' : 'Start a Thread') + "</a>"
@@ -2784,6 +2805,10 @@
         err = $.el('span', {
           innerHTML: /^You were issued a warning/.test($('.boxcontent', doc).textContent.trim()) ? "You were issued a warning on " + bs[0].innerHTML + " as " + bs[3].innerHTML + ".<br>Warning reason: " + bs[1].innerHTML : "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
         });
+        if (/You are banned/.test(err.textContent)) {
+          $.set('lastBanCheck', 0);
+          BanChecker.init();
+        }
       } else if (err = doc.getElementById('errmsg')) {
         if ((_ref = $('a', err)) != null) {
           _ref.target = '_blank';
@@ -6082,6 +6107,9 @@
         }
       }
       Favicon.init();
+      if (Conf['Check for Bans']) {
+        BanChecker.init();
+      }
       if (Conf['Quick Reply']) {
         QR.init();
       }

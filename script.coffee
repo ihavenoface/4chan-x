@@ -13,7 +13,7 @@ Config =
       'Index Navigation':             [true,  'Navigate to previous / next thread']
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
-      'Check for Bans':               [false, 'Obtain ban status on every refresh.']
+      'Check for Bans':               [true,  'Obtain ban status on every refresh.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -1466,6 +1466,35 @@ Nav =
     {top} = Nav.threads[i]?.getBoundingClientRect()
     window.scrollBy 0, top
 
+BanChecker =
+  init: ->
+    return unless @postform = $.id 'postForm'
+    @now = Date.now()
+    if @msg = $.get 'isBanned'
+      return @prepend()
+    if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
+      @load()
+
+  load: ->
+    $.ajax 'https://www.4chan.org/banned',
+      onloadend: ->
+        if @status is 200 or 304
+          $.set 'lastBanCheck', BanChecker.now
+          doc = d.implementation.createHTMLDocument ''
+          doc.documentElement.innerHTML = @response
+          if /no entry in our database/i.test (msg = $('.boxcontent', doc).textContent.trim())
+            $.delete 'isBanned'
+          else
+            $.set 'isBanned',
+              if /This ban will not expire/i.test msg
+                'You are banned, forever! ;_;'
+              else
+                'You are banned! ;_;'
+              BanChecker.prepend()
+
+  prepend: ->
+    $.before @postform, $.el 'h2', textContent: @msg
+
 QR =
   init: ->
     return unless $.id 'postForm'
@@ -1473,20 +1502,6 @@ QR =
     setTimeout @asyncInit
 
   asyncInit: ->
-    if Conf['Check for Bans']
-      $.ajax 'https://www.4chan.org/banned',
-        onloadend: ->
-          if @status is 200 or 304
-            doc = d.implementation.createHTMLDocument ''
-            doc.documentElement.innerHTML = @response
-            unless /There was no entry in our database for your ban/i.test (msg = $('.boxcontent', doc).textContent.trim())
-              $.before $.id('postForm'), $.el 'h2',
-                textContent:
-                  if /This ban will not expire./i.test msg
-                    'You are banned, forever! ;_;'
-                  else
-                    'You are banned! ;_;'
-
     if Conf['Hide Original Post Form']
       link = $.el 'h1', innerHTML: "<a href=javascript:;>#{if g.REPLY then 'Reply to Thread' else 'Start a Thread'}</a>"
       $.on link.firstChild, 'click', ->
@@ -2201,6 +2216,9 @@ QR =
             "You were issued a warning on #{bs[0].innerHTML} as #{bs[3].innerHTML}.<br>Warning reason: #{bs[1].innerHTML}"
           else
             "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
+      if /You are banned/.test err.textContent
+        $.set 'lastBanCheck', 0
+        BanChecker.init()
     else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc
@@ -4923,6 +4941,9 @@ Main =
     Favicon.init()
 
     # Major features.
+    if Conf['Check for Bans']
+      BanChecker.init()
+
     if Conf['Quick Reply']
       QR.init()
 
