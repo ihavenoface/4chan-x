@@ -11,7 +11,6 @@ Config =
       'Comment Expansion':            [true,  'Expand too long comments']
       'Thread Expansion':             [true,  'View all replies']
       'Index Navigation':             [true,  'Navigate to previous / next thread']
-      'Rollover':                     [true,  'Index navigation will fallback to page navigation.']
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
     Filtering:
@@ -1462,18 +1461,6 @@ Nav =
     # or we're above the first thread and don't want to skip it
     unless (delta is -1 and Math.ceil(top) < 0) or (delta is +1 and top > 1)
       i += delta
-
-    if Conf['Rollover']
-      if i is -1
-        if link = $ 'link[rel=prev]', d.head
-          window.location = link.href + '#delform'
-        else
-          window.location = "/#{g.BOARD}/0#delform"
-        return
-      if (delta is +1) and ( (i is Nav.threads.length) or (innerHeight + pageYOffset == d.body.scrollHeight) )
-        if link = $ 'link[rel=next]', d.head
-          window.location = link.href + '#delform'
-          return
 
     {top} = Nav.threads[i]?.getBoundingClientRect()
     window.scrollBy 0, top
