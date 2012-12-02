@@ -1468,11 +1468,11 @@ Nav =
 
 BanChecker =
   init: ->
-    return unless $.id 'postForm'
     @now = Date.now()
     if $.get 'isBanned'
       return @prepend()
-    @load() if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
+    if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
+      @load()
 
   load: ->
     $.ajax 'https://www.4chan.org/banned',

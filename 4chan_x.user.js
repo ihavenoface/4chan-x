@@ -1893,9 +1893,6 @@
 
   BanChecker = {
     init: function() {
-      if (!$.id('postForm')) {
-        return;
-      }
       this.now = Date.now();
       if ($.get('isBanned')) {
         return this.prepend();
