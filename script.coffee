@@ -1490,7 +1490,7 @@ BanChecker =
                 'You are banned, forever! ;_;'
               else
                 'You are banned! ;_;'
-              BanChecker.prepend()
+            BanChecker.prepend()
 
   prepend: ->
     $.before @postform, $.el 'h2', textContent: @msg

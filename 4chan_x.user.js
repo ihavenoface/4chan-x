@@ -1915,7 +1915,8 @@
             if (/no entry in our database/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
               return $["delete"]('isBanned');
             } else {
-              return $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;', BanChecker.prepend());
+              $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;');
+              return BanChecker.prepend();
             }
           }
         }
