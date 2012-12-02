@@ -14,6 +14,7 @@ Config =
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
       'Check for Bans':               [true,  'Obtain ban status and prepend it to the top of the page.']
+      'Check for Bans constantly':    [false, 'Optain ban status on every refresh.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -1469,20 +1470,21 @@ Nav =
 BanChecker =
   init: ->
     @now = Date.now()
-    if $.get 'isBanned'
-      return @prepend()
-    if $.get('lastBanCheck', 0) < @now - 6*$.HOUR
+    return if $.get 'isBanned'
+      @prepend()
+    else if Conf['Check for Bans constantly'] or $.get('lastBanCheck', 0) < @now - 6*$.HOUR
       @load()
 
   load: ->
     $.ajax 'https://www.4chan.org/banned',
       onloadend: ->
         if @status is 200 or 304
-          $.set 'lastBanCheck', BanChecker.now
+          $.set 'lastBanCheck', BanChecker.now unless Conf['Check for Bans constantly']
           doc = d.implementation.createHTMLDocument ''
           doc.documentElement.innerHTML = @response
           if /no entry in our database/i.test (msg = $('.boxcontent', doc).textContent.trim())
-            return $.delete 'isBanned'
+            $.delete 'isBanned'
+            return $.rm $ 'h2'
           $.set 'isBanned',
             if /This ban will not expire/i.test msg
               'You are banned, forever! ;_;'
@@ -1496,7 +1498,7 @@ BanChecker =
       href:        'javascript:;'
       title:       'Click to recheck.'
     $.on el, 'click', ->
-      $.delete 'lastBanCheck'
+      $.delete 'lastBanCheck' unless Conf['Check for Bans constantly']
       $.delete 'isBanned'
       @style.opacity = '.5'
       BanChecker.load()
