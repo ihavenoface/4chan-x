@@ -4727,13 +4727,18 @@
                 });
               },
               title: function() {
-                var node;
+                var name, node;
                 node = this;
-                return $.ajax("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
+                return $.ajax("https://gdata.youtube.com/feeds/api/videos/" + (name = this.nextElementSibling.name) + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
                   node: node,
                   onloadend: function() {
+                    var title, titles;
                     if (this.status === 200 || 304) {
-                      return node.textContent = JSON.parse(this.responseText).entry.title.$t;
+                      titles = $.get('YoutubeTitle', {});
+                      title = JSON.parse(this.responseText).entry.title.$t;
+                      node.textContent = title;
+                      titles[name] = title;
+                      return $.set('YoutubeTitle', titles);
                     }
                   }
                 });
@@ -4797,7 +4802,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, title, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4882,7 +4887,12 @@
                 $.after(a, $.tn(' '));
                 if (Conf['Link Title']) {
                   a.className = "e" + key;
-                  Quotify.types[key].title.call(a);
+                  title = $.get('YoutubeTitle', {});
+                  if (title[match[1]]) {
+                    a.textContent = title[match[1]];
+                  } else {
+                    Quotify.types[key].title.call(a);
+                  }
                 }
                 break;
               }

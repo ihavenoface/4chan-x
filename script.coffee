@@ -3858,11 +3858,15 @@ Quotify =
             title: ->
               node = @
               $.ajax(
-                "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
+                "https://gdata.youtube.com/feeds/api/videos/#{name = @nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
                 node: node
                 onloadend: ->
                   if @status is 200 or 304
-                    node.textContent = JSON.parse(@responseText).entry.title.$t
+                    titles = $.get 'YoutubeTitle', {}
+                    title  = JSON.parse(@responseText).entry.title.$t
+                    node.textContent = title
+                    titles[name] = title
+                    $.set 'YoutubeTitle', titles  # maybe store key for each service later on
               )
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
@@ -3994,7 +3998,11 @@ Quotify =
               $.after a, $.tn ' '
               if Conf['Link Title']
                 a.className = "e#{key}"
-                Quotify.types[key].title.call a
+                title = $.get 'YoutubeTitle', {}
+                if title[match[1]]
+                  a.textContent = title[match[1]]
+                else
+                  Quotify.types[key].title.call a
               break
     return
 
