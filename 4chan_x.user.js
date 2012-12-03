@@ -4732,12 +4732,10 @@
                 return $.ajax("https://gdata.youtube.com/feeds/api/videos/" + (name = this.nextElementSibling.name) + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
                   node: node,
                   onloadend: function() {
-                    var title, titles;
+                    var titles;
                     if (this.status === 200 || 304) {
                       titles = $.get('YoutubeTitle', {});
-                      title = JSON.parse(this.responseText).entry.title.$t;
-                      node.textContent = title;
-                      titles[name] = title;
+                      node.textContent = titles[name] = JSON.parse(this.responseText).entry.title.$t;
                       return $.set('YoutubeTitle', titles);
                     }
                   }

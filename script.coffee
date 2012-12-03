@@ -3863,9 +3863,7 @@ Quotify =
                 onloadend: ->
                   if @status is 200 or 304
                     titles = $.get 'YoutubeTitle', {}
-                    title  = JSON.parse(@responseText).entry.title.$t
-                    node.textContent = title
-                    titles[name] = title
+                    node.textContent = titles[name] = JSON.parse(@responseText).entry.title.$t
                     $.set 'YoutubeTitle', titles  # maybe store key for each service later on
               )
           vimeo:
