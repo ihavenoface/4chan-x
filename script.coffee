@@ -6,8 +6,6 @@ Config =
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
       'File Info Formatting':         [true,  'Reformats the file information']
-      'Linkify':                      [true,  'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.']
-      'Embed':                        [true,  'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.']
       'Comment Expansion':            [true,  'Expand too long comments']
       'Thread Expansion':             [true,  'View all replies']
       'Index Navigation':             [true,  'Navigate to previous / next thread']
@@ -15,6 +13,10 @@ Config =
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
       'Check for Bans':               [true,  'Obtain ban status and prepend it to the top of the page.']
       'Check for Bans constantly':    [false, 'Obtain ban status on every refresh. Note that this will cause delay on getting the result.']
+    Linkification:
+      'Linkify':                      [true,  'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.']
+      'Embed':                        [true,  'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.']
+      'Link Title':                   [true,  'Replace the Link of a supported site with its actual title.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -2465,7 +2467,7 @@ Options =
     li = $.el 'li',
       innerHTML: "<button>hidden: #{hiddenNum}</button> <span class=description>: Forget all hidden posts. Useful if you accidentally hide a post and have \"Show Stubs\" disabled."
     $.on $('button', li), 'click', Options.clearHidden
-    $.add $('ul:nth-child(2)', dialog), li
+    $.add $('ul:nth-child(3)', dialog), li
 
     #filter
     filter = $ 'select[name=filter]', dialog
@@ -3853,6 +3855,15 @@ Quotify =
             el: ->
               $.el 'iframe'
                 src:  "#{Quotify.prot}//www.youtube.com/embed/#{@name}"
+            title: ->
+              node = @
+              $.ajax(
+                "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
+                node: node
+                onloadend: ->
+                  if @status is 200 or 304
+                    node.textContent = JSON.parse(@responseText).entry.title.$t
+              )
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
             style:
@@ -3955,12 +3966,11 @@ Quotify =
               a.setAttribute 'data-board', board
               a.setAttribute 'data-id',    id
         else
-          l = quote
           nodes.push a = $.el 'a',
             textContent: quote
             rel:       'nofollow noreferrer'
             target:    'blank'
-            href:      if l.indexOf(":") < 0 then (if l.indexOf("@") > 0 then "mailto:" + l else "http://" + l) else l
+            href:      if quote.indexOf(":") < 0 then (if quote.indexOf("@") > 0 then "mailto:" + quote else "http://" + quote) else quote
 
         data = data[index + quote.length..]
 
@@ -3969,11 +3979,11 @@ Quotify =
         nodes.push $.tn data
 
       $.replace node, nodes
-      if a and links
+      if links and a
         Quotify.concat a
         if Conf['Embed']
           for key, type of Quotify.types
-            if match = a.href.match(type.regExp)
+            if match = a.href.match type.regExp
               embed = $.el 'a'
                 name:         match[1]
                 className:    key
@@ -3982,6 +3992,7 @@ Quotify =
               $.on embed, 'click', Quotify.embed
               $.after a, embed
               $.after a, $.tn ' '
+              Quotify.types[key].title.call a if Conf['Link Title']
               break
     return
 

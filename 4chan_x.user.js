@@ -91,8 +91,6 @@
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
         'File Info Formatting': [true, 'Reformats the file information'],
-        'Linkify': [true, 'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.'],
-        'Embed': [true, 'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.'],
         'Comment Expansion': [true, 'Expand too long comments'],
         'Thread Expansion': [true, 'View all replies'],
         'Index Navigation': [true, 'Navigate to previous / next thread'],
@@ -100,6 +98,11 @@
         'Check for Updates': [true, 'Check for updated versions of 4chan X'],
         'Check for Bans': [true, 'Obtain ban status and prepend it to the top of the page.'],
         'Check for Bans constantly': [false, 'Obtain ban status on every refresh. Note that this will cause delay on getting the result.']
+      },
+      Linkification: {
+        'Linkify': [true, 'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.'],
+        'Embed': [true, 'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.'],
+        'Link Title': [true, 'Replace the Link of a supported site with its actual title.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -3075,7 +3078,7 @@
         innerHTML: "<button>hidden: " + hiddenNum + "</button> <span class=description>: Forget all hidden posts. Useful if you accidentally hide a post and have \"Show Stubs\" disabled."
       });
       $.on($('button', li), 'click', Options.clearHidden);
-      $.add($('ul:nth-child(2)', dialog), li);
+      $.add($('ul:nth-child(3)', dialog), li);
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
       archiver = $('select[name=archiver]', dialog);
@@ -4722,6 +4725,18 @@
                 return $.el('iframe', {
                   src: "" + Quotify.prot + "//www.youtube.com/embed/" + this.name
                 });
+              },
+              title: function() {
+                var node;
+                node = this;
+                return $.ajax("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
+                  node: node,
+                  onloadend: function() {
+                    if (this.status === 200 || 304) {
+                      return node.textContent = JSON.parse(this.responseText).entry.title.$t;
+                    }
+                  }
+                });
               }
             },
             vimeo: {
@@ -4782,7 +4797,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, l, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4836,12 +4851,11 @@
               }
             }
           } else {
-            l = quote;
             nodes.push(a = $.el('a', {
               textContent: quote,
               rel: 'nofollow noreferrer',
               target: 'blank',
-              href: l.indexOf(":") < 0 ? (l.indexOf("@") > 0 ? "mailto:" + l : "http://" + l) : l
+              href: quote.indexOf(":") < 0 ? (quote.indexOf("@") > 0 ? "mailto:" + quote : "http://" + quote) : quote
             }));
           }
           data = data.slice(index + quote.length);
@@ -4850,7 +4864,7 @@
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
-        if (a && links) {
+        if (links && a) {
           Quotify.concat(a);
           if (Conf['Embed']) {
             _ref3 = Quotify.types;
@@ -4866,6 +4880,9 @@
                 $.on(embed, 'click', Quotify.embed);
                 $.after(a, embed);
                 $.after(a, $.tn(' '));
+                if (Conf['Link Title']) {
+                  Quotify.types[key].title.call(a);
+                }
                 break;
               }
             }
