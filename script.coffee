@@ -1476,7 +1476,8 @@ BanChecker =
       @load()
 
   load: ->
-    $.ajax 'https://www.4chan.org/banned',
+    @url = 'https://www.4chan.org/banned'
+    $.ajax @url,
       onloadend: ->
         if @status is 200 or 304
           $.set 'lastBanCheck', BanChecker.now unless Conf['Check for Bans constantly']
@@ -1493,15 +1494,19 @@ BanChecker =
           BanChecker.prepend()
 
   prepend: ->
-    el = $.el 'h2',
-      textContent: $.get 'isBanned'
-      href:        'javascript:;'
-      title:       'Click to recheck.'
-    $.on el, 'click', ->
-      $.delete 'lastBanCheck' unless Conf['Check for Bans constantly']
-      $.delete 'isBanned'
-      @style.opacity = '.5'
-      BanChecker.load()
+    @text = $.get('isBanned')
+    el = $.el 'h2'
+      innerHTML:
+        "<span>#{@text.match /^.*(?=banned)/}</span><a href=#{@url} title='Click to find out why.' target=_blank>banned</a><span>#{@text.match(/banned.*$/).toString().replace /^banned/, ''}</span>"
+      title:  'Click to recheck.'
+    for text in [el.firstChild, el.lastChild]
+      $.on text, 'click', ->
+        $.delete 'lastBanCheck' unless Conf['Check for Bans constantly']
+        $.delete 'isBanned'
+        delete @parentNode.firstChild.href
+        delete @parentNode.lastChild.href
+        @parentNode.style.opacity = '.5'
+        BanChecker.load()
     return if h2 = $ 'h2'
       $.replace h2, el
     else if h1 = $ 'h1'

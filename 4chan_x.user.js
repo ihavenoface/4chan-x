@@ -1902,7 +1902,8 @@
       }
     },
     load: function() {
-      return $.ajax('https://www.4chan.org/banned', {
+      this.url = 'https://www.4chan.org/banned';
+      return $.ajax(this.url, {
         onloadend: function() {
           var doc, msg;
           if (this.status === 200 || 304) {
@@ -1922,20 +1923,26 @@
       });
     },
     prepend: function() {
-      var el, h1, h2;
+      var el, h1, h2, text, _i, _len, _ref;
+      this.text = $.get('isBanned');
       el = $.el('h2', {
-        textContent: $.get('isBanned'),
-        href: 'javascript:;',
+        innerHTML: "<span>" + (this.text.match(/^.*(?=banned)/)) + "</span><a href=" + this.url + " title='Click to find out why.' target=_blank>banned</a><span>" + (this.text.match(/banned.*$/).toString().replace(/^banned/, '')) + "</span>",
         title: 'Click to recheck.'
       });
-      $.on(el, 'click', function() {
-        if (!Conf['Check for Bans constantly']) {
-          $["delete"]('lastBanCheck');
-        }
-        $["delete"]('isBanned');
-        this.style.opacity = '.5';
-        return BanChecker.load();
-      });
+      _ref = [el.firstChild, el.lastChild];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        text = _ref[_i];
+        $.on(text, 'click', function() {
+          if (!Conf['Check for Bans constantly']) {
+            $["delete"]('lastBanCheck');
+          }
+          $["delete"]('isBanned');
+          delete this.parentNode.firstChild.href;
+          delete this.parentNode.lastChild.href;
+          this.parentNode.style.opacity = '.5';
+          return BanChecker.load();
+        });
+      }
       if (h2 = $('h2')) {
         return $.replace(h2, el);
       } else if (h1 = $('h1')) {
