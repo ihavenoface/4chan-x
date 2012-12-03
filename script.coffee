@@ -4012,9 +4012,8 @@ Quotify =
         for key, value of type.style
           el.style[key] = value
 
-    el.setAttribute 'data-originalURL', Quotify.link.href
-    el.setAttribute 'data-originalTEXT', Quotify.link.textContent
-    el.setAttribute 'data-originalCLASS', Quotify.link.className
+    for att in ['href', 'textContent', 'className']
+      el.setAttribute "data-original-#{att}", Quotify.link[att]
     $.replace Quotify.link, el
 
     unembed = $.el 'a'
@@ -4028,14 +4027,13 @@ Quotify =
 
   unembed: ->
     embedded = @previousElementSibling
-    url = embedded.getAttribute("data-originalURL")
-
+    get = (att) -> embedded.getAttribute "data-original-#{att}"
     a = $.el 'a'
-      textContent: embedded.getAttribute("data-originalTEXT")
-      className:   embedded.getAttribute("data-originalCLASS")
+      textContent: get 'textContent'
+      className:   get 'className'
       rel:         'nofollow noreferrer'
       target:      'blank'
-      href:        url
+      href:        get 'href'
 
     embed = $.el 'a'
       name:         @name

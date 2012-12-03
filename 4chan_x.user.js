@@ -4900,7 +4900,7 @@
       }
     },
     embed: function(el) {
-      var key, type, unembed, value, _ref;
+      var att, key, type, unembed, value, _i, _len, _ref, _ref1;
       if (!el.firstChild) {
         Quotify.link = this.previousElementSibling;
         if (!(el = (type = Quotify.types[this.className]).el.call(this))) {
@@ -4914,9 +4914,11 @@
           }
         }
       }
-      el.setAttribute('data-originalURL', Quotify.link.href);
-      el.setAttribute('data-originalTEXT', Quotify.link.textContent);
-      el.setAttribute('data-originalCLASS', Quotify.link.className);
+      _ref1 = ['href', 'textContent', 'className'];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        att = _ref1[_i];
+        el.setAttribute("data-original-" + att, Quotify.link[att]);
+      }
       $.replace(Quotify.link, el);
       unembed = $.el('a', {
         name: this.name || '',
@@ -4928,15 +4930,17 @@
       return $.replace(el.nextElementSibling, unembed);
     },
     unembed: function() {
-      var a, embed, embedded, url;
+      var a, embed, embedded, get;
       embedded = this.previousElementSibling;
-      url = embedded.getAttribute("data-originalURL");
+      get = function(att) {
+        return embedded.getAttribute("data-original-" + att);
+      };
       a = $.el('a', {
-        textContent: embedded.getAttribute("data-originalTEXT"),
-        className: embedded.getAttribute("data-originalCLASS"),
+        textContent: get('textContent'),
+        className: get('className'),
         rel: 'nofollow noreferrer',
         target: 'blank',
-        href: url
+        href: get('href')
       });
       embed = $.el('a', {
         name: this.name,
