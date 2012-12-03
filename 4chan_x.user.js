@@ -4771,13 +4771,21 @@
             soundcloud: {
               regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
               el: function() {
-                Quotify.url = "" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + Quotify.link.textContent;
-                $.ajax(Quotify.url, {
+                var node;
+                node = this.previousElementSibling;
+                $.log(node);
+                $.ajax("" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + node.href, {
+                  node: node,
                   onloadend: function() {
-                    return Quotify.embed($.el('div', {
-                      innerHTML: JSON.parse(this.responseText).html,
-                      className: 'soundcloud'
-                    }));
+                    var response;
+                    response = {
+                      el: $.el('div', {
+                        innerHTML: JSON.parse(this.responseText).html,
+                        className: 'soundcloud'
+                      }),
+                      node: node
+                    };
+                    return Quotify.embed.call(response);
                   }
                 });
                 return false;
@@ -4800,7 +4808,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, text, title, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, title, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4883,13 +4891,13 @@
                 $.on(embed, 'click', Quotify.embed);
                 $.after(a, embed);
                 $.after(a, $.tn(' '));
-                if (Conf['Link Title']) {
+                if (Conf['Link Title'] && (srv = Quotify.types[key].title)) {
                   a.className = "e" + key;
                   title = $.get('YoutubeTitle', {});
                   if (title[match[1]]) {
                     a.textContent = title[match[1]];
                   } else {
-                    Quotify.types[key].title.call(a);
+                    srv.call(a);
                   }
                 }
                 break;
@@ -4899,10 +4907,13 @@
         }
       }
     },
-    embed: function(el) {
-      var att, key, type, unembed, value, _i, _len, _ref, _ref1;
-      if (!el.firstChild) {
-        Quotify.link = this.previousElementSibling;
+    embed: function() {
+      var att, el, key, link, type, unembed, value, _i, _len, _ref, _ref1;
+      if (this.node) {
+        link = this.node;
+        el = this.el;
+      } else {
+        link = this.previousElementSibling;
         if (!(el = (type = Quotify.types[this.className]).el.call(this))) {
           return;
         }
@@ -4917,9 +4928,11 @@
       _ref1 = ['href', 'textContent', 'className'];
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         att = _ref1[_i];
-        el.setAttribute("data-original-" + att, Quotify.link[att]);
+        if (link[att]) {
+          el.setAttribute("data-original-" + att, link);
+        }
       }
-      $.replace(Quotify.link, el);
+      $.replace(link, el);
       unembed = $.el('a', {
         name: this.name || '',
         className: el.className || this.className,

@@ -3887,12 +3887,19 @@ Quotify =
           soundcloud:
             regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
             el: ->
-              Quotify.url =
-                "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{Quotify.link.textContent}"
-              $.ajax Quotify.url, onloadend: ->
-                Quotify.embed $.el 'div'
-                  innerHTML: JSON.parse(@responseText).html
-                  className: 'soundcloud'
+              node = @previousElementSibling
+              $.log node
+              $.ajax(
+                "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}"
+                node: node
+                onloadend: ->
+                  response =
+                    el: $.el 'div'
+                      innerHTML: JSON.parse(@responseText).html
+                      className: 'soundcloud'
+                    node: node
+                  Quotify.embed.call response
+              )
               false
           audio:
             regExp:  /(.*\.(mp3|ogg|wav))$/
@@ -3994,27 +4001,30 @@ Quotify =
               $.on embed, 'click', Quotify.embed
               $.after a, embed
               $.after a, $.tn ' '
-              if Conf['Link Title']
+              if Conf['Link Title'] and srv = Quotify.types[key].title
                 a.className = "e#{key}"
                 title = $.get 'YoutubeTitle', {}
                 if title[match[1]]
                   a.textContent = title[match[1]]
                 else
-                  Quotify.types[key].title.call a
+                  srv.call a
               break
     return
 
-  embed: (el) ->
-    unless el.firstChild
-      Quotify.link = @previousElementSibling
+  embed: ->
+    if @node
+      link = @node
+      el   = @el
+    else
+      link = @previousElementSibling
       return unless el = (type = Quotify.types[@className]).el.call @
       if type.style
         for key, value of type.style
           el.style[key] = value
 
     for att in ['href', 'textContent', 'className']
-      el.setAttribute "data-original-#{att}", Quotify.link[att]
-    $.replace Quotify.link, el
+      el.setAttribute "data-original-#{att}", link if link[att]
+    $.replace link, el
 
     unembed = $.el 'a'
       name:        @name or ''
