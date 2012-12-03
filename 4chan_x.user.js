@@ -4759,6 +4759,7 @@
               el: function() {
                 return $.el('audio', {
                   controls: 'controls',
+                  preload: 'auto',
                   src: this.name,
                   textContent: 'You should get a better browser.'
                 });

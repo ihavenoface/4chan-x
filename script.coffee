@@ -3877,6 +3877,7 @@ Quotify =
             el: ->
               $.el 'audio'
                 controls:    'controls'
+                preload:     'auto'
                 src:         @name
                 textContent: 'You should get a better browser.'
 
