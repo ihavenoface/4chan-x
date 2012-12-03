@@ -4929,7 +4929,7 @@
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         att = _ref1[_i];
         if (link[att]) {
-          el.setAttribute("data-original-" + att, link);
+          el.setAttribute("data-original-" + att, link[att]);
         }
       }
       $.replace(link, el);

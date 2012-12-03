@@ -4023,7 +4023,7 @@ Quotify =
           el.style[key] = value
 
     for att in ['href', 'textContent', 'className']
-      el.setAttribute "data-original-#{att}", link if link[att]
+      el.setAttribute "data-original-#{att}", link[att] if link[att]
     $.replace link, el
 
     unembed = $.el 'a'
