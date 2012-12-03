@@ -14,7 +14,7 @@ Config =
       'Reply Navigation':             [false, 'Navigate to top / bottom of thread']
       'Check for Updates':            [true,  'Check for updated versions of 4chan X']
       'Check for Bans':               [true,  'Obtain ban status and prepend it to the top of the page.']
-      'Check for Bans constantly':    [false, 'Optain ban status on every refresh.']
+      'Check for Bans constantly':    [false, 'Obtain ban status on every refresh. Note that this will cause delay on getting the result.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -1470,7 +1470,7 @@ Nav =
 BanChecker =
   init: ->
     @now = Date.now()
-    return if $.get 'isBanned'
+    return if not Conf['Check for Bans constantly'] and $.get 'isBanned'
       @prepend()
     else if Conf['Check for Bans constantly'] or $.get('lastBanCheck', 0) < @now - 6*$.HOUR
       @load()

@@ -99,7 +99,7 @@
         'Reply Navigation': [false, 'Navigate to top / bottom of thread'],
         'Check for Updates': [true, 'Check for updated versions of 4chan X'],
         'Check for Bans': [true, 'Obtain ban status and prepend it to the top of the page.'],
-        'Check for Bans constantly': [false, 'Optain ban status on every refresh.']
+        'Check for Bans constantly': [false, 'Obtain ban status on every refresh. Note that this will cause delay on getting the result.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -1895,7 +1895,7 @@
   BanChecker = {
     init: function() {
       this.now = Date.now();
-      if ($.get('isBanned')) {
+      if (!Conf['Check for Bans constantly'] && $.get('isBanned')) {
         return this.prepend();
       } else if (Conf['Check for Bans constantly'] || $.get('lastBanCheck', 0) < this.now - 6 * $.HOUR) {
         return this.load();
