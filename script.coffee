@@ -312,7 +312,7 @@ $.extend $,
   ajax: (url, callbacks, opts={}) ->
     {type, headers, upCallbacks, form} = opts
     r = new XMLHttpRequest()
-    r.overrideMimeType 'text/html'
+    r.overrideMimeType 'text/html' unless $.engine is 'webkit'
     type or= form and 'post' or 'get'
     r.open type, url, true
     for key, val of headers
@@ -4002,9 +4002,9 @@ Quotify =
               $.after a, $.tn ' '
               if Conf['Link Title'] and srv = Quotify.types[key].title
                 a.className = "e#{key}"
-                title = $.get 'YoutubeTitle', {}
-                if title[match[1]]
-                  a.textContent = title[match[1]]
+                titles = $.get 'YoutubeTitle', {}
+                if titles[match[1]]
+                  a.textContent = titles[match[1]]
                 else
                   srv.call a
               break
@@ -4821,25 +4821,36 @@ ImageExpand =
 
 CatalogLinks =
   init: ->
-    el = $.el 'span',
-      innerHTML:
-        "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
-    $.on el.firstElementChild, 'click', @toggle
-    $.add $.id('boardNavDesktop'), el
+    controls = [
+      $.el 'span',
+        innerHTML:
+          "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
+
+      $.el 'span',
+        innerHTML:
+          "[<a id=toggleCatalogFoot href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
+    ]
+
+    for nav, i in ['boardNavDesktop', 'boardNavDesktopFoot']
+      $.on controls[i].firstElementChild, 'click', @toggle
+      $.add $.id(nav), controls[i]
+
     if (toggled = $.get 'CatalogIsToggled') and not g.CATALOG or g.CATALOG and !toggled
-      @toggle.call el.firstElementChild
+      @toggle.call controls[0].firstElementChild
 
   toggle: ->
-    a = $.id('boardNavDesktop').firstElementChild
-    while a.href and split = a.href.split '/'
-      unless /^rs|status/.test split[2]
-        if split[4] is 'catalog'
-          a.href  = a.href.replace  /catalog$/, ''
-          a.title = a.title.replace /\ -\ Catalog$/, ''
-        else
-          a.href  += 'catalog'
-          a.title += ' - Catalog'
-      a = a.nextElementSibling
+    for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
+      a = $.id(nav).firstElementChild
+      while a.href and split = a.href.split '/'
+        unless /^rs|status/.test split[2]
+          if split[4] is 'catalog'
+            a.href  = a.href.replace  /catalog$/, ''
+            a.title = a.title.replace /\ -\ Catalog$/, ''
+          else
+            a.href  += 'catalog'
+            a.title += ' - Catalog'
+        a = a.nextElementSibling
+
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
       @title =       'Turn Catalog Links off.'

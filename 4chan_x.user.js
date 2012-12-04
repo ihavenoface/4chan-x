@@ -374,7 +374,9 @@
       }
       type = opts.type, headers = opts.headers, upCallbacks = opts.upCallbacks, form = opts.form;
       r = new XMLHttpRequest();
-      r.overrideMimeType('text/html');
+      if ($.engine !== 'webkit') {
+        r.overrideMimeType('text/html');
+      }
       type || (type = form && 'post' || 'get');
       r.open(type, url, true);
       for (key in headers) {
@@ -4807,7 +4809,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, title, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4892,9 +4894,9 @@
                 $.after(a, $.tn(' '));
                 if (Conf['Link Title'] && (srv = Quotify.types[key].title)) {
                   a.className = "e" + key;
-                  title = $.get('YoutubeTitle', {});
-                  if (title[match[1]]) {
-                    a.textContent = title[match[1]];
+                  titles = $.get('YoutubeTitle', {});
+                  if (titles[match[1]]) {
+                    a.textContent = titles[match[1]];
                   } else {
                     srv.call(a);
                   }
@@ -5987,30 +5989,42 @@
 
   CatalogLinks = {
     init: function() {
-      var el, toggled;
-      el = $.el('span', {
-        innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
-      });
-      $.on(el.firstElementChild, 'click', this.toggle);
-      $.add($.id('boardNavDesktop'), el);
+      var controls, i, nav, toggled, _i, _len, _ref;
+      controls = [
+        $.el('span', {
+          innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
+        }), $.el('span', {
+          innerHTML: "[<a id=toggleCatalogFoot href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
+        })
+      ];
+      _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        nav = _ref[i];
+        $.on(controls[i].firstElementChild, 'click', this.toggle);
+        $.add($.id(nav), controls[i]);
+      }
       if ((toggled = $.get('CatalogIsToggled')) && !g.CATALOG || g.CATALOG && !toggled) {
-        return this.toggle.call(el.firstElementChild);
+        return this.toggle.call(controls[0].firstElementChild);
       }
     },
     toggle: function() {
-      var a, split;
-      a = $.id('boardNavDesktop').firstElementChild;
-      while (a.href && (split = a.href.split('/'))) {
-        if (!/^rs|status/.test(split[2])) {
-          if (split[4] === 'catalog') {
-            a.href = a.href.replace(/catalog$/, '');
-            a.title = a.title.replace(/\ -\ Catalog$/, '');
-          } else {
-            a.href += 'catalog';
-            a.title += ' - Catalog';
+      var a, nav, split, _i, _len, _ref;
+      _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        nav = _ref[_i];
+        a = $.id(nav).firstElementChild;
+        while (a.href && (split = a.href.split('/'))) {
+          if (!/^rs|status/.test(split[2])) {
+            if (split[4] === 'catalog') {
+              a.href = a.href.replace(/catalog$/, '');
+              a.title = a.title.replace(/\ -\ Catalog$/, '');
+            } else {
+              a.href += 'catalog';
+              a.title += ' - Catalog';
+            }
           }
+          a = a.nextElementSibling;
         }
-        a = a.nextElementSibling;
       }
       if (/On$/.test(this.textContent)) {
         this.textContent = 'Catalog Off';
