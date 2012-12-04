@@ -4836,9 +4836,9 @@ CatalogLinks =
         if split[4] is 'catalog'
           a.href  = a.href.replace  /catalog$/, ''
           a.title = a.title.replace /\ -\ Catalog$/, ''
-        else
-          a.href  += 'catalog'
-          a.title += ' - Catalog'
+          continue
+        a.href  += 'catalog'
+        a.title += ' - Catalog'
       a = a.nextElementSibling
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
