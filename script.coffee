@@ -3861,9 +3861,9 @@ Quotify =
                 node: node
                 onloadend: ->
                   if @status is 200 or 304
-                    titles = $.get 'YoutubeTitle', {}
-                    node.textContent = titles[name] = JSON.parse(@responseText).entry.title.$t
-                    $.set 'YoutubeTitle', titles  # maybe store key for each service later on
+                    titles = $.get 'CachedTitles', {}
+                    node.textContent = titles['youtube'][name] = JSON.parse(@responseText).entry.title.$t
+                    $.set 'CachedTitles', titles
               )
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
@@ -4001,9 +4001,11 @@ Quotify =
               $.after a, $.tn ' '
               if Conf['Link Title'] and srv = Quotify.types[key].title
                 a.className = "e#{key}"
-                titles = $.get 'YoutubeTitle', {}
-                if titles[match[1]]
-                  a.textContent = titles[match[1]]
+                unless (titles = $.get 'CachedTitles', {})[key]
+                  titles[key] = {}
+                  $.set 'CachedTitles', titles
+                if cached = titles[key][match[1]]
+                  a.textContent = cached
                 else
                   srv.call a
               break

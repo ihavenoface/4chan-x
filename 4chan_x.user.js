@@ -4735,9 +4735,9 @@
                   onloadend: function() {
                     var titles;
                     if (this.status === 200 || 304) {
-                      titles = $.get('YoutubeTitle', {});
-                      node.textContent = titles[name] = JSON.parse(this.responseText).entry.title.$t;
-                      return $.set('YoutubeTitle', titles);
+                      titles = $.get('CachedTitles', {});
+                      node.textContent = titles['youtube'][name] = JSON.parse(this.responseText).entry.title.$t;
+                      return $.set('CachedTitles', titles);
                     }
                   }
                 });
@@ -4808,7 +4808,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, board, cached, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4893,9 +4893,12 @@
                 $.after(a, $.tn(' '));
                 if (Conf['Link Title'] && (srv = Quotify.types[key].title)) {
                   a.className = "e" + key;
-                  titles = $.get('YoutubeTitle', {});
-                  if (titles[match[1]]) {
-                    a.textContent = titles[match[1]];
+                  if (!(titles = $.get('CachedTitles', {}))[key]) {
+                    titles[key] = {};
+                    $.set('CachedTitles', titles);
+                  }
+                  if (cached = titles[key][match[1]]) {
+                    a.textContent = cached;
                   } else {
                     srv.call(a);
                   }
