@@ -19,8 +19,6 @@ HEADER  = """
 // @include        https://images.4chan.org/*
 // @include        http://sys.4chan.org/*
 // @include        https://sys.4chan.org/*
-// @exclude        http://boards.4chan.org/*/catalog
-// @exclude        https://boards.4chan.org/*/catalog
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue

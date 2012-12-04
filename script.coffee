@@ -4822,7 +4822,11 @@ ImageExpand =
 CatalogLinks =
   init: ->
     el = $.el 'span',
-      innerHTML: "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]"
+      innerHTML:
+        unless g.CATALOG
+          "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]"
+        else
+          "[<a id=toggleCatalog>Catalog Off</a>]"
     $.on el.firstElementChild, 'click', @toggle
     $.add $.id('boardNavDesktop'), el
 
@@ -4839,10 +4843,10 @@ CatalogLinks =
       a = a.nextElementSibling
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
-      @title =       'Turn Catalog Links off.'
+      @title =       'Turn Catalog Links off.' unless g.CATALOG
       return
     @textContent =   'Catalog On'
-    @title =         'Turn Catalog Links on.'
+    @title =         'Turn Catalog Links on.'  unless g.CATALOG
 
 Main =
   init: ->
@@ -4858,147 +4862,153 @@ Main =
     if temp is 'res'
       g.REPLY = true
       g.THREAD_ID = pathname[2]
+    else if temp is 'catalog'
+      g.CATALOG = true
 
-    # Setup Fill some per board configuration values with their global equivalents.
-    if Conf["Interval per board"]
-      Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
-      Conf["BGInterval_" + g.BOARD] = $.get "BGInterval_" + g.BOARD, Conf["BGInteval"]
+    unless g.CATALOG
 
-    switch location.hostname
-      when 'sys.4chan.org'
-        if /report/.test location.search
+      # Setup Fill some per board configuration values with their global equivalents.
+      if Conf["Interval per board"]
+        Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
+        Conf["BGInterval_" + g.BOARD] = $.get "BGInterval_" + g.BOARD, Conf["BGInteval"]
+
+      switch location.hostname
+        when 'sys.4chan.org'
+          if /report/.test location.search
+            $.ready ->
+              form  = $ 'form'
+              field = $.id 'recaptcha_response_field'
+              $.on field, 'keydown', (e) ->
+                window.location = 'javascript:Recaptcha.reload()' if e.keyCode is 8 and not e.target.value
+              $.on form, 'submit', (e) ->
+                e.preventDefault()
+                response = field.value.trim()
+                field.value = "#{response} #{response}" unless /\s/.test response
+                form.submit()
+          return
+        when 'images.4chan.org'
           $.ready ->
-            form  = $ 'form'
-            field = $.id 'recaptcha_response_field'
-            $.on field, 'keydown', (e) ->
-              window.location = 'javascript:Recaptcha.reload()' if e.keyCode is 8 and not e.target.value
-            $.on form, 'submit', (e) ->
-              e.preventDefault()
-              response = field.value.trim()
-              field.value = "#{response} #{response}" unless /\s/.test response
-              form.submit()
-        return
-      when 'images.4chan.org'
+            if /^4chan - 404/.test(d.title) and Conf['404 Redirect']
+              path = location.pathname.split '/'
+              url  = Redirect.image path[1], path[3]
+              location.href = url if url
+          return
+
+      if Conf['Disable 4chan\'s extension']
+        settings = JSON.parse(localStorage.getItem '4chan-settings') or {}
+        settings.disableAll = true
+        localStorage.setItem '4chan-settings', JSON.stringify settings
+
+      Options.init()
+
+
+      if Conf['Quick Reply'] and Conf['Hide Original Post Form']
+        Main.css += '#postForm { display: none; }'
+
+      $.addStyle Main.css
+
+      now = Date.now()
+      if Conf['Check for Updates'] and $.get('lastUpdate',  0) < now - 6*$.HOUR
         $.ready ->
-          if /^4chan - 404/.test(d.title) and Conf['404 Redirect']
-            path = location.pathname.split '/'
-            url  = Redirect.image path[1], path[3]
-            location.href = url if url
-        return
+          $.on window, 'message', Main.message
+          $.set 'lastUpdate', now
+          $.add d.head, $.el 'script',
+            src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
 
-    if Conf['Disable 4chan\'s extension']
-      settings = JSON.parse(localStorage.getItem '4chan-settings') or {}
-      settings.disableAll = true
-      localStorage.setItem '4chan-settings', JSON.stringify settings
+      g.hiddenReplies = $.get "hiddenReplies/#{g.BOARD}/", {}
+      if $.get('lastChecked', 0) < now - 1*$.DAY
+        $.set 'lastChecked', now
 
-    Options.init()
+        cutoff = now - 7*$.DAY
+        hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
 
-    if Conf['Quick Reply'] and Conf['Hide Original Post Form']
-      Main.css += '#postForm { display: none; }'
+        for id, timestamp of hiddenThreads
+          if timestamp < cutoff
+            delete hiddenThreads[id]
 
-    $.addStyle Main.css
+        for id, timestamp of g.hiddenReplies
+          if timestamp < cutoff
+            delete g.hiddenReplies[id]
 
-    now = Date.now()
-    if Conf['Check for Updates'] and $.get('lastUpdate',  0) < now - 6*$.HOUR
-      $.ready ->
-        $.on window, 'message', Main.message
-        $.set 'lastUpdate', now
-        $.add d.head, $.el 'script',
-          src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
+        $.set "hiddenThreads/#{g.BOARD}/", hiddenThreads
+        $.set "hiddenReplies/#{g.BOARD}/", g.hiddenReplies
+      #$.log Conf['Catalog Links']
 
-    g.hiddenReplies = $.get "hiddenReplies/#{g.BOARD}/", {}
-    if $.get('lastChecked', 0) < now - 1*$.DAY
-      $.set 'lastChecked', now
-
-      cutoff = now - 7*$.DAY
-      hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
-
-      for id, timestamp of hiddenThreads
-        if timestamp < cutoff
-          delete hiddenThreads[id]
-
-      for id, timestamp of g.hiddenReplies
-        if timestamp < cutoff
-          delete g.hiddenReplies[id]
-
-      $.set "hiddenThreads/#{g.BOARD}/", hiddenThreads
-      $.set "hiddenReplies/#{g.BOARD}/", g.hiddenReplies
-
-    #major features
-    if Conf['Filter']
-      Filter.init()
-
-    if Conf['Reply Hiding']
-      ReplyHiding.init()
-
-    if Conf['Filter'] or Conf['Reply Hiding']
-      StrikethroughQuotes.init()
-
-    if Conf['Anonymize']
-      Anonymize.init()
-
-    if Conf['Time Formatting']
-      Time.init()
-
-    if Conf['File Info Formatting']
-      FileInfo.init()
-
-    if Conf['Sauce']
-      Sauce.init()
-
-    if Conf['Reveal Spoilers']
-      RevealSpoilers.init()
-
-    if Conf['Image Auto-Gif']
-      AutoGif.init()
-
-    if Conf['Png Thumbnail Fix']
-      PngFix.init()
-
-    if Conf['Image Hover']
-      ImageHover.init()
-
-    if Conf['Menu']
-      Menu.init()
-
-      if Conf['Report Link']
-        ReportLink.init()
-
-      if Conf['Delete Link']
-        DeleteLink.init()
-
+      #major features
       if Conf['Filter']
-        Filter.menuInit()
+        Filter.init()
 
-      if Conf['Download Link']
-        DownloadLink.init()
+      if Conf['Reply Hiding']
+        ReplyHiding.init()
 
-      if Conf['Archive Link']
-        ArchiveLink.init()
+      if Conf['Filter'] or Conf['Reply Hiding']
+        StrikethroughQuotes.init()
 
-      if Conf['Embed Link']
-        EmbedLink.init()
+      if Conf['Anonymize']
+        Anonymize.init()
 
-    if Conf['Resurrect Quotes']
-      Quotify.init()
+      if Conf['Time Formatting']
+        Time.init()
 
-    if Conf['Quote Inline']
-      QuoteInline.init()
+      if Conf['File Info Formatting']
+        FileInfo.init()
 
-    if Conf['Quote Preview']
-      QuotePreview.init()
+      if Conf['Sauce']
+        Sauce.init()
 
-    if Conf['Quote Backlinks']
-      QuoteBacklink.init()
+      if Conf['Reveal Spoilers']
+        RevealSpoilers.init()
 
-    if Conf['Indicate OP quote']
-      QuoteOP.init()
+      if Conf['Image Auto-Gif']
+        AutoGif.init()
 
-    if Conf['Indicate Cross-thread Quotes']
-      QuoteCT.init()
+      if Conf['Png Thumbnail Fix']
+        PngFix.init()
 
-    if Conf['Color user IDs']
-      IDColor.init()
+      if Conf['Image Hover']
+        ImageHover.init()
+
+      if Conf['Menu']
+        Menu.init()
+
+        if Conf['Report Link']
+          ReportLink.init()
+
+        if Conf['Delete Link']
+          DeleteLink.init()
+
+        if Conf['Filter']
+          Filter.menuInit()
+
+        if Conf['Download Link']
+          DownloadLink.init()
+
+        if Conf['Archive Link']
+          ArchiveLink.init()
+
+        if Conf['Embed Link']
+          EmbedLink.init()
+
+      if Conf['Resurrect Quotes']
+        Quotify.init()
+
+      if Conf['Quote Inline']
+        QuoteInline.init()
+
+      if Conf['Quote Preview']
+        QuotePreview.init()
+
+      if Conf['Quote Backlinks']
+        QuoteBacklink.init()
+
+      if Conf['Indicate OP quote']
+        QuoteOP.init()
+
+      if Conf['Indicate Cross-thread Quotes']
+        QuoteCT.init()
+
+      if Conf['Color user IDs']
+        IDColor.init()
 
     $.ready Main.ready
 
@@ -5019,6 +5029,7 @@ Main =
       if a = $ "a[href$='/#{g.BOARD}/']", $.id nav
         # Gotta make it work in temporary boards.
         $.addClass a, 'current'
+    return CatalogLinks.init() if g.CATALOG and Conf['Catalog Links']
     Favicon.init()
 
     # Major features.
