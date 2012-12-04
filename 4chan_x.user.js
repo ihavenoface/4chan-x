@@ -5991,7 +5991,6 @@
     init: function() {
       var el;
       el = $.el('span', {
-        textContent: 'Catalog On',
         innerHTML: "[<a id=toggleCatalog>Catalog On</a>]"
       });
       $.on(el.firstElementChild, 'click', this.toggle);
