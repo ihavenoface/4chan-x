@@ -4774,7 +4774,6 @@
               el: function() {
                 var node;
                 node = this.previousElementSibling;
-                $.log(node);
                 $.ajax("" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + node.href, {
                   node: node,
                   onloadend: function() {

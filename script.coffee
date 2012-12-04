@@ -3887,7 +3887,6 @@ Quotify =
             regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
             el: ->
               node = @previousElementSibling
-              $.log node
               $.ajax(
                 "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}"
                 node: node
@@ -4945,7 +4944,6 @@ Main =
 
         $.set "hiddenThreads/#{g.BOARD}/", hiddenThreads
         $.set "hiddenReplies/#{g.BOARD}/", g.hiddenReplies
-      #$.log Conf['Catalog Links']
 
       #major features
       if Conf['Filter']
