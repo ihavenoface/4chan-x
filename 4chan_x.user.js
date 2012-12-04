@@ -5989,7 +5989,7 @@
     init: function() {
       var el;
       el = $.el('span', {
-        innerHTML: "[<a id=toggleCatalog title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
+        innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
       });
       $.on(el.firstElementChild, 'click', this.toggle);
       $.add($.id('boardNavDesktop'), el);
@@ -6002,7 +6002,7 @@
       a = $.id('boardNavDesktop').firstElementChild;
       while (a.href && (split = a.href.split('/'))) {
         if (!/^rs|status/.test(split[2])) {
-          if (split[4]) {
+          if (split[4] === 'catalog') {
             a.href = a.href.replace(/catalog$/, '');
             a.title = a.title.replace(/\ -\ Catalog$/, '');
           } else {

@@ -4823,7 +4823,7 @@ CatalogLinks =
   init: ->
     el = $.el 'span',
       innerHTML:
-        "[<a id=toggleCatalog title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
+        "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
     $.on el.firstElementChild, 'click', @toggle
     $.add $.id('boardNavDesktop'), el
     if $.get 'CatalogIsToggled'
@@ -4833,7 +4833,7 @@ CatalogLinks =
     a = $.id('boardNavDesktop').firstElementChild
     while a.href and split = a.href.split '/'
       unless /^rs|status/.test split[2]
-        if split[4]
+        if split[4] is 'catalog'
           a.href  = a.href.replace  /catalog$/, ''
           a.title = a.title.replace /\ -\ Catalog$/, ''
         else
