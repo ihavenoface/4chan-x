@@ -6005,10 +6005,10 @@
           if (split[4] === 'catalog') {
             a.href = a.href.replace(/catalog$/, '');
             a.title = a.title.replace(/\ -\ Catalog$/, '');
-            continue;
+          } else {
+            a.href += 'catalog';
+            a.title += ' - Catalog';
           }
-          a.href += 'catalog';
-          a.title += ' - Catalog';
         }
         a = a.nextElementSibling;
       }
