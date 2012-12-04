@@ -1505,8 +1505,6 @@ BanChecker =
       $.on text, 'click', ->
         $.delete 'lastBanCheck' unless Conf['Check for Bans constantly']
         $.delete 'isBanned'
-        delete @parentNode.firstChild.href
-        delete @parentNode.lastChild.href
         @parentNode.style.opacity = '.5'
         BanChecker.load()
     return if h2 = $ 'h2'
