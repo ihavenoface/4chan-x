@@ -6008,7 +6008,7 @@
       }
     },
     toggle: function() {
-      var a, nav, split, _i, _len, _ref;
+      var a, cl, control, nav, split, _i, _j, _len, _len1, _ref, _ref1;
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         nav = _ref[_i];
@@ -6026,14 +6026,19 @@
           a = a.nextElementSibling;
         }
       }
-      if (/On$/.test(this.textContent)) {
-        this.textContent = 'Catalog Off';
-        this.title = 'Turn Catalog Links off.';
-        return $.set('CatalogIsToggled', true);
+      _ref1 = ['toggleCatalog', 'toggleCatalogFoot'];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        control = _ref1[_j];
+        if (/On$/.test((cl = $.id(control)).textContent)) {
+          cl.textContent = 'Catalog Off';
+          cl.title = 'Turn Catalog Links off.';
+          $.set('CatalogIsToggled', true);
+        } else {
+          cl.textContent = 'Catalog On';
+          cl.title = 'Turn Catalog Links on.';
+          $["delete"]('CatalogIsToggled');
+        }
       }
-      this.textContent = 'Catalog On';
-      this.title = 'Turn Catalog Links on.';
-      return $["delete"]('CatalogIsToggled');
     }
   };
 
