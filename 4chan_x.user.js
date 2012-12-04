@@ -6008,7 +6008,7 @@
       }
     },
     toggle: function() {
-      var a, cl, control, nav, split, _i, _j, _len, _len1, _ref, _ref1;
+      var a, el, nav, split, _i, _len, _ref;
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         nav = _ref[_i];
@@ -6025,17 +6025,13 @@
           }
           a = a.nextElementSibling;
         }
-      }
-      _ref1 = ['toggleCatalog', 'toggleCatalogFoot'];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        control = _ref1[_j];
-        if (/On$/.test((cl = $.id(control)).textContent)) {
-          cl.textContent = 'Catalog Off';
-          cl.title = 'Turn Catalog Links off.';
+        if (/On$/.test((el = a.parentNode.lastChild.firstElementChild).textContent)) {
+          el.textContent = 'Catalog Off';
+          el.title = 'Turn Catalog Links off.';
           $.set('CatalogIsToggled', true);
         } else {
-          cl.textContent = 'Catalog On';
-          cl.title = 'Turn Catalog Links on.';
+          el.textContent = 'Catalog On';
+          el.title = 'Turn Catalog Links on.';
           $["delete"]('CatalogIsToggled');
         }
       }

@@ -4851,14 +4851,13 @@ CatalogLinks =
             a.title += ' - Catalog'
         a = a.nextElementSibling
 
-    for control in ['toggleCatalog', 'toggleCatalogFoot']
-      if /On$/.test (cl = $.id control).textContent
-        cl.textContent = 'Catalog Off'
-        cl.title =       'Turn Catalog Links off.'
+      if /On$/.test (el = a.parentNode.lastChild.firstElementChild).textContent
+        el.textContent = 'Catalog Off'
+        el.title =       'Turn Catalog Links off.'
         $.set 'CatalogIsToggled', true
       else
-        cl.textContent =  'Catalog On'
-        cl.title =        'Turn Catalog Links on.'
+        el.textContent =  'Catalog On'
+        el.title =        'Turn Catalog Links on.'
         $.delete 'CatalogIsToggled'
     return
 
