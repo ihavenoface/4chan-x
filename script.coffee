@@ -4823,12 +4823,11 @@ CatalogLinks =
   init: ->
     el = $.el 'span',
       innerHTML:
-        unless g.CATALOG
-          "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]"
-        else
-          "[<a id=toggleCatalog title='Toggle Catalog Links off.'>Catalog Off</a>]"
+        "[<a id=toggleCatalog title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
     $.on el.firstElementChild, 'click', @toggle
     $.add $.id('boardNavDesktop'), el
+    if $.get 'CatalogIsToggled'
+      @toggle.call el.firstElementChild
 
   toggle: ->
     a = $.id('boardNavDesktop').firstElementChild
@@ -4844,9 +4843,11 @@ CatalogLinks =
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
       @title =       'Turn Catalog Links off.'
+      $.set 'CatalogIsToggled', true
       return
     @textContent =   'Catalog On'
     @title =         'Turn Catalog Links on.'
+    $.delete 'CatalogIsToggled'
 
 Main =
   init: ->
