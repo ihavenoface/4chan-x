@@ -4826,7 +4826,7 @@ CatalogLinks =
         unless g.CATALOG
           "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]"
         else
-          "[<a id=toggleCatalog>Catalog Off</a>]"
+          "[<a id=toggleCatalog title='Toggle Catalog Links off.'>Catalog Off</a>]"
     $.on el.firstElementChild, 'click', @toggle
     $.add $.id('boardNavDesktop'), el
 
@@ -4843,10 +4843,10 @@ CatalogLinks =
       a = a.nextElementSibling
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
-      @title =       'Turn Catalog Links off.' unless g.CATALOG
+      @title =       'Turn Catalog Links off.'
       return
     @textContent =   'Catalog On'
-    @title =         'Turn Catalog Links on.'  unless g.CATALOG
+    @title =         'Turn Catalog Links on.'
 
 Main =
   init: ->

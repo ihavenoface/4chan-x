@@ -5989,7 +5989,7 @@
     init: function() {
       var el;
       el = $.el('span', {
-        innerHTML: !g.CATALOG ? "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]" : "[<a id=toggleCatalog>Catalog Off</a>]"
+        innerHTML: !g.CATALOG ? "[<a id=toggleCatalog title='Toggle Catalog Links on.'>Catalog On</a>]" : "[<a id=toggleCatalog title='Toggle Catalog Links off.'>Catalog Off</a>]"
       });
       $.on(el.firstElementChild, 'click', this.toggle);
       return $.add($.id('boardNavDesktop'), el);
@@ -6011,15 +6011,11 @@
       }
       if (/On$/.test(this.textContent)) {
         this.textContent = 'Catalog Off';
-        if (!g.CATALOG) {
-          this.title = 'Turn Catalog Links off.';
-        }
+        this.title = 'Turn Catalog Links off.';
         return;
       }
       this.textContent = 'Catalog On';
-      if (!g.CATALOG) {
-        return this.title = 'Turn Catalog Links on.';
-      }
+      return this.title = 'Turn Catalog Links on.';
     }
   };
 
