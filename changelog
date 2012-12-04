@@ -1,5 +1,11 @@
 master
 
+2.37.0
+- noface
+  Exclude 4chan x from executing on catalogs.
+  Added Link Title for Youtube links.
+  Added Ban Checker.
+
 2.36.9
 - noface
   Improved Linkifier to be much lighter.
