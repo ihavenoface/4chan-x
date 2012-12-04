@@ -6015,8 +6015,7 @@
       if (/On$/.test(this.textContent)) {
         this.textContent = 'Catalog Off';
         this.title = 'Turn Catalog Links off.';
-        $.set('CatalogIsToggled', true);
-        return;
+        return $.set('CatalogIsToggled', true);
       }
       this.textContent = 'Catalog On';
       this.title = 'Turn Catalog Links on.';

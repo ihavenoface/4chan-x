@@ -4843,8 +4843,7 @@ CatalogLinks =
     if /On$/.test @textContent
       @textContent = 'Catalog Off'
       @title =       'Turn Catalog Links off.'
-      $.set 'CatalogIsToggled', true
-      return
+      return $.set 'CatalogIsToggled', true
     @textContent =   'Catalog On'
     @title =         'Turn Catalog Links on.'
     $.delete 'CatalogIsToggled'
