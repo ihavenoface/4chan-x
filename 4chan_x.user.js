@@ -83,12 +83,13 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, BanChecker, Build, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, AutoGif, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
       Enhancing: {
         'Disable 4chan\'s extension': [true, 'Avoid conflicts between 4chan X and 4chan\'s inline extension.'],
+        'Catalog Links': [true, 'Turn Navigation links into links to each board\'s catalog.'],
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
@@ -5986,6 +5987,35 @@
     }
   };
 
+  CatalogLinks = {
+    init: function() {
+      var el;
+      el = $.el('span', {
+        textContent: 'Catalog On',
+        innerHTML: "[<a id=toggleCatalog>Catalog On</a>]"
+      });
+      $.on(el.firstElementChild, 'click', this.toggle);
+      return $.add($.id('boardNavDesktop'), el);
+    },
+    toggle: function() {
+      var a, split;
+      a = $.id('boardNavDesktop').firstElementChild;
+      while (a.href && (split = a.href.split('/'))) {
+        if (!/^rs|status/.test(split[2])) {
+          if (split[4]) {
+            a.href = a.href.replace(/catalog$/, '');
+            a.title = a.title.replace(/\ -\ Catalog$/, '');
+          } else {
+            a.href += 'catalog';
+            a.title += ' - Catalog';
+          }
+        }
+        a = a.nextElementSibling;
+      }
+      return this.textContent = /Off$/.test(this.textContent) ? 'Catalog On' : 'Catalog Off';
+    }
+  };
+
   Main = {
     init: function() {
       var cutoff, hiddenThreads, id, key, now, path, pathname, settings, temp, timestamp, val, _ref;
@@ -6190,6 +6220,9 @@
       }
       if (Conf['Image Expansion']) {
         ImageExpand.init();
+      }
+      if (Conf['Catalog Links']) {
+        CatalogLinks.init();
       }
       if (Conf['Thread Watcher']) {
         setTimeout(function() {

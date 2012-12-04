@@ -2,6 +2,7 @@ Config =
   main:
     Enhancing:
       'Disable 4chan\'s extension':   [true,  'Avoid conflicts between 4chan X and 4chan\'s inline extension.']
+      'Catalog Links':                [true,  'Turn Navigation links into links to each board\'s catalog.']
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
@@ -4818,6 +4819,31 @@ ImageExpand =
   resize: ->
     ImageExpand.style.textContent = ".fitheight img[data-md5] + img {max-height:#{d.documentElement.clientHeight}px;}"
 
+CatalogLinks =
+  init: ->
+    el = $.el 'span',
+      textContent: 'Catalog On'
+      innerHTML: "[<a id=toggleCatalog>Catalog On</a>]"
+    $.on el.firstElementChild, 'click', @toggle
+    $.add $.id('boardNavDesktop'), el
+
+  toggle: ->
+    a = $.id('boardNavDesktop').firstElementChild
+    while a.href and split = a.href.split '/'
+      unless /^rs|status/.test split[2]
+        if split[4]
+          a.href  = a.href.replace  /catalog$/, ''
+          a.title = a.title.replace /\ -\ Catalog$/, ''
+        else
+          a.href  += 'catalog'
+          a.title += ' - Catalog'
+      a = a.nextElementSibling
+    @textContent =
+      if /Off$/.test @textContent
+        'Catalog On'
+      else
+        'Catalog Off'
+
 Main =
   init: ->
     Main.flatten null, Config
@@ -5001,6 +5027,9 @@ Main =
 
     if Conf['Image Expansion']
       ImageExpand.init()
+
+    if Conf['Catalog Links']
+      CatalogLinks.init()
 
     if Conf['Thread Watcher']
       setTimeout -> Watcher.init()
