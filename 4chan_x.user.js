@@ -5987,13 +5987,13 @@
 
   CatalogLinks = {
     init: function() {
-      var el;
+      var el, toggled;
       el = $.el('span', {
         innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
       });
       $.on(el.firstElementChild, 'click', this.toggle);
       $.add($.id('boardNavDesktop'), el);
-      if ($.get('CatalogIsToggled')) {
+      if ((toggled = $.get('CatalogIsToggled')) && !g.CATALOG || g.CATALOG && !toggled) {
         return this.toggle.call(el.firstElementChild);
       }
     },

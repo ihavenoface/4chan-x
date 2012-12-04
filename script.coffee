@@ -4826,7 +4826,7 @@ CatalogLinks =
         "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
     $.on el.firstElementChild, 'click', @toggle
     $.add $.id('boardNavDesktop'), el
-    if $.get 'CatalogIsToggled'
+    if (toggled = $.get 'CatalogIsToggled') and not g.CATALOG or g.CATALOG and !toggled
       @toggle.call el.firstElementChild
 
   toggle: ->
