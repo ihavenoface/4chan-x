@@ -5994,17 +5994,17 @@
       }
     },
     toggle: function() {
-      var a, el, nav, split, _i, _len, _ref;
+      var a, el, isDead, nav, split, _i, _len, _ref;
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         nav = _ref[_i];
         a = $.id(nav).firstElementChild;
         while (a.href && (split = a.href.split('/'))) {
-          if (!((split[3] === 'f') || /^rs|status/.test(split[2]))) {
-            if (split[4] === 'catalog') {
+          if (!/^rs|status/.test(split[2])) {
+            if ((isDead = split[3] === 'f') && g.CATALOG || split[4] === 'catalog') {
               a.href = a.href.replace(/catalog$/, '');
               a.title = a.title.replace(/\ -\ Catalog$/, '');
-            } else {
+            } else if (!isDead) {
               a.href += 'catalog';
               a.title += ' - Catalog';
             }

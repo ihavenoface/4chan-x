@@ -4848,11 +4848,11 @@ CatalogLinks =
     for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
       a = $.id(nav).firstElementChild
       while a.href and split = a.href.split '/'
-        unless (split[3] is 'f') or /^rs|status/.test split[2]
-          if split[4] is 'catalog'
+        unless /^rs|status/.test split[2]
+          if (isDead = split[3] is 'f') and g.CATALOG or split[4] is 'catalog'
             a.href  = a.href.replace  /catalog$/, ''
             a.title = a.title.replace /\ -\ Catalog$/, ''
-          else
+          else if not isDead
             a.href  += 'catalog'
             a.title += ' - Catalog'
         a = a.nextElementSibling
