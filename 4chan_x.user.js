@@ -5967,7 +5967,7 @@
 
   CatalogLinks = {
     init: function() {
-      var controls, i, nav, toggled, _i, _len, _ref;
+      var controls, i, nav, _i, _len, _ref;
       controls = [
         $.el('span', {
           innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
@@ -5981,7 +5981,15 @@
         $.on(controls[i].firstElementChild, 'click', this.toggle);
         $.add($.id(nav), controls[i]);
       }
-      if ((toggled = $.get('CatalogIsToggled')) && !g.CATALOG || g.CATALOG && !toggled) {
+      if ($.get('CatalogIsToggled')) {
+        i = g.CATALOG ? 0 : 1;
+        while (i < 2) {
+          this.toggle();
+          i++;
+        }
+        return;
+      }
+      if (g.CATALOG) {
         return this.toggle();
       }
     },

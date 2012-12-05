@@ -4836,8 +4836,13 @@ CatalogLinks =
       $.on controls[i].firstElementChild, 'click', @toggle
       $.add $.id(nav), controls[i]
 
-    if (toggled = $.get 'CatalogIsToggled') and !g.CATALOG or g.CATALOG and !toggled
-      @toggle()
+    if $.get 'CatalogIsToggled'
+      i = if g.CATALOG then 0 else 1
+      while i < 2
+        @toggle()
+        i++
+      return
+    @toggle() if g.CATALOG
 
   toggle: ->
     for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
