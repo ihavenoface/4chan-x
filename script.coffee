@@ -4696,7 +4696,6 @@ Prefetch =
     if /gif|png$/.test(el.src) and !/spoiler/.test img.src
       $.on el, 'load', ->
         img.src = el.src
-      img.src = el.src
 
 ImageExpand =
   init: ->

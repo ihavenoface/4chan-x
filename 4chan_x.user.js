@@ -5771,10 +5771,9 @@
         src: img.parentNode.href
       });
       if (/gif|png$/.test(el.src) && !/spoiler/.test(img.src)) {
-        $.on(el, 'load', function() {
+        return $.on(el, 'load', function() {
           return img.src = el.src;
         });
-        return img.src = el.src;
       }
     }
   };
