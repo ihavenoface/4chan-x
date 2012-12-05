@@ -5982,7 +5982,7 @@
         $.add($.id(nav), controls[i]);
       }
       if ((toggled = $.get('CatalogIsToggled')) && !g.CATALOG || g.CATALOG && !toggled) {
-        return this.toggle.call(controls[0].firstElementChild);
+        return this.toggle();
       }
     },
     toggle: function() {
@@ -5992,7 +5992,7 @@
         nav = _ref[_i];
         a = $.id(nav).firstElementChild;
         while (a.href && (split = a.href.split('/'))) {
-          if (!/^rs|status/.test(split[2])) {
+          if (!((split[3] === 'f') || /^rs|status/.test(split[2]))) {
             if (split[4] === 'catalog') {
               a.href = a.href.replace(/catalog$/, '');
               a.title = a.title.replace(/\ -\ Catalog$/, '');

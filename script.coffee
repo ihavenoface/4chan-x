@@ -4836,14 +4836,14 @@ CatalogLinks =
       $.on controls[i].firstElementChild, 'click', @toggle
       $.add $.id(nav), controls[i]
 
-    if (toggled = $.get 'CatalogIsToggled') and not g.CATALOG or g.CATALOG and !toggled
-      @toggle.call controls[0].firstElementChild
+    if (toggled = $.get 'CatalogIsToggled') and !g.CATALOG or g.CATALOG and !toggled
+      @toggle()
 
   toggle: ->
     for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
       a = $.id(nav).firstElementChild
       while a.href and split = a.href.split '/'
-        unless /^rs|status/.test split[2]
+        unless (split[3] is 'f') or /^rs|status/.test split[2]
           if split[4] is 'catalog'
             a.href  = a.href.replace  /catalog$/, ''
             a.title = a.title.replace /\ -\ Catalog$/, ''
