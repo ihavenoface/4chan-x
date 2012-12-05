@@ -161,6 +161,7 @@ http://www.google.com/searchbyimage?image_url=$1
     sageru:          ['alt+n',  'Sage keybind']
     submit:          ['alt+s',  'Submit post']
     hideQR:          ['alt+h',  'Toggle hide status of QR']
+    toggleCatalog:   ['alt+n',  'Toggle links in nav bar']
     # Thread related
     watch:           ['w',      'Watch thread']
     update:          ['u',      'Update now']
@@ -1260,6 +1261,8 @@ Keybinds =
         unless ($ '#autohide', QR.el).checked
           QR.hide()
         else QR.unhide()
+      when Conf.toggleCatalog
+        CatalogLinks.toggle()
       when Conf.spoiler
         return unless ($ '[name=spoiler]') and target.nodeName is 'TEXTAREA'
         Keybinds.tags 'spoiler', target

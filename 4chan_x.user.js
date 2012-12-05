@@ -203,6 +203,7 @@
       sageru: ['alt+n', 'Sage keybind'],
       submit: ['alt+s', 'Submit post'],
       hideQR: ['alt+h', 'Toggle hide status of QR'],
+      toggleCatalog: ['alt+n', 'Toggle links in nav bar'],
       watch: ['w', 'Watch thread'],
       update: ['u', 'Update now'],
       unreadCountTo0: ['z', 'Reset unread status'],
@@ -1565,6 +1566,9 @@
           } else {
             QR.unhide();
           }
+          break;
+        case Conf.toggleCatalog:
+          CatalogLinks.toggle();
           break;
         case Conf.spoiler:
           if (!(($('[name=spoiler]')) && target.nodeName === 'TEXTAREA')) {
