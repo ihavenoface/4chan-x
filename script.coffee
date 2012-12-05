@@ -4823,12 +4823,12 @@ CatalogLinks =
   init: ->
     el = $.el 'span',
       innerHTML:
-        "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
+        "[<a href=javascript:; title='Toggle Catalog Links #{unless g.CATALOG then 'on.' else 'off.'}'>Catalog #{unless g.CATALOG then 'On' else 'Off'}</a>]"
+      id: 'toggleCatalog'
     for nav in ['boardNavDesktop', 'boardNavDesktopFoot']
       $.on el.firstElementChild, 'click', @toggle
       $.add $.id(nav), el
-      el = $.el 'span', innerHTML: el.innerHTML
-      el.firstElementChild.id += 'Foot'
+      el = $.el 'span', innerHTML: el.innerHTML, id: 'toggleCatalogFoot'
 
     if $.get 'CatalogIsToggled'
       i = if g.CATALOG then 0 else 1

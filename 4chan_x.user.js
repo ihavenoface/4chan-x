@@ -5969,7 +5969,8 @@
     init: function() {
       var el, i, nav, _i, _len, _ref;
       el = $.el('span', {
-        innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
+        innerHTML: "[<a href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]",
+        id: 'toggleCatalog'
       });
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -5977,9 +5978,9 @@
         $.on(el.firstElementChild, 'click', this.toggle);
         $.add($.id(nav), el);
         el = $.el('span', {
-          innerHTML: el.innerHTML
+          innerHTML: el.innerHTML,
+          id: 'toggleCatalogFoot'
         });
-        el.firstElementChild.id += 'Foot';
       }
       if ($.get('CatalogIsToggled')) {
         i = g.CATALOG ? 0 : 1;
