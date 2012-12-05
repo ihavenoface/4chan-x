@@ -35,6 +35,7 @@ Config =
       'Don\'t Expand Spoilers':       [true,  'Don\'t expand spoilers when using ImageExpand.']
       'Expand From Current':          [false, 'Expand images from current position to thread end.']
       'Prefetch':                     [false, 'Prefetch images.']
+      'Replace Original':             [false, 'Replace original thumbnail with the prefetched one. \'Png Thumbnail Fix\' and \'Image Auto-Gif\' should be disabled.']
     Menu:
       'Menu':                         [true,  'Add a drop-down menu in posts.']
       'Report Link':                  [true,  'Add a report link to the menu.']
@@ -4700,6 +4701,7 @@ Prefetch =
     for thumb in $$ 'a.fileThumb'
       img = $.el 'img',
         src: thumb.href
+      thumb.firstChild.src = thumb.href if Conf['Replace Original']
     Main.callbacks.push Prefetch.node
 
   node: (post) ->
