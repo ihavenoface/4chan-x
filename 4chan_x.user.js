@@ -6229,10 +6229,15 @@
           $.addClass(a, 'current');
         }
       }
+      Favicon.init();
       if (g.CATALOG && Conf['Catalog Links']) {
+        if (Conf['Keybinds']) {
+          setTimeout(function() {
+            return Keybinds.init();
+          });
+        }
         return CatalogLinks.init();
       }
-      Favicon.init();
       if (Conf['Quick Reply']) {
         QR.init();
       }

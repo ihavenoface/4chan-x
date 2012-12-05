@@ -5041,8 +5041,12 @@ Main =
       if a = $ "a[href$='/#{g.BOARD}/']", $.id nav
         # Gotta make it work in temporary boards.
         $.addClass a, 'current'
-    return CatalogLinks.init() if g.CATALOG and Conf['Catalog Links']
     Favicon.init()
+
+    if g.CATALOG and Conf['Catalog Links']
+      if Conf['Keybinds']
+        setTimeout -> Keybinds.init()
+      return CatalogLinks.init()
 
     # Major features.
     if Conf['Quick Reply']
