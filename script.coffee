@@ -3878,15 +3878,18 @@ Quotify =
                 src:  "#{Quotify.prot}//player.vimeo.com/video/#{@name}"
             title: ->
               node = @
-              $.ajax(
-                "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{name = @nextElementSibling.name}"
-                node: node
-                onloadend: ->
-                  if @status is 200 or 304
-                    titles = $.get 'CachedTitles', {}
-                    node.textContent = titles['vimeo'][name] = JSON.parse(@responseText).title
-                    $.set 'CachedTitles', titles
-              )
+              try
+                $.ajax(
+                  "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{name = @nextElementSibling.name}"
+                  node: node
+                  onloadend: ->
+                    if @status is 200 or 304
+                      titles = $.get 'CachedTitles', {}
+                      node.textContent = titles['vimeo'][name] = JSON.parse(@responseText).title
+                      $.set 'CachedTitles', titles
+                )
+              catch err
+                $.log 'Oh my. Please stop blocking Vimeo with NoScript if you want Vimeo Link Title to work.'
           liveleak:
             regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
             style:

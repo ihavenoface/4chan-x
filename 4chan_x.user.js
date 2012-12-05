@@ -4740,17 +4740,21 @@
               title: function() {
                 var name, node;
                 node = this;
-                return $.ajax("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + (name = this.nextElementSibling.name), {
-                  node: node,
-                  onloadend: function() {
-                    var titles;
-                    if (this.status === 200 || 304) {
-                      titles = $.get('CachedTitles', {});
-                      node.textContent = titles['vimeo'][name] = JSON.parse(this.responseText).title;
-                      return $.set('CachedTitles', titles);
+                try {
+                  return $.ajax("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + (name = this.nextElementSibling.name), {
+                    node: node,
+                    onloadend: function() {
+                      var titles;
+                      if (this.status === 200 || 304) {
+                        titles = $.get('CachedTitles', {});
+                        node.textContent = titles['vimeo'][name] = JSON.parse(this.responseText).title;
+                        return $.set('CachedTitles', titles);
+                      }
                     }
-                  }
-                });
+                  });
+                } catch (err) {
+                  return $.log('Oh my. Please stop blocking Vimeo with NoScript if you want Vimeo Link Title to work.');
+                }
               }
             },
             liveleak: {
