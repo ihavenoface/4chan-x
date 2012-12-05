@@ -26,8 +26,6 @@ Config =
       'Thread Hiding':                [true,  'Hide entire threads']
       'Show Stubs':                   [true,  'Of hidden threads / replies']
     Imaging:
-      'Image Auto-Gif':               [false, 'Animate gif thumbnails']
-      'Png Thumbnail Fix':            [false, 'Fixes transparent png thumbnails']
       'Image Expansion':              [true,  'Expand images']
       'Image Hover':                  [false, 'Show full image on mouseover']
       'Sauce':                        [true,  'Add sauce to images']
@@ -35,7 +33,7 @@ Config =
       'Don\'t Expand Spoilers':       [true,  'Don\'t expand spoilers when using ImageExpand.']
       'Expand From Current':          [false, 'Expand images from current position to thread end.']
       'Prefetch':                     [false, 'Prefetch images.']
-      'Replace Original':             [false, 'Replace original thumbnail with the prefetched one. \'Png Thumbnail Fix\' and \'Image Auto-Gif\' should be disabled.']
+      'Replace Original':             [false, 'Replace original thumbnail with the prefetched one.']
     Menu:
       'Menu':                         [true,  'Add a drop-down menu in posts.']
       'Report Link':                  [true,  'Add a report link to the menu.']
@@ -4664,20 +4662,6 @@ ImageHover =
     $.off @, 'mousemove', UI.hover
     $.off @, 'mouseout',  ImageHover.mouseout
 
-AutoGif =
-  init: ->
-    Main.callbacks.push @node
-  node: (post) ->
-    {img} = post
-    return if post.el.hidden or not img
-    src = img.parentNode.href
-    if /gif$/.test(src) and !/spoiler/.test img.src
-      gif = $.el 'img'
-      $.on gif, 'load', ->
-        # Replace the thumbnail once the GIF has finished loading.
-        img.src = src
-      gif.src = src
-
 Prefetch =
   init: ->
     return if g.BOARD is 'f'
@@ -4706,22 +4690,13 @@ Prefetch =
 
   node: (post) ->
     {img} = post
-    return unless img
-    $.el 'img',
-      src: img.parentNode.href
-
-PngFix =
-  init: ->
-    Main.callbacks.push @node
-  node: (post) ->
-    {img} = post
     return if post.el.hidden or not img
-    src = img.parentNode.href
-    if /png$/.test(src) and !/spoiler/.test img.src
-      png = $.el 'img'
-      $.on png, 'load', ->
-        img.src = src
-      png.src = src
+    el = $.el 'img',
+      src: img.parentNode.href
+    if /gif|png$/.test(el.src) and !/spoiler/.test img.src
+      $.on el, 'load', ->
+        img.src = el.src
+      img.src = el.src
 
 ImageExpand =
   init: ->
@@ -4997,12 +4972,6 @@ Main =
 
       if Conf['Reveal Spoilers']
         RevealSpoilers.init()
-
-      if Conf['Image Auto-Gif']
-        AutoGif.init()
-
-      if Conf['Png Thumbnail Fix']
-        PngFix.init()
 
       if Conf['Image Hover']
         ImageHover.init()

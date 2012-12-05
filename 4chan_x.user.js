@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGif, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, PngFix, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -114,8 +114,6 @@
         'Show Stubs': [true, 'Of hidden threads / replies']
       },
       Imaging: {
-        'Image Auto-Gif': [false, 'Animate gif thumbnails'],
-        'Png Thumbnail Fix': [false, 'Fixes transparent png thumbnails'],
         'Image Expansion': [true, 'Expand images'],
         'Image Hover': [false, 'Show full image on mouseover'],
         'Sauce': [true, 'Add sauce to images'],
@@ -123,7 +121,7 @@
         'Don\'t Expand Spoilers': [true, 'Don\'t expand spoilers when using ImageExpand.'],
         'Expand From Current': [false, 'Expand images from current position to thread end.'],
         'Prefetch': [false, 'Prefetch images.'],
-        'Replace Original': [false, 'Replace original thumbnail with the prefetched one. \'Png Thumbnail Fix\' and \'Image Auto-Gif\' should be disabled.']
+        'Replace Original': [false, 'Replace original thumbnail with the prefetched one.']
       },
       Menu: {
         'Menu': [true, 'Add a drop-down menu in posts.'],
@@ -5726,27 +5724,6 @@
     }
   };
 
-  AutoGif = {
-    init: function() {
-      return Main.callbacks.push(this.node);
-    },
-    node: function(post) {
-      var gif, img, src;
-      img = post.img;
-      if (post.el.hidden || !img) {
-        return;
-      }
-      src = img.parentNode.href;
-      if (/gif$/.test(src) && !/spoiler/.test(img.src)) {
-        gif = $.el('img');
-        $.on(gif, 'load', function() {
-          return img.src = src;
-        });
-        return gif.src = src;
-      }
-    }
-  };
-
   Prefetch = {
     init: function() {
       if (g.BOARD === 'f') {
@@ -5785,34 +5762,19 @@
       return Main.callbacks.push(Prefetch.node);
     },
     node: function(post) {
-      var img;
-      img = post.img;
-      if (!img) {
-        return;
-      }
-      return $.el('img', {
-        src: img.parentNode.href
-      });
-    }
-  };
-
-  PngFix = {
-    init: function() {
-      return Main.callbacks.push(this.node);
-    },
-    node: function(post) {
-      var img, png, src;
+      var el, img;
       img = post.img;
       if (post.el.hidden || !img) {
         return;
       }
-      src = img.parentNode.href;
-      if (/png$/.test(src) && !/spoiler/.test(img.src)) {
-        png = $.el('img');
-        $.on(png, 'load', function() {
-          return img.src = src;
+      el = $.el('img', {
+        src: img.parentNode.href
+      });
+      if (/gif|png$/.test(el.src) && !/spoiler/.test(img.src)) {
+        $.on(el, 'load', function() {
+          return img.src = el.src;
         });
-        return png.src = src;
+        return img.src = el.src;
       }
     }
   };
@@ -6178,12 +6140,6 @@
         }
         if (Conf['Reveal Spoilers']) {
           RevealSpoilers.init();
-        }
-        if (Conf['Image Auto-Gif']) {
-          AutoGif.init();
-        }
-        if (Conf['Png Thumbnail Fix']) {
-          PngFix.init();
         }
         if (Conf['Image Hover']) {
           ImageHover.init();
