@@ -3874,6 +3874,26 @@ Quotify =
             el: ->
               $.el 'iframe'
                 src:  "#{Quotify.prot}//player.vimeo.com/video/#{@name}"
+            title: ->
+              node = @
+              $.ajax(
+                "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{name = @nextElementSibling.name}"
+                node: node
+                onloadend: ->
+                  if @status is 200 or 304
+                    titles = $.get 'CachedTitles', {}
+                    node.textContent = titles['vimeo'][name] = JSON.parse(@responseText).title
+                    $.set 'CachedTitles', titles
+              )
+          liveleak:
+            regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
+            style:
+              boder:  '0'
+              width:  '640px'
+              height: '390px'
+            el: ->
+              $.el 'iframe'
+                src: "http://www.liveleak.com/e/#{@name}?autostart=true"
           vocaroo:
             regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
             style:
@@ -5698,6 +5718,10 @@ div.opContainer {
 .eyoutube:before {
   margin-right: 2px;
   content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=");
+}
+.evimeo:before {
+  margin-right: 2px;
+  content: url("data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==");
 }
 '
 
