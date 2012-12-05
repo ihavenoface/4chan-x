@@ -600,29 +600,13 @@
       };
       for (tag in tag_patterns) {
         pattern = tag_patterns[tag];
-        if (text == null) {
-          text = '\u0020';
-        } else {
-          text = text.replace(pattern, Markdown.unicode_convert);
-        }
+        text = text ? text.replace(pattern, Markdown.unicode_convert) : '\u0020';
       }
       return text;
     },
     unicode_convert: function(str, tag, inner) {
       var c, charcode, charcodes, codepoints, codes, fmt, i, unicode_text;
-      if (tag === "_" || tag === "*") {
-        fmt = "i";
-      } else if (tag === "__" || tag === "**") {
-        fmt = "b";
-      } else if (tag === "***" || tag === "___") {
-        fmt = "bi";
-      } else if (tag === "||") {
-        fmt = "ds";
-      } else {
-        if (tag === "`" || tag === "```") {
-          fmt = "code";
-        }
-      }
+      fmt = tag === '_' || tag === '*' ? 'i' : tag === '__' || tag === '**' ? 'b' : tag === '___' || tag === '***' ? 'bi' : tag === '||' ? 'ds' : tag === '`' || tag === '```' ? 'code' : void 0;
       codepoints = {
         b: [0x1D7CE, 0x1D400, 0x1D41A],
         i: [0x1D7F6, 0x1D434, 0x1D44E],
@@ -649,7 +633,7 @@
           } else if (charcode >= 65 && charcode <= 90) {
             _results.push(charcode - 65 + codepoints[fmt][1]);
           } else if (charcode >= 97 && charcode <= 122) {
-            if (charcode === 104 && tag === "i") {
+            if (charcode === 104 && tag === 'i') {
               _results.push(0x210E);
             } else {
               _results.push(charcode - 97 + codepoints[fmt][2]);
@@ -660,9 +644,9 @@
         }
         return _results;
       })();
-      unicode_text = codes.map(Markdown.ucs2_encode).join("");
-      if (tag === "code") {
-        unicode_text = unicode_text.replace(/\x20/g, "\xA0");
+      unicode_text = codes.map(Markdown.ucs2_encode).join('');
+      if (tag === 'code') {
+        unicode_text = unicode_text.replace(/\x20/g, '\xA0');
       }
       return unicode_text;
     },
@@ -693,14 +677,13 @@
       */
 
       var output;
-      output = "";
+      output = '';
       if (value > 0xFFFF) {
         value -= 0x10000;
         output += String.fromCharCode(value >>> 10 & 0x3FF | 0xD800);
         value = 0xDC00 | value & 0x3FF;
       }
-      output += String.fromCharCode(value);
-      return output;
+      return output += String.fromCharCode(value);
     }
   };
 
