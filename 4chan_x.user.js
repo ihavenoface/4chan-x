@@ -5967,19 +5967,19 @@
 
   CatalogLinks = {
     init: function() {
-      var controls, i, nav, _i, _len, _ref;
-      controls = [
-        $.el('span', {
-          innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
-        }), $.el('span', {
-          innerHTML: "[<a id=toggleCatalogFoot href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
-        })
-      ];
+      var el, i, nav, _i, _len, _ref;
+      el = $.el('span', {
+        innerHTML: "[<a id=toggleCatalog href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]"
+      });
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        nav = _ref[i];
-        $.on(controls[i].firstElementChild, 'click', this.toggle);
-        $.add($.id(nav), controls[i]);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        nav = _ref[_i];
+        $.on(el.firstElementChild, 'click', this.toggle);
+        $.add($.id(nav), el);
+        el = $.el('span', {
+          innerHTML: el.innerHTML
+        });
+        el.firstElementChild.id += 'Foot';
       }
       if ($.get('CatalogIsToggled')) {
         i = g.CATALOG ? 0 : 1;
