@@ -4579,10 +4579,8 @@ Redirect =
       @path aboard.base, aboard.type, data
     else
       if threadID
-        "//boards.4chan.org/#{board}/"
-      else
-        null
-
+        return "//boards.4chan.org/#{board}/"
+      null
 
   path: (base, archiver, data) ->
     if data.isSearch

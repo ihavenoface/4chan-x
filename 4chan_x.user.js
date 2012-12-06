@@ -5621,9 +5621,8 @@
       } else {
         if (threadID) {
           return "//boards.4chan.org/" + board + "/";
-        } else {
-          return null;
         }
+        return null;
       }
     },
     path: function(base, archiver, data) {
