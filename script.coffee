@@ -76,6 +76,8 @@ Config =
       'Indicate OP quote':            [true,  'Add \'(OP)\' to OP quotes']
       'Indicate Cross-thread Quotes': [true,  'Add \'(Cross-thread)\' to cross-threads quotes']
       'Forward Hiding':               [true,  'Hide original posts of inlined backlinks']
+    Catalog:
+      'Catalog Frames':               [false, 'Add 4chans \'frames\' to the catalog.']
   filter:
     name: """
 # Filter any namefags:
@@ -4850,22 +4852,32 @@ CatalogLinks =
       while a.href and split = a.href.split '/'
         unless /^rs|status/.test split[2]
           if (isDead = split[3] is 'f') and g.CATALOG or split[4] is 'catalog'
-            a.href  = a.href.replace  /catalog$/, ''
-            a.title = a.title.replace /\ -\ Catalog$/, ''
+            a.href   = a.href.replace  /catalog$/, ''
+            a.title  = a.title.replace /\ -\ Catalog$/, ''
           else if not isDead
             a.href  += 'catalog'
             a.title += ' - Catalog'
         a = a.nextElementSibling
 
       if /On$/.test (el = a.parentNode.lastChild.firstElementChild).textContent
-        el.textContent = 'Catalog Off'
-        el.title =       'Turn Catalog Links off.'
+        el.textContent  = 'Catalog Off'
+        el.title        = 'Turn Catalog Links off.'
         $.set 'CatalogIsToggled', true
       else
-        el.textContent =  'Catalog On'
-        el.title =        'Turn Catalog Links on.'
+        el.textContent  = 'Catalog On'
+        el.title        = 'Turn Catalog Links on.'
         $.delete 'CatalogIsToggled'
     return
+
+CatalogFrames =
+  init: ->
+    host = $.el 'div',
+      id: 'frames'
+    frame = $.el 'iframe',
+      src: '//www.4chan.org/framesnav'
+    $.add host, frame
+    $.prepend d.body, host
+    $.addStyle Main.catalog_css
 
 Main =
   init: ->
@@ -5043,10 +5055,16 @@ Main =
         $.addClass a, 'current'
     Favicon.init()
 
-    if g.CATALOG and Conf['Catalog Links']
-      if Conf['Keybinds']
-        setTimeout -> Keybinds.init()
-      return CatalogLinks.init()
+    if g.CATALOG
+      if Conf['Catalog Links']
+
+        if Conf['Keybinds']
+          setTimeout -> Keybinds.init()
+
+        if Conf['Catalog Frames']
+          CatalogFrames.init()
+
+        return CatalogLinks.init()
 
     # Major features.
     if Conf['Quick Reply']
@@ -5192,6 +5210,20 @@ Main =
   namespace: '4chan_x.'
   version: '2.37.1'
   callbacks: []
+  catalog_css: '
+body {
+  margin-left: 305px;
+}
+#frames {
+  height: 100%;
+  position: fixed;
+  left: 0px;
+  top: 0px
+}
+#frames iframe {
+  height: 100%;
+  border: 0px;
+}'
   css: '
 /* dialog styling */
 .dialog.reply {
