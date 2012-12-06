@@ -58,7 +58,7 @@
  *
  * CONTRIBUTORS
  *
- * noface - unique ID fixes
+ * noface - bloat
  * desuwa - Firefox filename upload fix
  * seaweed - bottom padding for image hover
  * e000 - cooldown sanity check
