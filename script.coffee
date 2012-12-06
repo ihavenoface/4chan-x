@@ -4520,7 +4520,7 @@ Redirect =
     {
       name:    'RebeccaBlackTech'
       base:    '//rbt.asia'
-      boards:  ['cgl', 'g', 'mu', 'soc', 'w']
+      boards:  ['cgl', 'g', 'mu', 'w']
       type:    'fuuka_mail'
     }
     {
@@ -4575,11 +4575,14 @@ Redirect =
           aboard = archiver
           break
       Redirect.archive[board] = aboard
-    if aboard.base and !(board is 'soc')
-      return @path aboard.base, aboard.type, data
+    return if aboard.base
+      @path aboard.base, aboard.type, data
     else
       if threadID
-        return "//boards.4chan.org/#{board}/"
+        "//boards.4chan.org/#{board}/"
+      else
+        null
+
 
   path: (base, archiver, data) ->
     if data.isSearch
@@ -5044,8 +5047,10 @@ Main =
     Favicon.init()
 
     if g.CATALOG and Conf['Catalog Links']
+
       if Conf['Keybinds']
         setTimeout -> Keybinds.init()
+
       return CatalogLinks.init()
 
     # Major features.

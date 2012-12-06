@@ -5533,7 +5533,7 @@
       }, {
         name: 'RebeccaBlackTech',
         base: '//rbt.asia',
-        boards: ['cgl', 'g', 'mu', 'soc', 'w'],
+        boards: ['cgl', 'g', 'mu', 'w'],
         type: 'fuuka_mail'
       }, {
         name: 'InstallGentoo',
@@ -5616,11 +5616,13 @@
         }
         Redirect.archive[board] = aboard;
       }
-      if (aboard.base && !(board === 'soc')) {
+      if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);
       } else {
         if (threadID) {
           return "//boards.4chan.org/" + board + "/";
+        } else {
+          return null;
         }
       }
     },
