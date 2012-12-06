@@ -76,8 +76,6 @@ Config =
       'Indicate OP quote':            [true,  'Add \'(OP)\' to OP quotes']
       'Indicate Cross-thread Quotes': [true,  'Add \'(Cross-thread)\' to cross-threads quotes']
       'Forward Hiding':               [true,  'Hide original posts of inlined backlinks']
-    Catalog:
-      'Catalog Frames':               [false, 'Add 4chans \'frames\' to the catalog.']
   filter:
     name: """
 # Filter any namefags:
@@ -4869,16 +4867,6 @@ CatalogLinks =
         $.delete 'CatalogIsToggled'
     return
 
-CatalogFrames =
-  init: ->
-    host = $.el 'div',
-      id: 'frames'
-    frame = $.el 'iframe',
-      src: '//www.4chan.org/framesnav'
-    $.add host, frame
-    $.prepend d.body, host
-    $.addStyle Main.catalog_css
-
 Main =
   init: ->
     Main.flatten null, Config
@@ -5055,16 +5043,10 @@ Main =
         $.addClass a, 'current'
     Favicon.init()
 
-    if g.CATALOG
-      if Conf['Catalog Links']
-
-        if Conf['Keybinds']
-          setTimeout -> Keybinds.init()
-
-        if Conf['Catalog Frames']
-          CatalogFrames.init()
-
-        return CatalogLinks.init()
+    if g.CATALOG and Conf['Catalog Links']
+      if Conf['Keybinds']
+        setTimeout -> Keybinds.init()
+      return CatalogLinks.init()
 
     # Major features.
     if Conf['Quick Reply']
@@ -5210,20 +5192,6 @@ Main =
   namespace: '4chan_x.'
   version: '2.37.1'
   callbacks: []
-  catalog_css: '
-body {
-  margin-left: 305px;
-}
-#frames {
-  height: 100%;
-  position: fixed;
-  left: 0px;
-  top: 0px
-}
-#frames iframe {
-  height: 100%;
-  border: 0px;
-}'
   css: '
 /* dialog styling */
 .dialog.reply {

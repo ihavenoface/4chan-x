@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogFrames, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -168,9 +168,6 @@
         'Indicate OP quote': [true, 'Add \'(OP)\' to OP quotes'],
         'Indicate Cross-thread Quotes': [true, 'Add \'(Cross-thread)\' to cross-threads quotes'],
         'Forward Hiding': [true, 'Hide original posts of inlined backlinks']
-      },
-      Catalog: {
-        'Catalog Frames': [false, 'Add 4chans \'frames\' to the catalog.']
       }
     },
     filter: {
@@ -6036,21 +6033,6 @@
     }
   };
 
-  CatalogFrames = {
-    init: function() {
-      var frame, host;
-      host = $.el('div', {
-        id: 'frames'
-      });
-      frame = $.el('iframe', {
-        src: '//www.4chan.org/framesnav'
-      });
-      $.add(host, frame);
-      $.prepend(d.body, host);
-      return $.addStyle(Main.catalog_css);
-    }
-  };
-
   Main = {
     init: function() {
       var cutoff, hiddenThreads, id, key, now, path, pathname, settings, temp, timestamp, val, _ref;
@@ -6248,18 +6230,13 @@
         }
       }
       Favicon.init();
-      if (g.CATALOG) {
-        if (Conf['Catalog Links']) {
-          if (Conf['Keybinds']) {
-            setTimeout(function() {
-              return Keybinds.init();
-            });
-          }
-          if (Conf['Catalog Frames']) {
-            CatalogFrames.init();
-          }
-          return CatalogLinks.init();
+      if (g.CATALOG && Conf['Catalog Links']) {
+        if (Conf['Keybinds']) {
+          setTimeout(function() {
+            return Keybinds.init();
+          });
         }
+        return CatalogLinks.init();
       }
       if (Conf['Quick Reply']) {
         QR.init();
@@ -6459,20 +6436,6 @@
     namespace: '4chan_x.',
     version: '2.37.1',
     callbacks: [],
-    catalog_css: '\
-body {\
-  margin-left: 305px;\
-}\
-#frames {\
-  height: 100%;\
-  position: fixed;\
-  left: 0px;\
-  top: 0px\
-}\
-#frames iframe {\
-  height: 100%;\
-  border: 0px;\
-}',
     css: '\
 /* dialog styling */\
 .dialog.reply {\
