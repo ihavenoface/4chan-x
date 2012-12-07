@@ -4717,7 +4717,8 @@
                   obj.status = this.status;
                   obj.txt = this.responseText;
                 } catch (err) {
-                  $.log("NoScript most likely blocked some site again.");
+                  '';
+
                 }
                 return Quotify.types[info.service].replace(obj, info);
               }
@@ -4750,7 +4751,8 @@
                 theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
                 if (theTitle != null) {
                   titles = $.get('CachedTitles', {});
-                  info.node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
+                  node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
+                  node.className = "e" + service;
                   return $.set('CachedTitles', titles);
                 }
               }
@@ -4781,6 +4783,7 @@
                 if (theTitle != null) {
                   titles = $.get('CachedTitles', {});
                   node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
+                  node.className = "e" + service;
                   return $.set('CachedTitles', titles);
                 }
               }
@@ -4934,13 +4937,13 @@
                 $.after(a, embed);
                 $.after(a, $.tn(' '));
                 if (Conf['Link Title'] && (srv = Quotify.types[key].title)) {
-                  a.className = "e" + key;
                   if (!(titles = $.get('CachedTitles', {}))[key]) {
                     titles[key] = {};
                     $.set('CachedTitles', titles);
                   }
                   if (cached = titles[key][match[1]]) {
                     a.textContent = cached;
+                    a.className = "e" + key;
                   } else {
                     srv.call(a);
                   }

@@ -3864,7 +3864,7 @@ Quotify =
                 obj.status   = @status
                 obj.txt      = @responseText
               catch err
-                $.log "NoScript most likely blocked some site again."
+                ''
               Quotify.types[info.service].replace obj, info
           )
         @prot = d.location.protocol
@@ -3894,7 +3894,8 @@ Quotify =
                   null
               if theTitle?
                 titles = $.get 'CachedTitles', {}
-                info.node.textContent = titles[service][node.nextElementSibling.name] = theTitle
+                node.textContent = titles[service][node.nextElementSibling.name] = theTitle
+                node.className   = "e#{service}"
                 $.set 'CachedTitles', titles
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
@@ -3922,6 +3923,7 @@ Quotify =
               if theTitle?
                 titles = $.get 'CachedTitles', {}
                 node.textContent = titles[service][node.nextElementSibling.name] = theTitle
+                node.className   = "e#{service}"
                 $.set 'CachedTitles', titles
           liveleak:
             regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
@@ -4058,12 +4060,12 @@ Quotify =
               $.after a, embed
               $.after a, $.tn ' '
               if Conf['Link Title'] and srv = Quotify.types[key].title
-                a.className = "e#{key}"
                 unless (titles = $.get 'CachedTitles', {})[key]
                   titles[key] = {}
                   $.set 'CachedTitles', titles
                 if cached = titles[key][match[1]]
                   a.textContent = cached
+                  a.className   = "e#{key}"
                 else
                   srv.call a
               break
