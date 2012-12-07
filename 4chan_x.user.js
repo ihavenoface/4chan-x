@@ -4724,6 +4724,14 @@
               }
             });
           };
+          this.save = function(info, title) {
+            var node, service, titles;
+            node = info.node, service = info.service;
+            titles = $.get('CachedTitles', {});
+            node.textContent = titles[service][node.nextElementSibling.name] = title;
+            node.className = "e" + service;
+            return $.set('CachedTitles', titles);
+          };
           this.prot = d.location.protocol;
           this.types = {
             youtube: {
@@ -4745,15 +4753,11 @@
                 });
               },
               replace: function(obj, info) {
-                var node, response, service, status, theTitle, titles, txt;
+                var response, status, theTitle, txt;
                 response = obj.response, status = obj.status, txt = obj.txt;
-                node = info.node, service = info.service;
                 theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
                 if (theTitle != null) {
-                  titles = $.get('CachedTitles', {});
-                  node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
-                  node.className = "e" + service;
-                  return $.set('CachedTitles', titles);
+                  return Quotify.save(info, theTitle);
                 }
               }
             },
@@ -4776,15 +4780,11 @@
                 });
               },
               replace: function(obj, info) {
-                var node, response, service, status, theTitle, titles, txt;
+                var response, status, theTitle, txt;
                 response = obj.response, status = obj.status, txt = obj.txt;
-                node = info.node, service = info.service;
                 theTitle = status === 404 ? 'Video not found' : status === 403 ? 'Unknown Video' : status === 200 && response.title ? response.title : null;
                 if (theTitle != null) {
-                  titles = $.get('CachedTitles', {});
-                  node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
-                  node.className = "e" + service;
-                  return $.set('CachedTitles', titles);
+                  return Quotify.save(info, theTitle);
                 }
               }
             },

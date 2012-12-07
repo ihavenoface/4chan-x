@@ -3867,6 +3867,12 @@ Quotify =
                 ''
               Quotify.types[info.service].replace obj, info
           )
+        @save = (info, title) ->
+          {node, service} = info
+          titles = $.get 'CachedTitles', {}
+          node.textContent = titles[service][node.nextElementSibling.name] = title
+          node.className   = "e#{service}"
+          $.set 'CachedTitles', titles
         @prot = d.location.protocol
         @types =
           youtube:
@@ -3882,21 +3888,15 @@ Quotify =
               Quotify.json "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {service: 'youtube', node: @}
             replace: (obj, info) ->
               {response, status, txt} = obj
-              {node, service} = info
-              theTitle =
-                if status is 404 and txt.indexOf('Video not found') isnt -1
-                  'Video not found'
-                else if status is 403 and txt.indexOf('Private video') isnt -1
-                  'Private video'
-                else if status is 200 and obj
-                  obj.response.entry.title.$t
-                else
-                  null
-              if theTitle?
-                titles = $.get 'CachedTitles', {}
-                node.textContent = titles[service][node.nextElementSibling.name] = theTitle
-                node.className   = "e#{service}"
-                $.set 'CachedTitles', titles
+              theTitle = if status is 404 and txt.indexOf('Video not found') isnt -1
+                'Video not found'
+              else if status is 403 and txt.indexOf('Private video') isnt -1
+                'Private video'
+              else if status is 200 and obj
+                obj.response.entry.title.$t
+              else
+                null
+              Quotify.save info, theTitle if theTitle?
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
             style:
@@ -3910,21 +3910,15 @@ Quotify =
               Quotify.json "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@nextElementSibling.name}", {service: 'vimeo', node: @}
             replace: (obj, info) ->
               {response, status, txt} = obj
-              {node, service} = info
-              theTitle =
-                if status is 404
-                  'Video not found'
-                else if status is 403
-                  'Unknown Video'
-                else if status is 200 and response.title
-                  response.title
-                else
-                  null
-              if theTitle?
-                titles = $.get 'CachedTitles', {}
-                node.textContent = titles[service][node.nextElementSibling.name] = theTitle
-                node.className   = "e#{service}"
-                $.set 'CachedTitles', titles
+              theTitle = if status is 404
+                'Video not found'
+              else if status is 403
+                'Unknown Video'
+              else if status is 200 and response.title
+                response.title
+              else
+                null
+              Quotify.save info, theTitle if theTitle?
           liveleak:
             regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
             style:
