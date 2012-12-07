@@ -17,7 +17,9 @@ Config =
     Linkification:
       'Linkify':                      [true,  'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.']
       'Embed':                        [true,  'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.']
-      'Link Title':                   [true,  'Replace the Link of a supported site with its actual title.']
+      'Youtube':                      [true,  'Replace youtube link with its title.']
+      'Vimeo':                        [true,  'Replace vimeo link with its title.']
+      'Soundcloud':                   [true,  'Replace soundcloud link with its title.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -4059,7 +4061,7 @@ Quotify =
               $.on embed, 'click', Quotify.embed
               $.after a, embed
               $.after a, $.tn ' '
-              if Conf['Link Title'] and srv = Quotify.types[key].title
+              if Conf[key.charAt(0).toUpperCase() + key[1..]] and srv = Quotify.types[key].title
                 unless (titles = $.get 'CachedTitles', {})[key]
                   titles[key] = {}
                   $.set 'CachedTitles', titles
