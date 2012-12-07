@@ -2,6 +2,7 @@ master
 - noface
   Added liveleak embedding and Vimeo Link Title.
   Added keybind for Catalog Links toggle.
+  Fixed Anomyize not working on hovered posts.
 
 2.37.1
 - noface

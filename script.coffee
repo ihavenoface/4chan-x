@@ -3716,6 +3716,8 @@ QuotePreview =
         FileInfo.node       post
       if Conf['Resurrect Quotes']
         Quotify.node        post
+      if Conf['Anonymize']
+        Anonymize.node        post
       if Conf['Color user IDs'] and board in ['b', 'q', 'soc']
         IDColor.node        post
 

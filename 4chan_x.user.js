@@ -4531,6 +4531,9 @@
         if (Conf['Resurrect Quotes']) {
           Quotify.node(post);
         }
+        if (Conf['Anonymize']) {
+          Anonymize.node(post);
+        }
         if (Conf['Color user IDs'] && (board === 'b' || board === 'q' || board === 'soc')) {
           return IDColor.node(post);
         }
