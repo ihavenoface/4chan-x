@@ -2331,14 +2331,11 @@ Options =
         className: 'settingsWindowLink'
         textContent: '4chan X Settings'
       $.on a, 'click', Options.dialog
-      tn = [$.tn('['), a]
-      tn.push $.tn ']' unless Conf['Disable 4chan\'s extension']
-      $.prepend $.id(settings), tn
+      setting = $.id(settings)
       if Conf['Disable 4chan\'s extension']
-        i = 0
-        while i < 2
-          $.rm a.nextSibling
-          i++
+        $.replace setting.childNodes[1], a
+        continue
+      $.prepend setting, [$.tn('['), a, $.tn('] ')]
     unless $.get 'firstrun'
       $.set 'firstrun', true
       # Prevent race conditions
