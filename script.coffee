@@ -3854,6 +3854,19 @@ Quotify =
         ///gi
 
       if Conf['Embed']
+        @json  = (url, info) ->
+          $.ajax(
+            url = url
+            onload: ->
+              obj = {}
+              try
+                obj.response = JSON.parse @responseText
+                obj.status   = @status
+                obj.txt      = @responseText
+              catch err
+                $.log "NoScript most likely blocked some site again."
+              Quotify.types[info.service].replace obj, info
+          )
         @prot = d.location.protocol
         @types =
           youtube:
@@ -3866,16 +3879,23 @@ Quotify =
               $.el 'iframe'
                 src:  "#{Quotify.prot}//www.youtube.com/embed/#{@name}"
             title: ->
-              node = @
-              $.ajax(
-                "https://gdata.youtube.com/feeds/api/videos/#{name = @nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
-                node: node
-                onloadend: ->
-                  if @status is 200 or 304
-                    titles = $.get 'CachedTitles', {}
-                    node.textContent = titles['youtube'][name] = JSON.parse(@responseText).entry.title.$t
-                    $.set 'CachedTitles', titles
-              )
+              Quotify.json "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {service: 'youtube', node: @}
+            replace: (obj, info) ->
+              {response, status, txt} = obj
+              {node, service} = info
+              theTitle =
+                if status is 404 and txt.indexOf('Video not found') isnt -1
+                  'Video not found'
+                else if status is 403 and txt.indexOf('Private video') isnt -1
+                  'Private video'
+                else if status is 200 and obj
+                  obj.response.entry.title.$t
+                else
+                  null
+              if theTitle?
+                titles = $.get 'CachedTitles', {}
+                info.node.textContent = titles[service][node.nextElementSibling.name] = theTitle
+                $.set 'CachedTitles', titles
           vimeo:
             regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
             style:
@@ -3886,19 +3906,23 @@ Quotify =
               $.el 'iframe'
                 src:  "#{Quotify.prot}//player.vimeo.com/video/#{@name}"
             title: ->
-              node = @
-              try
-                $.ajax(
-                  "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{name = @nextElementSibling.name}"
-                  node: node
-                  onloadend: ->
-                    if @status is 200 or 304
-                      titles = $.get 'CachedTitles', {}
-                      node.textContent = titles['vimeo'][name] = JSON.parse(@responseText).title
-                      $.set 'CachedTitles', titles
-                )
-              catch err
-                $.log 'Oh my. Please stop blocking Vimeo with NoScript if you want Vimeo Link Title to work.'
+              Quotify.json "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@nextElementSibling.name}", {service: 'vimeo', node: @}
+            replace: (obj, info) ->
+              {response, status, txt} = obj
+              {node, service} = info
+              theTitle =
+                if status is 404
+                  'Video not found'
+                else if status is 403
+                  'Unknown Video'
+                else if status is 200 and response.title
+                  response.title
+                else
+                  null
+              if theTitle?
+                titles = $.get 'CachedTitles', {}
+                node.textContent = titles[service][node.nextElementSibling.name] = theTitle
+                $.set 'CachedTitles', titles
           liveleak:
             regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
             style:

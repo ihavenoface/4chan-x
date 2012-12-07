@@ -4707,6 +4707,22 @@
       if (Conf['Linkify']) {
         Quotify.regString = /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi;
         if (Conf['Embed']) {
+          this.json = function(url, info) {
+            return $.ajax(url = url, {
+              onload: function() {
+                var obj;
+                obj = {};
+                try {
+                  obj.response = JSON.parse(this.responseText);
+                  obj.status = this.status;
+                  obj.txt = this.responseText;
+                } catch (err) {
+                  $.log("NoScript most likely blocked some site again.");
+                }
+                return Quotify.types[info.service].replace(obj, info);
+              }
+            });
+          };
           this.prot = d.location.protocol;
           this.types = {
             youtube: {
@@ -4722,19 +4738,21 @@
                 });
               },
               title: function() {
-                var name, node;
-                node = this;
-                return $.ajax("https://gdata.youtube.com/feeds/api/videos/" + (name = this.nextElementSibling.name) + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
-                  node: node,
-                  onloadend: function() {
-                    var titles;
-                    if (this.status === 200 || 304) {
-                      titles = $.get('CachedTitles', {});
-                      node.textContent = titles['youtube'][name] = JSON.parse(this.responseText).entry.title.$t;
-                      return $.set('CachedTitles', titles);
-                    }
-                  }
+                return Quotify.json("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
+                  service: 'youtube',
+                  node: this
                 });
+              },
+              replace: function(obj, info) {
+                var node, response, service, status, theTitle, titles, txt;
+                response = obj.response, status = obj.status, txt = obj.txt;
+                node = info.node, service = info.service;
+                theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
+                if (theTitle != null) {
+                  titles = $.get('CachedTitles', {});
+                  info.node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
+                  return $.set('CachedTitles', titles);
+                }
               }
             },
             vimeo: {
@@ -4750,22 +4768,20 @@
                 });
               },
               title: function() {
-                var name, node;
-                node = this;
-                try {
-                  return $.ajax("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + (name = this.nextElementSibling.name), {
-                    node: node,
-                    onloadend: function() {
-                      var titles;
-                      if (this.status === 200 || 304) {
-                        titles = $.get('CachedTitles', {});
-                        node.textContent = titles['vimeo'][name] = JSON.parse(this.responseText).title;
-                        return $.set('CachedTitles', titles);
-                      }
-                    }
-                  });
-                } catch (err) {
-                  return $.log('Oh my. Please stop blocking Vimeo with NoScript if you want Vimeo Link Title to work.');
+                return Quotify.json("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.nextElementSibling.name, {
+                  service: 'vimeo',
+                  node: this
+                });
+              },
+              replace: function(obj, info) {
+                var node, response, service, status, theTitle, titles, txt;
+                response = obj.response, status = obj.status, txt = obj.txt;
+                node = info.node, service = info.service;
+                theTitle = status === 404 ? 'Video not found' : status === 403 ? 'Unknown Video' : status === 200 && response.title ? response.title : null;
+                if (theTitle != null) {
+                  titles = $.get('CachedTitles', {});
+                  node.textContent = titles[service][node.nextElementSibling.name] = theTitle;
+                  return $.set('CachedTitles', titles);
                 }
               }
             },
