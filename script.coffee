@@ -2331,7 +2331,11 @@ Options =
         className: 'settingsWindowLink'
         textContent: '4chan X Settings'
       $.on a, 'click', Options.dialog
-      $.prepend $.id(settings), [$.tn('['), a, $.tn('] ')]
+      $.prepend $.id(settings), [$.tn('['), a]
+      i = 0
+      while i < 2
+        $.rm a.nextSibling
+        i++
     unless $.get 'firstrun'
       $.set 'firstrun', true
       # Prevent race conditions
