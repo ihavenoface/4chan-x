@@ -4888,7 +4888,7 @@
       for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         node = snapshot.snapshotItem(i);
         data = node.data;
-        if (!((quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g)) || (links = data.match(Quotify.regString)))) {
+        if (!((Conf['Resurrect Quotes'] ? quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g) : void 0) || (links = data.match(Quotify.regString)))) {
           continue;
         }
         nodes = [];
@@ -6289,7 +6289,7 @@
             EmbedLink.init();
           }
         }
-        if (Conf['Resurrect Quotes']) {
+        if (Conf['Resurrect Quotes'] || Conf['Linkify']) {
           Quotify.init();
         }
         if (Conf['Quote Inline']) {

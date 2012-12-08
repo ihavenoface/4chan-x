@@ -3990,7 +3990,7 @@ Quotify =
       node = snapshot.snapshotItem i
       data = node.data
 
-      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g) or links = data.match Quotify.regString
+      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g if Conf['Resurrect Quotes']) or links = data.match Quotify.regString
         # Only accept nodes with potentially valid links
         continue
 
@@ -5048,7 +5048,7 @@ Main =
         if Conf['Embed Link']
           EmbedLink.init()
 
-      if Conf['Resurrect Quotes']
+      if Conf['Resurrect Quotes'] or Conf['Linkify']
         Quotify.init()
 
       if Conf['Quote Inline']
