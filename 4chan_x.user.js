@@ -88,6 +88,7 @@
       Enhancing: {
         'Disable 4chan\'s extension': [true, 'Avoid conflicts between 4chan X and 4chan\'s inline extension.'],
         'Catalog Links': [true, 'Turn Navigation links into links to each board\'s catalog.'],
+        'External Catalog': [false, 'Link to external catalogs instead of the inernal one.'],
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
@@ -6053,11 +6054,11 @@
         a = $.id(nav).firstElementChild;
         while (a.href && (split = a.href.split('/'))) {
           if (!/^rs|status/.test(split[2])) {
-            if ((isDead = split[3] === 'f') && g.CATALOG || split[4] === 'catalog') {
-              a.href = a.href.replace(/catalog$/, '');
+            if ((isDead = split[3] === 'f') && g.CATALOG || split[4] === 'catalog' || /Catalog$/.test(a.title)) {
+              a.href = "//boards.4chan.org/" + split[3] + "/";
               a.title = a.title.replace(/\ -\ Catalog$/, '');
             } else if (!isDead) {
-              a.href += 'catalog';
+              a.href = Conf['External Catalog'] ? CatalogLinks.external(split[3]) : a.href += 'catalog';
               a.title += ' - Catalog';
             }
           }
@@ -6072,6 +6073,69 @@
           el.title = 'Turn Catalog Links on.';
           $["delete"]('CatalogIsToggled');
         }
+      }
+    },
+    external: function(board) {
+      switch (board) {
+        case 'a':
+        case 'c':
+        case 'g':
+        case 'co':
+        case 'k':
+        case 'm':
+        case 'o':
+        case 'p':
+        case 'v':
+        case 'vg':
+        case 'w':
+        case 'cm':
+        case '3':
+        case 'adv':
+        case 'an':
+        case 'cgl':
+        case 'ck':
+        case 'diy':
+        case 'fa':
+        case 'fit':
+        case 'int':
+        case 'jp':
+        case 'mlp':
+        case 'lit':
+        case 'mu':
+        case 'n':
+        case 'po':
+        case 'sci':
+        case 'toy':
+        case 'trv':
+        case 'tv':
+        case 'vp':
+        case 'x':
+        case 'q':
+          return "http://catalog.neet.tv/" + board;
+        case 'd':
+        case 'e':
+        case 'gif':
+        case 'h':
+        case 'hr':
+        case 'hc':
+        case 'r9k':
+        case 's':
+        case 'pol':
+        case 'soc':
+        case 'u':
+        case 'i':
+        case 'ic':
+        case 'hm':
+        case 'r':
+        case 'w':
+        case 'wg':
+        case 't':
+        case 'y':
+          return "http://4index.gropes.us/" + board;
+        case 'b':
+          return "http://chanc.repa.info/" + board;
+        default:
+          return "//boards.4chan.org/" + board + "/catalog";
       }
     }
   };

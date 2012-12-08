@@ -3,6 +3,7 @@ Config =
     Enhancing:
       'Disable 4chan\'s extension':   [true,  'Avoid conflicts between 4chan X and 4chan\'s inline extension.']
       'Catalog Links':                [true,  'Turn Navigation links into links to each board\'s catalog.']
+      'External Catalog':             [false, 'Link to external catalogs instead of the inernal one.']
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
@@ -4884,11 +4885,11 @@ CatalogLinks =
       a = $.id(nav).firstElementChild
       while a.href and split = a.href.split '/'
         unless /^rs|status/.test split[2]
-          if (isDead = split[3] is 'f') and g.CATALOG or split[4] is 'catalog'
-            a.href   = a.href.replace  /catalog$/, ''
+          if (isDead = split[3] is 'f') and g.CATALOG or split[4] is 'catalog' or /Catalog$/.test a.title
+            a.href   = "//boards.4chan.org/#{split[3]}/"
             a.title  = a.title.replace /\ -\ Catalog$/, ''
           else if not isDead
-            a.href  += 'catalog'
+            a.href   = if Conf['External Catalog'] then CatalogLinks.external split[3] else a.href += 'catalog'
             a.title += ' - Catalog'
         a = a.nextElementSibling
 
@@ -4901,6 +4902,18 @@ CatalogLinks =
         el.title        = 'Turn Catalog Links on.'
         $.delete 'CatalogIsToggled'
     return
+
+  external: (board) ->
+    switch board
+      when 'a', 'c', 'g', 'co', 'k', 'm', 'o', 'p', 'v', 'vg', 'w', 'cm', '3', 'adv', 'an', 'cgl', 'ck', 'diy', 'fa', 'fit', 'int', 'jp', 'mlp', 'lit', 'mu', 'n', 'po', 'sci', 'toy', 'trv', 'tv', 'vp', 'x', 'q'
+        "http://catalog.neet.tv/#{board}"
+      when 'd', 'e', 'gif', 'h', 'hr', 'hc', 'r9k', 's', 'pol', 'soc', 'u', 'i', 'ic', 'hm', 'r', 'w', 'wg', 't', 'y'
+        "http://4index.gropes.us/#{board}"
+      when 'b'
+        "http://chanc.repa.info/#{board}"
+      else
+        "//boards.4chan.org/#{board}/catalog"
+
 
 Main =
   init: ->
