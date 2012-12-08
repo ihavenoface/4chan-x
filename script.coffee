@@ -3,7 +3,7 @@ Config =
     Enhancing:
       'Disable 4chan\'s extension':   [true,  'Avoid conflicts between 4chan X and 4chan\'s inline extension.']
       'Catalog Links':                [true,  'Turn Navigation links into links to each board\'s catalog.']
-      'External Catalog':             [false, 'Link to external catalogs instead of the inernal one.']
+      'External Catalog':             [false, 'Link to external catalog instead of the internal one.']
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
@@ -4913,7 +4913,6 @@ CatalogLinks =
         "http://chanc.repa.info/#{board}"
       else
         "//boards.4chan.org/#{board}/catalog"
-
 
 Main =
   init: ->
