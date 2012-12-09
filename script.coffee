@@ -3873,6 +3873,8 @@ Quotify =
         @save = (info, title) ->
           {node, service} = info
           titles = $.get 'CachedTitles', {}
+          if (saved = Object.keys titles[service]).length = 2000 
+            delete titles[service][saved[2000]]
           node.textContent = titles[service][node.nextElementSibling.name] = title
           node.className   = "e#{service}"
           $.set 'CachedTitles', titles
@@ -4069,8 +4071,8 @@ Quotify =
                 if cached = titles[key][match[1]]
                   a.textContent = cached
                   a.className   = "e#{key}"
-                else
-                  srv.call a
+                  break
+                srv.call a
               break
     return
 
