@@ -5819,11 +5819,12 @@
     node: function(post) {
       var img;
       img = post.img;
-      if (!(post.el.hidden || img)) {
-        return $.el('img', {
-          src: img.parentNode.href
-        });
+      if (post.el.hidden || !img) {
+        return;
       }
+      return $.el('img', {
+        src: img.parentNode.href
+      });
     }
   };
 
@@ -5837,15 +5838,16 @@
     node: function(post) {
       var el, img;
       img = post.img;
-      if (!(post.el.hidden || img || !/spoiler/.test(img.src))) {
-        el = $.el('img', {
-          src: img.parentNode.href
+      if (post.el.hidden || !img || /spoiler/.test(img.src)) {
+        return;
+      }
+      el = $.el('img', {
+        src: img.parentNode.href
+      });
+      if (Conf["Replace " + ((el.src.match(/\w{3}$/))[0].toUpperCase())]) {
+        return $.on(el, 'load', function() {
+          return img.src = el.src;
         });
-        if (Conf["Replace " + ((el.src.match(/\w{3}$/))[0].toUpperCase())]) {
-          return $.on(el, 'load', function() {
-            return img.src = el.src;
-          });
-        }
       }
     }
   };

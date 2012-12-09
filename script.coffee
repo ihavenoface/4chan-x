@@ -4735,9 +4735,9 @@ Prefetch =
 
   node: (post) ->
     {img} = post
-    unless post.el.hidden or img
-      $.el 'img',
-        src: img.parentNode.href
+    return if post.el.hidden or !img
+    $.el 'img',
+      src: img.parentNode.href
 
 ImageReplace =
   init: ->
@@ -4746,12 +4746,12 @@ ImageReplace =
 
   node: (post) ->
     {img} = post
-    unless post.el.hidden or img or not /spoiler/.test img.src
-      el = $.el 'img',
-        src: img.parentNode.href
-      if Conf["Replace #{(el.src.match /\w{3}$/)[0].toUpperCase()}"]
-        $.on el, 'load', ->
-          img.src = el.src
+    return if post.el.hidden or !img or /spoiler/.test img.src
+    el = $.el 'img',
+      src: img.parentNode.href
+    if Conf["Replace #{(el.src.match /\w{3}$/)[0].toUpperCase()}"]
+      $.on el, 'load', ->
+        img.src = el.src
 
 ImageExpand =
   init: ->
