@@ -3876,8 +3876,8 @@ Quotify =
           {node, service} = info
           titles = $.get 'CachedTitles', {}
           i = 2000
-          while (saved = Object.keys titles[service])[i]
-            delete titles[service][saved[++i]]
+          while saved = Object.keys(titles[service])[++i]
+            delete titles[service][saved]
           node.textContent = titles[service][node.nextElementSibling.name] = title
           node.className   = "e#{service}"
           $.set 'CachedTitles', titles
