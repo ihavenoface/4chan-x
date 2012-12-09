@@ -166,7 +166,7 @@ http://www.google.com/searchbyimage?image_url=$1
     sageru:          ['alt+n',  'Sage keybind']
     submit:          ['alt+s',  'Submit post']
     hideQR:          ['alt+h',  'Toggle hide status of QR']
-    toggleCatalog:   ['alt+n',  'Toggle links in nav bar']
+    toggleCatalog:   ['alt+t',  'Toggle links in nav bar']
     # Thread related
     watch:           ['w',      'Watch thread']
     update:          ['u',      'Update now']
@@ -4128,15 +4128,13 @@ Quotify =
       if e.shiftKey
         e.preventDefault()
         e.stopPropagation()
-        if ("br" == @.nextSibling.tagName.toLowerCase() or "spoiler" == @.nextSibling.className) and @.nextSibling.nextSibling.className != "abbr"
-          el = @nextSibling
+        if ("br" == @nextSibling.tagName.toLowerCase() or "spoiler" == @nextSibling.className) and @nextSibling.nextSibling.className != "abbr"
           txt =
-            if el.textContent
+            if (el = @nextSibling).textContent
               @textContent + el.textContent + el.nextSibling.textContent
             else
               @textContent + el.nextSibling.textContent
-          @textContent = txt
-          @href = txt
+          @href = @textContent = txt
           $.rm(el) and $.rm @nextSibling
 
 DeleteLink =

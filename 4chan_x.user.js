@@ -208,7 +208,7 @@
       sageru: ['alt+n', 'Sage keybind'],
       submit: ['alt+s', 'Submit post'],
       hideQR: ['alt+h', 'Toggle hide status of QR'],
-      toggleCatalog: ['alt+n', 'Toggle links in nav bar'],
+      toggleCatalog: ['alt+t', 'Toggle links in nav bar'],
       watch: ['w', 'Watch thread'],
       update: ['u', 'Update now'],
       unreadCountTo0: ['z', 'Reset unread status'],
@@ -5042,10 +5042,8 @@
           e.preventDefault();
           e.stopPropagation();
           if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
-            el = this.nextSibling;
-            txt = el.textContent ? this.textContent + el.textContent + el.nextSibling.textContent : this.textContent + el.nextSibling.textContent;
-            this.textContent = txt;
-            this.href = txt;
+            txt = (el = this.nextSibling).textContent ? this.textContent + el.textContent + el.nextSibling.textContent : this.textContent + el.nextSibling.textContent;
+            this.href = this.textContent = txt;
             return $.rm(el) && $.rm(this.nextSibling);
           }
         }
