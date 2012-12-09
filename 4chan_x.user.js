@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -124,7 +124,9 @@
         'Don\'t Expand Spoilers': [true, 'Don\'t expand spoilers when using ImageExpand.'],
         'Expand From Current': [false, 'Expand images from current position to thread end.'],
         'Prefetch': [false, 'Prefetch images.'],
-        'Replace Original': [false, 'Replace original thumbnail with the prefetched one.']
+        'Replace GIF': [false, 'Replace only thumbnail of gifs with its actual image.'],
+        'Replace PNG': [false, 'Replace only pngs.'],
+        'Replace JPG': [false, 'Replace only jpgs.']
       },
       Menu: {
         'Menu': [true, 'Add a drop-down menu in posts.'],
@@ -5810,9 +5812,6 @@
         img = $.el('img', {
           src: thumb.href
         });
-        if (Conf['Replace Original']) {
-          thumb.firstChild.src = thumb.href;
-        }
       }
       return Main.callbacks.push(Prefetch.node);
     },
@@ -5822,10 +5821,29 @@
       if (post.el.hidden || !img) {
         return;
       }
+      return el = $.el('img', {
+        src: img.parentNode.href
+      });
+    }
+  };
+
+  ImageReplace = {
+    init: function() {
+      if (g.BOARD === 'f') {
+        return;
+      }
+      return Main.callbacks.push(this.node);
+    },
+    node: function(post) {
+      var el, img;
+      img = post.img;
+      if (post.el.hidden || !img || /spoiler/.test(img.src)) {
+        return;
+      }
       el = $.el('img', {
         src: img.parentNode.href
       });
-      if (/gif|png$/.test(el.src) && !/spoiler/.test(img.src)) {
+      if (Conf["Replace " + ((el.src.match(/\w{3}$/))[0].toUpperCase())]) {
         return $.on(el, 'load', function() {
           return img.src = el.src;
         });
@@ -6367,6 +6385,9 @@
         setTimeout(function() {
           return Keybinds.init();
         });
+      }
+      if (Conf['Replace GIF'] || Conf['Replace PNG'] || Conf['Replace JPG']) {
+        ImageReplace.init();
       }
       if (g.REPLY) {
         if (Conf['Prefetch']) {

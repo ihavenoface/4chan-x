@@ -36,7 +36,9 @@ Config =
       'Don\'t Expand Spoilers':       [true,  'Don\'t expand spoilers when using ImageExpand.']
       'Expand From Current':          [false, 'Expand images from current position to thread end.']
       'Prefetch':                     [false, 'Prefetch images.']
-      'Replace Original':             [false, 'Replace original thumbnail with the prefetched one.']
+      'Replace GIF':                  [false, 'Replace only thumbnail of gifs with its actual image.']
+      'Replace PNG':                  [false, 'Replace only pngs.']
+      'Replace JPG':                  [false, 'Replace only jpgs.']
     Menu:
       'Menu':                         [true,  'Add a drop-down menu in posts.']
       'Report Link':                  [true,  'Add a report link to the menu.']
@@ -3873,7 +3875,7 @@ Quotify =
         @save = (info, title) ->
           {node, service} = info
           titles = $.get 'CachedTitles', {}
-          if (saved = Object.keys titles[service]).length = 2000 
+          if (saved = Object.keys titles[service]).length = 2000
             delete titles[service][saved[2000]]
           node.textContent = titles[service][node.nextElementSibling.name] = title
           node.className   = "e#{service}"
@@ -4728,7 +4730,6 @@ Prefetch =
     for thumb in $$ 'a.fileThumb'
       img = $.el 'img',
         src: thumb.href
-      thumb.firstChild.src = thumb.href if Conf['Replace Original']
     Main.callbacks.push Prefetch.node
 
   node: (post) ->
@@ -4736,7 +4737,18 @@ Prefetch =
     return if post.el.hidden or not img
     el = $.el 'img',
       src: img.parentNode.href
-    if /gif|png$/.test(el.src) and !/spoiler/.test img.src
+
+ImageReplace =
+  init: ->
+    return if g.BOARD is 'f'
+    Main.callbacks.push @node
+
+  node: (post) ->
+    {img} = post
+    return if post.el.hidden or not img or /spoiler/.test img.src
+    el = $.el 'img',
+      src: img.parentNode.href
+    if Conf["Replace #{(el.src.match /\w{3}$/)[0].toUpperCase()}"]
       $.on el, 'load', ->
         img.src = el.src
 
@@ -5114,6 +5126,9 @@ Main =
 
     if Conf['Keybinds']
       setTimeout -> Keybinds.init()
+
+    if Conf['Replace GIF'] or Conf['Replace PNG'] or Conf['Replace JPG']
+      ImageReplace.init()
 
     if g.REPLY
       if Conf['Prefetch']
