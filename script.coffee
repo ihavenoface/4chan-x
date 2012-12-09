@@ -4922,8 +4922,6 @@ CatalogLinks =
         "http://catalog.neet.tv/#{board}"
       when 'd', 'e', 'gif', 'h', 'hr', 'hc', 'r9k', 's', 'pol', 'soc', 'u', 'i', 'ic', 'hm', 'r', 'w', 'wg', 'wsg', 't', 'y'
         "http://4index.gropes.us/#{board}"
-      when 'b'
-        "http://chanc.repa.info/#{board}"
       else
         "//boards.4chan.org/#{board}/catalog"
 

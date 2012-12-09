@@ -6151,8 +6151,6 @@
         case 't':
         case 'y':
           return "http://4index.gropes.us/" + board;
-        case 'b':
-          return "http://chanc.repa.info/" + board;
         default:
           return "//boards.4chan.org/" + board + "/catalog";
       }
