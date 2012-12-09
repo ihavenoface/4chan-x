@@ -124,9 +124,9 @@
         'Don\'t Expand Spoilers': [true, 'Don\'t expand spoilers when using ImageExpand.'],
         'Expand From Current': [false, 'Expand images from current position to thread end.'],
         'Prefetch': [false, 'Prefetch images.'],
-        'Replace GIF': [false, 'Replace only thumbnail of gifs with its actual image.'],
-        'Replace PNG': [false, 'Replace only pngs.'],
-        'Replace JPG': [false, 'Replace only jpgs.']
+        'Replace GIF': [false, 'Replace thumbnail of gifs with its actual image.'],
+        'Replace PNG': [false, 'Replace pngs.'],
+        'Replace JPG': [false, 'Replace jpgs.']
       },
       Menu: {
         'Menu': [true, 'Add a drop-down menu in posts.'],
