@@ -1,4 +1,6 @@
 master
+
+2.37.2
 - noface
   Added liveleak embedding and Vimeo + SoundCloud Link Title.
   Added keybind for Catalog Links toggle.
