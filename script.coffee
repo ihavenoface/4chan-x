@@ -3875,8 +3875,9 @@ Quotify =
         @save = (info, title) ->
           {node, service} = info
           titles = $.get 'CachedTitles', {}
-          if (saved = Object.keys titles[service]).length = 2000
-            delete titles[service][saved[2000]]
+          i = 2000
+          while (saved = Object.keys titles[service])[i]
+            delete titles[service][saved[++i]]
           node.textContent = titles[service][node.nextElementSibling.name] = title
           node.className   = "e#{service}"
           $.set 'CachedTitles', titles
@@ -4728,15 +4729,15 @@ Prefetch =
   change: ->
     $.off @, 'change', Prefetch.change
     for thumb in $$ 'a.fileThumb'
-      img = $.el 'img',
+      $.el 'img',
         src: thumb.href
     Main.callbacks.push Prefetch.node
 
   node: (post) ->
     {img} = post
-    return if post.el.hidden or not img
-    el = $.el 'img',
-      src: img.parentNode.href
+    unless post.el.hidden or img
+      $.el 'img',
+        src: img.parentNode.href
 
 ImageReplace =
   init: ->
@@ -4745,12 +4746,12 @@ ImageReplace =
 
   node: (post) ->
     {img} = post
-    return if post.el.hidden or not img or /spoiler/.test img.src
-    el = $.el 'img',
-      src: img.parentNode.href
-    if Conf["Replace #{(el.src.match /\w{3}$/)[0].toUpperCase()}"]
-      $.on el, 'load', ->
-        img.src = el.src
+    unless post.el.hidden or img or not /spoiler/.test img.src
+      el = $.el 'img',
+        src: img.parentNode.href
+      if Conf["Replace #{(el.src.match /\w{3}$/)[0].toUpperCase()}"]
+        $.on el, 'load', ->
+          img.src = el.src
 
 ImageExpand =
   init: ->
@@ -4762,8 +4763,7 @@ ImageExpand =
     return unless post.img
     a = post.img.parentNode
     $.on a, 'click', ImageExpand.cb.toggle
-    if Conf['Don\'t Expand Spoilers'] and !Conf['Reveal Spoilers']
-      return if $ '.fileThumb.imgspoiler'
+    return if Conf['Don\'t Expand Spoilers'] and !Conf['Reveal Spoilers'] and /^Spoiler\ Image/.test a.firstChild.alt
     if ImageExpand.on and !post.el.hidden
       ImageExpand.expand post.img
   cb:
@@ -4781,8 +4781,7 @@ ImageExpand =
               break
           thumbs = thumbs[i...]
         for thumb in thumbs
-          if Conf['Don\'t Expand Spoilers'] and !Conf['Reveal Spoilers']
-            continue if $ '.fileThumb.imgspoiler', thumb.parentNode.parentNode
+          continue if Conf['Don\'t Expand Spoilers'] and !Conf['Reveal Spoilers'] and /^Spoiler\ Image/.test thumb.alt
           ImageExpand.expand thumb
       else #contract
         for thumb in $$ 'img[data-md5][hidden]'
@@ -4890,7 +4889,7 @@ CatalogLinks =
       i = if g.CATALOG then 0 else 1
       while i < 2
         @toggle()
-        i++
+        ++i
       return
     @toggle() if g.CATALOG
 

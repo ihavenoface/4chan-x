@@ -4730,11 +4730,12 @@
             });
           };
           this.save = function(info, title) {
-            var node, saved, service, titles;
+            var i, node, saved, service, titles;
             node = info.node, service = info.service;
             titles = $.get('CachedTitles', {});
-            if ((saved = Object.keys(titles[service])).length = 2000) {
-              delete titles[service][saved[2000]];
+            i = 2000;
+            while ((saved = Object.keys(titles[service]))[i]) {
+              delete titles[service][saved[++i]];
             }
             node.textContent = titles[service][node.nextElementSibling.name] = title;
             node.className = "e" + service;
@@ -5804,26 +5805,25 @@
       }
     },
     change: function() {
-      var img, thumb, _i, _len, _ref;
+      var thumb, _i, _len, _ref;
       $.off(this, 'change', Prefetch.change);
       _ref = $$('a.fileThumb');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         thumb = _ref[_i];
-        img = $.el('img', {
+        $.el('img', {
           src: thumb.href
         });
       }
       return Main.callbacks.push(Prefetch.node);
     },
     node: function(post) {
-      var el, img;
+      var img;
       img = post.img;
-      if (post.el.hidden || !img) {
-        return;
+      if (!(post.el.hidden || img)) {
+        return $.el('img', {
+          src: img.parentNode.href
+        });
       }
-      return el = $.el('img', {
-        src: img.parentNode.href
-      });
     }
   };
 
@@ -5837,16 +5837,15 @@
     node: function(post) {
       var el, img;
       img = post.img;
-      if (post.el.hidden || !img || /spoiler/.test(img.src)) {
-        return;
-      }
-      el = $.el('img', {
-        src: img.parentNode.href
-      });
-      if (Conf["Replace " + ((el.src.match(/\w{3}$/))[0].toUpperCase())]) {
-        return $.on(el, 'load', function() {
-          return img.src = el.src;
+      if (!(post.el.hidden || img || !/spoiler/.test(img.src))) {
+        el = $.el('img', {
+          src: img.parentNode.href
         });
+        if (Conf["Replace " + ((el.src.match(/\w{3}$/))[0].toUpperCase())]) {
+          return $.on(el, 'load', function() {
+            return img.src = el.src;
+          });
+        }
       }
     }
   };
@@ -5866,10 +5865,8 @@
       }
       a = post.img.parentNode;
       $.on(a, 'click', ImageExpand.cb.toggle);
-      if (Conf['Don\'t Expand Spoilers'] && !Conf['Reveal Spoilers']) {
-        if ($('.fileThumb.imgspoiler')) {
-          return;
-        }
+      if (Conf['Don\'t Expand Spoilers'] && !Conf['Reveal Spoilers'] && /^Spoiler\ Image/.test(a.firstChild.alt)) {
+        return;
       }
       if (ImageExpand.on && !post.el.hidden) {
         return ImageExpand.expand(post.img);
@@ -5899,10 +5896,8 @@
           }
           for (_j = 0, _len1 = thumbs.length; _j < _len1; _j++) {
             thumb = thumbs[_j];
-            if (Conf['Don\'t Expand Spoilers'] && !Conf['Reveal Spoilers']) {
-              if ($('.fileThumb.imgspoiler', thumb.parentNode.parentNode)) {
-                continue;
-              }
+            if (Conf['Don\'t Expand Spoilers'] && !Conf['Reveal Spoilers'] && /^Spoiler\ Image/.test(thumb.alt)) {
+              continue;
             }
             ImageExpand.expand(thumb);
           }
@@ -6059,7 +6054,7 @@
         i = g.CATALOG ? 0 : 1;
         while (i < 2) {
           this.toggle();
-          i++;
+          ++i;
         }
         return;
       }
