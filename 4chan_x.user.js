@@ -5555,6 +5555,8 @@
           return "http://archive.heinessen.com/" + board + "/full_image/" + filename;
         case 'e':
           return "//www.xn--clich-fsa.net/4chan/cgi-board.pl/" + board + "/img/" + filename;
+        case 'c':
+          return "//archive.nyafuu.org/" + board + "/full_image/" + filename;
       }
     },
     post: function(board, postID) {
@@ -5619,6 +5621,11 @@
         name: 'Cliché',
         base: '//www.xn--clich-fsa.net/4chan/cgi-board.pl',
         boards: ['e'],
+        type: 'fuuka'
+      }, {
+        name: 'NyaFuu',
+        base: '//archive.nyafuu.org',
+        boards: ['c', 'w'],
         type: 'fuuka'
       }
     ],

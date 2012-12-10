@@ -4539,6 +4539,8 @@ Redirect =
         "http://archive.heinessen.com/#{board}/full_image/#{filename}"
       when 'e'
         "//www.xn--clich-fsa.net/4chan/cgi-board.pl/#{board}/img/#{filename}"
+      when 'c'
+        "//archive.nyafuu.org/#{board}/full_image/#{filename}"
   post: (board, postID) ->
     switch board
       when 'a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
@@ -4593,6 +4595,12 @@ Redirect =
       name:    'Cliché'
       base:    '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
       boards:  ['e']
+      type:    'fuuka'
+    }
+    {
+      name:    'NyaFuu'
+      base:    '//archive.nyafuu.org'
+      boards:  ['c', 'w']
       type:    'fuuka'
     }
   ]
