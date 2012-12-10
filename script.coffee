@@ -4606,24 +4606,13 @@ Redirect =
   ]
 
   select: (data, board) ->
-    noarch = 'No archiver available.'
-    unless data
-      arch = for type in @archiver
-        unless type.boards.indexOf(board or g.BOARD) >= 0
-          continue
-        else
-          type.name
-      return if arch.length > 0 then arch else [noarch]
-    if (name = @select false, board)[1]
-      if (current = $.get "archiver/#{board}/") is undefined or name.indexOf(current) is -1
-        $.set "archiver/#{board}/", name[0]
-      for type in data.boards
-        if data.name is name[name.indexOf current]
-          return board
-    else if name[0] isnt noarch
-      for type in data.boards
-        if name[0] is data.name
-          return board
+    @noarch = 'No archiver available.'
+    arch = for type in @archiver
+      unless type.boards.indexOf(board or g.BOARD) >= 0
+        continue
+      type.name
+    return arch if arch.length > 0
+    [@noarch]
 
   to: (data) ->
     unless data.isSearch
@@ -4631,12 +4620,14 @@ Redirect =
     {board} = data
     aboard  = Redirect.archive[board]
     unless aboard
-      aboard = true
-      for archiver in @archiver
-        if board is @select archiver, board
-          aboard = archiver
-          break
-      Redirect.archive[board] = aboard
+      keys  = for archiver in @archiver
+        archiver['name']
+      names = @select false, board
+      if names[1]
+        if (current = $.get "archiver/#{board}/") is undefined or names.indexOf(current) is -1
+          $.set "archiver/#{board}/", names[0]
+      unless names[0] is @noarch
+        aboard = @archiver[keys.indexOf names[names.indexOf current]]
     return if aboard.base
       @path aboard.base, aboard.type, data
     else
