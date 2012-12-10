@@ -4940,143 +4940,141 @@ Main =
     else if temp is 'catalog'
       g.CATALOG = true
 
-    unless g.CATALOG
+    # Setup Fill some per board configuration values with their global equivalents.
+    if Conf["Interval per board"]
+      Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
+      Conf["BGInterval_" + g.BOARD] = $.get "BGInterval_" + g.BOARD, Conf["BGInteval"]
 
-      # Setup Fill some per board configuration values with their global equivalents.
-      if Conf["Interval per board"]
-        Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
-        Conf["BGInterval_" + g.BOARD] = $.get "BGInterval_" + g.BOARD, Conf["BGInteval"]
-
-      switch location.hostname
-        when 'sys.4chan.org'
-          if /report/.test location.search
-            $.ready ->
-              form  = $ 'form'
-              field = $.id 'recaptcha_response_field'
-              $.on field, 'keydown', (e) ->
-                window.location = 'javascript:Recaptcha.reload()' if e.keyCode is 8 and not e.target.value
-              $.on form, 'submit', (e) ->
-                e.preventDefault()
-                response = field.value.trim()
-                field.value = "#{response} #{response}" unless /\s/.test response
-                form.submit()
-          return
-        when 'images.4chan.org'
+    switch location.hostname
+      when 'sys.4chan.org'
+        if /report/.test location.search
           $.ready ->
-            if /^4chan - 404/.test(d.title) and Conf['404 Redirect']
-              path = location.pathname.split '/'
-              url  = Redirect.image path[1], path[3]
-              location.href = url if url
-          return
-
-      if Conf['Disable 4chan\'s extension']
-        settings = JSON.parse(localStorage.getItem '4chan-settings') or {}
-        settings.disableAll = true
-        localStorage.setItem '4chan-settings', JSON.stringify settings
-
-      Options.init()
-
-
-      if Conf['Quick Reply'] and Conf['Hide Original Post Form']
-        Main.css += '#postForm { display: none; }'
-
-      $.addStyle Main.css
-
-      now = Date.now()
-      if Conf['Check for Updates'] and $.get('lastUpdate',  0) < now - 6*$.HOUR
+            form  = $ 'form'
+            field = $.id 'recaptcha_response_field'
+            $.on field, 'keydown', (e) ->
+              window.location = 'javascript:Recaptcha.reload()' if e.keyCode is 8 and not e.target.value
+            $.on form, 'submit', (e) ->
+              e.preventDefault()
+              response = field.value.trim()
+              field.value = "#{response} #{response}" unless /\s/.test response
+              form.submit()
+        return
+      when 'images.4chan.org'
         $.ready ->
-          $.on window, 'message', Main.message
-          $.set 'lastUpdate', now
-          $.add d.head, $.el 'script',
-            src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
+          if /^4chan - 404/.test(d.title) and Conf['404 Redirect']
+            path = location.pathname.split '/'
+            url  = Redirect.image path[1], path[3]
+            location.href = url if url
+        return
 
-      g.hiddenReplies = $.get "hiddenReplies/#{g.BOARD}/", {}
-      if $.get('lastChecked', 0) < now - 1*$.DAY
-        $.set 'lastChecked', now
+    if Conf['Disable 4chan\'s extension']
+      settings = JSON.parse(localStorage.getItem '4chan-settings') or {}
+      settings.disableAll = true
+      localStorage.setItem '4chan-settings', JSON.stringify settings
 
-        cutoff = now - 7*$.DAY
-        hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
+    Options.init()
 
-        for id, timestamp of hiddenThreads
-          if timestamp < cutoff
-            delete hiddenThreads[id]
 
-        for id, timestamp of g.hiddenReplies
-          if timestamp < cutoff
-            delete g.hiddenReplies[id]
+    if Conf['Quick Reply'] and Conf['Hide Original Post Form']
+      Main.css += '#postForm { display: none; }'
 
-        $.set "hiddenThreads/#{g.BOARD}/", hiddenThreads
-        $.set "hiddenReplies/#{g.BOARD}/", g.hiddenReplies
+    $.addStyle Main.css
 
-      #major features
+    now = Date.now()
+    if Conf['Check for Updates'] and $.get('lastUpdate',  0) < now - 6*$.HOUR
+      $.ready ->
+        $.on window, 'message', Main.message
+        $.set 'lastUpdate', now
+        $.add d.head, $.el 'script',
+          src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
+
+    g.hiddenReplies = $.get "hiddenReplies/#{g.BOARD}/", {}
+    if $.get('lastChecked', 0) < now - 1*$.DAY
+      $.set 'lastChecked', now
+
+      cutoff = now - 7*$.DAY
+      hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
+
+      for id, timestamp of hiddenThreads
+        if timestamp < cutoff
+          delete hiddenThreads[id]
+
+      for id, timestamp of g.hiddenReplies
+        if timestamp < cutoff
+          delete g.hiddenReplies[id]
+
+      $.set "hiddenThreads/#{g.BOARD}/", hiddenThreads
+      $.set "hiddenReplies/#{g.BOARD}/", g.hiddenReplies
+
+    #major features
+    if Conf['Filter']
+      Filter.init()
+
+    if Conf['Reply Hiding']
+      ReplyHiding.init()
+
+    if Conf['Filter'] or Conf['Reply Hiding']
+      StrikethroughQuotes.init()
+
+    if Conf['Anonymize']
+      Anonymize.init()
+
+    if Conf['Time Formatting']
+      Time.init()
+
+    if Conf['File Info Formatting']
+      FileInfo.init()
+
+    if Conf['Sauce']
+      Sauce.init()
+
+    if Conf['Reveal Spoilers']
+      RevealSpoilers.init()
+
+    if Conf['Image Hover']
+      ImageHover.init()
+
+    if Conf['Menu']
+      Menu.init()
+
+      if Conf['Report Link']
+        ReportLink.init()
+
+      if Conf['Delete Link']
+        DeleteLink.init()
+
       if Conf['Filter']
-        Filter.init()
+        Filter.menuInit()
 
-      if Conf['Reply Hiding']
-        ReplyHiding.init()
+      if Conf['Download Link']
+        DownloadLink.init()
 
-      if Conf['Filter'] or Conf['Reply Hiding']
-        StrikethroughQuotes.init()
+      if Conf['Archive Link']
+        ArchiveLink.init()
 
-      if Conf['Anonymize']
-        Anonymize.init()
+      if Conf['Embed Link']
+        EmbedLink.init()
 
-      if Conf['Time Formatting']
-        Time.init()
+    if Conf['Resurrect Quotes'] or Conf['Linkify']
+      Quotify.init()
 
-      if Conf['File Info Formatting']
-        FileInfo.init()
+    if Conf['Quote Inline']
+      QuoteInline.init()
 
-      if Conf['Sauce']
-        Sauce.init()
+    if Conf['Quote Preview']
+      QuotePreview.init()
 
-      if Conf['Reveal Spoilers']
-        RevealSpoilers.init()
+    if Conf['Quote Backlinks']
+      QuoteBacklink.init()
 
-      if Conf['Image Hover']
-        ImageHover.init()
+    if Conf['Indicate OP quote']
+      QuoteOP.init()
 
-      if Conf['Menu']
-        Menu.init()
+    if Conf['Indicate Cross-thread Quotes']
+      QuoteCT.init()
 
-        if Conf['Report Link']
-          ReportLink.init()
-
-        if Conf['Delete Link']
-          DeleteLink.init()
-
-        if Conf['Filter']
-          Filter.menuInit()
-
-        if Conf['Download Link']
-          DownloadLink.init()
-
-        if Conf['Archive Link']
-          ArchiveLink.init()
-
-        if Conf['Embed Link']
-          EmbedLink.init()
-
-      if Conf['Resurrect Quotes'] or Conf['Linkify']
-        Quotify.init()
-
-      if Conf['Quote Inline']
-        QuoteInline.init()
-
-      if Conf['Quote Preview']
-        QuotePreview.init()
-
-      if Conf['Quote Backlinks']
-        QuoteBacklink.init()
-
-      if Conf['Indicate OP quote']
-        QuoteOP.init()
-
-      if Conf['Indicate Cross-thread Quotes']
-        QuoteCT.init()
-
-      if Conf['Color user IDs']
-        IDColor.init()
+    if Conf['Color user IDs']
+      IDColor.init()
 
     $.ready Main.ready
 
@@ -5098,13 +5096,6 @@ Main =
         # Gotta make it work in temporary boards.
         $.addClass a, 'current'
     Favicon.init()
-
-    if g.CATALOG and Conf['Catalog Links']
-
-      if Conf['Keybinds']
-        setTimeout -> Keybinds.init()
-
-      return CatalogLinks.init()
 
     # Major features.
     if Conf['Quick Reply']

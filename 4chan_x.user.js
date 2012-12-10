@@ -6172,158 +6172,156 @@
       } else if (temp === 'catalog') {
         g.CATALOG = true;
       }
-      if (!g.CATALOG) {
-        if (Conf["Interval per board"]) {
-          Conf["Interval_" + g.BOARD] = $.get("Interval_" + g.BOARD, Conf["Interval"]);
-          Conf["BGInterval_" + g.BOARD] = $.get("BGInterval_" + g.BOARD, Conf["BGInteval"]);
-        }
-        switch (location.hostname) {
-          case 'sys.4chan.org':
-            if (/report/.test(location.search)) {
-              $.ready(function() {
-                var field, form;
-                form = $('form');
-                field = $.id('recaptcha_response_field');
-                $.on(field, 'keydown', function(e) {
-                  if (e.keyCode === 8 && !e.target.value) {
-                    return window.location = 'javascript:Recaptcha.reload()';
-                  }
-                });
-                return $.on(form, 'submit', function(e) {
-                  var response;
-                  e.preventDefault();
-                  response = field.value.trim();
-                  if (!/\s/.test(response)) {
-                    field.value = "" + response + " " + response;
-                  }
-                  return form.submit();
-                });
-              });
-            }
-            return;
-          case 'images.4chan.org':
+      if (Conf["Interval per board"]) {
+        Conf["Interval_" + g.BOARD] = $.get("Interval_" + g.BOARD, Conf["Interval"]);
+        Conf["BGInterval_" + g.BOARD] = $.get("BGInterval_" + g.BOARD, Conf["BGInteval"]);
+      }
+      switch (location.hostname) {
+        case 'sys.4chan.org':
+          if (/report/.test(location.search)) {
             $.ready(function() {
-              var url;
-              if (/^4chan - 404/.test(d.title) && Conf['404 Redirect']) {
-                path = location.pathname.split('/');
-                url = Redirect.image(path[1], path[3]);
-                if (url) {
-                  return location.href = url;
+              var field, form;
+              form = $('form');
+              field = $.id('recaptcha_response_field');
+              $.on(field, 'keydown', function(e) {
+                if (e.keyCode === 8 && !e.target.value) {
+                  return window.location = 'javascript:Recaptcha.reload()';
                 }
-              }
+              });
+              return $.on(form, 'submit', function(e) {
+                var response;
+                e.preventDefault();
+                response = field.value.trim();
+                if (!/\s/.test(response)) {
+                  field.value = "" + response + " " + response;
+                }
+                return form.submit();
+              });
             });
-            return;
-        }
-        if (Conf['Disable 4chan\'s extension']) {
-          settings = JSON.parse(localStorage.getItem('4chan-settings')) || {};
-          settings.disableAll = true;
-          localStorage.setItem('4chan-settings', JSON.stringify(settings));
-        }
-        Options.init();
-        if (Conf['Quick Reply'] && Conf['Hide Original Post Form']) {
-          Main.css += '#postForm { display: none; }';
-        }
-        $.addStyle(Main.css);
-        now = Date.now();
-        if (Conf['Check for Updates'] && $.get('lastUpdate', 0) < now - 6 * $.HOUR) {
+          }
+          return;
+        case 'images.4chan.org':
           $.ready(function() {
-            $.on(window, 'message', Main.message);
-            $.set('lastUpdate', now);
-            return $.add(d.head, $.el('script', {
-              src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
-            }));
+            var url;
+            if (/^4chan - 404/.test(d.title) && Conf['404 Redirect']) {
+              path = location.pathname.split('/');
+              url = Redirect.image(path[1], path[3]);
+              if (url) {
+                return location.href = url;
+              }
+            }
           });
+          return;
+      }
+      if (Conf['Disable 4chan\'s extension']) {
+        settings = JSON.parse(localStorage.getItem('4chan-settings')) || {};
+        settings.disableAll = true;
+        localStorage.setItem('4chan-settings', JSON.stringify(settings));
+      }
+      Options.init();
+      if (Conf['Quick Reply'] && Conf['Hide Original Post Form']) {
+        Main.css += '#postForm { display: none; }';
+      }
+      $.addStyle(Main.css);
+      now = Date.now();
+      if (Conf['Check for Updates'] && $.get('lastUpdate', 0) < now - 6 * $.HOUR) {
+        $.ready(function() {
+          $.on(window, 'message', Main.message);
+          $.set('lastUpdate', now);
+          return $.add(d.head, $.el('script', {
+            src: 'https://github.com/ihavenoface/4chan-x/raw/master/latest.js'
+          }));
+        });
+      }
+      g.hiddenReplies = $.get("hiddenReplies/" + g.BOARD + "/", {});
+      if ($.get('lastChecked', 0) < now - 1 * $.DAY) {
+        $.set('lastChecked', now);
+        cutoff = now - 7 * $.DAY;
+        hiddenThreads = $.get("hiddenThreads/" + g.BOARD + "/", {});
+        for (id in hiddenThreads) {
+          timestamp = hiddenThreads[id];
+          if (timestamp < cutoff) {
+            delete hiddenThreads[id];
+          }
         }
-        g.hiddenReplies = $.get("hiddenReplies/" + g.BOARD + "/", {});
-        if ($.get('lastChecked', 0) < now - 1 * $.DAY) {
-          $.set('lastChecked', now);
-          cutoff = now - 7 * $.DAY;
-          hiddenThreads = $.get("hiddenThreads/" + g.BOARD + "/", {});
-          for (id in hiddenThreads) {
-            timestamp = hiddenThreads[id];
-            if (timestamp < cutoff) {
-              delete hiddenThreads[id];
-            }
+        _ref = g.hiddenReplies;
+        for (id in _ref) {
+          timestamp = _ref[id];
+          if (timestamp < cutoff) {
+            delete g.hiddenReplies[id];
           }
-          _ref = g.hiddenReplies;
-          for (id in _ref) {
-            timestamp = _ref[id];
-            if (timestamp < cutoff) {
-              delete g.hiddenReplies[id];
-            }
-          }
-          $.set("hiddenThreads/" + g.BOARD + "/", hiddenThreads);
-          $.set("hiddenReplies/" + g.BOARD + "/", g.hiddenReplies);
+        }
+        $.set("hiddenThreads/" + g.BOARD + "/", hiddenThreads);
+        $.set("hiddenReplies/" + g.BOARD + "/", g.hiddenReplies);
+      }
+      if (Conf['Filter']) {
+        Filter.init();
+      }
+      if (Conf['Reply Hiding']) {
+        ReplyHiding.init();
+      }
+      if (Conf['Filter'] || Conf['Reply Hiding']) {
+        StrikethroughQuotes.init();
+      }
+      if (Conf['Anonymize']) {
+        Anonymize.init();
+      }
+      if (Conf['Time Formatting']) {
+        Time.init();
+      }
+      if (Conf['File Info Formatting']) {
+        FileInfo.init();
+      }
+      if (Conf['Sauce']) {
+        Sauce.init();
+      }
+      if (Conf['Reveal Spoilers']) {
+        RevealSpoilers.init();
+      }
+      if (Conf['Image Hover']) {
+        ImageHover.init();
+      }
+      if (Conf['Menu']) {
+        Menu.init();
+        if (Conf['Report Link']) {
+          ReportLink.init();
+        }
+        if (Conf['Delete Link']) {
+          DeleteLink.init();
         }
         if (Conf['Filter']) {
-          Filter.init();
+          Filter.menuInit();
         }
-        if (Conf['Reply Hiding']) {
-          ReplyHiding.init();
+        if (Conf['Download Link']) {
+          DownloadLink.init();
         }
-        if (Conf['Filter'] || Conf['Reply Hiding']) {
-          StrikethroughQuotes.init();
+        if (Conf['Archive Link']) {
+          ArchiveLink.init();
         }
-        if (Conf['Anonymize']) {
-          Anonymize.init();
+        if (Conf['Embed Link']) {
+          EmbedLink.init();
         }
-        if (Conf['Time Formatting']) {
-          Time.init();
-        }
-        if (Conf['File Info Formatting']) {
-          FileInfo.init();
-        }
-        if (Conf['Sauce']) {
-          Sauce.init();
-        }
-        if (Conf['Reveal Spoilers']) {
-          RevealSpoilers.init();
-        }
-        if (Conf['Image Hover']) {
-          ImageHover.init();
-        }
-        if (Conf['Menu']) {
-          Menu.init();
-          if (Conf['Report Link']) {
-            ReportLink.init();
-          }
-          if (Conf['Delete Link']) {
-            DeleteLink.init();
-          }
-          if (Conf['Filter']) {
-            Filter.menuInit();
-          }
-          if (Conf['Download Link']) {
-            DownloadLink.init();
-          }
-          if (Conf['Archive Link']) {
-            ArchiveLink.init();
-          }
-          if (Conf['Embed Link']) {
-            EmbedLink.init();
-          }
-        }
-        if (Conf['Resurrect Quotes'] || Conf['Linkify']) {
-          Quotify.init();
-        }
-        if (Conf['Quote Inline']) {
-          QuoteInline.init();
-        }
-        if (Conf['Quote Preview']) {
-          QuotePreview.init();
-        }
-        if (Conf['Quote Backlinks']) {
-          QuoteBacklink.init();
-        }
-        if (Conf['Indicate OP quote']) {
-          QuoteOP.init();
-        }
-        if (Conf['Indicate Cross-thread Quotes']) {
-          QuoteCT.init();
-        }
-        if (Conf['Color user IDs']) {
-          IDColor.init();
-        }
+      }
+      if (Conf['Resurrect Quotes'] || Conf['Linkify']) {
+        Quotify.init();
+      }
+      if (Conf['Quote Inline']) {
+        QuoteInline.init();
+      }
+      if (Conf['Quote Preview']) {
+        QuotePreview.init();
+      }
+      if (Conf['Quote Backlinks']) {
+        QuoteBacklink.init();
+      }
+      if (Conf['Indicate OP quote']) {
+        QuoteOP.init();
+      }
+      if (Conf['Indicate Cross-thread Quotes']) {
+        QuoteCT.init();
+      }
+      if (Conf['Color user IDs']) {
+        IDColor.init();
       }
       return $.ready(Main.ready);
     },
@@ -6352,14 +6350,6 @@
         }
       }
       Favicon.init();
-      if (g.CATALOG && Conf['Catalog Links']) {
-        if (Conf['Keybinds']) {
-          setTimeout(function() {
-            return Keybinds.init();
-          });
-        }
-        return CatalogLinks.init();
-      }
       if (Conf['Quick Reply']) {
         QR.init();
       }
