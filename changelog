@@ -1,4 +1,7 @@
 master
+- Mayhem
+  Added catalog support:
+    Sync thread hiding between index and catalog.
 
 2.37.2
 - noface
