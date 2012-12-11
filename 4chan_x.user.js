@@ -5626,6 +5626,7 @@
       }
     },
     archive: {},
+    noArchiver: 'No archiver available.',
     archiver: [
       {
         name: 'Foolz',
@@ -5675,47 +5676,50 @@
       }
     ],
     select: function(board) {
-      var arch, type;
-      this.noarch = 'No archiver available.';
-      arch = (function() {
-        var _i, _len, _ref, _results;
+      var archiver, key, names;
+      names = (function() {
+        var _ref, _results;
         _ref = this.archiver;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          type = _ref[_i];
-          if (!(type.boards.indexOf(board) >= 0)) {
+        for (key in _ref) {
+          archiver = _ref[key];
+          if (archiver.boards.indexOf(board) === -1) {
             continue;
           }
-          _results.push(type.name);
+          _results.push(archiver.name);
         }
         return _results;
       }).call(this);
-      if (arch.length > 0) {
-        return arch;
+      if (names.length > 0) {
+        return names;
       }
-      return [this.noarch];
+      return [this.noArchiver];
     },
     to: function(data) {
-      var aboard, archiver, board, current, keys, names;
+      var aboard, archiver, board, current, key, keys, names;
       board = data.board;
       aboard = Redirect.archive[board];
       if (!aboard) {
         keys = (function() {
-          var _i, _len, _ref, _results;
+          var _ref, _results;
           _ref = this.archiver;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            archiver = _ref[_i];
-            _results.push(archiver['name']);
+          for (key in _ref) {
+            archiver = _ref[key];
+            _results.push(archiver.name);
           }
           return _results;
         }).call(this);
         names = this.select(board);
         current = $.get("archiver/" + board + "/");
-        if (names[1] && !current || names.indexOf(current) === -1) {
-          $.set("archiver/" + board + "/", names[0]);
+        if (names[1]) {
+          if (!current || names.indexOf(current) === -1) {
+            $.set("archiver/" + board + "/", names[0]);
+          }
+        } else {
+          current = names[0];
         }
-        aboard = Redirect.archive[board] = names[0] !== this.noarch ? this.archiver[keys.indexOf(current || names[0])] : true;
+        aboard = this.archive[board] = names[0] !== this.noArchiver ? this.archiver[keys.indexOf(current)] : 'empty';
       }
       if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);

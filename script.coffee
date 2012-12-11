@@ -4578,6 +4578,7 @@ Redirect =
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
   archive: {}
+  noArchiver: 'No archiver available.'
   archiver: [
     {
       name:    'Foolz'
@@ -4636,29 +4637,31 @@ Redirect =
   ]
 
   select: (board) ->
-    @noarch = 'No archiver available.'
-    arch = for type in @archiver
-      unless type.boards.indexOf(board) >= 0
+    names = for key, archiver of @archiver
+      if archiver.boards.indexOf(board) is -1
         continue
-      type.name
-    return arch if arch.length > 0
-    [@noarch]
+      archiver.name
+    return names if names.length > 0
+    [@noArchiver]
 
   to: (data) ->
     {board} = data
     aboard  = Redirect.archive[board]
     unless aboard
-      keys  = for archiver in @archiver
-        archiver['name']
+      keys  = for key, archiver of @archiver
+        archiver.name
       names = @select board
       current = $.get "archiver/#{board}/"
-      if names[1] and not current or names.indexOf(current) is -1
-        $.set "archiver/#{board}/", names[0]
-      aboard = Redirect.archive[board] =
-        if names[0] isnt @noarch
-          @archiver[keys.indexOf current or names[0]]
+      if names[1]
+        if not current or names.indexOf(current) is -1
+          $.set "archiver/#{board}/", names[0]
+      else
+        current = names[0]
+      aboard = @archive[board] =
+        if names[0] isnt @noArchiver
+          @archiver[keys.indexOf current]
         else
-          true
+          'empty'
 
     if aboard.base
       @path aboard.base, aboard.type, data
