@@ -5675,7 +5675,7 @@
           }
         }
         if (names[0] !== this.noarch) {
-          aboard = this.archiver[keys.indexOf(names[names.indexOf(current)])];
+          aboard = Redirect.archive[board] = this.archiver[keys.indexOf(names[names.indexOf(current)])];
         }
       }
       if (aboard.base) {

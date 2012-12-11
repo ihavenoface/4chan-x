@@ -4627,7 +4627,7 @@ Redirect =
         if (current = $.get "archiver/#{board}/") is undefined or names.indexOf(current) is -1
           $.set "archiver/#{board}/", names[0]
       unless names[0] is @noarch
-        aboard = @archiver[keys.indexOf names[names.indexOf current]]
+        aboard = Redirect.archive[board] = @archiver[keys.indexOf names[names.indexOf current]]
     return if aboard.base
       @path aboard.base, aboard.type, data
     else
