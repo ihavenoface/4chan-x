@@ -4615,8 +4615,6 @@ Redirect =
     [@noarch]
 
   to: (data) ->
-    unless data.isSearch
-      {threadID} = data
     {board} = data
     aboard  = Redirect.archive[board]
     unless aboard
@@ -4631,11 +4629,11 @@ Redirect =
       else
         Redirect.archive[board] = true
 
-    return if aboard.base
+    if aboard.base
       @path aboard.base, aboard.type, data
+    else if not data.isSearch and data.threadID
+      "//boards.4chan.org/#{board}/"
     else
-      if threadID
-        return "//boards.4chan.org/#{board}/"
       null
 
   path: (base, archiver, data) ->

@@ -5651,10 +5651,7 @@
       return [this.noarch];
     },
     to: function(data) {
-      var aboard, archiver, board, current, keys, names, threadID;
-      if (!data.isSearch) {
-        threadID = data.threadID;
-      }
+      var aboard, archiver, board, current, keys, names;
       board = data.board;
       aboard = Redirect.archive[board];
       if (!aboard) {
@@ -5677,10 +5674,9 @@
       }
       if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);
+      } else if (!data.isSearch && data.threadID) {
+        return "//boards.4chan.org/" + board + "/";
       } else {
-        if (threadID) {
-          return "//boards.4chan.org/" + board + "/";
-        }
         return null;
       }
     },
