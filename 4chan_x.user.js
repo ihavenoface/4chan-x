@@ -1075,6 +1075,9 @@
       if (Conf['Indicate Cross-thread Quotes']) {
         QuoteCT.node(post);
       }
+      if (Conf['RemoveSpoilers']) {
+        RemoveSpoilers.node(post);
+      }
       $.replace(bq, clone);
       return Main.prettify(clone);
     }
@@ -4593,7 +4596,10 @@
           ImageReplace.node(post);
         }
         if (Conf['Color user IDs'] && (board === 'b' || board === 'q' || board === 'soc')) {
-          return IDColor.node(post);
+          IDColor.node(post);
+        }
+        if (Conf['RemoveSpoilers']) {
+          return RemoveSpoilers.node(post);
         }
       });
       $.on(this, 'mousemove', UI.hover);

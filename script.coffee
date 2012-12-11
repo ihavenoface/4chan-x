@@ -880,17 +880,19 @@ ExpandComment =
       quotes:     quotes
       backlinks:  []
     if Conf['Linkify']
-      Linkify.node      post
+      Linkify.node       post
     if Conf['Resurrect Quotes']
-      Quotify.node      post
+      Quotify.node       post
     if Conf['Quote Preview']
-      QuotePreview.node post
+      QuotePreview.node  post
     if Conf['Quote Inline']
-      QuoteInline.node  post
+      QuoteInline.node   post
     if Conf['Indicate OP quote']
-      QuoteOP.node      post
+      QuoteOP.node       post
     if Conf['Indicate Cross-thread Quotes']
-      QuoteCT.node      post
+      QuoteCT.node       post
+    if Conf['RemoveSpoilers']
+      RemoveSpoilers.node post
     $.replace bq, clone
     Main.prettify clone
 
@@ -3760,6 +3762,8 @@ QuotePreview =
         ImageReplace.node   post
       if Conf['Color user IDs'] and board in ['b', 'q', 'soc']
         IDColor.node        post
+      if Conf['RemoveSpoilers']
+        RemoveSpoilers.node post
 
     $.on @, 'mousemove',      UI.hover
     $.on @, 'mouseout click', QuotePreview.mouseout
