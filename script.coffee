@@ -4626,7 +4626,7 @@ Redirect =
         $.set "archiver/#{board}/", names[0]
       aboard = Redirect.archive[board] =
         if names[0] isnt @noarch
-          @archiver[keys.indexOf names[names.indexOf current or names[0]]]
+          @archiver[keys.indexOf current or names[0]]
         else
           true
 
