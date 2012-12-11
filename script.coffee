@@ -878,6 +878,8 @@ ExpandComment =
       threadID:   threadID
       quotes:     quotes
       backlinks:  []
+    if Conf['Linkify']
+      Linkify.node      post
     if Conf['Resurrect Quotes']
       Quotify.node      post
     if Conf['Quote Preview']
@@ -3738,6 +3740,8 @@ QuotePreview =
         Time.node           post
       if Conf['File Info Formatting']
         FileInfo.node       post
+      if Conf['Linkify']
+        Linkify.node        post
       if Conf['Resurrect Quotes']
         Quotify.node        post
       if Conf['Anonymize']
@@ -3852,152 +3856,34 @@ IDColor =
     $.set value, uid
     @clicked = true
 
-Quotify =
+Linkify =
   init: ->
-    if Conf['Linkify']
-      Quotify.regString =
-        ///
-          (
-            \b(
-              [a-z][-a-z0-9+.]+://
-              |
-              www\.
-              |
-              magnet:
-              |
-              mailto:
-              |
-              news:
-            )
-            [^\s'"<>()]+
-            |
-            \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
-          )
-        ///gi
-
-      if Conf['Embed']
-        @json  = (url, info) ->
-          $.ajax(
-            url = url
-            onload: ->
-              obj = {}
-              try
-                obj.response = JSON.parse @responseText
-                obj.status   = @status
-                obj.txt      = @responseText
-              catch err
-                ''
-              Quotify.types[info.service].replace obj, info
-          )
-        @save = (info, title) ->
-          {node, service} = info
-          titles = $.get 'CachedTitles', {}
-          i = 2000
-          while saved = Object.keys(titles[service])[++i]
-            delete titles[service][saved]
-          node.textContent = titles[service][node.nextElementSibling.name] = title
-          node.className   = "e#{service}"
-          $.set 'CachedTitles', titles
-        @prot = d.location.protocol
-        @types =
-          youtube:
-            regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-            style:
-              border: '0'
-              width:  '640px'
-              height: '390px'
-            el: ->
-              $.el 'iframe'
-                src:  "#{Quotify.prot}//www.youtube.com/embed/#{@name}"
-            title: ->
-              Quotify.json "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {service: 'youtube', node: @}
-            replace: (obj, info) ->
-              {response, status, txt} = obj
-              theTitle = if status is 404 and txt.indexOf('Video not found') isnt -1
-                'Video not found'
-              else if status is 403 and txt.indexOf('Private video') isnt -1
-                'Private video'
-              else if status is 200 and obj
-                obj.response.entry.title.$t
-              else
-                null
-              Quotify.save info, theTitle if theTitle?
-          vimeo:
-            regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-            style:
-              border: '0'
-              width:  '640px'
-              height: '390px'
-            el: ->
-              $.el 'iframe'
-                src:  "#{Quotify.prot}//player.vimeo.com/video/#{@name}"
-            title: ->
-              Quotify.json "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@nextElementSibling.name}", {service: 'vimeo', node: @}
-            replace: (obj, info) ->
-              {response, status, txt} = obj
-              theTitle = if status is 404
-                'Video not found'
-              else if status is 403
-                'Unknown Video'
-              else if status is 200 and response.title
-                response.title
-              else
-                null
-              Quotify.save info, theTitle if theTitle?
-          liveleak:
-            regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
-            style:
-              boder:  '0'
-              width:  '640px'
-              height: '390px'
-            el: ->
-              $.el 'iframe'
-                src: "http://www.liveleak.com/e/#{@name}?autostart=true"
-          vocaroo:
-            regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
-            style:
-              border: '0'
-              width:  '150px'
-              height: '45px'
-            el: ->
-              $.el 'iframe'
-                src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
-          soundcloud:
-            regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
-            el: ->
-              node = @previousElementSibling
-              $.ajax(
-                "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}"
-                node: node
-                onloadend: ->
-                  response =
-                    el: $.el 'div'
-                      innerHTML: JSON.parse(@responseText).html
-                      className: 'soundcloud'
-                    node: node
-                  Quotify.embed.call response
-              )
-              false
-            title: ->
-              Quotify.json "#{Quotify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{@href}", {service: 'soundcloud', node: @}
-            replace: (obj, info) ->
-              {response, status, txt} = obj
-              if status is 200
-                Quotify.save info, response.title
-          audio:
-            regExp:  /(.*\.(mp3|ogg|wav))$/
-            el: ->
-              $.el 'audio'
-                controls:    'controls'
-                preload:     'auto'
-                src:         @name
-                textContent: 'You should get a better browser.'
-
     Main.callbacks.push @node
+
+  regString:
+      ///
+        (
+          \b(
+            [a-z][-a-z0-9+.]+://
+            |
+            www\.
+            |
+            magnet:
+            |
+            mailto:
+            |
+            news:
+          )
+          [^\s'"<>()]+
+          |
+          \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
+        )
+      ///gi
+
 
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
-    for spoiler in $$ '.spoiler', post.blockquote
+    for spoiler in $$ 's', post.blockquote
       if not /\w/.test(spoiler.textContent) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and (n and p).nodeName is '#text'
         if spoiler.textContent is '.'
           p.textContent += '.'
@@ -4006,85 +3892,51 @@ Quotify =
 
     # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
     # Get all the text nodes that are not inside an anchor.
-    snapshot = d.evaluate './/text()[not(parent::a)]', post.blockquote, null, 6, null
+    snapshot = d.evaluate './/text()', post.blockquote, null, 6, null #|//s
 
     for i in [0...snapshot.snapshotLength]
       node = snapshot.snapshotItem i
       data = node.data
 
-      unless (quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g if Conf['Resurrect Quotes']) or links = data.match Quotify.regString
+      unless links = data.match Linkify.regString
         # Only accept nodes with potentially valid links
         continue
 
       nodes = []
 
-      for quote in quotes or links
-        index   = data.indexOf quote
+      for link in links
+        index   = data.indexOf link
         if text = data[...index]
-          # Potential text before this valid quote.
+          # Potential text before this valid link.
           nodes.push $.tn text
 
-        if quotes
-          id = quote.match(/\d+$/)[0]
-          board =
-            if m = quote.match /^>>>\/([a-z\d]+)/
-              m[1]
-            else
-              # Get the post's board, whether it's inlined or not.
-              $('a[title="Highlight this post"]', post.el).pathname.split('/')[1]
-
-          nodes.push a = $.el 'a',
-            # \u00A0 is nbsp
-            textContent: "#{quote}\u00A0(Dead)"
-
-          if board is g.BOARD and $.id "p#{id}"
-            a.href      = "#p#{id}"
-            a.className = 'quotelink'
-          else
-            a.href =
-              Redirect.to
-                board:    board
-                threadID: 0
-                postID:   id
-            a.className = 'deadlink'
-            a.target    = '_blank'
-            if Redirect.post board, id
-              $.addClass a, 'quotelink'
-              # XXX WTF Scriptish/Greasemonkey?
-              # Setting dataset attributes that way doesn't affect the HTML,
-              # but are, I suspect, kept as object key/value pairs and GC'd later.
-              # a.dataset.board = board
-              # a.dataset.id    = id
-              a.setAttribute 'data-board', board
-              a.setAttribute 'data-id',    id
-        else
-          nodes.push a = $.el 'a',
-            textContent: quote
-            rel:       'nofollow noreferrer'
-            target:    'blank'
-            href:      if quote.indexOf(":") < 0 then (if quote.indexOf("@") > 0 then "mailto:" + quote else "http://" + quote) else quote
-
-        data = data[index + quote.length..]
+        nodes.push a = $.el 'a',
+          textContent: link
+          rel:       'nofollow noreferrer'
+          target:    'blank'
+          href:      if link.indexOf(":") < 0 then (if link.indexOf("@") > 0 then "mailto:" + link else "http://" + link) else link
+        data = data[index + link.length..]
 
       if data
-        # Potential text after the last valid quote.
+        # Potential text after the last valid link.
         nodes.push $.tn data
 
       $.replace node, nodes
+
       if links and a
-        Quotify.concat a
+        Linkify.concat a
         if Conf['Embed']
-          for key, type of Quotify.types
+          for key, type of Linkify.types
             if match = a.href.match type.regExp
               embed = $.el 'a'
                 name:         match[1]
                 className:    key
                 href:         'javascript:;'
                 textContent:  '(embed)'
-              $.on embed, 'click', Quotify.embed
+              $.on embed, 'click', Linkify.embed
               $.after a, embed
               $.after a, $.tn ' '
-              if Conf[key.charAt(0).toUpperCase() + key[1..]] and srv = Quotify.types[key].title
+              if Conf[key.charAt(0).toUpperCase() + key[1..]] and srv = Linkify.types[key].title
                 unless (titles = $.get 'CachedTitles', {})[key]
                   titles[key] = {}
                   $.set 'CachedTitles', titles
@@ -4102,7 +3954,7 @@ Quotify =
       el   = @el
     else
       link = @previousElementSibling
-      return unless el = (type = Quotify.types[@className]).el.call @
+      return unless el = (type = Linkify.types[@className]).el.call @
       if type.style
         for key, value of type.style
           el.style[key] = value
@@ -4117,7 +3969,7 @@ Quotify =
       href:        'javascript:;'
       textContent: '(unembed)'
 
-    $.on unembed, 'click', Quotify.unembed
+    $.on unembed, 'click', Linkify.unembed
     $.replace el.nextElementSibling, unembed
 
   unembed: ->
@@ -4136,7 +3988,7 @@ Quotify =
       href:         'javascript:;'
       textContent:  '(embed)'
 
-    $.on embed, 'click', Quotify.embed
+    $.on embed, 'click', Linkify.embed
     $.replace embedded, a
     $.replace @, embed
 
@@ -4153,6 +4005,194 @@ Quotify =
               @textContent + el.nextSibling.textContent
           @href = @textContent = txt
           $.rm(el) and $.rm @nextSibling
+
+  json: (url, info) ->
+    $.ajax(
+      url = url
+      onload: ->
+        obj = {}
+        try
+          obj.response = JSON.parse @responseText
+          obj.status   = @status
+          obj.txt      = @responseText
+        catch err
+          ''
+        Linkify.types[info.service].replace obj, info
+    )
+
+  save: (info, title) ->
+    {node, service} = info
+    titles = $.get 'CachedTitles', {}
+    i = 2000
+    while saved = Object.keys(titles[service])[++i]
+      delete titles[service][saved]
+    node.textContent = titles[service][node.nextElementSibling.name] = title
+    node.className   = "e#{service}"
+    $.set 'CachedTitles', titles
+
+  prot: d.location.protocol
+
+  types:
+    youtube:
+      regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
+      style:
+        border: '0'
+        width:  '640px'
+        height: '390px'
+      el: ->
+        $.el 'iframe'
+          src:  "#{Linkify.prot}//www.youtube.com/embed/#{@name}"
+      title: ->
+        Linkify.json "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {service: 'youtube', node: @}
+      replace: (obj, info) ->
+        {response, status, txt} = obj
+        theTitle = if status is 404 and txt.indexOf('Video not found') isnt -1
+          'Video not found'
+        else if status is 403 and txt.indexOf('Private video') isnt -1
+          'Private video'
+        else if status is 200 and obj
+          obj.response.entry.title.$t
+        else
+          null
+        Linkify.save info, theTitle if theTitle?
+    vimeo:
+      regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
+      style:
+        border: '0'
+        width:  '640px'
+        height: '390px'
+      el: ->
+        $.el 'iframe'
+          src:  "#{Linkify.prot}//player.vimeo.com/video/#{@name}"
+      title: ->
+        Linkify.json "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@nextElementSibling.name}", {service: 'vimeo', node: @}
+      replace: (obj, info) ->
+        {response, status, txt} = obj
+        theTitle = if status is 404
+          'Video not found'
+        else if status is 403
+          'Unknown Video'
+        else if status is 200 and response.title
+          response.title
+        else
+          null
+        Linkify.save info, theTitle if theTitle?
+    liveleak:
+      regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
+      style:
+        boder:  '0'
+        width:  '640px'
+        height: '390px'
+      el: ->
+        $.el 'iframe'
+          src: "http://www.liveleak.com/e/#{@name}?autostart=true"
+    vocaroo:
+      regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
+      style:
+        border: '0'
+        width:  '150px'
+        height: '45px'
+      el: ->
+        $.el 'iframe'
+          src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
+    soundcloud:
+      regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
+      el: ->
+        node = @previousElementSibling
+        $.ajax(
+          "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}"
+          node: node
+          onloadend: ->
+            response =
+              el: $.el 'div'
+                innerHTML: JSON.parse(@responseText).html
+                className: 'soundcloud'
+              node: node
+            Linkify.embed.call response
+        )
+        false
+      title: ->
+        Linkify.json "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{@href}", {service: 'soundcloud', node: @}
+      replace: (obj, info) ->
+        {response, status, txt} = obj
+        if status is 200
+          Linkify.save info, response.title
+    audio:
+      regExp:  /(.*\.(mp3|ogg|wav))$/
+      el: ->
+        $.el 'audio'
+          controls:    'controls'
+          preload:     'auto'
+          src:         @name
+          textContent: 'You should get a better browser.'
+
+Quotify =
+  init: ->
+    Main.callbacks.push @node
+  node: (post) ->
+    return if post.isInlined and not post.isCrosspost
+
+    # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
+    # Get all the text nodes that are not inside an anchor.
+    snapshot = d.evaluate './/text()[not(parent::a)]', post.blockquote, null, 6, null
+
+    for i in [0...snapshot.snapshotLength]
+      node = snapshot.snapshotItem i
+      data = node.data
+
+      unless quotes = data.match />>(>\/[a-z\d]+\/)?\d+/g
+        # Only accept nodes with potentially valid links
+        continue
+
+      nodes = []
+
+      for quote in quotes
+        index   = data.indexOf quote
+        if text = data[...index]
+          # Potential text before this valid quote.
+          nodes.push $.tn text
+
+        id = quote.match(/\d+$/)[0]
+        board =
+          if m = quote.match /^>>>\/([a-z\d]+)/
+            m[1]
+          else
+            # Get the post's board, whether it's inlined or not.
+            $('a[title="Highlight this post"]', post.el).pathname.split('/')[1]
+
+        nodes.push a = $.el 'a',
+          # \u00A0 is nbsp
+          textContent: "#{quote}\u00A0(Dead)"
+
+        if board is g.BOARD and $.id "p#{id}"
+          a.href      = "#p#{id}"
+          a.className = 'quotelink'
+        else
+          a.href =
+            Redirect.to
+              board:    board
+              threadID: 0
+              postID:   id
+          a.className = 'deadlink'
+          a.target    = '_blank'
+          if Redirect.post board, id
+            $.addClass a, 'quotelink'
+            # XXX WTF Scriptish/Greasemonkey?
+            # Setting dataset attributes that way doesn't affect the HTML,
+            # but are, I suspect, kept as object key/value pairs and GC'd later.
+            # a.dataset.board = board
+            # a.dataset.id    = id
+            a.setAttribute 'data-board', board
+            a.setAttribute 'data-id',    id
+
+        data = data[index + quote.length..]
+
+      if data
+        # Potential text after the last valid quote.
+        nodes.push $.tn data
+
+      $.replace node, nodes
+    return
 
 DeleteLink =
   init: ->
@@ -5071,7 +5111,10 @@ Main =
       if Conf['Embed Link']
         EmbedLink.init()
 
-    if Conf['Resurrect Quotes'] or Conf['Linkify']
+    if Conf['Linkify']
+      Linkify.init()
+
+    if Conf['Resurrect Quotes']
       Quotify.init()
 
     if Conf['Quote Inline']

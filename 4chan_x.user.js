@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -1056,6 +1056,9 @@
         quotes: quotes,
         backlinks: []
       };
+      if (Conf['Linkify']) {
+        Linkify.node(post);
+      }
       if (Conf['Resurrect Quotes']) {
         Quotify.node(post);
       }
@@ -4562,6 +4565,9 @@
         if (Conf['File Info Formatting']) {
           FileInfo.node(post);
         }
+        if (Conf['Linkify']) {
+          Linkify.node(post);
+        }
         if (Conf['Resurrect Quotes']) {
           Quotify.node(post);
         }
@@ -4734,179 +4740,17 @@
     }
   };
 
-  Quotify = {
+  Linkify = {
     init: function() {
-      if (Conf['Linkify']) {
-        Quotify.regString = /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi;
-        if (Conf['Embed']) {
-          this.json = function(url, info) {
-            return $.ajax(url = url, {
-              onload: function() {
-                var obj;
-                obj = {};
-                try {
-                  obj.response = JSON.parse(this.responseText);
-                  obj.status = this.status;
-                  obj.txt = this.responseText;
-                } catch (err) {
-                  '';
-
-                }
-                return Quotify.types[info.service].replace(obj, info);
-              }
-            });
-          };
-          this.save = function(info, title) {
-            var i, node, saved, service, titles;
-            node = info.node, service = info.service;
-            titles = $.get('CachedTitles', {});
-            i = 2000;
-            while (saved = Object.keys(titles[service])[++i]) {
-              delete titles[service][saved];
-            }
-            node.textContent = titles[service][node.nextElementSibling.name] = title;
-            node.className = "e" + service;
-            return $.set('CachedTitles', titles);
-          };
-          this.prot = d.location.protocol;
-          this.types = {
-            youtube: {
-              regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
-              style: {
-                border: '0',
-                width: '640px',
-                height: '390px'
-              },
-              el: function() {
-                return $.el('iframe', {
-                  src: "" + Quotify.prot + "//www.youtube.com/embed/" + this.name
-                });
-              },
-              title: function() {
-                return Quotify.json("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
-                  service: 'youtube',
-                  node: this
-                });
-              },
-              replace: function(obj, info) {
-                var response, status, theTitle, txt;
-                response = obj.response, status = obj.status, txt = obj.txt;
-                theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
-                if (theTitle != null) {
-                  return Quotify.save(info, theTitle);
-                }
-              }
-            },
-            vimeo: {
-              regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
-              style: {
-                border: '0',
-                width: '640px',
-                height: '390px'
-              },
-              el: function() {
-                return $.el('iframe', {
-                  src: "" + Quotify.prot + "//player.vimeo.com/video/" + this.name
-                });
-              },
-              title: function() {
-                return Quotify.json("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.nextElementSibling.name, {
-                  service: 'vimeo',
-                  node: this
-                });
-              },
-              replace: function(obj, info) {
-                var response, status, theTitle, txt;
-                response = obj.response, status = obj.status, txt = obj.txt;
-                theTitle = status === 404 ? 'Video not found' : status === 403 ? 'Unknown Video' : status === 200 && response.title ? response.title : null;
-                if (theTitle != null) {
-                  return Quotify.save(info, theTitle);
-                }
-              }
-            },
-            liveleak: {
-              regExp: /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/,
-              style: {
-                boder: '0',
-                width: '640px',
-                height: '390px'
-              },
-              el: function() {
-                return $.el('iframe', {
-                  src: "http://www.liveleak.com/e/" + this.name + "?autostart=true"
-                });
-              }
-            },
-            vocaroo: {
-              regExp: /.*(?:vocaroo.com\/)([^#\&\?]*).*/,
-              style: {
-                border: '0',
-                width: '150px',
-                height: '45px'
-              },
-              el: function() {
-                return $.el('iframe', {
-                  src: "http://vocaroo.com/player.swf?playMediaID=" + (this.name.replace(/^i\//, '')) + "&autoplay=0"
-                });
-              }
-            },
-            soundcloud: {
-              regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
-              el: function() {
-                var node;
-                node = this.previousElementSibling;
-                $.ajax("" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + node.href, {
-                  node: node,
-                  onloadend: function() {
-                    var response;
-                    response = {
-                      el: $.el('div', {
-                        innerHTML: JSON.parse(this.responseText).html,
-                        className: 'soundcloud'
-                      }),
-                      node: node
-                    };
-                    return Quotify.embed.call(response);
-                  }
-                });
-                return false;
-              },
-              title: function() {
-                return Quotify.json("" + Quotify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + this.href, {
-                  service: 'soundcloud',
-                  node: this
-                });
-              },
-              replace: function(obj, info) {
-                var response, status, txt;
-                response = obj.response, status = obj.status, txt = obj.txt;
-                if (status === 200) {
-                  return Quotify.save(info, response.title);
-                }
-              }
-            },
-            audio: {
-              regExp: /(.*\.(mp3|ogg|wav))$/,
-              el: function() {
-                return $.el('audio', {
-                  controls: 'controls',
-                  preload: 'auto',
-                  src: this.name,
-                  textContent: 'You should get a better browser.'
-                });
-              }
-            }
-          };
-        }
-      }
       return Main.callbacks.push(this.node);
     },
+    regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
     node: function(post) {
-      var a, board, cached, data, embed, i, id, index, key, links, m, match, n, node, nodes, p, quote, quotes, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var a, cached, data, embed, i, index, key, link, links, match, n, node, nodes, p, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
-      _ref = $$('.spoiler', post.blockquote);
+      _ref = $$('s', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         spoiler = _ref[_i];
         if (!/\w/.test(spoiler.textContent) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && (n && p).nodeName === '#text') {
@@ -4917,64 +4761,38 @@
           $.rm(n) && $.rm(spoiler);
         }
       }
-      snapshot = d.evaluate('.//text()[not(parent::a)]', post.blockquote, null, 6, null);
+      snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
       for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         node = snapshot.snapshotItem(i);
         data = node.data;
-        if (!((Conf['Resurrect Quotes'] ? quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g) : void 0) || (links = data.match(Quotify.regString)))) {
+        if (!(links = data.match(Linkify.regString))) {
           continue;
         }
         nodes = [];
-        _ref2 = quotes || links;
-        for (_k = 0, _len1 = _ref2.length; _k < _len1; _k++) {
-          quote = _ref2[_k];
-          index = data.indexOf(quote);
+        for (_k = 0, _len1 = links.length; _k < _len1; _k++) {
+          link = links[_k];
+          index = data.indexOf(link);
           if (text = data.slice(0, index)) {
             nodes.push($.tn(text));
           }
-          if (quotes) {
-            id = quote.match(/\d+$/)[0];
-            board = (m = quote.match(/^>>>\/([a-z\d]+)/)) ? m[1] : $('a[title="Highlight this post"]', post.el).pathname.split('/')[1];
-            nodes.push(a = $.el('a', {
-              textContent: "" + quote + "\u00A0(Dead)"
-            }));
-            if (board === g.BOARD && $.id("p" + id)) {
-              a.href = "#p" + id;
-              a.className = 'quotelink';
-            } else {
-              a.href = Redirect.to({
-                board: board,
-                threadID: 0,
-                postID: id
-              });
-              a.className = 'deadlink';
-              a.target = '_blank';
-              if (Redirect.post(board, id)) {
-                $.addClass(a, 'quotelink');
-                a.setAttribute('data-board', board);
-                a.setAttribute('data-id', id);
-              }
-            }
-          } else {
-            nodes.push(a = $.el('a', {
-              textContent: quote,
-              rel: 'nofollow noreferrer',
-              target: 'blank',
-              href: quote.indexOf(":") < 0 ? (quote.indexOf("@") > 0 ? "mailto:" + quote : "http://" + quote) : quote
-            }));
-          }
-          data = data.slice(index + quote.length);
+          nodes.push(a = $.el('a', {
+            textContent: link,
+            rel: 'nofollow noreferrer',
+            target: 'blank',
+            href: link.indexOf(":") < 0 ? (link.indexOf("@") > 0 ? "mailto:" + link : "http://" + link) : link
+          }));
+          data = data.slice(index + link.length);
         }
         if (data) {
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
         if (links && a) {
-          Quotify.concat(a);
+          Linkify.concat(a);
           if (Conf['Embed']) {
-            _ref3 = Quotify.types;
-            for (key in _ref3) {
-              type = _ref3[key];
+            _ref2 = Linkify.types;
+            for (key in _ref2) {
+              type = _ref2[key];
               if (match = a.href.match(type.regExp)) {
                 embed = $.el('a', {
                   name: match[1],
@@ -4982,10 +4800,10 @@
                   href: 'javascript:;',
                   textContent: '(embed)'
                 });
-                $.on(embed, 'click', Quotify.embed);
+                $.on(embed, 'click', Linkify.embed);
                 $.after(a, embed);
                 $.after(a, $.tn(' '));
-                if (Conf[key.charAt(0).toUpperCase() + key.slice(1)] && (srv = Quotify.types[key].title)) {
+                if (Conf[key.charAt(0).toUpperCase() + key.slice(1)] && (srv = Linkify.types[key].title)) {
                   if (!(titles = $.get('CachedTitles', {}))[key]) {
                     titles[key] = {};
                     $.set('CachedTitles', titles);
@@ -5011,7 +4829,7 @@
         el = this.el;
       } else {
         link = this.previousElementSibling;
-        if (!(el = (type = Quotify.types[this.className]).el.call(this))) {
+        if (!(el = (type = Linkify.types[this.className]).el.call(this))) {
           return;
         }
         if (type.style) {
@@ -5036,7 +4854,7 @@
         href: 'javascript:;',
         textContent: '(unembed)'
       });
-      $.on(unembed, 'click', Quotify.unembed);
+      $.on(unembed, 'click', Linkify.unembed);
       return $.replace(el.nextElementSibling, unembed);
     },
     unembed: function() {
@@ -5058,7 +4876,7 @@
         href: 'javascript:;',
         textContent: '(embed)'
       });
-      $.on(embed, 'click', Quotify.embed);
+      $.on(embed, 'click', Linkify.embed);
       $.replace(embedded, a);
       return $.replace(this, embed);
     },
@@ -5075,6 +4893,219 @@
           }
         }
       });
+    },
+    json: function(url, info) {
+      return $.ajax(url = url, {
+        onload: function() {
+          var obj;
+          obj = {};
+          try {
+            obj.response = JSON.parse(this.responseText);
+            obj.status = this.status;
+            obj.txt = this.responseText;
+          } catch (err) {
+            '';
+
+          }
+          return Linkify.types[info.service].replace(obj, info);
+        }
+      });
+    },
+    save: function(info, title) {
+      var i, node, saved, service, titles;
+      node = info.node, service = info.service;
+      titles = $.get('CachedTitles', {});
+      i = 2000;
+      while (saved = Object.keys(titles[service])[++i]) {
+        delete titles[service][saved];
+      }
+      node.textContent = titles[service][node.nextElementSibling.name] = title;
+      node.className = "e" + service;
+      return $.set('CachedTitles', titles);
+    },
+    prot: d.location.protocol,
+    types: {
+      youtube: {
+        regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
+        style: {
+          border: '0',
+          width: '640px',
+          height: '390px'
+        },
+        el: function() {
+          return $.el('iframe', {
+            src: "" + Linkify.prot + "//www.youtube.com/embed/" + this.name
+          });
+        },
+        title: function() {
+          return Linkify.json("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
+            service: 'youtube',
+            node: this
+          });
+        },
+        replace: function(obj, info) {
+          var response, status, theTitle, txt;
+          response = obj.response, status = obj.status, txt = obj.txt;
+          theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
+          if (theTitle != null) {
+            return Linkify.save(info, theTitle);
+          }
+        }
+      },
+      vimeo: {
+        regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
+        style: {
+          border: '0',
+          width: '640px',
+          height: '390px'
+        },
+        el: function() {
+          return $.el('iframe', {
+            src: "" + Linkify.prot + "//player.vimeo.com/video/" + this.name
+          });
+        },
+        title: function() {
+          return Linkify.json("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.nextElementSibling.name, {
+            service: 'vimeo',
+            node: this
+          });
+        },
+        replace: function(obj, info) {
+          var response, status, theTitle, txt;
+          response = obj.response, status = obj.status, txt = obj.txt;
+          theTitle = status === 404 ? 'Video not found' : status === 403 ? 'Unknown Video' : status === 200 && response.title ? response.title : null;
+          if (theTitle != null) {
+            return Linkify.save(info, theTitle);
+          }
+        }
+      },
+      liveleak: {
+        regExp: /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/,
+        style: {
+          boder: '0',
+          width: '640px',
+          height: '390px'
+        },
+        el: function() {
+          return $.el('iframe', {
+            src: "http://www.liveleak.com/e/" + this.name + "?autostart=true"
+          });
+        }
+      },
+      vocaroo: {
+        regExp: /.*(?:vocaroo.com\/)([^#\&\?]*).*/,
+        style: {
+          border: '0',
+          width: '150px',
+          height: '45px'
+        },
+        el: function() {
+          return $.el('iframe', {
+            src: "http://vocaroo.com/player.swf?playMediaID=" + (this.name.replace(/^i\//, '')) + "&autoplay=0"
+          });
+        }
+      },
+      soundcloud: {
+        regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
+        el: function() {
+          var node;
+          node = this.previousElementSibling;
+          $.ajax("" + Linkify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + node.href, {
+            node: node,
+            onloadend: function() {
+              var response;
+              response = {
+                el: $.el('div', {
+                  innerHTML: JSON.parse(this.responseText).html,
+                  className: 'soundcloud'
+                }),
+                node: node
+              };
+              return Linkify.embed.call(response);
+            }
+          });
+          return false;
+        },
+        title: function() {
+          return Linkify.json("" + Linkify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + this.href, {
+            service: 'soundcloud',
+            node: this
+          });
+        },
+        replace: function(obj, info) {
+          var response, status, txt;
+          response = obj.response, status = obj.status, txt = obj.txt;
+          if (status === 200) {
+            return Linkify.save(info, response.title);
+          }
+        }
+      },
+      audio: {
+        regExp: /(.*\.(mp3|ogg|wav))$/,
+        el: function() {
+          return $.el('audio', {
+            controls: 'controls',
+            preload: 'auto',
+            src: this.name,
+            textContent: 'You should get a better browser.'
+          });
+        }
+      }
+    }
+  };
+
+  Quotify = {
+    init: function() {
+      return Main.callbacks.push(this.node);
+    },
+    node: function(post) {
+      var a, board, data, i, id, index, m, node, nodes, quote, quotes, snapshot, text, _i, _j, _len, _ref;
+      if (post.isInlined && !post.isCrosspost) {
+        return;
+      }
+      snapshot = d.evaluate('.//text()[not(parent::a)]', post.blockquote, null, 6, null);
+      for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        node = snapshot.snapshotItem(i);
+        data = node.data;
+        if (!(quotes = data.match(/>>(>\/[a-z\d]+\/)?\d+/g))) {
+          continue;
+        }
+        nodes = [];
+        for (_j = 0, _len = quotes.length; _j < _len; _j++) {
+          quote = quotes[_j];
+          index = data.indexOf(quote);
+          if (text = data.slice(0, index)) {
+            nodes.push($.tn(text));
+          }
+          id = quote.match(/\d+$/)[0];
+          board = (m = quote.match(/^>>>\/([a-z\d]+)/)) ? m[1] : $('a[title="Highlight this post"]', post.el).pathname.split('/')[1];
+          nodes.push(a = $.el('a', {
+            textContent: "" + quote + "\u00A0(Dead)"
+          }));
+          if (board === g.BOARD && $.id("p" + id)) {
+            a.href = "#p" + id;
+            a.className = 'quotelink';
+          } else {
+            a.href = Redirect.to({
+              board: board,
+              threadID: 0,
+              postID: id
+            });
+            a.className = 'deadlink';
+            a.target = '_blank';
+            if (Redirect.post(board, id)) {
+              $.addClass(a, 'quotelink');
+              a.setAttribute('data-board', board);
+              a.setAttribute('data-id', id);
+            }
+          }
+          data = data.slice(index + quote.length);
+        }
+        if (data) {
+          nodes.push($.tn(data));
+        }
+        $.replace(node, nodes);
+      }
     }
   };
 
@@ -6255,7 +6286,10 @@
           EmbedLink.init();
         }
       }
-      if (Conf['Resurrect Quotes'] || Conf['Linkify']) {
+      if (Conf['Linkify']) {
+        Linkify.init();
+      }
+      if (Conf['Resurrect Quotes']) {
         Quotify.init();
       }
       if (Conf['Quote Inline']) {
