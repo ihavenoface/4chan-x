@@ -4623,11 +4623,14 @@ Redirect =
       keys  = for archiver in @archiver
         archiver['name']
       names = @select false, board
-      if names[1]
-        if (current = $.get "archiver/#{board}/") is undefined or names.indexOf(current) is -1
+      current = $.get "archiver/#{board}/"
+      if names[1] and not current or names.indexOf(current) is -1
           $.set "archiver/#{board}/", names[0]
-      unless names[0] is @noarch
-        aboard = Redirect.archive[board] = @archiver[keys.indexOf names[names.indexOf current]]
+      aboard = if names[0] isnt @noarch
+        Redirect.archive[board] = @archiver[keys.indexOf names[names.indexOf current or names[0]]]
+      else
+        Redirect.archive[board] = true
+
     return if aboard.base
       @path aboard.base, aboard.type, data
     else

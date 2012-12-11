@@ -5669,14 +5669,11 @@
           return _results;
         }).call(this);
         names = this.select(false, board);
-        if (names[1]) {
-          if ((current = $.get("archiver/" + board + "/")) === void 0 || names.indexOf(current) === -1) {
-            $.set("archiver/" + board + "/", names[0]);
-          }
+        current = $.get("archiver/" + board + "/");
+        if (names[1] && !current || names.indexOf(current) === -1) {
+          $.set("archiver/" + board + "/", names[0]);
         }
-        if (names[0] !== this.noarch) {
-          aboard = Redirect.archive[board] = this.archiver[keys.indexOf(names[names.indexOf(current)])];
-        }
+        aboard = names[0] !== this.noarch ? Redirect.archive[board] = this.archiver[keys.indexOf(names[names.indexOf(current || names[0])])] : Redirect.archive[board] = true;
       }
       if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);
