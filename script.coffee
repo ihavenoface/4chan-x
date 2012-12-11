@@ -57,6 +57,7 @@ Config =
       'Auto Watch':                   [true,  'Automatically watch threads that you start']
       'Auto Watch Reply':             [false, 'Automatically watch threads that you reply to']
       'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them']
+      'Remove Spoilers':              [false, 'Remove all spoilers in text.']
     Posting:
       'Quick Reply':                  [true,  'Reply without leaving the page.']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
@@ -3041,6 +3042,15 @@ RevealSpoilers =
     s.maxHeight = s.maxWidth = if /\bop\b/.test post.class then '250px' else '125px'
     img.src = "//thumbs.4chan.org#{img.parentNode.pathname.replace /src(\/\d+).+$/, 'thumb$1s.jpg'}"
 
+RemoveSpoilers =
+  init: ->
+    Main.callbacks.push @node
+  node: (post) ->
+    spoilers = $$ 's', post.el
+    for spoiler in spoilers
+      $.replace spoiler, $.tn spoiler.textContent
+    return
+
 Time =
   init: ->
     Time.foo()
@@ -3885,10 +3895,9 @@ Linkify =
     return if post.isInlined and not post.isCrosspost
     for spoiler in $$ 's', post.blockquote
       if not /\w/.test(spoiler.textContent) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and (n and p).nodeName is '#text'
-        if spoiler.textContent is '.'
-          p.textContent += '.'
-        p.textContent += n.textContent
-        $.rm(n) and $.rm spoiler
+        el = $.tn p.textContent + spoiler.textContent + n.textContent
+        $.rm(p) and $.rm n
+        $.replace spoiler, el
 
     # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
     # Get all the text nodes that are not inside an anchor.
@@ -5089,6 +5098,9 @@ Main =
 
     if Conf['Linkify']
       Linkify.init()
+
+    if Conf['Remove Spoilers']
+      RemoveSpoilers.init()
 
     if Conf['Resurrect Quotes']
       Quotify.init()

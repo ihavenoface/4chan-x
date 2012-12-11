@@ -81,7 +81,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, RemoveSpoilers, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
 
   Config = {
     main: {
@@ -146,7 +146,8 @@
         'Thread Watcher': [true, 'Bookmark threads'],
         'Auto Watch': [true, 'Automatically watch threads that you start'],
         'Auto Watch Reply': [false, 'Automatically watch threads that you reply to'],
-        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them']
+        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them'],
+        'Remove Spoilers': [false, 'Remove all spoilers in text.']
       },
       Posting: {
         'Quick Reply': [true, 'Reply without leaving the page.'],
@@ -3790,6 +3791,20 @@
     }
   };
 
+  RemoveSpoilers = {
+    init: function() {
+      return Main.callbacks.push(this.node);
+    },
+    node: function(post) {
+      var spoiler, spoilers, _i, _len;
+      spoilers = $$('s', post.el);
+      for (_i = 0, _len = spoilers.length; _i < _len; _i++) {
+        spoiler = spoilers[_i];
+        $.replace(spoiler, $.tn(spoiler.textContent));
+      }
+    }
+  };
+
   Time = {
     init: function() {
       Time.foo();
@@ -4746,7 +4761,7 @@
     },
     regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
     node: function(post) {
-      var a, cached, data, embed, i, index, key, link, links, match, n, node, nodes, p, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4754,11 +4769,9 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         spoiler = _ref[_i];
         if (!/\w/.test(spoiler.textContent) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && (n && p).nodeName === '#text') {
-          if (spoiler.textContent === '.') {
-            p.textContent += '.';
-          }
-          p.textContent += n.textContent;
-          $.rm(n) && $.rm(spoiler);
+          el = $.tn(p.textContent + spoiler.textContent + n.textContent);
+          $.rm(p) && $.rm(n);
+          $.replace(spoiler, el);
         }
       }
       snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
@@ -6279,6 +6292,9 @@
       }
       if (Conf['Linkify']) {
         Linkify.init();
+      }
+      if (Conf['Remove Spoilers']) {
+        RemoveSpoilers.init();
       }
       if (Conf['Resurrect Quotes']) {
         Quotify.init();
