@@ -5670,7 +5670,7 @@
         if (names[1] && !current || names.indexOf(current) === -1) {
           $.set("archiver/" + board + "/", names[0]);
         }
-        aboard = names[0] !== this.noarch ? Redirect.archive[board] = this.archiver[keys.indexOf(names[names.indexOf(current || names[0])])] : Redirect.archive[board] = true;
+        aboard = Redirect.archive[board] = names[0] !== this.noarch ? this.archiver[keys.indexOf(names[names.indexOf(current || names[0])])] : true;
       }
       if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);
