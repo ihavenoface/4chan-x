@@ -4567,6 +4567,9 @@
         if (Conf['Anonymize']) {
           Anonymize.node(post);
         }
+        if (Conf['Replace GIF'] || Conf['Replace PNG'] || Conf['Replace JPG']) {
+          ImageReplace.node(post);
+        }
         if (Conf['Color user IDs'] && (board === 'b' || board === 'q' || board === 'soc')) {
           return IDColor.node(post);
         }
