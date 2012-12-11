@@ -2959,7 +2959,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, option, overlay, sauce, select, time, tr, ul, updateIncrease, updateIncreaseB, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, overlay, sauce, time, toSelect, tr, ul, updateIncrease, updateIncreaseB, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -3102,24 +3102,24 @@
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
       archiver = $('select[name=archiver]', dialog);
-      select = Redirect.select();
-      for (_i = 0, _len = select.length; _i < _len; _i++) {
-        name = select[_i];
-        if (archiver.length >= select.length) {
+      toSelect = Redirect.select(g.BOARD);
+      for (_i = 0, _len = toSelect.length; _i < _len; _i++) {
+        name = toSelect[_i];
+        if (archiver.length >= toSelect.length) {
           return;
         }
-        (option = d.createElement('option')).textContent = name;
-        $.add(archiver, option);
+        $.add(archiver, $.el('option', {
+          textContent: name
+        }));
       }
-      if (select[1]) {
-        value = "archiver/" + g.BOARD + "/";
-        archiver.value = $.get(value);
+      if (toSelect[1]) {
+        archiver.value = $.get(value = "archiver/" + g.BOARD + "/");
         $.on(archiver, 'mouseup', function() {
           if (Redirect.archive[g.BOARD]) {
             delete Redirect.archive[g.BOARD];
           }
           $.set(value, this.value);
-          if (select[0] === $.get(value)) {
+          if (toSelect[0] === $.get(value)) {
             return $["delete"](value);
           }
         });
@@ -5629,7 +5629,7 @@
         type: 'fuuka'
       }
     ],
-    select: function(data, board) {
+    select: function(board) {
       var arch, type;
       this.noarch = 'No archiver available.';
       arch = (function() {
@@ -5638,7 +5638,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           type = _ref[_i];
-          if (!(type.boards.indexOf(board || g.BOARD) >= 0)) {
+          if (!(type.boards.indexOf(board) >= 0)) {
             continue;
           }
           _results.push(type.name);
@@ -5665,7 +5665,7 @@
           }
           return _results;
         }).call(this);
-        names = this.select(false, board);
+        names = this.select(board);
         current = $.get("archiver/" + board + "/");
         if (names[1] && !current || names.indexOf(current) === -1) {
           $.set("archiver/" + board + "/", names[0]);

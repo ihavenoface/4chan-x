@@ -2504,19 +2504,18 @@ Options =
 
     #archiver
     archiver = $ 'select[name=archiver]', dialog
-    select = Redirect.select()
-    for name in select
-      return if archiver.length >= select.length
-      (option = d.createElement 'option').textContent = name
-      $.add archiver, option
-    if select[1]
-      value = "archiver/#{g.BOARD}/"
-      archiver.value = $.get value
+    toSelect = Redirect.select g.BOARD
+    for name in toSelect
+      return if archiver.length >= toSelect.length
+      $.add archiver, $.el 'option',
+        textContent: name
+    if toSelect[1]
+      archiver.value = $.get value = "archiver/#{g.BOARD}/"
       $.on archiver, 'mouseup', ->
         if Redirect.archive[g.BOARD]
           delete Redirect.archive[g.BOARD]
         $.set value, @value
-        if select[0] is $.get value
+        if toSelect[0] is $.get value
           $.delete value
 
     #sauce
@@ -4605,10 +4604,10 @@ Redirect =
     }
   ]
 
-  select: (data, board) ->
+  select: (board) ->
     @noarch = 'No archiver available.'
     arch = for type in @archiver
-      unless type.boards.indexOf(board or g.BOARD) >= 0
+      unless type.boards.indexOf(board) >= 0
         continue
       type.name
     return arch if arch.length > 0
@@ -4620,7 +4619,7 @@ Redirect =
     unless aboard
       keys  = for archiver in @archiver
         archiver['name']
-      names = @select false, board
+      names = @select board
       current = $.get "archiver/#{board}/"
       if names[1] and not current or names.indexOf(current) is -1
         $.set "archiver/#{board}/", names[0]
