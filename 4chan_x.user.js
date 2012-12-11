@@ -88,7 +88,6 @@
       Enhancing: {
         'Disable 4chan\'s extension': [true, 'Avoid conflicts between 4chan X and 4chan\'s inline extension.'],
         'Catalog Links': [true, 'Turn Navigation links into links to each board\'s catalog.'],
-        'External Catalog': [false, 'Link to external catalog instead of the internal one.'],
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
@@ -6048,122 +6047,45 @@
 
   CatalogLinks = {
     init: function() {
-      var el, i, nav, _i, _len, _ref;
+      var clone, el, nav, _i, _len, _ref;
       el = $.el('span', {
-        innerHTML: "[<a href=javascript:; title='Toggle Catalog Links " + (!g.CATALOG ? 'on.' : 'off.') + "'>Catalog " + (!g.CATALOG ? 'On' : 'Off') + "</a>]",
-        id: 'toggleCatalog'
+        className: 'toggleCatalog',
+        innerHTML: '[<a href=javascript:;></a>]'
       });
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         nav = _ref[_i];
-        $.on(el.firstElementChild, 'click', this.toggle);
-        $.add($.id(nav), el);
-        el = $.el('span', {
-          innerHTML: el.innerHTML,
-          id: 'toggleCatalogFoot'
-        });
+        clone = el.cloneNode(true);
+        $.on(clone.firstElementChild, 'click', this.toggle);
+        $.add($.id(nav), clone);
       }
-      if ($.get('CatalogIsToggled')) {
-        i = g.CATALOG ? 0 : 1;
-        while (i < 2) {
-          this.toggle();
-          ++i;
-        }
-        return;
-      }
-      if (g.CATALOG) {
-        return this.toggle();
-      }
+      return this.toggle(true);
     },
-    toggle: function() {
-      var a, el, isDead, nav, split, _i, _len, _ref;
+    toggle: function(onLoad) {
+      var a, board, nav, root, useCatalog, _i, _j, _len, _len1, _ref, _ref1;
+      if (onLoad === true) {
+        useCatalog = $.get('CatalogIsToggled', g.CATALOG);
+      } else {
+        useCatalog = this.textContent === 'Catalog Off';
+        $.set('CatalogIsToggled', useCatalog);
+      }
       _ref = ['boardNavDesktop', 'boardNavDesktopFoot'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         nav = _ref[_i];
-        a = $.id(nav).firstElementChild;
-        while (a.href && (split = a.href.split('/'))) {
-          if (!/^rs|status/.test(split[2])) {
-            if ((isDead = split[3] === 'f') && g.CATALOG || split[4] === 'catalog' || /Catalog$/.test(a.title)) {
-              a.href = "//boards.4chan.org/" + split[3] + "/";
-              a.title = a.title.replace(/\ -\ Catalog$/, '');
-            } else if (!isDead) {
-              a.href = Conf['External Catalog'] ? CatalogLinks.external(split[3]) : a.href += 'catalog';
-              a.title += ' - Catalog';
-            }
+        root = $.id(nav);
+        _ref1 = $$('a[href*="boards.4chan.org"]', root);
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          a = _ref1[_j];
+          board = a.pathname.split('/')[1];
+          if (board === 'f') {
+            a.pathname = '/f/';
+            continue;
           }
-          a = a.nextElementSibling;
+          a.pathname = "/" + board + "/" + (useCatalog ? 'catalog' : '');
         }
-        if (/On$/.test((el = a.parentNode.lastChild.firstElementChild).textContent)) {
-          el.textContent = 'Catalog Off';
-          el.title = 'Turn Catalog Links off.';
-          $.set('CatalogIsToggled', true);
-        } else {
-          el.textContent = 'Catalog On';
-          el.title = 'Turn Catalog Links on.';
-          $["delete"]('CatalogIsToggled');
-        }
-      }
-    },
-    external: function(board) {
-      switch (board) {
-        case 'a':
-        case 'c':
-        case 'g':
-        case 'co':
-        case 'k':
-        case 'm':
-        case 'o':
-        case 'p':
-        case 'v':
-        case 'vg':
-        case 'w':
-        case 'cm':
-        case '3':
-        case 'adv':
-        case 'an':
-        case 'cgl':
-        case 'ck':
-        case 'diy':
-        case 'fa':
-        case 'fit':
-        case 'int':
-        case 'jp':
-        case 'mlp':
-        case 'lit':
-        case 'mu':
-        case 'n':
-        case 'po':
-        case 'sci':
-        case 'toy':
-        case 'trv':
-        case 'tv':
-        case 'vp':
-        case 'x':
-        case 'q':
-          return "http://catalog.neet.tv/" + board;
-        case 'd':
-        case 'e':
-        case 'gif':
-        case 'h':
-        case 'hr':
-        case 'hc':
-        case 'r9k':
-        case 's':
-        case 'pol':
-        case 'soc':
-        case 'u':
-        case 'i':
-        case 'ic':
-        case 'hm':
-        case 'r':
-        case 'w':
-        case 'wg':
-        case 'wsg':
-        case 't':
-        case 'y':
-          return "http://4index.gropes.us/" + board;
-        default:
-          return "//boards.4chan.org/" + board + "/catalog";
+        a = $('.toggleCatalog', root).firstElementChild;
+        a.textContent = "Catalog " + (useCatalog ? 'On' : 'Off');
+        a.title = "Turn catalog links " + (useCatalog ? 'off' : 'on') + ".";
       }
     }
   };
