@@ -1,7 +1,10 @@
 master
+
+2.37.3
 - Mayhem
-  Added catalog support:
-    Sync thread hiding between index and catalog.
+  Added catalog support.
+  Sync thread hiding between index and catalog.
+  Add /c/ archived thread and image redirection.
 
 2.37.2
 - noface
