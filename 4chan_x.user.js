@@ -4767,7 +4767,7 @@
     },
     regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
     node: function(post) {
-      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, snapshot, spoiler, srv, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, service, snapshot, spoiler, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
@@ -4806,36 +4806,38 @@
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
-        if (links && a) {
-          Linkify.concat(a);
-          if (Conf['Embed']) {
-            _ref2 = Linkify.types;
-            for (key in _ref2) {
-              type = _ref2[key];
-              if (match = a.href.match(type.regExp)) {
-                embed = $.el('a', {
-                  name: match[1],
-                  className: key,
-                  href: 'javascript:;',
-                  textContent: '(embed)'
-                });
-                $.on(embed, 'click', Linkify.embed);
-                $.after(a, embed);
-                $.after(a, $.tn(' '));
-                if (Conf[key.charAt(0).toUpperCase() + key.slice(1)] && (srv = Linkify.types[key].title)) {
-                  if (!(titles = $.get('CachedTitles', {}))[key]) {
-                    titles[key] = {};
-                    $.set('CachedTitles', titles);
-                  }
-                  if (cached = titles[key][match[1]]) {
-                    a.textContent = cached;
-                    a.className = "e" + key;
-                    break;
-                  }
-                  srv.call(a);
+        Linkify.concat(a);
+        if (Conf['Embed']) {
+          _ref2 = Linkify.types;
+          for (key in _ref2) {
+            type = _ref2[key];
+            if (match = a.href.match(type.regExp)) {
+              embed = $.el('a', {
+                name: match[1],
+                className: key,
+                href: 'javascript:;',
+                textContent: '(embed)'
+              });
+              $.on(embed, 'click', Linkify.embed);
+              $.after(a, embed);
+              $.after(a, $.tn(' '));
+              if (Conf[key.charAt(0).toUpperCase() + key.slice(1)] && (service = Linkify.types[key].title)) {
+                if (!(titles = $.get('CachedTitles', {}))[key]) {
+                  titles[key] = {};
+                  $.set('CachedTitles', titles);
                 }
-                break;
+                if (cached = titles[key][match[1]]) {
+                  a.textContent = cached;
+                  a.style.cssText = "background:transparent url(' " + Linkify.types[key].icon + " ') center left no-repeat!important; padding-left: 18px";
+                  break;
+                }
+                service.call({
+                  node: a,
+                  name: match[1],
+                  service: key
+                });
               }
+              break;
             }
           }
         }
@@ -4889,6 +4891,7 @@
         target: 'blank',
         href: get('href')
       });
+      a.style.cssText = "background:transparent url('" + Linkify.types[this.className].icon + "') center left no-repeat!important; padding-left: 18px";
       embed = $.el('a', {
         name: this.name,
         className: this.className,
@@ -4913,33 +4916,43 @@
         }
       });
     },
-    json: function(url, info) {
-      return $.ajax(url = url, {
+    json: function(info) {
+      return $.ajax(info.url, {
         onload: function() {
-          var obj;
-          obj = {};
           try {
-            obj.response = JSON.parse(this.responseText);
-            obj.status = this.status;
-            obj.txt = this.responseText;
+            info.status = this.status;
+            info.txt = this.responseText;
           } catch (err) {
             '';
 
           }
-          return Linkify.types[info.service].replace(obj, info);
+          return Linkify.save(info);
         }
       });
     },
-    save: function(info, title) {
-      var i, node, saved, service, titles;
-      node = info.node, service = info.service;
+    save: function(info) {
+      var i, key, node, saved, service, status, titles;
+      node = info.node, service = info.service, status = info.status;
       titles = $.get('CachedTitles', {});
       i = 2000;
       while (saved = Object.keys(titles[service])[++i]) {
         delete titles[service][saved];
       }
-      node.textContent = titles[service][node.nextElementSibling.name] = title;
-      node.className = "e" + service;
+      node.style.cssText = "background:transparent url('" + (key = Linkify.types[service]).icon + "') center left no-repeat!important; padding-left: 18px";
+      node.textContent = titles[service][info.name] = (function() {
+        switch (status) {
+          case 200:
+          case 304:
+            return key.text.call(info.txt);
+          case 400:
+          case 404:
+            return "Not Found";
+          case 403:
+            return "Frobidden or Private";
+          default:
+            return "" + status + "'d";
+        }
+      })();
       return $.set('CachedTitles', titles);
     },
     prot: d.location.protocol,
@@ -4956,19 +4969,13 @@
             src: "" + Linkify.prot + "//www.youtube.com/embed/" + this.name
           });
         },
+        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=',
         title: function() {
-          return Linkify.json("https://gdata.youtube.com/feeds/api/videos/" + this.nextElementSibling.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {
-            service: 'youtube',
-            node: this
-          });
+          this.url = "https://gdata.youtube.com/feeds/api/videos/" + this.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode";
+          return Linkify.json(this);
         },
-        replace: function(obj, info) {
-          var response, status, theTitle, txt;
-          response = obj.response, status = obj.status, txt = obj.txt;
-          theTitle = status === 404 && txt.indexOf('Video not found') !== -1 ? 'Video not found' : status === 403 && txt.indexOf('Private video') !== -1 ? 'Private video' : status === 200 && obj ? obj.response.entry.title.$t : null;
-          if (theTitle != null) {
-            return Linkify.save(info, theTitle);
-          }
+        text: function() {
+          return JSON.parse(this).entry.title.$t;
         }
       },
       vimeo: {
@@ -4983,19 +4990,13 @@
             src: "" + Linkify.prot + "//player.vimeo.com/video/" + this.name
           });
         },
+        icon: 'data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==',
         title: function() {
-          return Linkify.json("https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.nextElementSibling.name, {
-            service: 'vimeo',
-            node: this
-          });
+          this.url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.name;
+          return Linkify.json(this);
         },
-        replace: function(obj, info) {
-          var response, status, theTitle, txt;
-          response = obj.response, status = obj.status, txt = obj.txt;
-          theTitle = status === 404 ? 'Video not found' : status === 403 ? 'Unknown Video' : status === 200 && response.title ? response.title : null;
-          if (theTitle != null) {
-            return Linkify.save(info, theTitle);
-          }
+        text: function() {
+          return JSON.parse(this).title;
         }
       },
       liveleak: {
@@ -5025,7 +5026,7 @@
         }
       },
       soundcloud: {
-        regExp: /.*(?:soundcloud.com\/)([^#\&\?]*).*/,
+        regExp: /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/,
         el: function() {
           var node;
           node = this.previousElementSibling;
@@ -5045,18 +5046,13 @@
           });
           return false;
         },
+        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=',
         title: function() {
-          return Linkify.json("" + Linkify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + this.href, {
-            service: 'soundcloud',
-            node: this
-          });
+          this.url = "" + Linkify.prot + "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=" + this.node.href;
+          return Linkify.json(this);
         },
-        replace: function(obj, info) {
-          var response, status, txt;
-          response = obj.response, status = obj.status, txt = obj.txt;
-          if (status === 200) {
-            return Linkify.save(info, response.title);
-          }
+        text: function() {
+          return JSON.parse(this).title;
         }
       },
       audio: {
@@ -7060,18 +7056,6 @@ div.opContainer {\
 }\
 #xupdater {\
   margin-bottom: 2px;\
-}\
-.eyoutube:before {\
-  margin-right: 2px;\
-  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=");\
-}\
-.evimeo:before {\
-  margin-right: 2px;\
-  content: url("data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==");\
-}\
-.esoundcloud:before {\
-  margin-right: 2px;\
-  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=")\
 }\
 '
   };

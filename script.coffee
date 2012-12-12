@@ -3875,25 +3875,21 @@ Linkify =
     Main.callbacks.push @node
 
   regString:
-      ///
-        (
-          \b(
-            [a-z][-a-z0-9+.]+://
-            |
-            www\.
-            |
-            magnet:
-            |
-            mailto:
-            |
-            news:
-          )
-          [^\s'"<>()]+
+      /// (
+        \b (
+          [a-z][-a-z0-9+.]+://
+          |
+          www\.
+          |
+          magnet:
+          |
+          mailto:
+          |
+          news:
+        ) [^\s'"<>()]+
           |
           \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
-        )
-      ///gi
-
+      ) ///gi
 
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
@@ -3905,7 +3901,7 @@ Linkify =
 
     # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
     # Get all the text nodes that are not inside an anchor.
-    snapshot = d.evaluate './/text()', post.blockquote, null, 6, null #|//s
+    snapshot = d.evaluate './/text()', post.blockquote, null, 6, null
 
     for i in [0...snapshot.snapshotLength]
       node = snapshot.snapshotItem i
@@ -3933,32 +3929,33 @@ Linkify =
       if data
         # Potential text after the last valid link.
         nodes.push $.tn data
-
       $.replace node, nodes
 
-      if links and a
-        Linkify.concat a
-        if Conf['Embed']
-          for key, type of Linkify.types
-            if match = a.href.match type.regExp
-              embed = $.el 'a'
-                name:         match[1]
-                className:    key
-                href:         'javascript:;'
-                textContent:  '(embed)'
-              $.on embed, 'click', Linkify.embed
-              $.after a, embed
-              $.after a, $.tn ' '
-              if Conf[key.charAt(0).toUpperCase() + key[1..]] and srv = Linkify.types[key].title
-                unless (titles = $.get 'CachedTitles', {})[key]
-                  titles[key] = {}
-                  $.set 'CachedTitles', titles
-                if cached = titles[key][match[1]]
-                  a.textContent = cached
-                  a.className   = "e#{key}"
-                  break
-                srv.call a
-              break
+      Linkify.concat a
+      if Conf['Embed']
+        for key, type of Linkify.types
+          if match = a.href.match type.regExp
+            embed = $.el 'a'
+              name:         match[1]
+              className:    key
+              href:         'javascript:;'
+              textContent:  '(embed)'
+            $.on embed, 'click', Linkify.embed
+            $.after a, embed
+            $.after a, $.tn ' '
+            if Conf[key.charAt(0).toUpperCase() + key[1..]] and service = Linkify.types[key].title
+              unless (titles = $.get 'CachedTitles', {})[key]
+                titles[key] = {}
+                $.set 'CachedTitles', titles
+              if cached = titles[key][match[1]]
+                a.textContent = cached
+                a.style.cssText = "background:transparent url(' #{Linkify.types[key].icon} ') center left no-repeat!important; padding-left: 18px"
+                break
+              service.call
+                node:    a
+                name:    match[1]
+                service: key
+            break
     return
 
   embed: ->
@@ -3994,6 +3991,7 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
+    a.style.cssText = "background:transparent url('#{Linkify.types[@className].icon}') center left no-repeat!important; padding-left: 18px"
 
     embed = $.el 'a'
       name:         @name
@@ -4019,28 +4017,32 @@ Linkify =
           @href = @textContent = txt
           $.rm(el) and $.rm @nextSibling
 
-  json: (url, info) ->
-    $.ajax(
-      url = url
+  json: (info) ->
+    $.ajax info.url,
       onload: ->
-        obj = {}
         try
-          obj.response = JSON.parse @responseText
-          obj.status   = @status
-          obj.txt      = @responseText
+          info.status = @status
+          info.txt    = @responseText
         catch err
           ''
-        Linkify.types[info.service].replace obj, info
-    )
+        Linkify.save info
 
-  save: (info, title) ->
-    {node, service} = info
+  save: (info) ->
+    {node, service, status} = info
     titles = $.get 'CachedTitles', {}
     i = 2000
     while saved = Object.keys(titles[service])[++i]
       delete titles[service][saved]
-    node.textContent = titles[service][node.nextElementSibling.name] = title
-    node.className   = "e#{service}"
+    node.style.cssText = "background:transparent url('#{(key = Linkify.types[service]).icon}') center left no-repeat!important; padding-left: 18px"
+    node.textContent = titles[service][info.name] = switch status
+      when 200, 304
+        key.text.call info.txt
+      when 400, 404
+        "Not Found"
+      when 403
+        "Frobidden or Private"
+      else
+        "#{status}'d"
     $.set 'CachedTitles', titles
 
   prot: d.location.protocol
@@ -4055,19 +4057,12 @@ Linkify =
       el: ->
         $.el 'iframe'
           src:  "#{Linkify.prot}//www.youtube.com/embed/#{@name}"
+      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII='
       title: ->
-        Linkify.json "https://gdata.youtube.com/feeds/api/videos/#{@nextElementSibling.name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode", {service: 'youtube', node: @}
-      replace: (obj, info) ->
-        {response, status, txt} = obj
-        theTitle = if status is 404 and txt.indexOf('Video not found') isnt -1
-          'Video not found'
-        else if status is 403 and txt.indexOf('Private video') isnt -1
-          'Private video'
-        else if status is 200 and obj
-          obj.response.entry.title.$t
-        else
-          null
-        Linkify.save info, theTitle if theTitle?
+        @url   = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
+        Linkify.json @
+      text: -> JSON.parse(@).entry.title.$t
+
     vimeo:
       regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
       style:
@@ -4077,19 +4072,12 @@ Linkify =
       el: ->
         $.el 'iframe'
           src:  "#{Linkify.prot}//player.vimeo.com/video/#{@name}"
+      icon: 'data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw=='
       title: ->
-        Linkify.json "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@nextElementSibling.name}", {service: 'vimeo', node: @}
-      replace: (obj, info) ->
-        {response, status, txt} = obj
-        theTitle = if status is 404
-          'Video not found'
-        else if status is 403
-          'Unknown Video'
-        else if status is 200 and response.title
-          response.title
-        else
-          null
-        Linkify.save info, theTitle if theTitle?
+        @url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@name}"
+        Linkify.json @
+      text: -> JSON.parse(@).title
+
     liveleak:
       regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
       style:
@@ -4099,6 +4087,7 @@ Linkify =
       el: ->
         $.el 'iframe'
           src: "http://www.liveleak.com/e/#{@name}?autostart=true"
+
     vocaroo:
       regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
       style:
@@ -4108,12 +4097,12 @@ Linkify =
       el: ->
         $.el 'iframe'
           src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
+
     soundcloud:
-      regExp:  /.*(?:soundcloud.com\/)([^#\&\?]*).*/
+      regExp:  /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/
       el: ->
         node = @previousElementSibling
-        $.ajax(
-          "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}"
+        $.ajax "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}",
           node: node
           onloadend: ->
             response =
@@ -4122,14 +4111,13 @@ Linkify =
                 className: 'soundcloud'
               node: node
             Linkify.embed.call response
-        )
         false
+      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII='
       title: ->
-        Linkify.json "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{@href}", {service: 'soundcloud', node: @}
-      replace: (obj, info) ->
-        {response, status, txt} = obj
-        if status is 200
-          Linkify.save info, response.title
+        @url = "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{@node.href}"
+        Linkify.json @
+      text: -> JSON.parse(@).title
+
     audio:
       regExp:  /(.*\.(mp3|ogg|wav))$/
       el: ->
@@ -5803,18 +5791,6 @@ div.opContainer {
 }
 #xupdater {
   margin-bottom: 2px;
-}
-.eyoutube:before {
-  margin-right: 2px;
-  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=");
-}
-.evimeo:before {
-  margin-right: 2px;
-  content: url("data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==");
-}
-.esoundcloud:before {
-  margin-right: 2px;
-  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=")
 }
 '
 
