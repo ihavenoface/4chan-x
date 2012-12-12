@@ -5733,66 +5733,65 @@
     },
     archive: {},
     noArchiver: 'No archiver available.',
-    archiver: [
-      {
-        name: 'Foolz',
+    archiver: {
+      'Foolz': {
         base: '//archive.foolz.us',
         boards: ['a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'],
         type: 'foolfuuka'
-      }, {
-        name: 'NSFWFoolz',
+      },
+      'NSFWFoolz': {
         base: '//nsfw.foolz.us',
         boards: ['u', 'kuku'],
         type: 'foolfuuka'
-      }, {
-        name: 'TheDarkCave',
+      },
+      'TheDarkCave': {
         base: 'http://archive.thedarkcave.org',
         boards: ['c', 'po'],
         type: 'foolfuuka'
-      }, {
-        name: 'Warosu',
+      },
+      'Warosu': {
         base: '//fuuka.warosu.org',
         boards: ['cgl', 'ck', 'jp', 'lit', 'q', 'tg'],
         type: 'fuuka'
-      }, {
-        name: 'RebeccaBlackTech',
+      },
+      'RebeccaBlackTech': {
         base: '//rbt.asia',
         boards: ['cgl', 'g', 'mu', 'w'],
         type: 'fuuka_mail'
-      }, {
-        name: 'InstallGentoo',
+      },
+      'InstallGentoo': {
         base: '//archive.installgentoo.net',
         boards: ['diy', 'g', 'sci'],
         type: 'fuuka'
-      }, {
-        name: 'Heinessen',
+      },
+      'Heinessen': {
         base: 'http://archive.heinessen.com',
         boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'],
         type: 'fuuka'
-      }, {
-        name: 'Cliché',
+      },
+      'Cliché': {
         base: '//www.xn--clich-fsa.net/4chan/cgi-board.pl',
         boards: ['e'],
         type: 'fuuka'
-      }, {
-        name: 'NyaFuu',
+      },
+      'NyaFuu': {
         base: '//archive.nyafuu.org',
         boards: ['c', 'w'],
         type: 'fuuka'
       }
-    ],
+    },
     select: function(board) {
-      var archiver, key, names;
+      var name, names, type;
       names = (function() {
         var _ref, _results;
         _ref = this.archiver;
         _results = [];
-        for (key in _ref) {
-          archiver = _ref[key];
-          if (archiver.boards.indexOf(board) === -1) {
+        for (name in _ref) {
+          type = _ref[name];
+          if (type.boards.indexOf(board) === -1) {
             continue;
           }
-          _results.push(archiver.name);
+          _results.push(name);
         }
         return _results;
       }).call(this);
@@ -5802,38 +5801,9 @@
       return [this.noArchiver];
     },
     to: function(data) {
-      var aboard, archiver, board, current, key, keys, names;
-      board = data.board;
-      aboard = Redirect.archive[board];
-      if (!aboard) {
-        keys = (function() {
-          var _ref, _results;
-          _ref = this.archiver;
-          _results = [];
-          for (key in _ref) {
-            archiver = _ref[key];
-            _results.push(archiver.name);
-          }
-          return _results;
-        }).call(this);
-        names = this.select(board);
-        current = $.get("archiver/" + board + "/");
-        if (names[1]) {
-          if (!current || names.indexOf(current) === -1) {
-            $.set("archiver/" + board + "/", names[0]);
-          }
-        } else {
-          current = names[0];
-        }
-        aboard = this.archive[board] = names[0] !== this.noArchiver ? this.archiver[keys.indexOf(current)] : 'empty';
-      }
-      if (aboard.base) {
-        return this.path(aboard.base, aboard.type, data);
-      } else if (!data.isSearch && data.threadID) {
-        return "//boards.4chan.org/" + board + "/";
-      } else {
-        return null;
-      }
+      var aboard, board, name;
+      aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/", false)] || ((name = this.select(board)[0] !== this.noArchiver && $.set("archiver/" + board + "/", name)) ? this.archiver[name] : {});
+      return (aboard.base ? this.path(aboard.base, aboard.type, data) : !data.isSearch && data.threadID ? "//boards.4chan.org/" + board + "/" : null);
     },
     path: function(base, archiver, data) {
       var board, path, postID, threadID, type, value;

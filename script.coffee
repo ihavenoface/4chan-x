@@ -4650,7 +4650,7 @@ Redirect =
         "//nsfw.foolz.us/#{board}/full_image/#{filename}"
       when 'ck', 'lit'
         "//fuuka.warosu.org/#{board}/full_image/#{filename}"
-      when 'cgl', 'g', 'mu' ,'w'
+      when 'cgl', 'g', 'mu', 'w'
         "//rbt.asia/#{board}/full_image/#{filename}"
       when 'an', 'k', 'toy', 'x'
         "http://archive.heinessen.com/#{board}/full_image/#{filename}"
@@ -4658,104 +4658,76 @@ Redirect =
         "//www.xn--clich-fsa.net/4chan/cgi-board.pl/#{board}/img/#{filename}"
       when 'c'
         "//archive.nyafuu.org/#{board}/full_image/#{filename}"
+
   post: (board, postID) ->
     switch board
       when 'a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-  archive: {}
+  archive:    {}
+
   noArchiver: 'No archiver available.'
-  archiver: [
-    {
-      name:    'Foolz'
+
+  archiver:
+    'Foolz':
       base:    '//archive.foolz.us'
       boards:  ['a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
       type:    'foolfuuka'
-    }
-    {
-      name:    'NSFWFoolz'
+    'NSFWFoolz':
       base:    '//nsfw.foolz.us'
       boards:  ['u', 'kuku']
       type:    'foolfuuka'
-    }
-    {
-      name:    'TheDarkCave'
+    'TheDarkCave':
       base:    'http://archive.thedarkcave.org'
       boards:  ['c', 'po']
       type:    'foolfuuka'
-    }
-    {
-      name:    'Warosu'
+    'Warosu':
       base:    '//fuuka.warosu.org'
       boards:  ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
       type:    'fuuka'
-    }
-    {
-      name:    'RebeccaBlackTech'
+    'RebeccaBlackTech':
       base:    '//rbt.asia'
       boards:  ['cgl', 'g', 'mu', 'w']
       type:    'fuuka_mail'
-    }
-    {
-      name:    'InstallGentoo'
+    'InstallGentoo':
       base:    '//archive.installgentoo.net'
       boards:  ['diy', 'g', 'sci']
       type:    'fuuka'
-    }
-    {
-      name:    'Heinessen'
+    'Heinessen':
       base:    'http://archive.heinessen.com'
       boards:  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
       type:    'fuuka'
-    }
-    {
-      name:    'Cliché'
-      base:    '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
-      boards:  ['e']
-      type:    'fuuka'
-    }
-    {
-      name:    'NyaFuu'
-      base:    '//archive.nyafuu.org'
-      boards:  ['c', 'w']
-      type:    'fuuka'
-    }
-  ]
+    'Cliché':
+      base: '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
+      boards: ['e']
+      type: 'fuuka'
+    'NyaFuu':
+      base: '//archive.nyafuu.org'
+      boards: ['c', 'w']
+      type: 'fuuka'
 
   select: (board) ->
-    names = for key, archiver of @archiver
-      if archiver.boards.indexOf(board) is -1
+    names = for name, type of @archiver
+      if type.boards.indexOf(board) is -1
         continue
-      archiver.name
+      name
     return names if names.length > 0
     [@noArchiver]
 
   to: (data) ->
-    {board} = data
-    aboard  = Redirect.archive[board]
-    unless aboard
-      keys  = for key, archiver of @archiver
-        archiver.name
-      names = @select board
-      current = $.get "archiver/#{board}/"
-      if names[1]
-        if not current or names.indexOf(current) is -1
-          $.set "archiver/#{board}/", names[0]
+    aboard = @archive[board = data.board] = @archiver[$.get "archiver/#{board}/", false] or
+      if name = @select(board)[0] isnt @noArchiver and $.set "archiver/#{board}/", name
+        @archiver[name]
       else
-        current = names[0]
-      aboard = @archive[board] =
-        if names[0] isnt @noArchiver
-          @archiver[keys.indexOf current]
-        else
-          'empty'
+        {}
 
-    if aboard.base
+    return (if aboard.base
       @path aboard.base, aboard.type, data
     else if not data.isSearch and data.threadID
       "//boards.4chan.org/#{board}/"
     else
-      null
+      null)
 
   path: (base, archiver, data) ->
     if data.isSearch
