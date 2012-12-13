@@ -1345,7 +1345,7 @@
       });
       a = stub.firstChild;
       $.on(a, 'click', ReplyHiding.toggle);
-      $.add(a, $.tn($('.desktop > .nameBlock', el).textContent));
+      $.add(a, (Conf['Anonymize'] ? $.tn('Anonymous') : $.tn($('.desktop > .nameBlock', el).textContent)));
       if (Conf['Menu']) {
         menuButton = Menu.a.cloneNode(true);
         $.on(menuButton, 'click', Menu.toggle);

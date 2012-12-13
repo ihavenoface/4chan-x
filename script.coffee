@@ -1088,7 +1088,7 @@ ReplyHiding =
       innerHTML: '<a href="javascript:;"><span>[ + ]</span> </a>'
     a = stub.firstChild
     $.on  a, 'click', ReplyHiding.toggle
-    $.add a, $.tn $('.desktop > .nameBlock', el).textContent
+    $.add a, if Conf['Anonymize'] then $.tn 'Anonymous' else $.tn $('.desktop > .nameBlock', el).textContent
     if Conf['Menu']
       menuButton = Menu.a.cloneNode true
       $.on menuButton, 'click', Menu.toggle
