@@ -3155,10 +3155,8 @@
       $.on(width, 'input', $.cb.value);
       $.on(height, 'input', $.cb.value);
       $.on(embedSize.children[4], 'click', function() {
-        width.value = 640;
-        height.value = 390;
-        $.set('embedWidth', 640);
-        return $.set('embedHeight', 390);
+        $.set('embedWidth', width.value = 640);
+        return $.set('embedHeight', height.value = 390);
       });
       $.add($('ul:nth-child(2)', dialog), embedSize);
       hiddenThreads = $.get("hiddenThreads/" + g.BOARD + "/", {});
