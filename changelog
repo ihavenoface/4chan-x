@@ -1,6 +1,11 @@
 master
 - zixaphir
   Added Per-Board Personas.
+- Mayhem
+  Fix selection quoting on Opera.
+
+2.37.0
+>>>>>>> f28bfd4... Fix #853
 - noface
   Added new function 'Remove Spoilers'.
 
