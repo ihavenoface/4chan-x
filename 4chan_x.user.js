@@ -103,9 +103,9 @@
       Linkification: {
         'Linkify': [true, 'Convert text into links where applicable. If a link is too long and only partially linkified, shift+click it to merge the next line.'],
         'Embed': [true, 'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.'],
-        'Youtube': [true, 'Replace youtube link with its title.'],
-        'Vimeo': [true, 'Replace vimeo link with its title.'],
-        'Soundcloud': [true, 'Replace soundcloud link with its title.'],
+        'Youtube': [true, 'Replace youtube links with its title.'],
+        'Vimeo': [true, 'Replace vimeo links.'],
+        'Soundcloud': [true, 'Replace soundcloud links.'],
         'Show FavIcons': [true, 'Prepend the site\'s favicon to a replaced title.']
       },
       Filtering: {
