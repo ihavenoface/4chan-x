@@ -4799,7 +4799,6 @@
       if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
         return;
       }
-      this.ids = {};
       css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;';
       $.addStyle(".posteruid .hand {" + css + "}");
       return Main.callbacks.push(this.node);
@@ -4821,6 +4820,7 @@
         return IDColor.clicked = true;
       }
     },
+    ids: {},
     compute: function(str) {
       var hash, rgb;
       rgb = [];

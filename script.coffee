@@ -3926,7 +3926,6 @@ QuoteCT =
 IDColor =
   init: ->
     return unless g.BOARD in ['b', 'q', 'soc']
-    @ids = {}
     css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;'
     $.addStyle ".posteruid .hand {#{css}}"
     Main.callbacks.push @node
@@ -3940,6 +3939,7 @@ IDColor =
       $.addClass uid.parentNode.parentNode.parentNode.parentNode, 'highlight'
       IDColor.highlighted.push uid.parentNode
       IDColor.clicked = true
+  ids: {}
   compute: (str) ->
     rgb = []
     hash = @hash str
