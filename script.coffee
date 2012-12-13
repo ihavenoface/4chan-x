@@ -2435,7 +2435,7 @@ Options =
   <input type=radio name=tab hidden id=rice_tab>
   <div>
     Select an Archiver for this board<br>
-    <select name=archiver></select> (No refresh needed.)<br>
+    <select name=archiver></select><br>
     <div class=warning><code>Quote Backlinks</code> are disabled.</div>
     <ul>
       Backlink formatting
