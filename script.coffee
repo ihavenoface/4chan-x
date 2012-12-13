@@ -4717,12 +4717,11 @@ Redirect =
 
   to: (data) ->
     unless aboard = @archive[board = data.board] = @archiver[$.get "archiver/#{board}/"]
-      if name  = @select(board)[0]
+      if name = @select(board)[0]
         if name is @noArchiver
           aboard = 'empty'
         else
           $.set "archiver/#{board}/", aboard = @archiver[name]
-
 
     if aboard.base
       @path aboard.base, aboard.type, data
