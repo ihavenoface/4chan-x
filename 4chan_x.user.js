@@ -161,8 +161,8 @@
         'Remember QR size': [false, 'Remember the size of the Quick reply (Firefox only).'],
         'Remember Subject': [false, 'Remember the subject field, instead of resetting after posting.'],
         'Remember Spoiler': [false, 'Remember the spoiler state, instead of resetting after posting.'],
+        'Remember Sage': [false, 'Remember email even if it contains sage.'],
         'Hide Original Post Form': [true, 'Replace the normal post form with a shortcut to open the QR.'],
-        'Sage on /jp/': [true, 'Uses sage by default on /jp/'],
         'Markdown': [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
       },
       Quoting: {
@@ -3205,7 +3205,7 @@
         global: {}
       });
       if (!Options.persona.data[g.BOARD]) {
-        Options.persona.data[g.BOARD] = JSON.parse(JSON.stringify(Options.persona.data.global));
+        Options.persona.data[g.BOARD] = Options.persona.data.global;
       }
       for (name in Options.persona.data) {
         Options.persona.select.innerHTML += "<option value=" + name + ">" + name + "</option>";
