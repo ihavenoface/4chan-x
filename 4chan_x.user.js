@@ -2605,7 +2605,7 @@
         return this.input.alt = count;
       },
       reload: function(focus) {
-        window.location = 'javascript:Recaptcha.reload("t")';
+        $.globalEval('javascript:Recaptcha.reload("t")');
         if (focus) {
           return QR.captcha.input.focus();
         }
