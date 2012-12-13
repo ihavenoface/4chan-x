@@ -4716,12 +4716,13 @@ Redirect =
     [@noArchiver]
 
   to: (data) ->
-    aboard =
-      @archive[board = data.board] = @archiver[$.get "archiver/#{board}/", false] or
-      if (name = @select(board)[0]) isnt @noArchiver and $.set "archiver/#{board}/", name
-        @archiver[name]
-      else
-        {}
+    unless aboard = @archive[board = data.board] = @archiver[$.get "archiver/#{board}/"]
+      if name  = @select(board)[0]
+        if name is @noArchiver
+          aboard = 'empty'
+        else
+          $.set "archiver/#{board}/", aboard = @archiver[name]
+
 
     if aboard.base
       @path aboard.base, aboard.type, data

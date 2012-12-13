@@ -5802,7 +5802,15 @@
     },
     to: function(data) {
       var aboard, board, name;
-      aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/", false)] || ((name = this.select(board)[0]) !== this.noArchiver && $.set("archiver/" + board + "/", name) ? this.archiver[name] : {});
+      if (!(aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/")])) {
+        if (name = this.select(board)[0]) {
+          if (name === this.noArchiver) {
+            aboard = 'empty';
+          } else {
+            $.set("archiver/" + board + "/", aboard = this.archiver[name]);
+          }
+        }
+      }
       if (aboard.base) {
         return this.path(aboard.base, aboard.type, data);
       } else if (!data.isSearch && data.threadID) {
