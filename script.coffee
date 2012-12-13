@@ -4716,18 +4716,19 @@ Redirect =
     [@noArchiver]
 
   to: (data) ->
-    aboard = @archive[board = data.board] = @archiver[$.get "archiver/#{board}/", false] or
-      if name = @select(board)[0] isnt @noArchiver and $.set "archiver/#{board}/", name
+    aboard =
+      @archive[board = data.board] = @archiver[$.get "archiver/#{board}/", false] or
+      if (name = @select(board)[0]) isnt @noArchiver and $.set "archiver/#{board}/", name
         @archiver[name]
       else
         {}
 
-    return (if aboard.base
+    if aboard.base
       @path aboard.base, aboard.type, data
     else if not data.isSearch and data.threadID
       "//boards.4chan.org/#{board}/"
     else
-      null)
+      null
 
   path: (base, archiver, data) ->
     if data.isSearch

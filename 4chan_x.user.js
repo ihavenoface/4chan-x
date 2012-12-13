@@ -5802,8 +5802,14 @@
     },
     to: function(data) {
       var aboard, board, name;
-      aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/", false)] || ((name = this.select(board)[0] !== this.noArchiver && $.set("archiver/" + board + "/", name)) ? this.archiver[name] : {});
-      return (aboard.base ? this.path(aboard.base, aboard.type, data) : !data.isSearch && data.threadID ? "//boards.4chan.org/" + board + "/" : null);
+      aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/", false)] || ((name = this.select(board)[0]) !== this.noArchiver && $.set("archiver/" + board + "/", name) ? this.archiver[name] : {});
+      if (aboard.base) {
+        return this.path(aboard.base, aboard.type, data);
+      } else if (!data.isSearch && data.threadID) {
+        return "//boards.4chan.org/" + board + "/";
+      } else {
+        return null;
+      }
     },
     path: function(base, archiver, data) {
       var board, path, postID, threadID, type, value;
