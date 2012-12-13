@@ -3948,8 +3948,8 @@ Linkify =
                 titles[key] = {}
                 $.set 'CachedTitles', titles
               if cached = titles[key][match[1]]
-                a.textContent = cached
-                a.style.cssText = "background:transparent url(' #{Linkify.types[key].icon} ') center left no-repeat!important; padding-left: 18px"
+                a.textContent   = cached
+                a.style.cssText = Linkify.types[key].icon
                 break
               service.call
                 node:    a
@@ -3991,7 +3991,7 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
-    a.style.cssText = "background:transparent url('#{Linkify.types[@className].icon}') center left no-repeat!important; padding-left: 18px"
+    a.style.cssText = Linkify.types[@className].icon
 
     embed = $.el 'a'
       name:         @name
@@ -4023,9 +4023,8 @@ Linkify =
         try
           info.status = @status
           info.txt    = @responseText
+          Linkify.save info
         catch err
-          ''
-        Linkify.save info
 
   save: (info) ->
     {node, service, status} = info
@@ -4033,8 +4032,8 @@ Linkify =
     i = 2000
     while saved = Object.keys(titles[service])[++i]
       delete titles[service][saved]
-    node.style.cssText = "background:transparent url('#{(key = Linkify.types[service]).icon}') center left no-repeat!important; padding-left: 18px"
-    node.textContent = titles[service][info.name] = switch status
+    node.style.cssText = (key = Linkify.types[service]).icon
+    node.textContent   = titles[service][info.name] = switch status
       when 200, 304
         key.text.call info.txt
       when 400, 404
@@ -4045,8 +4044,6 @@ Linkify =
         "#{status}'d"
     $.set 'CachedTitles', titles
 
-  prot: d.location.protocol
-
   types:
     youtube:
       regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
@@ -4056,10 +4053,10 @@ Linkify =
         height: '390px'
       el: ->
         $.el 'iframe'
-          src:  "#{Linkify.prot}//www.youtube.com/embed/#{@name}"
-      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII='
+          src:  "//www.youtube.com/embed/#{@name}"
+      icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px"
       title: ->
-        @url   = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
+        @url = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
         Linkify.json @
       text: -> JSON.parse(@).entry.title.$t
 
@@ -4071,8 +4068,8 @@ Linkify =
         height: '390px'
       el: ->
         $.el 'iframe'
-          src:  "#{Linkify.prot}//player.vimeo.com/video/#{@name}"
-      icon: 'data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw=='
+          src:  "//player.vimeo.com/video/#{@name}"
+      icon: "background:transparent url('data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==') center left no-repeat!important; padding-left: 18px"
       title: ->
         @url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@name}"
         Linkify.json @
@@ -4100,9 +4097,10 @@ Linkify =
 
     soundcloud:
       regExp:  /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/
+      url:     "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url="
       el: ->
         node = @previousElementSibling
-        $.ajax "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{node.href}",
+        $.ajax Linkify.types.soundcloud.url + node.href,
           node: node
           onloadend: ->
             response =
@@ -4112,9 +4110,9 @@ Linkify =
               node: node
             Linkify.embed.call response
         false
-      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII='
+      icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px"
       title: ->
-        @url = "#{Linkify.prot}//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=#{@node.href}"
+        @url = Linkify.types.soundcloud.url + @node.href
         Linkify.json @
       text: -> JSON.parse(@).title
 
