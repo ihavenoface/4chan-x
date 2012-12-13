@@ -6243,7 +6243,7 @@
 
   Main = {
     init: function() {
-      var key, path, pathname, settings, temp, val;
+      var key, newBloat, path, pathname, settings, temp, val;
       Main.flatten(null, Config);
       for (key in Conf) {
         val = Conf[key];
@@ -6259,6 +6259,13 @@
           break;
         case 'catalog':
           g.CATALOG = true;
+      }
+      if (Conf['Sage on /jp/'] && g.BOARD === 'jp') {
+        newBloat = confirm("A new feature called 'Per Board Persona' is out, rendering 'Sage on /jp/' obsolete and can be found under the 'Rice' tab.\nShould I activate it for you?");
+        $.set('Sage on /jp/', false);
+        if (newBloat) {
+          $.set('Per Board Persona', true);
+        }
       }
       if (Conf["Interval per board"]) {
         Conf["Interval_" + g.BOARD] = $.get("Interval_" + g.BOARD, Conf["Interval"]);

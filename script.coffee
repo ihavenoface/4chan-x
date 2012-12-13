@@ -5062,6 +5062,13 @@ Main =
       when 'catalog'
         g.CATALOG = true
 
+    # Prevent complains
+    if Conf['Sage on /jp/'] and g.BOARD is 'jp'
+      newBloat = confirm "A new feature called 'Per Board Persona' is out, rendering 'Sage on /jp/' obsolete and can be found under the 'Rice' tab.\nShould I activate it for you?"
+      $.set 'Sage on /jp/', false
+      if newBloat
+        $.set 'Per Board Persona', true
+
     # Setup Fill some per board configuration values with their global equivalents.
     if Conf["Interval per board"]
       Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
