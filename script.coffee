@@ -66,6 +66,7 @@ Config =
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting.']
       'Auto Hide QR':                 [true,  'Automatically hide the quick reply when posting.']
       'Open Reply in New Tab':        [false, 'Open replies in a new tab that are made from the main board.']
+      'Per Board Persona':            [false, 'Remember Name, Email, Subject, etc per board instead of globally.']
       'Remember QR size':             [false, 'Remember the size of the Quick reply (Firefox only).']
       'Remember Subject':             [false, 'Remember the subject field, instead of resetting after posting.']
       'Remember Spoiler':             [false, 'Remember the spoiler state, instead of resetting after posting.']
@@ -1844,12 +1845,15 @@ QR =
     constructor: ->
       # set values, or null, to avoid 'undefined' values in inputs
       prev     = QR.replies[QR.replies.length-1]
-      persona  = $.get 'QR.persona', {}
-      @name    = if prev then prev.name else persona.name or null
-      @email   = if prev and !/^sage$/.test prev.email then prev.email   else if Conf['Sage on /jp/'] and g.BOARD is 'jp' then 'sage' else persona.email or null
-      @sub     = if prev and Conf['Remember Subject']  then prev.sub     else if Conf['Remember Subject'] then persona.sub else null
-      @spoiler = if prev and Conf['Remember Spoiler']  then prev.spoiler else false
-      @com = null
+      persona  = $.get 'persona',
+        global: {}
+      unless persona[key = if Conf['Per Board Persona'] then g.BOARD else 'global']
+        persona[key] = persona.global
+      @name    = if prev then prev.name else persona[key].name or null
+      @email   = if prev and (Conf["Remember Sage"] or !/^sage$/.test prev.email) then prev.email else persona[key].email or null
+      @sub     = if prev and Conf['Remember Subject'] then prev.sub else if Conf['Remember Subject'] then persona[key].sub else null
+      @spoiler = if prev and Conf['Remember Spoiler'] then prev.spoiler else false
+      @com     = null
 
       @el = $.el 'a',
         className: 'thumbnail'
@@ -2300,12 +2304,20 @@ QR =
 
     reply = QR.replies[0]
 
-    persona = $.get 'QR.persona', {}
-    persona =
+    persona = $.get 'persona',
+      global: {}
+    persona[key = if Conf['Per Board Persona'] then g.BOARD else 'global'] =
       name:  reply.name
-      email: if /^sage$/.test reply.email then persona.email else reply.email
+      email:
+        if !Conf["Remember Sage"] and /^sage$/.test reply.email
+          if /^sage$/.test persona[key].email
+            null
+          else
+            persona[key].email
+        else
+          reply.email
       sub:   if Conf['Remember Subject']  then reply.sub     else null
-    $.set 'QR.persona', persona
+    $.set 'persona', persona
 
     [_, threadID, postID] = msg.lastChild.textContent.match /thread:(\d+),no:(\d+)/
     Updater.postID = postID
@@ -2369,7 +2381,7 @@ Options =
       Options.dialog()
 
   dialog: ->
-    dialog = $.el 'div'
+    dialog = Options.el = $.el 'div'
       id: 'options'
       className: 'reply dialog'
       innerHTML: '<div id=optionsbar>
@@ -2472,6 +2484,45 @@ Options =
       <br>Background tab<br>
       <input name=updateIncreaseB class=field>
     </ul>
+    <div class=warning><code>Per Board Persona</code> is disabled.</div>
+    <div id=persona>
+      <select name=personaboards></select>
+      <ul>
+        <li>
+          <div class=option>
+            Name:
+          </div>
+        </li>
+        <li>
+          <div class=option>
+            <input name=name>
+          </div>
+        </li>
+        <li>
+          <div class=option>
+            Email:
+          </div>
+        </li>
+        <li>
+          <div class=option>
+            <input name=email>
+          </div>
+        </li>
+        <li>
+          <div class=option>
+            Subject:
+          </div>
+        </li>
+        <li>
+          <div class=option>
+            <input name=sub>
+          </div>
+        </li>
+        <li>
+          <button></button>
+        </li>
+      </ul>
+    </div>
   </div>
   <input type=radio name=tab hidden id=keybinds_tab>
   <div>
@@ -2547,6 +2598,19 @@ Options =
     (updateIncreaseB = $ '[name=updateIncreaseB]', dialog).value = $.get 'updateIncreaseB', Conf['updateIncreaseB']
     $.on updateIncreaseB, 'input', $.cb.value
 
+    #persona
+    Options.persona.select = $ '[name=personaboards]', dialog
+    Options.persona.button = $ '#persona button', dialog
+    Options.persona.data = $.get 'persona',
+      global: {}
+    unless Options.persona.data[g.BOARD]
+      Options.persona.data[g.BOARD] = JSON.parse JSON.stringify Options.persona.data.global
+    for name of Options.persona.data
+      Options.persona.select.innerHTML += "<option value=#{name}>#{name}</option>"
+    Options.persona.select.value = if Conf['Per Board Persona'] then g.BOARD else 'global'
+    Options.persona.init()
+    $.on Options.persona.select, 'change', Options.persona.change
+
     #keybinds
     for key, arr of Config.hotkeys
       tr = $.el 'tr',
@@ -2578,6 +2642,42 @@ Options =
     Options.time.call     time
     Options.fileInfo.call fileInfo
     Options.favicon.call  favicon
+
+  persona:
+    init: ->
+      key = if Conf['Per Board Persona'] then g.BOARD else 'global'
+      Options.persona.newButton()
+      for item in Options.persona.array
+        input = $ "input[name=#{item}]", Options.el
+        input.value = @data[key][item] or ""
+
+        $.on input, 'blur', ->
+          pers = Options.persona
+          pers.data[pers.select.value][@name] = @value
+          $.set 'persona', pers.data
+
+      $.on Options.persona.button, 'click', Options.persona.copy
+
+    array: ['name', 'email', 'sub']
+
+    change: ->
+      key = @value
+      Options.persona.newButton()
+      for item in Options.persona.array
+        input = $ "input[name=#{item}]", Options.el
+        input.value = Options.persona.data[key][item]
+
+    copy: ->
+      {select, data, change} = Options.persona
+      if select.value is 'global'
+        data.global = JSON.parse JSON.stringify data[select.value]
+      else
+        data[select.value] = JSON.parse JSON.stringify data.global
+      $.set 'persona', Options.persona.data = data
+      change.call select
+
+    newButton: ->
+      Options.persona.button.textContent = "Copy from #{if Options.persona.select.value is 'global' then 'current board' else 'global'}"
 
   close: ->
     $.rm this
