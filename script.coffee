@@ -2548,8 +2548,8 @@ Options =
 
     embedSize = $.el 'div'
       innerHTML: "<br>Specify size of video embeds<br><input name=embedWidth type=number />px <input name=embedHeight type=number />px <button>Reset</button>"
-    (width  = embedSize.children[2]).value = $.get 'embedWidth'
-    (height = embedSize.children[3]).value = $.get 'embedHeight'
+    (width  = embedSize.children[2]).value = $.get 'embedWidth',  Conf['embedWidth']
+    (height = embedSize.children[3]).value = $.get 'embedHeight', Conf['embedHeight']
     $.on width,  'input', $.cb.value
     $.on height, 'input', $.cb.value
     $.on embedSize.children[4], 'click', ->
@@ -4083,7 +4083,7 @@ Linkify =
         for key, value of type.style
           el.style[key] = value
       else
-        el.style.cssText = "border: 0; width: #{$.get 'embedWidth'}px; height: #{$.get 'embedHeight'}px"
+        el.style.cssText = "border: 0; width: #{$.get 'embedWidth', Conf['embedWidth']}px; height: #{$.get 'embedHeight', Conf['embedHeight']}px"
 
     for att in ['href', 'textContent', 'className']
       el.setAttribute "data-original-#{att}", link[att] if link[att]
