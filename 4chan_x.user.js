@@ -4828,10 +4828,12 @@
                   $.set('CachedTitles', titles);
                 }
                 if (cached = titles[key][match[1]]) {
-                  a.textContent = "" + (Conf['Show FavIcons'] ? "[" + key + "] " : '') + cached;
-                  if (!Conf['Show FavIcons']) {
+                  if (Conf['Show FavIcons']) {
+                    a.textContent = cached;
                     a.className = "" + key + "Title";
+                    break;
                   }
+                  a.textContent = "[" + key + "] " + cached;
                   break;
                 }
                 service.call({
@@ -4894,7 +4896,7 @@
         target: 'blank',
         href: get('href')
       });
-      if (!Conf['Show FavIcons']) {
+      if (Conf['Show FavIcons']) {
         a.className = "" + this.className + "Title";
       }
       embed = $.el('a', {
@@ -4942,7 +4944,7 @@
       while (saved = Object.keys(titles[service])[++i]) {
         delete titles[service][saved];
       }
-      if (!Conf['Show FavIcons']) {
+      if (Conf['Show FavIcons']) {
         node.className = "" + service + "Title";
       }
       node.textContent = titles[service][info.name] = (function() {
@@ -4959,7 +4961,7 @@
             return "" + status + "'d";
         }
       })();
-      if (Conf['Show FavIcons']) {
+      if (!Conf['Show FavIcons']) {
         node.textContent = "[" + service + "] " + node.textContent;
       }
       return $.set('CachedTitles', titles);

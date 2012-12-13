@@ -3949,8 +3949,11 @@ Linkify =
                 titles[key] = {}
                 $.set 'CachedTitles', titles
               if cached = titles[key][match[1]]
-                a.textContent   = "#{if Conf['Show FavIcons'] then "[#{key}] " else ''}#{cached}"
-                a.className = "#{key}Title" unless Conf['Show FavIcons']
+                if Conf['Show FavIcons']
+                  a.textContent = cached
+                  a.className   = "#{key}Title"
+                  break
+                a.textContent   = "[#{key}] #{cached}"
                 break
               service.call
                 node:    a
@@ -3992,7 +3995,7 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
-    a.className = "#{@className}Title" unless Conf['Show FavIcons']
+    a.className = "#{@className}Title" if Conf['Show FavIcons']
 
     embed = $.el 'a'
       name:         @name
@@ -4033,7 +4036,7 @@ Linkify =
     i = 2000
     while saved = Object.keys(titles[service])[++i]
       delete titles[service][saved]
-    node.className   = "#{service}Title" unless Conf['Show FavIcons']
+    node.className   = "#{service}Title" if Conf['Show FavIcons']
     node.textContent = titles[service][info.name] = switch status
       when 200, 304
         Linkify.types[service].text.call info.txt
@@ -4043,7 +4046,7 @@ Linkify =
         "Frobidden or Private"
       else
         "#{status}'d"
-    if Conf['Show FavIcons']
+    unless Conf['Show FavIcons']
       node.textContent = "[#{service}] #{node.textContent}"
     $.set 'CachedTitles', titles
 
