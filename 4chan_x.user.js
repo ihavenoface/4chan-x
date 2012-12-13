@@ -237,7 +237,9 @@
       },
       'Interval': 30,
       'BGInterval': 60
-    }
+    },
+    embedWidth: 640,
+    embedHeight: 390
   };
 
   Conf = {};
@@ -3144,8 +3146,8 @@
       embedSize = $.el('div', {
         innerHTML: "<br>Specify size of video embeds<br><input name=embedWidth type=number />px <input name=embedHeight type=number />px <button>Reset</button>"
       });
-      (width = embedSize.children[2]).value = $.get('embedWidth') || 640;
-      (height = embedSize.children[3]).value = $.get('embedHeight') || 390;
+      (width = embedSize.children[2]).value = $.get('embedWidth');
+      (height = embedSize.children[3]).value = $.get('embedHeight');
       $.on(width, 'input', $.cb.value);
       $.on(height, 'input', $.cb.value);
       $.on(embedSize.children[4], 'click', function() {
