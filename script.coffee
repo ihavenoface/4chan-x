@@ -2554,7 +2554,7 @@ Options =
     $.on width,  'input', $.cb.value
     $.on height, 'input', $.cb.value
     $.on embedSize.children[4], 'click', ->
-      width.value =  640
+      width.value  = 640
       height.value = 390
       $.set 'embedWidth',  640
       $.set 'embedHeight', 390
