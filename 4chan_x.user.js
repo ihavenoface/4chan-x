@@ -105,7 +105,8 @@
         'Embed': [true, 'Add a link to linkified video and audio links. Supported sites: YouTube, Vimeo, SoundCloud, Vocaroo, Audio: mp3\/ogg\/wav.'],
         'Youtube': [true, 'Replace youtube link with its title.'],
         'Vimeo': [true, 'Replace vimeo link with its title.'],
-        'Soundcloud': [true, 'Replace soundcloud link with its title.']
+        'Soundcloud': [true, 'Replace soundcloud link with its title.'],
+        'Don\'t Show Icons': [false, 'Prepend the site\'s name instead of its favicon.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -4827,8 +4828,10 @@
                   $.set('CachedTitles', titles);
                 }
                 if (cached = titles[key][match[1]]) {
-                  a.textContent = cached;
-                  a.style.cssText = Linkify.types[key].icon;
+                  a.textContent = "" + (Conf['Don\'t Show Icons'] ? "[" + key + "] " : '') + cached;
+                  if (!Conf['Don\'t Show Icons']) {
+                    a.style.cssText = Linkify.types[key].icon;
+                  }
                   break;
                 }
                 service.call({
@@ -4891,7 +4894,9 @@
         target: 'blank',
         href: get('href')
       });
-      a.style.cssText = Linkify.types[this.className].icon;
+      if (!Conf['Don\'t Show Icons']) {
+        a.style.cssText = Linkify.types[this.className].icon;
+      }
       embed = $.el('a', {
         name: this.name,
         className: this.className,
@@ -4937,7 +4942,10 @@
       while (saved = Object.keys(titles[service])[++i]) {
         delete titles[service][saved];
       }
-      node.style.cssText = (key = Linkify.types[service]).icon;
+      key = Linkify.types[service];
+      if (!Conf['Don\'t Show Icons']) {
+        node.style.cssText = key.icon;
+      }
       node.textContent = titles[service][info.name] = (function() {
         switch (status) {
           case 200:
@@ -4952,6 +4960,9 @@
             return "" + status + "'d";
         }
       })();
+      if (Conf['Don\'t Show Icons']) {
+        node.textContent = "[" + service + "] " + node.textContent;
+      }
       return $.set('CachedTitles', titles);
     },
     types: {

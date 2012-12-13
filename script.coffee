@@ -20,6 +20,7 @@ Config =
       'Youtube':                      [true,  'Replace youtube link with its title.']
       'Vimeo':                        [true,  'Replace vimeo link with its title.']
       'Soundcloud':                   [true,  'Replace soundcloud link with its title.']
+      'Don\'t Show Icons':            [false, 'Prepend the site\'s name instead of its favicon.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -3948,8 +3949,8 @@ Linkify =
                 titles[key] = {}
                 $.set 'CachedTitles', titles
               if cached = titles[key][match[1]]
-                a.textContent   = cached
-                a.style.cssText = Linkify.types[key].icon
+                a.textContent   = "#{if Conf['Don\'t Show Icons'] then "[#{key}] " else ''}#{cached}"
+                a.style.cssText = Linkify.types[key].icon unless Conf['Don\'t Show Icons']
                 break
               service.call
                 node:    a
@@ -3991,7 +3992,7 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
-    a.style.cssText = Linkify.types[@className].icon
+    a.style.cssText = Linkify.types[@className].icon unless Conf['Don\'t Show Icons']
 
     embed = $.el 'a'
       name:         @name
@@ -4032,7 +4033,8 @@ Linkify =
     i = 2000
     while saved = Object.keys(titles[service])[++i]
       delete titles[service][saved]
-    node.style.cssText = (key = Linkify.types[service]).icon
+    key = Linkify.types[service]
+    node.style.cssText = key.icon unless Conf['Don\'t Show Icons']
     node.textContent   = titles[service][info.name] = switch status
       when 200, 304
         key.text.call info.txt
@@ -4042,6 +4044,8 @@ Linkify =
         "Frobidden or Private"
       else
         "#{status}'d"
+    if Conf['Don\'t Show Icons']
+      node.textContent = "[#{service}] #{node.textContent}"
     $.set 'CachedTitles', titles
 
   types:
