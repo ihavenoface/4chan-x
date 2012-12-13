@@ -2975,7 +2975,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, overlay, sauce, time, toSelect, tr, ul, updateIncrease, updateIncreaseB, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, description, dialog, embedSize, favicon, fileInfo, filter, height, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, overlay, sauce, time, toSelect, tr, ul, updateIncrease, updateIncreaseB, value, width, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = Options.el = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -3147,6 +3147,20 @@
         }
         $.add($('#main_tab + div', dialog), ul);
       }
+      embedSize = $.el('div', {
+        innerHTML: "<br>Specify size of video embeds<br><input name=embedWidth type=number />px <input name=embedHeight type=number />px <button>Reset</button>"
+      });
+      (width = embedSize.children[2]).value = $.get('embedWidth') || 640;
+      (height = embedSize.children[3]).value = $.get('embedHeight') || 390;
+      $.on(width, 'input', $.cb.value);
+      $.on(height, 'input', $.cb.value);
+      $.on(embedSize.children[4], 'click', function() {
+        width.value = 640;
+        height.value = 390;
+        $.set('embedWidth', 640);
+        return $.set('embedHeight', 390);
+      });
+      $.add($('ul:nth-child(2)', dialog), embedSize);
       hiddenThreads = $.get("hiddenThreads/" + g.BOARD + "/", {});
       hiddenNum = Object.keys(g.hiddenReplies).length + Object.keys(hiddenThreads).length;
       li = $.el('li', {
@@ -4973,6 +4987,8 @@
             value = _ref[key];
             el.style[key] = value;
           }
+        } else {
+          el.style.cssText = "border: 0; width: " + ($.get('embedWidth')) + "px; height: " + ($.get('embedHeight')) + "px";
         }
       }
       _ref1 = ['href', 'textContent', 'className'];
@@ -5078,11 +5094,6 @@
     types: {
       youtube: {
         regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
-        style: {
-          border: '0',
-          width: '640px',
-          height: '390px'
-        },
         el: function() {
           return $.el('iframe', {
             src: "//www.youtube.com/embed/" + this.name
@@ -5098,11 +5109,6 @@
       },
       vimeo: {
         regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
-        style: {
-          border: '0',
-          width: '640px',
-          height: '390px'
-        },
         el: function() {
           return $.el('iframe', {
             src: "//player.vimeo.com/video/" + this.name
@@ -5118,11 +5124,6 @@
       },
       liveleak: {
         regExp: /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/,
-        style: {
-          boder: '0',
-          width: '640px',
-          height: '390px'
-        },
         el: function() {
           return $.el('iframe', {
             src: "http://www.liveleak.com/e/" + this.name + "?autostart=true"

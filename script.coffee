@@ -2547,6 +2547,19 @@ Options =
         $.add ul, li
       $.add $('#main_tab + div', dialog), ul
 
+    embedSize = $.el 'div'
+      innerHTML: "<br>Specify size of video embeds<br><input name=embedWidth type=number />px <input name=embedHeight type=number />px <button>Reset</button>"
+    (width  = embedSize.children[2]).value = $.get('embedWidth')  or 640
+    (height = embedSize.children[3]).value = $.get('embedHeight') or 390
+    $.on width,  'input', $.cb.value
+    $.on height, 'input', $.cb.value
+    $.on embedSize.children[4], 'click', ->
+      width.value =  640
+      height.value = 390
+      $.set 'embedWidth',  640
+      $.set 'embedHeight', 390
+    $.add $('ul:nth-child(2)', dialog), embedSize
+
     hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
     hiddenNum = Object.keys(g.hiddenReplies).length + Object.keys(hiddenThreads).length
     li = $.el 'li',
@@ -4072,6 +4085,8 @@ Linkify =
       if type.style
         for key, value of type.style
           el.style[key] = value
+      else
+        el.style.cssText = "border: 0; width: #{$.get 'embedWidth'}px; height: #{$.get 'embedHeight'}px"
 
     for att in ['href', 'textContent', 'className']
       el.setAttribute "data-original-#{att}", link[att] if link[att]
@@ -4153,10 +4168,6 @@ Linkify =
   types:
     youtube:
       regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-      style:
-        border: '0'
-        width:  '640px'
-        height: '390px'
       el: ->
         $.el 'iframe'
           src:  "//www.youtube.com/embed/#{@name}"
@@ -4167,10 +4178,6 @@ Linkify =
 
     vimeo:
       regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-      style:
-        border: '0'
-        width:  '640px'
-        height: '390px'
       el: ->
         $.el 'iframe'
           src:  "//player.vimeo.com/video/#{@name}"
@@ -4181,10 +4188,6 @@ Linkify =
 
     liveleak:
       regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
-      style:
-        boder:  '0'
-        width:  '640px'
-        height: '390px'
       el: ->
         $.el 'iframe'
           src: "http://www.liveleak.com/e/#{@name}?autostart=true"
