@@ -3144,7 +3144,7 @@
         $.add($('#main_tab + div', dialog), ul);
       }
       embedSize = $.el('div', {
-        innerHTML: "<br>Specify size of video embeds<br><input name=embedWidth type=number />px <input name=embedHeight type=number />px <button>Reset</button>"
+        innerHTML: "<br>Specify size of video embeds<br>Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button>Reset</button>"
       });
       (width = embedSize.children[2]).value = $.get('embedWidth', Conf['embedWidth']);
       (height = embedSize.children[3]).value = $.get('embedHeight', Conf['embedHeight']);
