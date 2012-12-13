@@ -20,7 +20,7 @@ Config =
       'Youtube':                      [true,  'Replace youtube link with its title.']
       'Vimeo':                        [true,  'Replace vimeo link with its title.']
       'Soundcloud':                   [true,  'Replace soundcloud link with its title.']
-      'Don\'t Show Icons':            [false, 'Prepend the site\'s name instead of its favicon.']
+      'Show FavIcons':                [true,  'Prepend the site\'s favicon to a replaced title.']
     Filtering:
       'Anonymize':                    [false, 'Make everybody anonymous']
       'Filter':                       [true,  'Self-moderation placebo']
@@ -3949,8 +3949,8 @@ Linkify =
                 titles[key] = {}
                 $.set 'CachedTitles', titles
               if cached = titles[key][match[1]]
-                a.textContent   = "#{if Conf['Don\'t Show Icons'] then "[#{key}] " else ''}#{cached}"
-                a.style.cssText = Linkify.types[key].icon unless Conf['Don\'t Show Icons']
+                a.textContent   = "#{if Conf['Show FavIcons'] then "[#{key}] " else ''}#{cached}"
+                a.className = "#{key}Title" unless Conf['Show FavIcons']
                 break
               service.call
                 node:    a
@@ -3992,7 +3992,7 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
-    a.style.cssText = Linkify.types[@className].icon unless Conf['Don\'t Show Icons']
+    a.className = "#{@className}Title" unless Conf['Show FavIcons']
 
     embed = $.el 'a'
       name:         @name
@@ -4033,18 +4033,17 @@ Linkify =
     i = 2000
     while saved = Object.keys(titles[service])[++i]
       delete titles[service][saved]
-    key = Linkify.types[service]
-    node.style.cssText = key.icon unless Conf['Don\'t Show Icons']
-    node.textContent   = titles[service][info.name] = switch status
+    node.className   = "#{service}Title" unless Conf['Show FavIcons']
+    node.textContent = titles[service][info.name] = switch status
       when 200, 304
-        key.text.call info.txt
+        Linkify.types[service].text.call info.txt
       when 400, 404
         "Not Found"
       when 403
         "Frobidden or Private"
       else
         "#{status}'d"
-    if Conf['Don\'t Show Icons']
+    if Conf['Show FavIcons']
       node.textContent = "[#{service}] #{node.textContent}"
     $.set 'CachedTitles', titles
 
@@ -4058,7 +4057,6 @@ Linkify =
       el: ->
         $.el 'iframe'
           src:  "//www.youtube.com/embed/#{@name}"
-      icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px"
       title: ->
         @url = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
         Linkify.json @
@@ -4073,7 +4071,6 @@ Linkify =
       el: ->
         $.el 'iframe'
           src:  "//player.vimeo.com/video/#{@name}"
-      icon: "background:transparent url('data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==') center left no-repeat!important; padding-left: 18px"
       title: ->
         @url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@name}"
         Linkify.json @
@@ -4114,7 +4111,6 @@ Linkify =
               node: node
             Linkify.embed.call response
         false
-      icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px"
       title: ->
         @url = Linkify.types.soundcloud.url + @node.href
         Linkify.json @
@@ -5793,6 +5789,18 @@ div.opContainer {
 }
 #xupdater {
   margin-bottom: 2px;
+}
+.youtubeTitle {
+  background: transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=") center left no-repeat!important;
+  padding-left: 18px;
+}
+.vimeoTitle {
+  background: transparent url("data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==") center left no-repeat!important;
+  padding-left: 18px;
+}
+.soundcloudTitle {
+  background:transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=") center left no-repeat!important;
+  padding-left: 18px;
 }
 '
 

@@ -106,7 +106,7 @@
         'Youtube': [true, 'Replace youtube link with its title.'],
         'Vimeo': [true, 'Replace vimeo link with its title.'],
         'Soundcloud': [true, 'Replace soundcloud link with its title.'],
-        'Don\'t Show Icons': [false, 'Prepend the site\'s name instead of its favicon.']
+        'Show FavIcons': [true, 'Prepend the site\'s favicon to a replaced title.']
       },
       Filtering: {
         'Anonymize': [false, 'Make everybody anonymous'],
@@ -4828,9 +4828,9 @@
                   $.set('CachedTitles', titles);
                 }
                 if (cached = titles[key][match[1]]) {
-                  a.textContent = "" + (Conf['Don\'t Show Icons'] ? "[" + key + "] " : '') + cached;
-                  if (!Conf['Don\'t Show Icons']) {
-                    a.style.cssText = Linkify.types[key].icon;
+                  a.textContent = "" + (Conf['Show FavIcons'] ? "[" + key + "] " : '') + cached;
+                  if (!Conf['Show FavIcons']) {
+                    a.className = "" + key + "Title";
                   }
                   break;
                 }
@@ -4894,8 +4894,8 @@
         target: 'blank',
         href: get('href')
       });
-      if (!Conf['Don\'t Show Icons']) {
-        a.style.cssText = Linkify.types[this.className].icon;
+      if (!Conf['Show FavIcons']) {
+        a.className = "" + this.className + "Title";
       }
       embed = $.el('a', {
         name: this.name,
@@ -4935,22 +4935,21 @@
       });
     },
     save: function(info) {
-      var i, key, node, saved, service, status, titles;
+      var i, node, saved, service, status, titles;
       node = info.node, service = info.service, status = info.status;
       titles = $.get('CachedTitles', {});
       i = 2000;
       while (saved = Object.keys(titles[service])[++i]) {
         delete titles[service][saved];
       }
-      key = Linkify.types[service];
-      if (!Conf['Don\'t Show Icons']) {
-        node.style.cssText = key.icon;
+      if (!Conf['Show FavIcons']) {
+        node.className = "" + service + "Title";
       }
       node.textContent = titles[service][info.name] = (function() {
         switch (status) {
           case 200:
           case 304:
-            return key.text.call(info.txt);
+            return Linkify.types[service].text.call(info.txt);
           case 400:
           case 404:
             return "Not Found";
@@ -4960,7 +4959,7 @@
             return "" + status + "'d";
         }
       })();
-      if (Conf['Don\'t Show Icons']) {
+      if (Conf['Show FavIcons']) {
         node.textContent = "[" + service + "] " + node.textContent;
       }
       return $.set('CachedTitles', titles);
@@ -4978,7 +4977,6 @@
             src: "//www.youtube.com/embed/" + this.name
           });
         },
-        icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px",
         title: function() {
           this.url = "https://gdata.youtube.com/feeds/api/videos/" + this.name + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode";
           return Linkify.json(this);
@@ -4999,7 +4997,6 @@
             src: "//player.vimeo.com/video/" + this.name
           });
         },
-        icon: "background:transparent url('data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==') center left no-repeat!important; padding-left: 18px",
         title: function() {
           this.url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/" + this.name;
           return Linkify.json(this);
@@ -5056,7 +5053,6 @@
           });
           return false;
         },
-        icon: "background:transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=') center left no-repeat!important; padding-left: 18px",
         title: function() {
           this.url = Linkify.types.soundcloud.url + this.node.href;
           return Linkify.json(this);
@@ -7066,6 +7062,18 @@ div.opContainer {\
 }\
 #xupdater {\
   margin-bottom: 2px;\
+}\
+.youtubeTitle {\
+  background: transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAABIklEQVQoz53LvUrDUBjG8bOoOammSf1IoBSvoCB4JeIqOHgBLt6AIMRBBQelWurQ2kERnMRBsBUcIp5FJSBI5oQsJVkkUHh8W0o5nhaFHvjBgef/Mq+Q46RJBMkI/vE+aOus956tnEswIZe1LV0QyJ5sE2GzgZfVMtRNIdiDpccEssdlB1mW4bvTwdvWJtRdErM7U+8S/FJykCRJX5qm+KpVce8UMNLRLbulz4iSjTAMh6Iowsd5BeNadp3nUF0VlxAEwZBotXC0Usa4ll3meZdA1iguwvf9vpvDA2wvmKgYGtSud8suDB4TyGr2PF49D/vra9jRZ1BVdknMzgwuCGSnZEObwu6sBnVTCHZiaC7BhFx2PKdxUidiAH/4lLo9Mv0DELVs9qsOHXwAAAAASUVORK5CYII=") center left no-repeat!important;\
+  padding-left: 18px;\
+}\
+.vimeoTitle {\
+  background: transparent url("data:image/gif;base64,R0lGODlhEAAQAMQfAAuUuQynzzu83u/09Ryy2Su320rC4IbW6mKOngqHq5GvuoO3xhVbc0m92zV7keDo60R8j8Hc5KHEzwuawGSluaTg8Ah1lfD5/BmPsJPI13fR6LLd6f///wuavg2t1gAAACH5BAEAAB8ALAAAAAAQABAAAAVu4NeNZFmKgqeurCqMbbzCbrEWh0ao9MFdNgNnWOF1CJUhR+PZDIYRY2MRGWYIFsVQYgRYHNBAc4gwqiaPoUfIkQDMKsnwkB5YZp0VRTmEsGgeGHwIb3grAVoDCAktgB4WEAyMjY4AYpQiJpojHyEAOw==") center left no-repeat!important;\
+  padding-left: 18px;\
+}\
+.soundcloudTitle {\
+  background:transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=") center left no-repeat!important;\
+  padding-left: 18px;\
 }\
 '
   };
