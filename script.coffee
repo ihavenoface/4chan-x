@@ -2477,6 +2477,10 @@ Options =
     <span></span>
     </ul>
     <ul>
+      Specify size of video embeds<br>
+      Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button name=resetSize>Reset</button>
+    </ul>
+    <ul>
       Amounts for Optional Increase<br>
       Visible tab<br>
       <input name=updateIncrease class=field>
@@ -2546,16 +2550,6 @@ Options =
         $.add ul, li
       $.add $('#main_tab + div', dialog), ul
 
-    embedSize = $.el 'div'
-      innerHTML: "<br>Specify size of video embeds<br>Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button>Reset</button>"
-    (width  = embedSize.children[2]).value = $.get 'embedWidth',  Conf['embedWidth']
-    (height = embedSize.children[3]).value = $.get 'embedHeight', Conf['embedHeight']
-    $.on width,  'input', $.cb.value
-    $.on height, 'input', $.cb.value
-    $.on embedSize.children[4], 'click', ->
-      $.set 'embedWidth',  width.value  = 640
-      $.set 'embedHeight', height.value = 390
-    $.add $('ul:nth-child(2)', dialog), embedSize
 
     hiddenThreads = $.get "hiddenThreads/#{g.BOARD}/", {}
     hiddenNum = Object.keys(g.hiddenReplies).length + Object.keys(hiddenThreads).length
@@ -2603,10 +2597,19 @@ Options =
     favicon.value = $.get 'favicon', Conf['favicon']
     $.on favicon, 'change', $.cb.value
     $.on favicon, 'change', Options.favicon
+
     (updateIncrease = $ '[name=updateIncrease]', dialog).value = $.get 'updateIncrease', Conf['updateIncrease']
     $.on updateIncrease, 'input', $.cb.value
     (updateIncreaseB = $ '[name=updateIncreaseB]', dialog).value = $.get 'updateIncreaseB', Conf['updateIncreaseB']
     $.on updateIncreaseB, 'input', $.cb.value
+
+    (width  = $ '[name=embedWidth]',  dialog).value = $.get 'embedWidth',  Conf['embedWidth']
+    (height = $ '[name=embedHeight]', dialog).value = $.get 'embedHeight', Conf['embedHeight']
+    $.on width,  'input', $.cb.value
+    $.on height, 'input', $.cb.value
+    $.on $('[name=resetSize]', dialog), 'click', ->
+      $.set 'embedWidth',  width.value  = 640
+      $.set 'embedHeight', height.value = 390
 
     #persona
     Options.persona.select = $ '[name=personaboards]', dialog

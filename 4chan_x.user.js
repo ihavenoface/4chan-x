@@ -2971,7 +2971,7 @@
       }
     },
     dialog: function() {
-      var archiver, arr, back, checked, description, dialog, embedSize, favicon, fileInfo, filter, height, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, overlay, sauce, time, toSelect, tr, ul, updateIncrease, updateIncreaseB, value, width, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var archiver, arr, back, checked, description, dialog, favicon, fileInfo, filter, height, hiddenNum, hiddenThreads, indicator, indicators, input, key, li, name, obj, overlay, sauce, time, toSelect, tr, ul, updateIncrease, updateIncreaseB, value, width, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       dialog = Options.el = $.el('div', {
         id: 'options',
         className: 'reply dialog',
@@ -3069,6 +3069,10 @@
     <span></span>\
     </ul>\
     <ul>\
+      Specify size of video embeds<br>\
+      Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button name=resetSize>Reset</button>\
+    </ul>\
+    <ul>\
       Amounts for Optional Increase<br>\
       Visible tab<br>\
       <input name=updateIncrease class=field>\
@@ -3143,18 +3147,6 @@
         }
         $.add($('#main_tab + div', dialog), ul);
       }
-      embedSize = $.el('div', {
-        innerHTML: "<br>Specify size of video embeds<br>Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button>Reset</button>"
-      });
-      (width = embedSize.children[2]).value = $.get('embedWidth', Conf['embedWidth']);
-      (height = embedSize.children[3]).value = $.get('embedHeight', Conf['embedHeight']);
-      $.on(width, 'input', $.cb.value);
-      $.on(height, 'input', $.cb.value);
-      $.on(embedSize.children[4], 'click', function() {
-        $.set('embedWidth', width.value = 640);
-        return $.set('embedHeight', height.value = 390);
-      });
-      $.add($('ul:nth-child(2)', dialog), embedSize);
       hiddenThreads = $.get("hiddenThreads/" + g.BOARD + "/", {});
       hiddenNum = Object.keys(g.hiddenReplies).length + Object.keys(hiddenThreads).length;
       li = $.el('li', {
@@ -3207,6 +3199,14 @@
       $.on(updateIncrease, 'input', $.cb.value);
       (updateIncreaseB = $('[name=updateIncreaseB]', dialog)).value = $.get('updateIncreaseB', Conf['updateIncreaseB']);
       $.on(updateIncreaseB, 'input', $.cb.value);
+      (width = $('[name=embedWidth]', dialog)).value = $.get('embedWidth', Conf['embedWidth']);
+      (height = $('[name=embedHeight]', dialog)).value = $.get('embedHeight', Conf['embedHeight']);
+      $.on(width, 'input', $.cb.value);
+      $.on(height, 'input', $.cb.value);
+      $.on($('[name=resetSize]', dialog), 'click', function() {
+        $.set('embedWidth', width.value = 640);
+        return $.set('embedHeight', height.value = 390);
+      });
       Options.persona.select = $('[name=personaboards]', dialog);
       Options.persona.button = $('#persona button', dialog);
       Options.persona.data = $.get('persona', {
