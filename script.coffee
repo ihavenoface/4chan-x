@@ -1567,7 +1567,7 @@ QR =
               'new'
         $('textarea', QR.el).focus()
       $.before $.id('postForm'), link
-    BanChecker.init()
+    BanChecker.init() if Conf['Check for Bans']
 
     if Conf['Persistent QR']
       QR.dialog()
@@ -2248,8 +2248,9 @@ QR =
           href: '//www.4chan.org/banned',
           target: '_blank',
           textContent: 'Connection error, or you are banned.'
-        $.delete 'lastBanCheck'
-        BanChecker.init()
+        if Conf['Check for Bans']
+          $.delete 'lastBanCheck'
+          BanChecker.init()
     opts =
       form: $.formData post
       upCallbacks:
@@ -2265,17 +2266,18 @@ QR =
   response: (html) ->
     doc = d.implementation.createHTMLDocument ''
     doc.documentElement.innerHTML = html
-    if doc.title is '4chan - Banned' # Ban/warn check
-      bs  = $$ 'b', doc
-      err = $.el 'span',
-        innerHTML:
-          if /^You were issued a warning/.test $('.boxcontent', doc).textContent.trim()
-            "You were issued a warning on #{bs[0].innerHTML} as #{bs[3].innerHTML}.<br>Warning reason: #{bs[1].innerHTML}"
-          else
-            "You are banned! ;_;<br>Please click <a href=//www.4chan.org/banned target=_blank>HERE</a> to see the reason."
-      if /You are banned/.test err.textContent
-        $.delete 'lastBanCheck'
-        BanChecker.init()
+    if ban  = $ '.banType', doc # banned/warning
+      board = $('.board', doc).innerHTML
+      err   = $.el 'span', innerHTML:
+        if ban.textContent.toLowerCase() is 'banned'
+          "You are banned on #{board}! ;_;<br>" +
+          "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
+        else
+          "You were issued a warning on #{board} as #{$('.nameBlock', doc).innerHTML}.<br>" +
+          "Reason: #{$('.reason', doc).innerHTML}"
+    if Conf['Check for Bans'] and ban.textContent.toLowerCase() is 'banned'
+      $.delete 'lastBanCheck'
+      BanChecker.init()
     else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc
