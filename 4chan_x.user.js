@@ -4982,7 +4982,7 @@
             el.style[key] = value;
           }
         } else {
-          el.style.cssText = "border: 0; width: " + ($.get('embedWidth', Conf['embedWidth'])) + "px; height: " + ($.get('embedHeight', Conf['embedHeight'])) + "px";
+          el.style.cssText = "border: 0; width: " + ($.get('embedWidth', Config['embedWidth'])) + "px; height: " + ($.get('embedHeight', Config['embedHeight'])) + "px";
         }
       }
       _ref1 = ['href', 'textContent', 'className'];
