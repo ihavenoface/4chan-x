@@ -5,10 +5,9 @@ master
   Fix selection quoting on Opera.
   Fix history bug with Persistent QR enabled on Chrome.
 - noface
-  Added new function 'Remove Spoilers'.
+  Added new feature 'Remove Spoilers'.
   Added input to specify height and width of embeds.
   Fixed Anonymize not working on stubs.
-  Added setting for the resulting size of embedded videos.
 
 2.37.3
 - Mayhem
