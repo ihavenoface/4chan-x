@@ -2566,16 +2566,16 @@ Options =
     archiver = $ 'select[name=archiver]', dialog
     toSelect = Redirect.select g.BOARD
     for name in toSelect
-      return if archiver.length >= toSelect.length
+      break if archiver.length >= toSelect.length
       $.add archiver, $.el 'option',
         textContent: name
     if toSelect[1]
-      archiver.value = $.get value = "archiver/#{g.BOARD}/"
+      archiver.value = $.get value = "archiver/#{g.BOARD}/", toSelect[0]
       $.on archiver, 'mouseup', ->
         if Redirect.archive[g.BOARD]
-          delete Redirect.archive[g.BOARD]
+          Redirect.archive[g.BOARD] = @value
         $.set value, @value
-        if toSelect[0] is $.get value
+        if toSelect[0] is @value
           $.delete value
 
     #sauce
@@ -2608,8 +2608,8 @@ Options =
     $.on width,  'input', $.cb.value
     $.on height, 'input', $.cb.value
     $.on $('[name=resetSize]', dialog), 'click', ->
-      $.set 'embedWidth',  width.value  = 640
-      $.set 'embedHeight', height.value = 390
+      $.set 'embedWidth',  width.value  = Config.embedWidth
+      $.set 'embedHeight', height.value = Config.embedHeight
 
     #persona
     Options.persona.select = $ '[name=personaboards]', dialog
@@ -2664,7 +2664,7 @@ Options =
         input = $ "input[name=#{item}]", Options.el
         input.value = @data[key][item] or ""
 
-        $.on input, 'blur', ->
+        $.on input, 'blur input', ->
           pers = Options.persona
           pers.data[pers.select.value][@name] = @value
           $.set 'persona', pers.data
@@ -2683,9 +2683,9 @@ Options =
     copy: ->
       {select, data, change} = Options.persona
       if select.value is 'global'
-        data.global = JSON.parse JSON.stringify data[select.value]
+        data.global = data[select.value]
       else
-        data[select.value] = JSON.parse JSON.stringify data.global
+        data[select.value] = data.global
       $.set 'persona', Options.persona.data = data
       change.call select
 
@@ -4670,9 +4670,10 @@ Redirect =
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
+
   archive:    {}
 
-  noArchiver: 'No archiver available.'
+  noArchiver: 'No archive available.'
 
   archiver:
     'Foolz':
@@ -4721,14 +4722,7 @@ Redirect =
     [@noArchiver]
 
   to: (data) ->
-    unless aboard = @archive[board = data.board] = @archiver[$.get "archiver/#{board}/"]
-      if name = @select(board)[0]
-        if name is @noArchiver
-          aboard = 'empty'
-        else
-          $.set "archiver/#{board}/", aboard = @archiver[name]
-
-    if aboard.base
+    if aboard = @archiver[@archive[board = data.board] or @archive[board] = $.get "archiver/#{board}/", @select(board)[0]]
       @path aboard.base, aboard.type, data
     else if not data.isSearch and data.threadID
       "//boards.4chan.org/#{board}/"

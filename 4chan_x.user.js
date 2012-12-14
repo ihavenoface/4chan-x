@@ -3161,20 +3161,20 @@
       for (_i = 0, _len = toSelect.length; _i < _len; _i++) {
         name = toSelect[_i];
         if (archiver.length >= toSelect.length) {
-          return;
+          break;
         }
         $.add(archiver, $.el('option', {
           textContent: name
         }));
       }
       if (toSelect[1]) {
-        archiver.value = $.get(value = "archiver/" + g.BOARD + "/");
+        archiver.value = $.get(value = "archiver/" + g.BOARD + "/", toSelect[0]);
         $.on(archiver, 'mouseup', function() {
           if (Redirect.archive[g.BOARD]) {
-            delete Redirect.archive[g.BOARD];
+            Redirect.archive[g.BOARD] = this.value;
           }
           $.set(value, this.value);
-          if (toSelect[0] === $.get(value)) {
+          if (toSelect[0] === this.value) {
             return $["delete"](value);
           }
         });
@@ -3204,8 +3204,8 @@
       $.on(width, 'input', $.cb.value);
       $.on(height, 'input', $.cb.value);
       $.on($('[name=resetSize]', dialog), 'click', function() {
-        $.set('embedWidth', width.value = 640);
-        return $.set('embedHeight', height.value = 390);
+        $.set('embedWidth', width.value = Config.embedWidth);
+        return $.set('embedHeight', height.value = Config.embedHeight);
       });
       Options.persona.select = $('[name=personaboards]', dialog);
       Options.persona.button = $('#persona button', dialog);
@@ -3270,7 +3270,7 @@
           item = _ref[_i];
           input = $("input[name=" + item + "]", Options.el);
           input.value = this.data[key][item] || "";
-          $.on(input, 'blur', function() {
+          $.on(input, 'blur input', function() {
             var pers;
             pers = Options.persona;
             pers.data[pers.select.value][this.name] = this.value;
@@ -3297,9 +3297,9 @@
         var change, data, select, _ref;
         _ref = Options.persona, select = _ref.select, data = _ref.data, change = _ref.change;
         if (select.value === 'global') {
-          data.global = JSON.parse(JSON.stringify(data[select.value]));
+          data.global = data[select.value];
         } else {
-          data[select.value] = JSON.parse(JSON.stringify(data.global));
+          data[select.value] = data.global;
         }
         $.set('persona', Options.persona.data = data);
         return change.call(select);
@@ -5734,7 +5734,7 @@
       }
     },
     archive: {},
-    noArchiver: 'No archiver available.',
+    noArchiver: 'No archive available.',
     archiver: {
       'Foolz': {
         base: '//archive.foolz.us',
@@ -5803,17 +5803,8 @@
       return [this.noArchiver];
     },
     to: function(data) {
-      var aboard, board, name;
-      if (!(aboard = this.archive[board = data.board] = this.archiver[$.get("archiver/" + board + "/")])) {
-        if (name = this.select(board)[0]) {
-          if (name === this.noArchiver) {
-            aboard = 'empty';
-          } else {
-            $.set("archiver/" + board + "/", aboard = this.archiver[name]);
-          }
-        }
-      }
-      if (aboard.base) {
+      var aboard, board;
+      if (aboard = this.archiver[this.archive[board = data.board] || (this.archive[board] = $.get("archiver/" + board + "/", this.select(board)[0]))]) {
         return this.path(aboard.base, aboard.type, data);
       } else if (!data.isSearch && data.threadID) {
         return "//boards.4chan.org/" + board + "/";
