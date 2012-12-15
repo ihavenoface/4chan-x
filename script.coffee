@@ -72,6 +72,7 @@ Config =
       'Remember Spoiler':             [false, 'Remember the spoiler state, instead of resetting after posting.']
       'Remember Sage':                [false, 'Remember email even if it contains sage.']
       'Hide Original Post Form':      [true,  'Replace the normal post form with a shortcut to open the QR.']
+      'Sage on /jp/':                 [true,  'Uses sage by default on /jp/']
       'Markdown':                     [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
     Quoting:
       'Quote Backlinks':              [true,  'Add quote backlinks']
