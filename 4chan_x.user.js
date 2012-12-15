@@ -4937,7 +4937,7 @@
             if (match = a.href.match(type.regExp)) {
               embed = $.el('a', {
                 name: match[1],
-                className: key,
+                className: "embed " + key,
                 href: 'javascript:;',
                 textContent: '(embed)'
               });
@@ -4970,6 +4970,12 @@
         }
       }
     },
+    toggle: function() {
+      if (/\bembed\b/.test(this.className)) {
+        return Linkify.embed.call(this);
+      }
+      return Linkify.unembed.call(this);
+    },
     embed: function() {
       var att, el, key, link, type, unembed, value, _i, _len, _ref, _ref1;
       if (this.node) {
@@ -4977,7 +4983,7 @@
         el = this.el;
       } else {
         link = this.previousElementSibling;
-        if (!(el = (type = Linkify.types[this.className]).el.call(this))) {
+        if (!(el = (type = Linkify.types[this.className.replace(/\bembed\ /, '')]).el.call(this))) {
           return;
         }
         if (type.style) {
@@ -5000,7 +5006,7 @@
       $.replace(link, el);
       unembed = $.el('a', {
         name: this.name || '',
-        className: el.className || this.className,
+        className: (el.className || this.className).replace(/\bembed\ /, 'unembed '),
         href: 'javascript:;',
         textContent: '(unembed)'
       });
@@ -5020,12 +5026,12 @@
         target: 'blank',
         href: get('href')
       });
-      if (Conf['Show FavIcons']) {
+      if (Conf['Show FavIcons'] && Linkify.types[this.className.replace(/\bunembed\ /, '')].title) {
         a.className = "" + this.className + "Title";
       }
       embed = $.el('a', {
         name: this.name,
-        className: this.className,
+        className: this.className.replace(/\bunembed\ /, 'embed '),
         href: 'javascript:;',
         textContent: '(embed)'
       });
@@ -5035,14 +5041,13 @@
     },
     concat: function(a) {
       return $.on(a, 'click', function(e) {
-        var el, txt;
+        var el;
         if (e.shiftKey) {
           e.preventDefault();
           e.stopPropagation();
-          if (("br" === this.nextSibling.tagName.toLowerCase() || "spoiler" === this.nextSibling.className) && this.nextSibling.nextSibling.className !== "abbr") {
-            txt = (el = this.nextSibling).textContent ? this.textContent + el.textContent + el.nextSibling.textContent : this.textContent + el.nextSibling.textContent;
-            this.href = this.textContent = txt;
-            return $.rm(el) && $.rm(this.nextSibling);
+          if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
+            this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
+            return $.rm(el);
           }
         }
       });
@@ -5151,7 +5156,7 @@
             response = {
               el: $.el('div', {
                 innerHTML: JSON.parse(this.responseText).html,
-                className: 'soundcloud'
+                className: 'unembed soundcloud'
               }),
               node: node
             };
@@ -5489,28 +5494,27 @@
       return Menu.addEntry({
         el: this.a,
         open: function(post) {
-          var link, press, toggle, _i, _len, _ref;
+          var toggle;
           toggle = EmbedLink.toggle;
-          _ref = $$('a', post.blockquote);
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            link = _ref[_i];
-            if (((press = link.nextElementSibling) != null) && press.textContent === '(embed)') {
-              toggle.push(press);
-            }
-          }
-          if (toggle.length >= 1) {
-            $.on(this.el, 'click', this.embed);
+          if ($('a.embed' || 'a.unembed')) {
+            $.on(this.el, 'click', this.toggle);
             return true;
           }
         },
-        embed: function() {
-          var embed, _i, _len, _ref;
-          _ref = EmbedLink.toggle;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            embed = _ref[_i];
-            $.event(embed, new Event('click'));
+        toggle: function() {
+          var blockquote, link, toggle, _i, _len;
+          blockquote = $.id("m" + (this.parentNode.getAttribute('data-id')));
+          toggle = $$('a.embed', blockquote);
+          if (toggle.length === 0) {
+            this.textContent = 'Embed all in post';
+            toggle = $$('a.unembed', blockquote);
+          } else {
+            this.textContent = 'Unembed all in post';
           }
-          return EmbedLink.toggle = [];
+          for (_i = 0, _len = toggle.length; _i < _len; _i++) {
+            link = toggle[_i];
+            Linkify.toggle.call(link);
+          }
         }
       });
     }
@@ -7166,6 +7170,12 @@ div.opContainer {\
 .soundcloudTitle {\
   background:transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=") center left no-repeat!important;\
   padding-left: 18px;\
+}\
+.embed {\
+  position: static !important;\
+  width: auto !important;\
+  height: auto !important;\
+  overflow: visible !important;\
 }\
 '
   };

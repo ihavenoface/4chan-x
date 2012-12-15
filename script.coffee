@@ -4054,7 +4054,7 @@ Linkify =
           if match = a.href.match type.regExp
             embed = $.el 'a'
               name:         match[1]
-              className:    key
+              className:    "embed #{key}"
               href:         'javascript:;'
               textContent:  '(embed)'
             $.on embed, 'click', Linkify.embed
@@ -4078,13 +4078,18 @@ Linkify =
             break
     return
 
+  toggle: ->
+    if /\bembed\b/.test @className
+      return Linkify.embed.call @
+    Linkify.unembed.call @
+
   embed: ->
     if @node
       link = @node
       el   = @el
     else
       link = @previousElementSibling
-      return unless el = (type = Linkify.types[@className]).el.call @
+      return unless el = (type = Linkify.types[@className.replace /\bembed\ /, '']).el.call @
       if type.style
         for key, value of type.style
           el.style[key] = value
@@ -4097,7 +4102,7 @@ Linkify =
 
     unembed = $.el 'a'
       name:        @name or ''
-      className:   el.className or @className
+      className:   (el.className or @className).replace /\bembed\ /, 'unembed '
       href:        'javascript:;'
       textContent: '(unembed)'
 
@@ -4113,11 +4118,12 @@ Linkify =
       rel:         'nofollow noreferrer'
       target:      'blank'
       href:        get 'href'
-    a.className = "#{@className}Title" if Conf['Show FavIcons']
+    if Conf['Show FavIcons'] and Linkify.types[@className.replace /\bunembed\ /, ''].title
+      a.className = "#{@className}Title"
 
     embed = $.el 'a'
       name:         @name
-      className:    @className
+      className:    @className.replace /\bunembed\ /, 'embed '
       href:         'javascript:;'
       textContent:  '(embed)'
 
@@ -4130,14 +4136,12 @@ Linkify =
       if e.shiftKey
         e.preventDefault()
         e.stopPropagation()
-        if ("br" == @nextSibling.tagName.toLowerCase() or "spoiler" == @nextSibling.className) and @nextSibling.nextSibling.className != "abbr"
-          txt =
-            if (el = @nextSibling).textContent
-              @textContent + el.textContent + el.nextSibling.textContent
-            else
-              @textContent + el.nextSibling.textContent
-          @href = @textContent = txt
-          $.rm(el) and $.rm @nextSibling
+        if ((el = @nextSibling).tagName.toLowerCase() is "br" or el.className is 'spoiler') and el.nextSibling.className isnt "abbr"
+          @href = if el.textContent
+            @textContent += el.textContent + el.nextSibling.textContent
+          else
+            @textContent += el.nextSibling.textContent
+          $.rm el
 
   json: (info) ->
     $.cache info.url, ->
@@ -4213,7 +4217,7 @@ Linkify =
           response =
             el: $.el 'div'
               innerHTML: JSON.parse(@responseText).html
-              className: 'soundcloud'
+              className: 'unembed soundcloud'
             node: node
           Linkify.embed.call response
         false
@@ -4497,17 +4501,21 @@ EmbedLink =
       el: @a
       open: (post) ->
         {toggle} = EmbedLink
-        for link in $$ 'a', post.blockquote
-          if (press = link.nextElementSibling)? and press.textContent is '(embed)'
-            toggle.push press
-        if toggle.length >= 1
-          $.on @el, 'click', @embed
-          return true
+        if $ 'a.embed' or 'a.unembed'
+          $.on @el, 'click', @toggle
+          true
 
-      embed: ->
-        for embed in EmbedLink.toggle
-          $.event embed, new Event 'click'
-        EmbedLink.toggle = []
+      toggle: ->
+        blockquote = $.id "m#{@parentNode.getAttribute 'data-id'}"
+        toggle = $$ 'a.embed', blockquote
+        if toggle.length is 0
+          @textContent = 'Embed all in post'
+          toggle = $$ 'a.unembed', blockquote
+        else
+          @textContent = 'Unembed all in post'
+        for link in toggle
+          Linkify.toggle.call link
+        return
 
 ThreadStats =
   init: ->
@@ -5887,6 +5895,12 @@ div.opContainer {
 .soundcloudTitle {
   background:transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABsklEQVQ4y5WTy2pUQRCGv2rbzDjJeAlIBmOyipGIIJqFEBDElwh4yULGeRFXPoEIBl/AvQ/gC2RnxCAoxijiwks852S6+3dxzslcHJCpTXVX11/Xv0097gLPgVNMJxnQNfX4zsqleWbnpoMf/oa9d988MM9MC/rp+E0a+A0dsVobMNMCOO8B6McRoABJI+A6gJmN3D2A8jgEBCEkSEMBrcrsDAzDWWn3AjgKFaDMmgRqniGFgsaDp1jrLOngDf1XT1D+A1dFc4MKAkkiCVKjjVu7g9+4Rzx4i1u6hjXbuMWr0O5QPNvCu7IaCZwEKQukLGDrm5x8uI0tr6MkiGlkiv7yLfzN+6S5i6QsIMABkEfcxhbWWYMkVAOjxvYAjc3HNHrbKI9VBQBFwF25XQKSBjqIf1YBuAurEMrczgDygD6/x2LCpFLXLUyQ+PoldphhBhYfIX09XU1+Flaukz7uYqs3SHs7cG4BmTsmkBUF9mmXEwa28BNLPaQPLepuNcbGSWQquQC2/Kdcox1FUGkcB0ykck1nA2+wTzMs8stGnP4rbWGw74EuS/GFQWfK7/wF6P4F7fzIAYkdmdEAAAAASUVORK5CYII=") center left no-repeat!important;
   padding-left: 18px;
+}
+.embed {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 '
 
