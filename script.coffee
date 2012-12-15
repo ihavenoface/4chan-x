@@ -4495,20 +4495,21 @@ EmbedLink =
     @a = $.el 'a',
       className: 'embed_link'
       textContent: 'Embed all in post'
-    @toggle = []
 
     Menu.addEntry
       el: @a
       open: (post) ->
         {toggle} = EmbedLink
-        if $ 'a.embed' or 'a.unembed'
+        if $ 'a.embed', post.blockquote
+          $.on @el, 'click', @toggle
+          true
+        else if $ 'a.unembed', post.blockquote
           $.on @el, 'click', @toggle
           true
 
       toggle: ->
         blockquote = $.id "m#{@parentNode.getAttribute 'data-id'}"
-        toggle = $$ 'a.embed', blockquote
-        if toggle.length is 0
+        if (toggle = $$ 'a.embed', blockquote).length is 0
           @textContent = 'Embed all in post'
           toggle = $$ 'a.unembed', blockquote
         else

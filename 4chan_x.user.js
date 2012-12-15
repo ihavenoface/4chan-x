@@ -5490,13 +5490,15 @@
         className: 'embed_link',
         textContent: 'Embed all in post'
       });
-      this.toggle = [];
       return Menu.addEntry({
         el: this.a,
         open: function(post) {
           var toggle;
           toggle = EmbedLink.toggle;
-          if ($('a.embed' || 'a.unembed')) {
+          if ($('a.embed', post.blockquote)) {
+            $.on(this.el, 'click', this.toggle);
+            return true;
+          } else if ($('a.unembed', post.blockquote)) {
             $.on(this.el, 'click', this.toggle);
             return true;
           }
@@ -5504,8 +5506,7 @@
         toggle: function() {
           var blockquote, link, toggle, _i, _len;
           blockquote = $.id("m" + (this.parentNode.getAttribute('data-id')));
-          toggle = $$('a.embed', blockquote);
-          if (toggle.length === 0) {
+          if ((toggle = $$('a.embed', blockquote)).length === 0) {
             this.textContent = 'Embed all in post';
             toggle = $$('a.unembed', blockquote);
           } else {
