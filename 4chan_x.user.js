@@ -5486,22 +5486,24 @@
 
   EmbedLink = {
     init: function() {
-      this.a = $.el('a', {
+      var a;
+      a = $.el('a', {
         className: 'embed_link',
         textContent: 'Embed all in post'
       });
       return Menu.addEntry({
-        el: this.a,
+        el: a,
         open: function(post) {
-          var toggle;
-          toggle = EmbedLink.toggle;
-          if ($('a.embed', post.blockquote)) {
-            $.on(this.el, 'click', this.toggle);
-            return true;
-          } else if ($('a.unembed', post.blockquote)) {
+          if ($$('a.embed', post.blockquote).length > 0) {
             $.on(this.el, 'click', this.toggle);
             return true;
           }
+          if ($('a.unembed', post.blockquote)) {
+            this.el.textContent = 'Unembed all in post';
+            $.on(this.el, 'click', this.toggle);
+            return true;
+          }
+          return false;
         },
         toggle: function() {
           var blockquote, link, toggle, _i, _len;

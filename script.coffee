@@ -4492,20 +4492,21 @@ ArchiveLink =
 
 EmbedLink =
   init: ->
-    @a = $.el 'a',
+    a = $.el 'a',
       className: 'embed_link'
       textContent: 'Embed all in post'
 
     Menu.addEntry
-      el: @a
+      el: a
       open: (post) ->
-        {toggle} = EmbedLink
-        if $ 'a.embed', post.blockquote
+        if $$('a.embed', post.blockquote).length > 0
           $.on @el, 'click', @toggle
-          true
-        else if $ 'a.unembed', post.blockquote
+          return true
+        if $ 'a.unembed', post.blockquote
+          @el.textContent = 'Unembed all in post'
           $.on @el, 'click', @toggle
-          true
+          return true
+        false
 
       toggle: ->
         blockquote = $.id "m#{@parentNode.getAttribute 'data-id'}"
