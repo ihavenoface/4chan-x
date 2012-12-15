@@ -5193,6 +5193,10 @@
       _ref = $$('.quote.deadlink', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         deadlink = _ref[_i];
+        if (deadlink.parentElement.className === 'prettyprint') {
+          $.replace(deadlink, deadlink.firstChild);
+          continue;
+        }
         quote = deadlink.textContent;
         a = $.el('a', {
           textContent: "" + quote + "\u00A0(Dead)"

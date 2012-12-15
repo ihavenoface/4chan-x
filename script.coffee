@@ -4237,7 +4237,13 @@ Quotify =
   node: (post) ->
     return if post.isInlined and not post.isCrosspost
     for deadlink in $$ '.quote.deadlink', post.blockquote
+
+      if deadlink.parentElement.className is 'prettyprint'
+        $.replace deadlink, deadlink.firstChild
+        continue
+
       quote = deadlink.textContent
+
       a = $.el 'a',
         # \u00A0 is nbsp
         textContent: "#{quote}\u00A0(Dead)"
