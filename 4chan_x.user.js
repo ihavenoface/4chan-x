@@ -4216,9 +4216,9 @@
           case '[/b]':
             return '</b>';
           case '[spoiler]':
-            return '<span class=spoiler>';
+            return '<s>';
           case '[/spoiler]':
-            return '</span>';
+            return '</s>';
           case '[code]':
             return '<pre class=prettyprint>';
           case '[/code]':
@@ -5048,15 +5048,13 @@
       });
     },
     json: function(info) {
-      return $.ajax(info.url, {
-        onload: function() {
-          try {
-            info.status = this.status;
-            info.txt = this.responseText;
-            return Linkify.save(info);
-          } catch (err) {
+      return $.cache(info.url, function() {
+        try {
+          info.status = this.status;
+          info.txt = this.responseText;
+          return Linkify.save(info);
+        } catch (err) {
 
-          }
         }
       });
     },
@@ -5148,19 +5146,16 @@
         el: function() {
           var node;
           node = this.previousElementSibling;
-          $.ajax(Linkify.types.soundcloud.url + node.href, {
-            node: node,
-            onloadend: function() {
-              var response;
-              response = {
-                el: $.el('div', {
-                  innerHTML: JSON.parse(this.responseText).html,
-                  className: 'soundcloud'
-                }),
-                node: node
-              };
-              return Linkify.embed.call(response);
-            }
+          $.cache(Linkify.types.soundcloud.url + node.href, function() {
+            var response;
+            response = {
+              el: $.el('div', {
+                innerHTML: JSON.parse(this.responseText).html,
+                className: 'soundcloud'
+              }),
+              node: node
+            };
+            return Linkify.embed.call(response);
           });
           return false;
         },

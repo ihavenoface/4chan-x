@@ -3344,8 +3344,8 @@ Get =
 
     # convert comment to html
     bq = $.el 'blockquote', textContent: data.comment # set this first to convert text to HTML entities
-    # https://github.com/eksopl/fuuka/blob/master/Board/Yotsuba.pm#L413-452
-    # https://github.com/eksopl/asagi/blob/master/src/main/java/net/easymodo/asagi/Yotsuba.java#L109-138
+    # https://github.com/eksopl/fuuka/blob/master/Board/Yotsuba.pm#L415-L459
+    # https://github.com/eksopl/asagi/blob/master/src/main/java/net/easymodo/asagi/Yotsuba.java#L113-L150
     bq.innerHTML = bq.innerHTML.replace ///
       \n
       | \[/?b\]
@@ -3362,9 +3362,9 @@ Get =
           when '[/b]'
             '</b>'
           when '[spoiler]'
-            '<span class=spoiler>'
+            '<s>'
           when '[/spoiler]'
-            '</span>'
+            '</s>'
           when '[code]'
             '<pre class=prettyprint>'
           when '[/code]'
@@ -4140,13 +4140,12 @@ Linkify =
           $.rm(el) and $.rm @nextSibling
 
   json: (info) ->
-    $.ajax info.url,
-      onload: ->
-        try
-          info.status = @status
-          info.txt    = @responseText
-          Linkify.save info
-        catch err
+    $.cache info.url, ->
+      try
+        info.status = @status
+        info.txt    = @responseText
+        Linkify.save info
+      catch err
 
   save: (info) ->
     {node, service, status} = info
@@ -4210,15 +4209,13 @@ Linkify =
       url:     "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url="
       el: ->
         node = @previousElementSibling
-        $.ajax Linkify.types.soundcloud.url + node.href,
-          node: node
-          onloadend: ->
-            response =
-              el: $.el 'div'
-                innerHTML: JSON.parse(@responseText).html
-                className: 'soundcloud'
-              node: node
-            Linkify.embed.call response
+        $.cache Linkify.types.soundcloud.url + node.href, ->
+          response =
+            el: $.el 'div'
+              innerHTML: JSON.parse(@responseText).html
+              className: 'soundcloud'
+            node: node
+          Linkify.embed.call response
         false
       title: ->
         @url = Linkify.types.soundcloud.url + @node.href
