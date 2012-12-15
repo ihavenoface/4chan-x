@@ -5079,7 +5079,7 @@
           case 404:
             return "Not Found";
           case 403:
-            return "Frobidden or Private";
+            return "Forbidden or Private";
           default:
             return "" + status + "'d";
         }

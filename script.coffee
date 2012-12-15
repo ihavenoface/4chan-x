@@ -4160,7 +4160,7 @@ Linkify =
       when 400, 404
         "Not Found"
       when 403
-        "Frobidden or Private"
+        "Forbidden or Private"
       else
         "#{status}'d"
     unless Conf['Show FavIcons']
