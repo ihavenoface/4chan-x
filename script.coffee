@@ -2273,16 +2273,16 @@ QR =
     doc.documentElement.innerHTML = html
     if ban  = $ '.banType', doc # banned/warning
       board = $('.board', doc).innerHTML
-      err = $.el 'span'
+      err   = $.el 'span'
       if ban.textContent.toLowerCase() is 'banned'
         if Conf['Check for Bans']
           $.delete 'lastBanCheck'
           BanChecker.init()
-        err.innerHTML:
+        err.innerHTML =
           "You are banned on #{board}! ;_;<br>" +
           "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
       else
-        err.innerHTML:
+        err.innerHTML =
           "You were issued a warning on #{board} as #{$('.nameBlock', doc).innerHTML}.<br>" +
           "Reason: #{$('.reason', doc).innerHTML}"
     else if err = doc.getElementById 'errmsg' # error!
@@ -4023,7 +4023,12 @@ Linkify =
       ) ///gi
 
   node: (post) ->
-    return if post.isInlined and not post.isCrosspost
+    if post.isInlined and not post.isCrosspost
+      if Conf['Embed']
+        for embed in $$ 'a.embed', post.blockquote
+          $.on embed, 'click', Linkify.toggle
+      return
+
     for spoiler in $$ 's', post.blockquote
       if not /\w/.test(spoiler.textContent) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and (n and p).nodeName is '#text'
         el = $.tn p.textContent + spoiler.textContent + n.textContent

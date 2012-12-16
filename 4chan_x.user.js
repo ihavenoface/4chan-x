@@ -2867,18 +2867,15 @@
       doc.documentElement.innerHTML = html;
       if (ban = $('.banType', doc)) {
         board = $('.board', doc).innerHTML;
+        err = $.el('span');
         if (ban.textContent.toLowerCase() === 'banned') {
-          err = $.el('span', {
-            innerHTML: ("You are banned on " + board + "! ;_;<br>") + "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
-          });
           if (Conf['Check for Bans']) {
             $["delete"]('lastBanCheck');
             BanChecker.init();
           }
+          err.innerHTML = ("You are banned on " + board + "! ;_;<br>") + "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason.";
         } else {
-          err = $.el('span', {
-            innerHTML: ("You were issued a warning on " + board + " as " + ($('.nameBlock', doc).innerHTML) + ".<br>") + ("Reason: " + ($('.reason', doc).innerHTML))
-          });
+          err.innerHTML = ("You were issued a warning on " + board + " as " + ($('.nameBlock', doc).innerHTML) + ".<br>") + ("Reason: " + ($('.reason', doc).innerHTML));
         }
       } else if (err = doc.getElementById('errmsg')) {
         if ((_ref = $('a', err)) != null) {
@@ -4902,13 +4899,20 @@
     },
     regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
     node: function(post) {
-      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, service, snapshot, spoiler, text, titles, type, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, service, snapshot, spoiler, text, titles, type, _i, _j, _k, _l, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
+        if (Conf['Embed']) {
+          _ref = $$('a.embed', post.blockquote);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            embed = _ref[_i];
+            $.on(embed, 'click', Linkify.toggle);
+          }
+        }
         return;
       }
-      _ref = $$('s', post.blockquote);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        spoiler = _ref[_i];
+      _ref1 = $$('s', post.blockquote);
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        spoiler = _ref1[_j];
         if (!/\w/.test(spoiler.textContent) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && (n && p).nodeName === '#text') {
           el = $.tn(p.textContent + spoiler.textContent + n.textContent);
           $.rm(p) && $.rm(n);
@@ -4916,15 +4920,15 @@
         }
       }
       snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
-      for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      for (i = _k = 0, _ref2 = snapshot.snapshotLength; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
         node = snapshot.snapshotItem(i);
         data = node.data;
         if (!(links = data.match(Linkify.regString))) {
           continue;
         }
         nodes = [];
-        for (_k = 0, _len1 = links.length; _k < _len1; _k++) {
-          link = links[_k];
+        for (_l = 0, _len2 = links.length; _l < _len2; _l++) {
+          link = links[_l];
           index = data.indexOf(link);
           if (text = data.slice(0, index)) {
             nodes.push($.tn(text));
@@ -4943,9 +4947,9 @@
         $.replace(node, nodes);
         Linkify.concat(a);
         if (Conf['Embed']) {
-          _ref2 = Linkify.types;
-          for (key in _ref2) {
-            type = _ref2[key];
+          _ref3 = Linkify.types;
+          for (key in _ref3) {
+            type = _ref3[key];
             if (match = a.href.match(type.regExp)) {
               embed = $.el('a', {
                 name: match[1],
