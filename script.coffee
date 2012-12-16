@@ -2273,16 +2273,18 @@ QR =
     doc.documentElement.innerHTML = html
     if ban  = $ '.banType', doc # banned/warning
       board = $('.board', doc).innerHTML
-      err   = $.el 'span', innerHTML:
-        if ban.textContent.toLowerCase() is 'banned'
+      err = $.el 'span'
+      if ban.textContent.toLowerCase() is 'banned'
+        if Conf['Check for Bans']
+          $.delete 'lastBanCheck'
+          BanChecker.init()
+        err.innerHTML:
           "You are banned on #{board}! ;_;<br>" +
           "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
-        else
+      else
+        err.innerHTML:
           "You were issued a warning on #{board} as #{$('.nameBlock', doc).innerHTML}.<br>" +
           "Reason: #{$('.reason', doc).innerHTML}"
-    if Conf['Check for Bans'] and ban.textContent.toLowerCase() is 'banned'
-      $.delete 'lastBanCheck'
-      BanChecker.init()
     else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
     else unless msg = $ 'b', doc

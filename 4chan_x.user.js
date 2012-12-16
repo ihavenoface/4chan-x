@@ -2867,13 +2867,19 @@
       doc.documentElement.innerHTML = html;
       if (ban = $('.banType', doc)) {
         board = $('.board', doc).innerHTML;
-        err = $.el('span', {
-          innerHTML: ban.textContent.toLowerCase() === 'banned' ? ("You are banned on " + board + "! ;_;<br>") + "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason." : ("You were issued a warning on " + board + " as " + ($('.nameBlock', doc).innerHTML) + ".<br>") + ("Reason: " + ($('.reason', doc).innerHTML))
-        });
-      }
-      if (Conf['Check for Bans'] && ban.textContent.toLowerCase() === 'banned') {
-        $["delete"]('lastBanCheck');
-        BanChecker.init();
+        if (ban.textContent.toLowerCase() === 'banned') {
+          err = $.el('span', {
+            innerHTML: ("You are banned on " + board + "! ;_;<br>") + "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
+          });
+          if (Conf['Check for Bans']) {
+            $["delete"]('lastBanCheck');
+            BanChecker.init();
+          }
+        } else {
+          err = $.el('span', {
+            innerHTML: ("You were issued a warning on " + board + " as " + ($('.nameBlock', doc).innerHTML) + ".<br>") + ("Reason: " + ($('.reason', doc).innerHTML))
+          });
+        }
       } else if (err = doc.getElementById('errmsg')) {
         if ((_ref = $('a', err)) != null) {
           _ref.target = '_blank';
