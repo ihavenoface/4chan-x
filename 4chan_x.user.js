@@ -1083,6 +1083,9 @@
       if (Conf['RemoveSpoilers']) {
         RemoveSpoilers.node(post);
       }
+      if (Conf['Color user IDs']) {
+        IDColor.node(post);
+      }
       $.replace(bq, clone);
       return Main.prettify(clone);
     }
@@ -4804,30 +4807,32 @@
 
   IDColor = {
     init: function() {
-      var css, _ref;
+      var _ref;
       if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
         return;
       }
-      css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;';
-      $.addStyle(".posteruid .hand {" + css + "}");
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
       var str, uid;
-      uid = $$('.posteruid', post.el);
-      if (!uid[1]) {
+      if (!(uid = post.el.getElementsByClassName('hand')[1])) {
         return;
       }
-      uid = uid[1].firstElementChild;
-      uid.style.cssText = IDColor.apply(str = uid.textContent);
-      $.on(uid, 'click', function() {
+      str = uid.textContent;
+      if (uid.nodeName === 'SPAN') {
+        uid.style.cssText = IDColor.apply.call(str);
+      }
+      if (!IDColor.highlight[str]) {
+        IDColor.highlight[str] = [];
+      }
+      if (str === $.get("highlightedID/" + g.BOARD + "/")) {
+        IDColor.highlight.current.push(post);
+        $.addClass(post.el, 'highlight');
+      }
+      IDColor.highlight[str].push(post);
+      return $.on(uid, 'click', function() {
         return IDColor.idClick(str);
       });
-      if (str === $.get("highlightedID/" + g.BOARD + "/")) {
-        $.addClass(uid.parentNode.parentNode.parentNode.parentNode, 'highlight');
-        IDColor.highlighted.push(uid.parentNode);
-        return IDColor.clicked = true;
-      }
     },
     ids: {},
     compute: function(str) {
@@ -4841,9 +4846,9 @@
       this.ids[str] = rgb;
       return rgb;
     },
-    apply: function(uid) {
+    apply: function() {
       var rgb;
-      rgb = this.ids[uid] || this.compute(uid);
+      rgb = IDColor.ids[this] || IDColor.compute(this);
       return ("background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;" : "white;");
     },
     hash: function(str) {
@@ -4857,32 +4862,31 @@
       }
       return msg;
     },
-    highlighted: [],
-    clicked: false,
-    idClick: function(uid) {
-      var el, value, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.highlighted;
+    highlight: {
+      current: []
+    },
+    idClick: function(str) {
+      var last, post, value, _i, _j, _len, _len1, _ref, _ref1;
+      _ref = this.highlight.current;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        el = _ref[_i];
-        $.rmClass(el.parentNode.parentNode.parentNode, 'highlight');
+        post = _ref[_i];
+        $.rmClass(post.el, 'highlight');
       }
-      this.highlighted = [];
-      value = "highlightedID/" + g.BOARD + "/";
-      if (this.clicked && uid === $.get(value)) {
-        $["delete"](value);
-        return this.clicked = false;
+      last = $.get(value = "highlightedID/" + g.BOARD + "/", false);
+      if (str === last) {
+        this.highlight.current = [];
+        return $["delete"](value);
       }
-      _ref1 = d.getElementsByClassName('id_' + uid);
+      _ref1 = this.highlight[str];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        el = _ref1[_j];
-        if (/\binline\b/.test(el.parentNode.parentNode.parentNode.parentNode.parentNode.className)) {
+        post = _ref1[_j];
+        if (post.isInlined) {
           continue;
         }
-        $.addClass(el.parentNode.parentNode.parentNode, 'highlight');
-        this.highlighted.push(el);
+        $.addClass(post.el, 'highlight');
+        this.highlight.current.push(post);
       }
-      $.set(value, uid);
-      return this.clicked = true;
+      return $.set(value, str);
     }
   };
 
@@ -6325,6 +6329,9 @@
       Options.init();
       if (Conf['Quick Reply'] && Conf['Hide Original Post Form']) {
         Main.css += '#postForm { display: none; }';
+      }
+      if (Conf['Color user IDs']) {
+        Main.css += '.posteruid .hand { padding: 0 5px; border-radius: 6px; font-size: 0.8em; }';
       }
       $.addStyle(Main.css);
       now = Date.now();

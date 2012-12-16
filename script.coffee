@@ -885,19 +885,21 @@ ExpandComment =
       quotes:     quotes
       backlinks:  []
     if Conf['Linkify']
-      Linkify.node       post
+      Linkify.node        post
     if Conf['Resurrect Quotes']
-      Quotify.node       post
+      Quotify.node        post
     if Conf['Quote Preview']
-      QuotePreview.node  post
+      QuotePreview.node   post
     if Conf['Quote Inline']
-      QuoteInline.node   post
+      QuoteInline.node    post
     if Conf['Indicate OP quote']
-      QuoteOP.node       post
+      QuoteOP.node        post
     if Conf['Indicate Cross-thread Quotes']
-      QuoteCT.node       post
+      QuoteCT.node        post
     if Conf['RemoveSpoilers']
       RemoveSpoilers.node post
+    if Conf['Color user IDs']
+      IDColor.node        post
     $.replace bq, clone
     Main.prettify clone
 
@@ -3936,19 +3938,24 @@ QuoteCT =
 IDColor =
   init: ->
     return unless g.BOARD in ['b', 'q', 'soc']
-    css = 'padding: 0 5px; border-radius: 6px; font-size: 0.8em;'
-    $.addStyle ".posteruid .hand {#{css}}"
     Main.callbacks.push @node
+
   node: (post) ->
-    uid = $$ '.posteruid', post.el
-    return unless uid[1]
-    uid = uid[1].firstElementChild
-    uid.style.cssText = IDColor.apply str = uid.textContent
-    $.on uid, 'click', -> IDColor.idClick str
+    return unless uid = post.el.getElementsByClassName('hand')[1]
+    str = uid.textContent
+    if uid.nodeName is 'SPAN'
+      uid.style.cssText = IDColor.apply.call str
+
+    unless IDColor.highlight[str]
+      IDColor.highlight[str] = []
+
     if str is $.get "highlightedID/#{g.BOARD}/"
-      $.addClass uid.parentNode.parentNode.parentNode.parentNode, 'highlight'
-      IDColor.highlighted.push uid.parentNode
-      IDColor.clicked = true
+      IDColor.highlight.current.push post
+      $.addClass post.el, 'highlight'
+
+    IDColor.highlight[str].push post
+    $.on uid, 'click', -> IDColor.idClick str
+
   ids: {}
   compute: (str) ->
     rgb = []
@@ -3961,9 +3968,11 @@ IDColor =
 
     @ids[str] = rgb
     rgb
-  apply: (uid) ->
-    rgb = @ids[uid] or @compute uid
+
+  apply: ->
+    rgb = IDColor.ids[@] or IDColor.compute @
     "background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]}); color: " + if rgb[3] then "black;" else "white;"
+
   hash: (str) ->
     msg = 0
     i = 0
@@ -3972,22 +3981,23 @@ IDColor =
       msg = ((msg << 5) - msg) + str.charCodeAt i
       ++i
     msg
-  highlighted: []
-  clicked:     false
-  idClick: (uid) ->
-    for el in @highlighted
-      $.rmClass el.parentNode.parentNode.parentNode, 'highlight'
-    @highlighted = []
-    value = "highlightedID/#{g.BOARD}/"
-    if @clicked and uid is $.get value
-      $.delete value
-      return @clicked = false
-    for el in d.getElementsByClassName 'id_' + uid
-      continue if /\binline\b/.test el.parentNode.parentNode.parentNode.parentNode.parentNode.className
-      $.addClass el.parentNode.parentNode.parentNode, 'highlight'
-      @highlighted.push el
-    $.set value, uid
-    @clicked = true
+
+  highlight:
+    current: []
+
+  idClick: (str) ->
+    for post in @highlight.current
+      $.rmClass post.el, 'highlight'
+    last = $.get value = "highlightedID/#{g.BOARD}/", false
+    if str is last
+      @highlight.current = []
+      return $.delete value
+
+    for post in @highlight[str]
+      continue if post.isInlined
+      $.addClass post.el, 'highlight'
+      @highlight.current.push post
+    $.set value, str
 
 Linkify =
   init: ->
@@ -5108,9 +5118,11 @@ Main =
   features: ->
     Options.init()
 
-
     if Conf['Quick Reply'] and Conf['Hide Original Post Form']
       Main.css += '#postForm { display: none; }'
+
+    if Conf['Color user IDs']
+      Main.css += '.posteruid .hand { padding: 0 5px; border-radius: 6px; font-size: 0.8em; }'
 
     $.addStyle Main.css
 
