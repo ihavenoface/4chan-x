@@ -1946,7 +1946,7 @@
             doc.documentElement.innerHTML = this.response;
             if (/no entry in our database/i.test((msg = $('.boxcontent', doc).textContent.trim()))) {
               $["delete"]('isBanned');
-              return $.rm($('h2'));
+              return $.rm($.id('banChecker'));
             }
             $.set('isBanned', /This ban will not expire/i.test(msg) ? 'You are banned, forever! ;_;' : 'You are banned! ;_;');
             return BanChecker.prepend();
@@ -1959,7 +1959,8 @@
       this.text = $.get('isBanned');
       el = $.el('h2', {
         innerHTML: "<span>" + (this.text.match(/^.*(?=banned)/)) + "</span><a href=" + this.url + " title='Click to find out why.' target=_blank>banned</a><span>" + (this.text.match(/banned.*$/).toString().replace(/^banned/, '')) + "</span>",
-        title: 'Click to recheck.'
+        title: 'Click to recheck.',
+        id: 'banChecker'
       });
       _ref = [el.firstChild, el.lastChild];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1973,10 +1974,11 @@
           return BanChecker.load();
         });
       }
-      if (h2 = $('h2')) {
+      if (h2 = $.id('banChecker')) {
         return $.replace(h2, el);
-      } else if (h1 = $('h1')) {
-        return $.after(h1, el);
+      }
+      if (h1 = $('h1')) {
+        $.after(h1, el);
       }
       return $.before($.id('postForm'), el);
     }

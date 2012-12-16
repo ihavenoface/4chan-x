@@ -1523,7 +1523,7 @@ BanChecker =
           doc.documentElement.innerHTML = @response
           if /no entry in our database/i.test (msg = $('.boxcontent', doc).textContent.trim())
             $.delete 'isBanned'
-            return $.rm $ 'h2'
+            return $.rm $.id 'banChecker'
           $.set 'isBanned',
             if /This ban will not expire/i.test msg
               'You are banned, forever! ;_;'
@@ -1537,15 +1537,16 @@ BanChecker =
       innerHTML:
         "<span>#{@text.match /^.*(?=banned)/}</span><a href=#{@url} title='Click to find out why.' target=_blank>banned</a><span>#{@text.match(/banned.*$/).toString().replace /^banned/, ''}</span>"
       title:  'Click to recheck.'
+      id:     'banChecker'
     for text in [el.firstChild, el.lastChild]
       $.on text, 'click', ->
         $.delete 'lastBanCheck' unless Conf['Check for Bans constantly']
         $.delete 'isBanned'
         @parentNode.style.opacity = '.5'
         BanChecker.load()
-    return if h2 = $ 'h2'
+    return if h2 = $.id 'banChecker'
       $.replace h2, el
-    else if h1 = $ 'h1'
+    if h1 = $ 'h1'
       $.after h1, el
     $.before $.id('postForm'), el
 
