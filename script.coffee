@@ -1535,7 +1535,7 @@ BanChecker =
     @text = $.get('isBanned')
     el = $.el 'h2'
       innerHTML:
-        "<span>#{@text.match /^.*(?=banned)/}</span><a href=#{@url} title='Click to find out why.' target=_blank>banned</a><span>#{@text.match(/banned.*$/).toString().replace /^banned/, ''}</span>"
+        "<span>#{@text.match /^.*(?=banned)/}</span><a href=#{BanChecker.url} title='Click to find out why.' target=_blank>banned</a><span>#{@text.match(/banned.*$/).toString().replace /^banned/, ''}</span>"
       title:  'Click to recheck.'
       id:     'banChecker'
     for text in [el.firstChild, el.lastChild]
@@ -1544,11 +1544,12 @@ BanChecker =
         $.delete 'isBanned'
         @parentNode.style.opacity = '.5'
         BanChecker.load()
-    return if h2 = $.id 'banChecker'
+    if h2 = $.id 'banChecker'
       $.replace h2, el
-    if h1 = $ 'h1'
+    else if h1 = $ 'h1'
       $.after h1, el
-    $.before $.id('postForm'), el
+    else
+      $.before $.id('postForm'), el
 
 QR =
   init: ->

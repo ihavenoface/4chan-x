@@ -1958,7 +1958,7 @@
       var el, h1, h2, text, _i, _len, _ref;
       this.text = $.get('isBanned');
       el = $.el('h2', {
-        innerHTML: "<span>" + (this.text.match(/^.*(?=banned)/)) + "</span><a href=" + this.url + " title='Click to find out why.' target=_blank>banned</a><span>" + (this.text.match(/banned.*$/).toString().replace(/^banned/, '')) + "</span>",
+        innerHTML: "<span>" + (this.text.match(/^.*(?=banned)/)) + "</span><a href=" + BanChecker.url + " title='Click to find out why.' target=_blank>banned</a><span>" + (this.text.match(/banned.*$/).toString().replace(/^banned/, '')) + "</span>",
         title: 'Click to recheck.',
         id: 'banChecker'
       });
@@ -1976,11 +1976,11 @@
       }
       if (h2 = $.id('banChecker')) {
         return $.replace(h2, el);
+      } else if (h1 = $('h1')) {
+        return $.after(h1, el);
+      } else {
+        return $.before($.id('postForm'), el);
       }
-      if (h1 = $('h1')) {
-        $.after(h1, el);
-      }
-      return $.before($.id('postForm'), el);
     }
   };
 
