@@ -6420,11 +6420,11 @@
         if (Conf['Filter']) {
           Filter.menuInit();
         }
-        if (Conf['Download Link']) {
-          DownloadLink.init();
-        }
         if (Conf['Archive Link']) {
           ArchiveLink.init();
+        }
+        if (Conf['Download Link']) {
+          DownloadLink.init();
         }
         if (Conf['Embed Link']) {
           EmbedLink.init();
