@@ -4612,7 +4612,12 @@
       }
       if ((i = Unread.replies.indexOf(el)) !== -1) {
         Unread.replies.splice(i, 1);
-        return Unread.update(true);
+        Unread.update(true);
+      }
+      if (Conf['Color user IDs'] && (board === 'b' || board === 'q' || board === 'soc')) {
+        return setTimeout(function() {
+          return $.rmClass($('.reply.highlight', inline), 'highlight');
+        });
       }
     },
     rm: function(q, id) {

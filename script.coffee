@@ -3807,6 +3807,9 @@ QuoteInline =
       Unread.replies.splice i, 1
       Unread.update true
 
+    if Conf['Color user IDs'] and board in ['b', 'q', 'soc']
+      setTimeout -> $.rmClass $('.reply.highlight', inline), 'highlight'
+
   rm: (q, id) ->
     # select the corresponding inlined quote or loading quote
     div = $.x "following::div[@id='i#{id}']", q
