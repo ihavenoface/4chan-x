@@ -2,7 +2,7 @@
 {exec} = require 'child_process'
 fs     = require 'fs'
 
-VERSION = '2.37.5'
+VERSION = '2.37.6'
 
 HEADER  = """
 // ==UserScript==
@@ -102,8 +102,6 @@ task 'upgrade', (options) ->
   for file in [CAKEFILE, INFILE, OUTFILE, LATEST]
     data = fs.readFileSync file, 'utf8'
     fs.writeFileSync file, data.replace regexp, version
-  data = fs.readFileSync CHANGELOG, 'utf8'
-  fs.writeFileSync CHANGELOG, data.replace 'master', "master\n\n#{version}"
   exec "git commit -am 'Release #{version}.' && git tag -a #{version} -m '#{version}' && git tag -af stable -m '#{version}'"
 
 task 'build', ->
