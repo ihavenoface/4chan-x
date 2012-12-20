@@ -2478,7 +2478,7 @@ Options =
     </ul>
     <ul>
       Specify size of video embeds<br>
-      Height: <input name=embedWidth type=number />px | Width: <input name=embedHeight type=number />px <button name=resetSize>Reset</button>
+      Width: <input name=embedWidth type=number />px | Heigth: <input name=embedHeight type=number />px <button name=resetSize>Reset</button>
     </ul>
     <ul>
       Amounts for Optional Increase<br>
