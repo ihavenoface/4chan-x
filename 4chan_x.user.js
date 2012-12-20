@@ -4813,8 +4813,8 @@
         IDColor.highlight[str] = [];
       }
       if (str === $.get("highlightedID/" + g.BOARD + "/")) {
-        IDColor.highlight.current.push(post);
         $.addClass(post.el, 'highlight');
+        IDColor.highlight.current.push(post);
       }
       IDColor.highlight[str].push(post);
       return $.on(uid, 'click', function() {
@@ -4883,7 +4883,7 @@
     },
     regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
     node: function(post) {
-      var a, cached, data, el, embed, i, index, key, link, links, match, n, node, nodes, p, service, snapshot, spoiler, text, titles, type, _i, _j, _k, _l, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var a, data, el, embed, i, index, key, link, linked, links, match, n, node, nodes, p, service, snapshot, spoiler, text, type, _i, _j, _k, _l, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         if (Conf['Embed']) {
           _ref = $$('a.embed', post.blockquote);
@@ -4917,140 +4917,150 @@
           if (text = data.slice(0, index)) {
             nodes.push($.tn(text));
           }
-          nodes.push(a = $.el('a', {
+          a = $.el('a', {
             textContent: link,
             rel: 'nofollow noreferrer',
             target: 'blank',
-            href: link.indexOf(":") < 0 ? (link.indexOf("@") > 0 ? "mailto:" + link : "http://" + link) : link
-          }));
+            href: link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link
+          });
+          nodes.push(a);
           data = data.slice(index + link.length);
         }
         if (data) {
           nodes.push($.tn(data));
         }
         $.replace(node, nodes);
-        Linkify.concat(a);
-        if (Conf['Embed']) {
+        $.on(a, 'click', Linkify.concat);
+        if (!Conf['Embed']) {
+          continue;
+        }
+        if (linked = Linkify.linked[a.href]) {
+          if (linked.title) {
+            if (Conf['Show FavIcons']) {
+              a.className = "" + linked.service.low + "Title";
+              a.textContent = linked.title;
+            } else {
+              a.textContent = "[" + linked.service.low + "] " + linked.title;
+            }
+          }
+          Linkify.createToggle(a, ++Linkify.linked[a.href].i);
+        } else {
           _ref3 = Linkify.types;
           for (key in _ref3) {
             type = _ref3[key];
-            if (match = a.href.match(type.regExp)) {
-              embed = $.el('a', {
-                name: match[1],
-                className: "embed " + key,
-                href: 'javascript:;',
-                textContent: '(embed)'
-              });
-              $.on(embed, 'click', Linkify.embed);
-              $.after(a, embed);
-              $.after(a, $.tn(' '));
-              if (Conf[key.charAt(0).toUpperCase() + key.slice(1)] && (service = Linkify.types[key].title)) {
-                if (!(titles = $.get('CachedTitles', {}))[key]) {
-                  titles[key] = {};
-                  $.set('CachedTitles', titles);
-                }
-                if (cached = titles[key][match[1]]) {
-                  if (Conf['Show FavIcons']) {
-                    a.textContent = cached;
-                    a.className = "" + key + "Title";
-                    break;
-                  }
-                  a.textContent = "[" + key + "] " + cached;
-                  break;
-                }
-                service.call({
-                  node: a,
-                  name: match[1],
-                  service: key
-                });
-              }
-              break;
+            if (!(match = a.href.match(type.regExp))) {
+              continue;
             }
+            service = {
+              low: key,
+              name: key.charAt(0).toUpperCase() + key.slice(1),
+              type: type
+            };
+            break;
           }
+          if (!service) {
+            continue;
+          }
+          link = {
+            name: match[1],
+            href: a.href,
+            service: service,
+            nodes: [],
+            i: 0
+          };
+          Linkify.linked[a.href] = link;
+          Linkify.createToggle(a);
         }
       }
     },
-    toggle: function() {
-      if (/\bembed\b/.test(this.className)) {
-        return Linkify.embed.call(this);
+    linked: {},
+    createToggle: function(node, i) {
+      var cached, embed, href, link, service, titles, unembed;
+      embed = $.el('a', {
+        href: 'javascript:;',
+        className: 'embed',
+        textContent: '(embed)'
+      });
+      unembed = embed.cloneNode(true);
+      unembed.className = 'unembed';
+      unembed.textContent = '(unembed)';
+      href = node.href;
+      $.on(embed, 'click', function() {
+        return Linkify.embed(href, i || 0);
+      });
+      $.after(node, [$.tn(' '), embed]);
+      Linkify.linked[href].nodes.push({
+        node: node,
+        embed: embed,
+        unembed: unembed
+      });
+      link = Linkify.linked[href];
+      if (!link.title && Conf[link.service.name] && link.service.type.title) {
+        if (!(titles = $.get('CachedTitles', false))[service = link.service.low]) {
+          titles[service] = {};
+          $.set('CachedTitles', titles);
+        }
+        if (cached = Linkify.linked[href].title = titles[service][link.name]) {
+          if (Conf['Show FavIcons']) {
+            node.className = "" + service + "Title";
+            return node.textContent = cached;
+          }
+          return node.textContent = "[" + service + "] " + cached;
+        }
+        return link.service.type.title.call({
+          node: node,
+          name: link.name,
+          service: service
+        });
       }
-      return Linkify.unembed.call(this);
     },
-    embed: function() {
-      var att, el, key, link, type, unembed, value, _i, _len, _ref, _ref1;
-      if (this.node) {
-        link = this.node;
-        el = this.el;
-      } else {
-        link = this.previousElementSibling;
-        if (!(el = (type = Linkify.types[this.className.replace(/\bembed\ /, '')]).el.call(this))) {
+    embed: function(href, len) {
+      var el, key, link, span, value, _ref, _ref1;
+      if (typeof href === 'string') {
+        link = Linkify.linked[href];
+        span = link.nodes[len];
+        if (span.el) {
+          $.rm(span.embed);
+          return $.replace(span.node, [span.el, $.tn(' '), span.unembed]);
+        }
+        if (!(el = link.service.type.el(link, len))) {
           return;
         }
-        if (type.style) {
+        if (link.service.type.style) {
           _ref = type.style;
           for (key in _ref) {
             value = _ref[key];
             el.style[key] = value;
           }
         } else {
-          el.style.cssText = "border: 0; width: " + ($.get('embedWidth', Config['embedWidth'])) + "px; height: " + ($.get('embedHeight', Config['embedHeight'])) + "px";
+          el.style.cssText = "border: 0; width: " + ($.get('embedWidth', Config.embedWidth)) + "px; height: " + ($.get('embedHeight', Config.embedHeight)) + "px";
         }
+      } else {
+        _ref1 = href, el = _ref1.el, href = _ref1.href, len = _ref1.len;
+        link = Linkify.linked[href];
+        span = link.nodes[len];
       }
-      _ref1 = ['href', 'textContent', 'className'];
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        att = _ref1[_i];
-        if (link[att]) {
-          el.setAttribute("data-original-" + att, link[att]);
-        }
-      }
-      $.replace(link, el);
-      unembed = $.el('a', {
-        name: this.name || '',
-        className: (el.className || this.className).replace(/\bembed\ /, 'unembed '),
-        href: 'javascript:;',
-        textContent: '(unembed)'
+      Linkify.linked[href].nodes[len].el = el;
+      $.on(span.unembed, 'click', function() {
+        return Linkify.unembed(span);
       });
-      $.on(unembed, 'click', Linkify.unembed);
-      return $.replace(el.nextElementSibling, unembed);
+      $.rm(span.embed);
+      return $.replace(span.node, [span.el, $.tn(' '), span.unembed]);
     },
-    unembed: function() {
-      var a, embed, embedded, get;
-      embedded = this.previousElementSibling;
-      get = function(att) {
-        return embedded.getAttribute("data-original-" + att);
-      };
-      a = $.el('a', {
-        textContent: get('textContent'),
-        className: get('className'),
-        rel: 'nofollow noreferrer',
-        target: 'blank',
-        href: get('href')
-      });
-      if (Conf['Show FavIcons'] && Linkify.types[this.className.replace(/\bunembed\ /, '')].title) {
-        a.className = "" + this.className + "Title";
-      }
-      embed = $.el('a', {
-        name: this.name,
-        className: this.className.replace(/\bunembed\ /, 'embed '),
-        href: 'javascript:;',
-        textContent: '(embed)'
-      });
-      $.on(embed, 'click', Linkify.embed);
-      $.replace(embedded, a);
-      return $.replace(this, embed);
+    unembed: function(span) {
+      $.rm(span.unembed);
+      return $.replace(span.el, [span.node, $.tn(' '), span.embed]);
     },
-    concat: function(a) {
-      return $.on(a, 'click', function(e) {
-        var el;
-        if (e.shiftKey) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
-            this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
-            return $.rm(el);
-          }
+    concat: function(e) {
+      var el;
+      if (e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
+          this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
+          return $.rm(el);
         }
-      });
+      }
     },
     json: function(info) {
       return $.cache(info.url, function() {
@@ -5096,9 +5106,9 @@
     types: {
       youtube: {
         regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
-        el: function() {
+        el: function(link) {
           return $.el('iframe', {
-            src: "//www.youtube.com/embed/" + this.name
+            src: "//www.youtube.com/embed/" + link.name
           });
         },
         title: function() {
@@ -5111,9 +5121,9 @@
       },
       vimeo: {
         regExp: /.*(?:vimeo.com\/)([^#\&\?]*).*/,
-        el: function() {
+        el: function(link) {
           return $.el('iframe', {
-            src: "//player.vimeo.com/video/" + this.name
+            src: "//player.vimeo.com/video/" + link.name
           });
         },
         title: function() {
@@ -5126,9 +5136,9 @@
       },
       liveleak: {
         regExp: /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/,
-        el: function() {
+        el: function(link) {
           return $.el('iframe', {
-            src: "http://www.liveleak.com/e/" + this.name + "?autostart=true"
+            src: "http://www.liveleak.com/e/" + link.name + "?autostart=true"
           });
         }
       },
@@ -5139,28 +5149,29 @@
           width: '150px',
           height: '45px'
         },
-        el: function() {
+        el: function(link) {
           return $.el('iframe', {
-            src: "http://vocaroo.com/player.swf?playMediaID=" + (this.name.replace(/^i\//, '')) + "&autoplay=0"
+            src: "http://vocaroo.com/player.swf?playMediaID=" + (link.name.replace(/^i\//, '')) + "&autoplay=0"
           });
         }
       },
       soundcloud: {
         regExp: /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/,
         url: "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=",
-        el: function() {
-          var node;
-          node = this.previousElementSibling;
-          $.cache(Linkify.types.soundcloud.url + node.href, function() {
+        el: function(link, len) {
+          var href;
+          $.log(link);
+          href = link.href;
+          $.cache(Linkify.types.soundcloud.url + href, function() {
             var response;
             response = {
               el: $.el('div', {
-                innerHTML: JSON.parse(this.responseText).html,
-                className: 'unembed soundcloud'
+                innerHTML: JSON.parse(this.responseText).html
               }),
-              node: node
+              href: href,
+              len: len
             };
-            return Linkify.embed.call(response);
+            return Linkify.embed(response);
           });
           return false;
         },
@@ -5174,11 +5185,11 @@
       },
       audio: {
         regExp: /(.*\.(mp3|ogg|wav))$/,
-        el: function() {
+        el: function(link) {
           return $.el('audio', {
             controls: 'controls',
             preload: 'auto',
-            src: this.name,
+            src: link.href,
             textContent: 'You should get a better browser.'
           });
         }
@@ -5518,7 +5529,7 @@
           }
           for (_i = 0, _len = toggle.length; _i < _len; _i++) {
             link = toggle[_i];
-            Linkify.toggle.call(link);
+            $.event(link, new Event('click'));
           }
         }
       });

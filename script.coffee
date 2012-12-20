@@ -3941,10 +3941,9 @@ IDColor =
 
     unless IDColor.highlight[str]
       IDColor.highlight[str] = []
-
     if str is $.get "highlightedID/#{g.BOARD}/"
-      IDColor.highlight.current.push post
       $.addClass post.el, 'highlight'
+      IDColor.highlight.current.push post
 
     IDColor.highlight[str].push post
     $.on uid, 'click', -> IDColor.idClick str
@@ -4045,12 +4044,12 @@ Linkify =
         if text = data[...index]
           # Potential text before this valid link.
           nodes.push $.tn text
-
-        nodes.push a = $.el 'a',
+        a = $.el 'a',
           textContent: link
-          rel:       'nofollow noreferrer'
-          target:    'blank'
-          href:      if link.indexOf(":") < 0 then (if link.indexOf("@") > 0 then "mailto:" + link else "http://" + link) else link
+          rel:         'nofollow noreferrer'
+          target:      'blank'
+          href:        if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link
+        nodes.push a
         data = data[index + link.length..]
 
       if data
@@ -4058,100 +4057,107 @@ Linkify =
         nodes.push $.tn data
       $.replace node, nodes
 
-      Linkify.concat a
-      if Conf['Embed']
+      $.on a, 'click', Linkify.concat
+
+      continue unless Conf['Embed']
+
+      if linked = Linkify.linked[a.href]
+        if linked.title
+          if Conf['Show FavIcons']
+            a.className   = "#{linked.service.low}Title"
+            a.textContent = linked.title
+          else
+            a.textContent = "[#{linked.service.low}] #{linked.title}"
+        Linkify.createToggle a, ++Linkify.linked[a.href].i
+      else
         for key, type of Linkify.types
-          if match = a.href.match type.regExp
-            embed = $.el 'a'
-              name:         match[1]
-              className:    "embed #{key}"
-              href:         'javascript:;'
-              textContent:  '(embed)'
-            $.on embed, 'click', Linkify.embed
-            $.after a, embed
-            $.after a, $.tn ' '
-            if Conf[key.charAt(0).toUpperCase() + key[1..]] and service = Linkify.types[key].title
-              unless (titles = $.get 'CachedTitles', {})[key]
-                titles[key] = {}
-                $.set 'CachedTitles', titles
-              if cached = titles[key][match[1]]
-                if Conf['Show FavIcons']
-                  a.textContent = cached
-                  a.className   = "#{key}Title"
-                  break
-                a.textContent   = "[#{key}] #{cached}"
-                break
-              service.call
-                node:    a
-                name:    match[1]
-                service: key
-            break
+          unless match = a.href.match type.regExp
+            continue
+          service =
+            low:    key
+            name:   key.charAt(0).toUpperCase() + key[1..]
+            type:   type
+          break
+        continue unless service
+        link =
+          name:     match[1]
+          href:     a.href
+          service:  service
+          nodes:    []
+          i:        0
+        Linkify.linked[a.href] = link
+        Linkify.createToggle a
     return
 
-  toggle: ->
-    if /\bembed\b/.test @className
-      return Linkify.embed.call @
-    Linkify.unembed.call @
+  linked: {}
 
-  embed: ->
-    if @node
-      link = @node
-      el   = @el
-    else
-      link = @previousElementSibling
-      return unless el = (type = Linkify.types[@className.replace /\bembed\ /, '']).el.call @
-      if type.style
-        for key, value of type.style
-          el.style[key] = value
-      else
-        el.style.cssText = "border: 0; width: #{$.get 'embedWidth', Config['embedWidth']}px; height: #{$.get 'embedHeight', Config['embedHeight']}px"
-
-    for att in ['href', 'textContent', 'className']
-      el.setAttribute "data-original-#{att}", link[att] if link[att]
-    $.replace link, el
-
-    unembed = $.el 'a'
-      name:        @name or ''
-      className:   (el.className or @className).replace /\bembed\ /, 'unembed '
-      href:        'javascript:;'
-      textContent: '(unembed)'
-
-    $.on unembed, 'click', Linkify.unembed
-    $.replace el.nextElementSibling, unembed
-
-  unembed: ->
-    embedded = @previousElementSibling
-    get = (att) -> embedded.getAttribute "data-original-#{att}"
-    a = $.el 'a'
-      textContent: get 'textContent'
-      className:   get 'className'
-      rel:         'nofollow noreferrer'
-      target:      'blank'
-      href:        get 'href'
-    if Conf['Show FavIcons'] and Linkify.types[@className.replace /\bunembed\ /, ''].title
-      a.className = "#{@className}Title"
-
+  createToggle: (node, i) ->
     embed = $.el 'a'
-      name:         @name
-      className:    @className.replace /\bunembed\ /, 'embed '
-      href:         'javascript:;'
-      textContent:  '(embed)'
+      href:        'javascript:;'
+      className:   'embed'
+      textContent: '(embed)'
+    unembed = embed.cloneNode true
+    unembed.className   = 'unembed'
+    unembed.textContent = '(unembed)'
 
-    $.on embed, 'click', Linkify.embed
-    $.replace embedded, a
-    $.replace @, embed
+    {href} = node
+    $.on embed, 'click', -> Linkify.embed (href), i or 0
+    $.after node, [$.tn(' '), embed]
+    Linkify.linked[href].nodes.push {node, embed, unembed}
+    link = Linkify.linked[href]
 
-  concat: (a) ->
-    $.on a, 'click', (e) ->
-      if e.shiftKey
-        e.preventDefault()
-        e.stopPropagation()
-        if ((el = @nextSibling).tagName.toLowerCase() is "br" or el.className is 'spoiler') and el.nextSibling.className isnt "abbr"
-          @href = if el.textContent
-            @textContent += el.textContent + el.nextSibling.textContent
-          else
-            @textContent += el.nextSibling.textContent
-          $.rm el
+    if not link.title and Conf[link.service.name] and link.service.type.title
+      unless (titles = $.get 'CachedTitles', false)[service = link.service.low]
+        titles[service] = {}
+        $.set 'CachedTitles', titles
+
+      if cached = Linkify.linked[href].title = titles[service][link.name]
+        if Conf['Show FavIcons']
+          node.className = "#{service}Title"
+          return node.textContent =  cached
+        return node.textContent   = "[#{service}] #{cached}"
+
+      link.service.type.title.call
+         node:    node
+         name:    link.name
+         service: service
+
+  embed: (href, len) ->
+    if typeof href is 'string'
+      link = Linkify.linked[href]
+      span = link.nodes[len]
+      if span.el
+        $.rm span.embed
+        return $.replace span.node, [span.el, $.tn(' '), span.unembed]
+      return unless el = link.service.type.el link, len
+      if link.service.type.style
+        for key, value of type.style
+          el.style[key]  = value
+      else
+        el.style.cssText = "border: 0; width: #{$.get 'embedWidth', Config.embedWidth}px; height: #{$.get 'embedHeight', Config.embedHeight}px"
+    else # Got callback and something to embed.
+      {el, href, len} = href
+      link = Linkify.linked[href]
+      span = link.nodes[len]
+    Linkify.linked[href].nodes[len].el = el
+    $.on span.unembed, 'click', -> Linkify.unembed span
+    $.rm span.embed
+    $.replace span.node, [span.el, $.tn(' '), span.unembed]
+
+  unembed: (span) ->
+    $.rm span.unembed
+    $.replace span.el, [span.node, $.tn(' '), span.embed]
+
+  concat: (e) ->
+    if e.shiftKey
+      e.preventDefault()
+      e.stopPropagation()
+      if ((el = @nextSibling).tagName.toLowerCase() is "br" or el.className is 'spoiler') and el.nextSibling.className isnt "abbr"
+        @href = if el.textContent
+          @textContent += el.textContent + el.nextSibling.textContent
+        else
+          @textContent += el.nextSibling.textContent
+        $.rm el
 
   json: (info) ->
     $.cache info.url, ->
@@ -4184,9 +4190,8 @@ Linkify =
   types:
     youtube:
       regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
-      el: ->
-        $.el 'iframe'
-          src:  "//www.youtube.com/embed/#{@name}"
+      el: (link) ->
+        $.el 'iframe', src: "//www.youtube.com/embed/#{link.name}"
       title: ->
         @url = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
         Linkify.json @
@@ -4194,9 +4199,8 @@ Linkify =
 
     vimeo:
       regExp:  /.*(?:vimeo.com\/)([^#\&\?]*).*/
-      el: ->
-        $.el 'iframe'
-          src:  "//player.vimeo.com/video/#{@name}"
+      el: (link) ->
+        $.el 'iframe', src: "//player.vimeo.com/video/#{link.name}"
       title: ->
         @url = "https://vimeo.com/api/oembed.json?url=http://vimeo.com/#{@name}"
         Linkify.json @
@@ -4204,9 +4208,8 @@ Linkify =
 
     liveleak:
       regExp:  /.*(?:liveleak.com\/view.+i=)([0-9a-z_]+)/
-      el: ->
-        $.el 'iframe'
-          src: "http://www.liveleak.com/e/#{@name}?autostart=true"
+      el: (link) ->
+        $.el 'iframe', src: "http://www.liveleak.com/e/#{link.name}?autostart=true"
 
     vocaroo:
       regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
@@ -4214,22 +4217,22 @@ Linkify =
         border: '0'
         width:  '150px'
         height: '45px'
-      el: ->
-        $.el 'iframe'
-          src:  "http://vocaroo.com/player.swf?playMediaID=#{@name.replace /^i\//, ''}&autoplay=0"
+      el: (link) ->
+        $.el 'iframe', src: "http://vocaroo.com/player.swf?playMediaID=#{link.name.replace /^i\//, ''}&autoplay=0"
 
     soundcloud:
       regExp:  /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/
       url:     "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url="
-      el: ->
-        node = @previousElementSibling
-        $.cache Linkify.types.soundcloud.url + node.href, ->
+      el: (link, len) ->
+        $.log link
+        {href} = link
+        $.cache Linkify.types.soundcloud.url + href, ->
           response =
             el: $.el 'div'
               innerHTML: JSON.parse(@responseText).html
-              className: 'unembed soundcloud'
-            node: node
-          Linkify.embed.call response
+            href: href
+            len:  len
+          Linkify.embed response
         false
       title: ->
         @url = Linkify.types.soundcloud.url + @node.href
@@ -4238,11 +4241,11 @@ Linkify =
 
     audio:
       regExp:  /(.*\.(mp3|ogg|wav))$/
-      el: ->
+      el: (link) ->
         $.el 'audio'
           controls:    'controls'
           preload:     'auto'
-          src:         @name
+          src:         link.href
           textContent: 'You should get a better browser.'
 
 Quotify =
@@ -4526,7 +4529,7 @@ EmbedLink =
         else
           @textContent = 'Unembed all in post'
         for link in toggle
-          Linkify.toggle.call link
+          $.event link, new Event 'click'
         return
 
 ThreadStats =
