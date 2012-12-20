@@ -4958,7 +4958,7 @@
             };
             break;
           }
-          if (!service) {
+          if (match === null || !service) {
             continue;
           }
           link = {

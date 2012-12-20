@@ -4078,7 +4078,7 @@ Linkify =
             name:   key.charAt(0).toUpperCase() + key[1..]
             type:   type
           break
-        continue unless service
+        continue if match is null or not service
         link =
           name:     match[1]
           href:     a.href
@@ -4118,9 +4118,9 @@ Linkify =
         return node.textContent   = "[#{service}] #{cached}"
 
       link.service.type.title.call
-         node:    node
-         name:    link.name
-         service: service
+        node:    node
+        name:    link.name
+        service: service
 
   embed: (href, len) ->
     if typeof href is 'string'
