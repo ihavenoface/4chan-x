@@ -3464,6 +3464,16 @@
         Updater.unsuccessfulFetchCount = 0;
         return setTimeout(Updater.update, 500);
       },
+      checkpost: function(status) {
+        if (status !== 404 && Updater.save.join(' ').indexOf(Updater.postID) === -1 && Updater.checkPostCount < 10) {
+          return (function() {
+            return setTimeout(Updater.update, this);
+          }).call(++Updater.checkPostCount * 500);
+        }
+        Updater.save = [];
+        Updater.checkPostCount = 0;
+        return delete Updater.postID;
+      },
       visibility: function() {
         var state;
         state = d.visibilityState || d.oVisibilityState || d.mozVisibilityState || d.webkitVisibilityState;
@@ -3542,16 +3552,6 @@
               Updater.set('count', '+0');
               Updater.count.className = null;
             }
-            if (Updater.postID) {
-              if (Updater.checkPostCount > 15) {
-                delete Updater.postID;
-                break;
-              }
-              Updater.checkPostCount++;
-              return (function(timeout) {
-                return setTimeout(Updater.update, timeout);
-              })(Updater.checkPostCount * 20);
-            }
             break;
           case 200:
             Updater.lastModified = this.getResponseHeader('Last-Modified');
@@ -3567,12 +3567,7 @@
             }
         }
         if (Updater.postID) {
-          if (Updater.save.join(' ').indexOf(Updater.postID) === -1) {
-            return Updater.update();
-          }
-          Updater.checkPostCount = 0;
-          Updater.save = [];
-          delete Updater.postID;
+          Updater.cb.checkpost(this.status);
         }
         return delete Updater.request;
       },
@@ -3672,9 +3667,7 @@
     },
     update: function() {
       var request, url;
-      if (!Updater.postID) {
-        Updater.set('timer', 0);
-      }
+      Updater.set('timer', 0);
       request = Updater.request;
       if (request) {
         request.onloadend = null;

@@ -2830,6 +2830,12 @@ Updater =
       return unless Conf['Auto Update This']
       Updater.unsuccessfulFetchCount = 0
       setTimeout Updater.update, 500
+    checkpost: (status) ->
+      if status isnt 404 and Updater.save.join(' ').indexOf(Updater.postID) is -1 and Updater.checkPostCount < 10
+        return ( -> setTimeout Updater.update, @ ).call ++Updater.checkPostCount * 500
+      Updater.save = []
+      Updater.checkPostCount = 0
+      delete Updater.postID
     visibility: ->
       state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
       return if state isnt 'visible'
@@ -2891,12 +2897,6 @@ Updater =
           if Conf['Verbose']
             Updater.set 'count', '+0'
             Updater.count.className = null
-          if Updater.postID
-            if Updater.checkPostCount > 15
-              delete Updater.postID
-              break
-            Updater.checkPostCount++
-            return ((timeout) -> setTimeout Updater.update, timeout) Updater.checkPostCount * 20
         when 200
           Updater.lastModified = @getResponseHeader 'Last-Modified'
           Updater.cb.update JSON.parse(@response).posts
@@ -2908,11 +2908,7 @@ Updater =
             Updater.set 'count', @statusText
             Updater.count.className = 'warning'
       if Updater.postID
-        if Updater.save.join(' ').indexOf(Updater.postID) is -1
-          return Updater.update()
-        Updater.checkPostCount = 0
-        Updater.save = []
-        delete Updater.postID
+        Updater.cb.checkpost @status
       delete Updater.request
     update: (posts) ->
       if spoilerRange = posts[0].custom_spoiler
@@ -2988,8 +2984,7 @@ Updater =
       Updater.set 'timer', n
 
   update: ->
-    unless Updater.postID
-      Updater.set 'timer', 0
+    Updater.set 'timer', 0
     {request} = Updater
     if request
       # Don't reset the counter when aborting.
