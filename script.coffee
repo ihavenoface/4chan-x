@@ -2564,19 +2564,21 @@ Options =
 
     #archiver
     archiver = $ 'select[name=archiver]', dialog
-    toSelect = Redirect.select g.BOARD
+    unless (toSelect = Redirect.select(g.BOARD))[0]
+      toSelect = ['No archive available.']
     for name in toSelect
       break if archiver.length >= toSelect.length
       $.add archiver, $.el 'option',
         textContent: name
     if toSelect[1]
-      archiver.value = $.get value = "archiver/#{g.BOARD}/", toSelect[0]
+      archiver.value = $.get (value = "archiver/#{g.BOARD}/"), toSelect[0]
       $.on archiver, 'mouseup', ->
         if Redirect.archive[g.BOARD]
-          Redirect.archive[g.BOARD] = @value
-        $.set value, @value
-        if toSelect[0] is @value
+           Redirect.archive[g.BOARD] = @value
+        if @value is toSelect[0]
           $.delete value
+        else
+          $.set value, @value
 
     #sauce
     sauce = $ '#sauces', dialog
@@ -4697,8 +4699,6 @@ Redirect =
 
   archive:    {}
 
-  noArchiver: 'No archive available.'
-
   archiver:
     'Foolz':
       base:    '//archive.foolz.us'
@@ -4738,12 +4738,12 @@ Redirect =
       type: 'fuuka'
 
   select: (board) ->
-    names = for name, type of @archiver
+    names = []
+    for name, type of @archiver
       if type.boards.indexOf(board) is -1
         continue
-      name
-    return names if names.length > 0
-    [@noArchiver]
+      names.push name
+    names
 
   to: (data) ->
     if aboard = @archiver[@archive[board = data.board] or @archive[board] = $.get "archiver/#{board}/", @select(board)[0]]

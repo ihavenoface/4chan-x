@@ -3153,7 +3153,9 @@
       filter = $('select[name=filter]', dialog);
       $.on(filter, 'change', Options.filter);
       archiver = $('select[name=archiver]', dialog);
-      toSelect = Redirect.select(g.BOARD);
+      if (!(toSelect = Redirect.select(g.BOARD))[0]) {
+        toSelect = ['No archive available.'];
+      }
       for (_i = 0, _len = toSelect.length; _i < _len; _i++) {
         name = toSelect[_i];
         if (archiver.length >= toSelect.length) {
@@ -3164,14 +3166,15 @@
         }));
       }
       if (toSelect[1]) {
-        archiver.value = $.get(value = "archiver/" + g.BOARD + "/", toSelect[0]);
+        archiver.value = $.get((value = "archiver/" + g.BOARD + "/"), toSelect[0]);
         $.on(archiver, 'mouseup', function() {
           if (Redirect.archive[g.BOARD]) {
             Redirect.archive[g.BOARD] = this.value;
           }
-          $.set(value, this.value);
-          if (toSelect[0] === this.value) {
+          if (this.value === toSelect[0]) {
             return $["delete"](value);
+          } else {
+            return $.set(value, this.value);
           }
         });
       }
@@ -5744,7 +5747,6 @@
       }
     },
     archive: {},
-    noArchiver: 'No archive available.',
     archiver: {
       'Foolz': {
         base: '//archive.foolz.us',
@@ -5793,24 +5795,17 @@
       }
     },
     select: function(board) {
-      var name, names, type;
-      names = (function() {
-        var _ref, _results;
-        _ref = this.archiver;
-        _results = [];
-        for (name in _ref) {
-          type = _ref[name];
-          if (type.boards.indexOf(board) === -1) {
-            continue;
-          }
-          _results.push(name);
+      var name, names, type, _ref;
+      names = [];
+      _ref = this.archiver;
+      for (name in _ref) {
+        type = _ref[name];
+        if (type.boards.indexOf(board) === -1) {
+          continue;
         }
-        return _results;
-      }).call(this);
-      if (names.length > 0) {
-        return names;
+        names.push(name);
       }
-      return [this.noArchiver];
+      return names;
     },
     to: function(data) {
       var aboard, board;
