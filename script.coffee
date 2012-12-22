@@ -4191,7 +4191,7 @@ Linkify =
     youtube:
       regExp:  /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/
       el: (link) ->
-        $.el 'iframe', src: "//www.youtube.com/embed/#{link.name}"
+        $.el 'iframe', src: "//www.youtube.com/embed/#{link.name}?wmode=transparent"
       title: ->
         @url = "https://gdata.youtube.com/feeds/api/videos/#{@name}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
         Linkify.json @
