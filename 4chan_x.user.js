@@ -1080,12 +1080,6 @@
       if (Conf['Indicate Cross-thread Quotes']) {
         QuoteCT.node(post);
       }
-      if (Conf['RemoveSpoilers']) {
-        RemoveSpoilers.node(post);
-      }
-      if (Conf['Color user IDs']) {
-        IDColor.node(post);
-      }
       $.replace(bq, clone);
       return Main.prettify(clone);
     }
