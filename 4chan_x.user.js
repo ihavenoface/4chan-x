@@ -4937,7 +4937,7 @@
               a.textContent = "[" + linked.service.low + "] " + linked.title;
             }
           }
-          Linkify.createToggle(a, ++Linkify.linked[a.href].i);
+          Linkify.createToggle(a, post.ID);
         } else {
           _ref3 = Linkify.types;
           for (key in _ref3) {
@@ -4959,16 +4959,15 @@
             name: match[1],
             href: a.href,
             service: service,
-            nodes: [],
-            i: 0
+            posts: {}
           };
           Linkify.linked[a.href] = link;
-          Linkify.createToggle(a);
+          Linkify.createToggle(a, post.ID);
         }
       }
     },
     linked: {},
-    createToggle: function(node, i) {
+    createToggle: function(node, postID) {
       var cached, embed, href, link, service, titles, unembed;
       embed = $.el('a', {
         href: 'javascript:;',
@@ -4980,17 +4979,17 @@
       unembed.textContent = '(unembed)';
       href = node.href;
       $.on(embed, 'click', function() {
-        return Linkify.embed(href, i || 0);
+        return Linkify.embed(href, postID);
       });
       $.after(node, [$.tn(' '), embed]);
-      Linkify.linked[href].nodes.push({
+      Linkify.linked[href].posts[postID] = {
         node: node,
         embed: embed,
         unembed: unembed
-      });
+      };
       link = Linkify.linked[href];
       if (!link.title && Conf[link.service.name] && link.service.type.title) {
-        if (!(titles = $.get('CachedTitles', false))[service = link.service.low]) {
+        if (!(titles = $.get('CachedTitles', {}))[service = link.service.low]) {
           titles[service] = {};
           $.set('CachedTitles', titles);
         }
@@ -5008,16 +5007,16 @@
         });
       }
     },
-    embed: function(href, len) {
+    embed: function(href, postID) {
       var el, key, link, span, value, _ref, _ref1;
       if (typeof href === 'string') {
         link = Linkify.linked[href];
-        span = link.nodes[len];
+        span = link.posts[postID];
         if (span.el) {
           $.rm(span.embed);
           return $.replace(span.node, [span.el, $.tn(' '), span.unembed]);
         }
-        if (!(el = link.service.type.el(link, len))) {
+        if (!(el = link.service.type.el(link, postID))) {
           return;
         }
         if (link.service.type.style) {
@@ -5030,11 +5029,11 @@
           el.style.cssText = "border: 0; width: " + ($.get('embedWidth', Config.embedWidth)) + "px; height: " + ($.get('embedHeight', Config.embedHeight)) + "px";
         }
       } else {
-        _ref1 = href, el = _ref1.el, href = _ref1.href, len = _ref1.len;
+        _ref1 = href, el = _ref1.el, href = _ref1.href, postID = _ref1.postID;
         link = Linkify.linked[href];
-        span = link.nodes[len];
+        span = link.posts[postID];
       }
-      Linkify.linked[href].nodes[len].el = el;
+      Linkify.linked[href].posts[postID].el = el;
       $.on(span.unembed, 'click', function() {
         return Linkify.unembed(span);
       });
@@ -5152,9 +5151,8 @@
       soundcloud: {
         regExp: /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/,
         url: "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url=",
-        el: function(link, len) {
+        el: function(link, postID) {
           var href;
-          $.log(link);
           href = link.href;
           $.cache(Linkify.types.soundcloud.url + href, function() {
             var response;
@@ -5163,7 +5161,7 @@
                 innerHTML: JSON.parse(this.responseText).html
               }),
               href: href,
-              len: len
+              postID: postID
             };
             return Linkify.embed(response);
           });

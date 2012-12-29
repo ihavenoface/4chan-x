@@ -4064,30 +4064,29 @@ Linkify =
             a.textContent = linked.title
           else
             a.textContent = "[#{linked.service.low}] #{linked.title}"
-        Linkify.createToggle a, ++Linkify.linked[a.href].i
+        Linkify.createToggle a, post.ID
       else
         for key, type of Linkify.types
           unless match = a.href.match type.regExp
             continue
           service =
-            low:    key
-            name:   key.charAt(0).toUpperCase() + key[1..]
-            type:   type
+            low:   key
+            name:  key.charAt(0).toUpperCase() + key[1..]
+            type:  type
           break
         continue if match is null or not service
         link =
-          name:     match[1]
-          href:     a.href
-          service:  service
-          nodes:    []
-          i:        0
+          name:    match[1]
+          href:    a.href
+          service: service
+          posts:   {}
         Linkify.linked[a.href] = link
-        Linkify.createToggle a
+        Linkify.createToggle a, post.ID
     return
 
   linked: {}
 
-  createToggle: (node, i) ->
+  createToggle: (node, postID) ->
     embed = $.el 'a'
       href:        'javascript:;'
       className:   'embed'
@@ -4097,13 +4096,13 @@ Linkify =
     unembed.textContent = '(unembed)'
 
     {href} = node
-    $.on embed, 'click', -> Linkify.embed (href), i or 0
+    $.on embed, 'click', -> Linkify.embed (href), postID
     $.after node, [$.tn(' '), embed]
-    Linkify.linked[href].nodes.push {node, embed, unembed}
+    Linkify.linked[href].posts[postID] = {node, embed, unembed}
     link = Linkify.linked[href]
 
     if not link.title and Conf[link.service.name] and link.service.type.title
-      unless (titles = $.get 'CachedTitles', false)[service = link.service.low]
+      unless (titles = $.get 'CachedTitles', {})[service = link.service.low]
         titles[service] = {}
         $.set 'CachedTitles', titles
 
@@ -4118,24 +4117,24 @@ Linkify =
         name:    link.name
         service: service
 
-  embed: (href, len) ->
+  embed: (href, postID) ->
     if typeof href is 'string'
       link = Linkify.linked[href]
-      span = link.nodes[len]
+      span = link.posts[postID]
       if span.el
         $.rm span.embed
         return $.replace span.node, [span.el, $.tn(' '), span.unembed]
-      return unless el = link.service.type.el link, len
+      return unless el = link.service.type.el link, postID
       if link.service.type.style
         for key, value of type.style
           el.style[key]  = value
       else
         el.style.cssText = "border: 0; width: #{$.get 'embedWidth', Config.embedWidth}px; height: #{$.get 'embedHeight', Config.embedHeight}px"
     else # Got callback and something to embed.
-      {el, href, len} = href
+      {el, href, postID} = href
       link = Linkify.linked[href]
-      span = link.nodes[len]
-    Linkify.linked[href].nodes[len].el = el
+      span = link.posts[postID]
+    Linkify.linked[href].posts[postID].el = el
     $.on span.unembed, 'click', -> Linkify.unembed span
     $.rm span.embed
     $.replace span.node, [span.el, $.tn(' '), span.unembed]
@@ -4219,15 +4218,14 @@ Linkify =
     soundcloud:
       regExp:  /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/
       url:     "//soundcloud.com/oembed?show_artwork=false&&maxwidth=500px&show_comments=false&format=json&url="
-      el: (link, len) ->
-        $.log link
+      el: (link, postID) ->
         {href} = link
         $.cache Linkify.types.soundcloud.url + href, ->
           response =
             el: $.el 'div'
               innerHTML: JSON.parse(@responseText).html
-            href: href
-            len:  len
+            href:   href
+            postID: postID
           Linkify.embed response
         false
       title: ->
