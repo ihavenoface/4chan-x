@@ -550,6 +550,9 @@
       }
       size = unit > 1 ? Math.round(size * 100) / 100 : Math.round(size);
       return "" + size + " " + ['B', 'KB', 'MB', 'GB'][unit];
+    },
+    hidden: function() {
+      return d.hidden || d.oHidden || d.mozHidden || d.webkitHidden;
     }
   });
 
@@ -2074,7 +2077,7 @@
       if (QR.captcha.isEnabled && /captcha|verification/i.test(el.textContent)) {
         $('[autocomplete]', QR.el).focus();
       }
-      if (Conf['Focus on Alert'] && (d.hidden || d.oHidden || d.mozHidden || d.webkitHidden)) {
+      if (Conf['Focus on Alert'] && $.hidden()) {
         return alert(el.textContent);
       }
     },
@@ -3471,9 +3474,7 @@
         return delete Updater.postID;
       },
       visibility: function() {
-        var state;
-        state = d.visibilityState || d.oVisibilityState || d.mozVisibilityState || d.webkitVisibilityState;
-        if (state !== 'visible') {
+        if ($.hidden()) {
           return;
         }
         Updater.unsuccessfulFetchCount = 0;
@@ -3515,7 +3516,7 @@
         return Updater.scrollBG = this.checked ? function() {
           return true;
         } : function() {
-          return !(d.hidden || d.oHidden || d.mozHidden || d.webkitHidden);
+          return !$.hidden();
         };
       },
       load: function() {
@@ -3635,7 +3636,7 @@
         bg = +Conf['BGInterval'];
       }
       j = Math.min(this.unsuccessfulFetchCount, 9);
-      if (!(d.hidden || d.oHidden || d.mozHidden || d.webkitHidden)) {
+      if (!$.hidden()) {
         if (Conf['Optional Increase']) {
           return Math.max(i, Updater.getInput(Conf['updateIncrease'].split(','))[j]);
         }

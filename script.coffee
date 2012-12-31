@@ -433,6 +433,8 @@ $.extend $,
         # Round to an integer otherwise.
         Math.round size
     "#{size} #{['B', 'KB', 'MB', 'GB'][unit]}"
+  hidden: ->
+    d.hidden or d.oHidden or d.mozHidden or d.webkitHidden
 
 $.cache.requests = {}
 
@@ -1620,7 +1622,7 @@ QR =
     if QR.captcha.isEnabled and /captcha|verification/i.test el.textContent
       # Focus the captcha input on captcha error.
       $('[autocomplete]', QR.el).focus()
-    alert el.textContent if Conf['Focus on Alert'] and (d.hidden or d.oHidden or d.mozHidden or d.webkitHidden)
+    alert el.textContent if Conf['Focus on Alert'] and $.hidden()
   cleanError: ->
     $('.warning', QR.el).textContent = null
 
@@ -2834,8 +2836,7 @@ Updater =
       Updater.checkPostCount = 0
       delete Updater.postID
     visibility: ->
-      state = d.visibilityState or d.oVisibilityState or d.mozVisibilityState or d.webkitVisibilityState
-      return if state isnt 'visible'
+      return if $.hidden()
       # Reset the counter when we focus this tab.
       Updater.unsuccessfulFetchCount = 0
       if Conf['Interval per board']
@@ -2867,7 +2868,7 @@ Updater =
         if @checked
           -> true
         else
-          -> !(d.hidden or d.oHidden or d.mozHidden or d.webkitHidden)
+          -> ! $.hidden()
     load: ->
       switch @status
         when 404
@@ -2958,7 +2959,7 @@ Updater =
       i  = +Conf['Interval']
       bg = +Conf['BGInterval']
     j = Math.min @unsuccessfulFetchCount, 9
-    unless d.hidden or d.oHidden or d.mozHidden or d.webkitHidden
+    unless $.hidden()
       if Conf['Optional Increase']
         return Math.max i, Updater.getInput(Conf['updateIncrease'].split ',')[j]
       return i
