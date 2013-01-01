@@ -59,7 +59,6 @@ Config =
       'Auto Watch Reply':             [false, 'Automatically watch threads that you reply to']
       'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them']
       'Remove Spoilers':              [false, 'Remove all spoilers in text.']
-      'Beep':                         [false, 'Beep on new post to completely read thread']
     Posting:
       'Quick Reply':                  [true,  'Reply without leaving the page.']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
@@ -193,6 +192,7 @@ http://www.google.com/searchbyimage?image_url=$1
     hide:            ['x',      'Hide thread']
   updater:
     checkbox:
+      'Beep':        [false, 'Beep on new post to completely read thread']
       'Scrolling':   [false, 'Scroll updated posts into view. Only enabled at bottom of page.']
       'Scroll BG':   [false, 'Scroll background tabs']
       'Verbose':     [true,  'Show countdown timer, new post count']

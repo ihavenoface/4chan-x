@@ -148,8 +148,7 @@
         'Auto Watch': [true, 'Automatically watch threads that you start'],
         'Auto Watch Reply': [false, 'Automatically watch threads that you reply to'],
         'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them'],
-        'Remove Spoilers': [false, 'Remove all spoilers in text.'],
-        'Beep': [false, 'Beep on new post to completely read thread']
+        'Remove Spoilers': [false, 'Remove all spoilers in text.']
       },
       Posting: {
         'Quick Reply': [true, 'Reply without leaving the page.'],
@@ -231,6 +230,7 @@
     },
     updater: {
       checkbox: {
+        'Beep': [false, 'Beep on new post to completely read thread'],
         'Scrolling': [false, 'Scroll updated posts into view. Only enabled at bottom of page.'],
         'Scroll BG': [false, 'Scroll background tabs'],
         'Verbose': [true, 'Show countdown timer, new post count'],
