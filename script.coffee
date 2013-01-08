@@ -72,7 +72,6 @@ Config =
       'Remember Spoiler':             [false, 'Remember the spoiler state, instead of resetting after posting.']
       'Remember Sage':                [false, 'Remember email even if it contains sage.']
       'Hide Original Post Form':      [true,  'Replace the normal post form with a shortcut to open the QR.']
-      'Sage on /jp/':                 [true,  'Uses sage by default on /jp/']
       'Markdown':                     [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
     Quoting:
       'Quote Backlinks':              [true,  'Add quote backlinks']
@@ -4028,7 +4027,6 @@ Linkify =
     for i in [0...snapshot.snapshotLength]
       node = snapshot.snapshotItem i
       data = node.data
-
       unless links = data.match Linkify.regString
         # Only accept nodes with potentially valid links
         continue
@@ -5060,13 +5058,6 @@ Main =
       when 'catalog'
         g.CATALOG = true
 
-    # Prevent complains
-    if Conf['Sage on /jp/'] and g.BOARD is 'jp'
-      newBloat = confirm "A new feature called 'Per Board Persona' is out, rendering 'Sage on /jp/' obsolete and can be found under the 'Rice' tab.\nShould I activate it for you?"
-      $.set 'Sage on /jp/', false
-      if newBloat
-        $.set 'Per Board Persona', true
-
     # Setup Fill some per board configuration values with their global equivalents.
     if Conf["Interval per board"]
       Conf["Interval_"   + g.BOARD] = $.get "Interval_"   + g.BOARD, Conf["Interval"]
@@ -5110,6 +5101,8 @@ Main =
 
     if Conf['Thread Hiding']
       ThreadHiding.init()
+
+    $.ready Main.hidegMessage.create
 
   features: ->
     Options.init()
@@ -5243,6 +5236,8 @@ Main =
       if a = $ "a[href$='/#{g.BOARD}/']", $.id nav
         # Gotta make it work in temporary boards.
         $.addClass a, 'current'
+    Main.hidegMessage.create()
+
     Favicon.init()
 
     # Major features.
@@ -5389,6 +5384,46 @@ Main =
       return
     $.globalEval "(#{code})()".replace '_id_', bq.id
 
+  hidegMessage:
+    create: ->
+      return unless gmsg = $.id 'globalMessage'
+      $.rm $.id 'toggleMsgBtn' if g.CATALOG
+      hideState = $.get 'hidegMessage', hidden: false
+      hideBtn   = $.el 'div'
+        id:        'hideBtn'
+        innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " +
+                   "[<a href=javascript:; id=dgMessage>Dismiss</a>]"
+      $.on (first = hideBtn.firstElementChild), 'click', ->
+        Main.hidegMessage.toggle.call {el: first, gmsg, hideState}
+      $.on (last  = hideBtn.lastElementChild),  'click', ->
+        Main.hidegMessage.toggle.call {el: last,  gmsg, hideState}
+      $.before gmsg, hideBtn
+      if hideState.hidden and not hideState.gmsg and hideState.gmsg isnt gmsg.textContent
+        @toggle.call {el: first, gmsg, hideState}
+      if hideState.gmsg and hideState.gmsg is gmsg.textContent
+        @toggle.call {el: first, gmsg, hideState} if hideState.hidden
+        @toggle.call {el: last,  gmsg, hideState}
+
+    toggle: ->
+      {el, gmsg, hideState} = @
+      switch el.id
+        when 'hgMessage'
+          gmsg.classList.toggle 'hidden'
+          if el.textContent is 'Hide'
+            hideState.hidden = true
+            el.textContent   = 'Show'
+          else
+            hideState.hidden = false
+            el.textContent   = 'Hide'
+        when 'dgMessage'
+          if el.textContent is 'Dismiss'
+            hideState.gmsg = gmsg.textContent
+            el.textContent = 'Detain'
+          else
+            delete hideState.gmsg
+            el.textContent = 'Dismiss'
+      $.set 'hidegMessage', hideState
+
   namespace: '4chan_x.'
   version: '2.37.7'
   callbacks: []
@@ -5418,6 +5453,7 @@ a[href="javascript:;"] {
 
 .thread > .hidden_thread ~ *,
 [hidden],
+#globalMessage.hidden,
 #content > [name=tab]:not(:checked) + div,
 #updater:not(:hover) > :not(.move),
 .autohide:not(:hover) > form,

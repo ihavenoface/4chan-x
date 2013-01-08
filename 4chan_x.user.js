@@ -163,7 +163,6 @@
         'Remember Spoiler': [false, 'Remember the spoiler state, instead of resetting after posting.'],
         'Remember Sage': [false, 'Remember email even if it contains sage.'],
         'Hide Original Post Form': [true, 'Replace the normal post form with a shortcut to open the QR.'],
-        'Sage on /jp/': [true, 'Uses sage by default on /jp/'],
         'Markdown': [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
       },
       Quoting: {
@@ -6233,7 +6232,7 @@
 
   Main = {
     init: function() {
-      var key, newBloat, path, pathname, settings, temp, val;
+      var key, path, pathname, settings, temp, val;
       Main.flatten(null, Config);
       for (key in Conf) {
         val = Conf[key];
@@ -6249,13 +6248,6 @@
           break;
         case 'catalog':
           g.CATALOG = true;
-      }
-      if (Conf['Sage on /jp/'] && g.BOARD === 'jp') {
-        newBloat = confirm("A new feature called 'Per Board Persona' is out, rendering 'Sage on /jp/' obsolete and can be found under the 'Rice' tab.\nShould I activate it for you?");
-        $.set('Sage on /jp/', false);
-        if (newBloat) {
-          $.set('Per Board Persona', true);
-        }
       }
       if (Conf["Interval per board"]) {
         Conf["Interval_" + g.BOARD] = $.get("Interval_" + g.BOARD, Conf["Interval"]);
@@ -6314,8 +6306,9 @@
         CatalogLinks.init();
       }
       if (Conf['Thread Hiding']) {
-        return ThreadHiding.init();
+        ThreadHiding.init();
       }
+      return $.ready(Main.hidegMessage.create);
     },
     features: function() {
       var cutoff, hiddenThreads, id, now, timestamp, _ref;
@@ -6459,6 +6452,7 @@
           $.addClass(a, 'current');
         }
       }
+      Main.hidegMessage.create();
       Favicon.init();
       if (Conf['Quick Reply']) {
         QR.init();
@@ -6658,6 +6652,85 @@
       };
       return $.globalEval(("(" + code + ")()").replace('_id_', bq.id));
     },
+    hidegMessage: {
+      create: function() {
+        var first, gmsg, hideBtn, hideState, last;
+        if (!(gmsg = $.id('globalMessage'))) {
+          return;
+        }
+        if (g.CATALOG) {
+          $.rm($.id('toggleMsgBtn'));
+        }
+        hideState = $.get('hidegMessage', {
+          hidden: false
+        });
+        hideBtn = $.el('div', {
+          id: 'hideBtn',
+          innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " + "[<a href=javascript:; id=dgMessage>Dismiss</a>]"
+        });
+        $.on((first = hideBtn.firstElementChild), 'click', function() {
+          return Main.hidegMessage.toggle.call({
+            el: first,
+            gmsg: gmsg,
+            hideState: hideState
+          });
+        });
+        $.on((last = hideBtn.lastElementChild), 'click', function() {
+          return Main.hidegMessage.toggle.call({
+            el: last,
+            gmsg: gmsg,
+            hideState: hideState
+          });
+        });
+        $.before(gmsg, hideBtn);
+        if (hideState.hidden && !hideState.gmsg && hideState.gmsg !== gmsg.textContent) {
+          this.toggle.call({
+            el: first,
+            gmsg: gmsg,
+            hideState: hideState
+          });
+        }
+        if (hideState.gmsg && hideState.gmsg === gmsg.textContent) {
+          if (hideState.hidden) {
+            this.toggle.call({
+              el: first,
+              gmsg: gmsg,
+              hideState: hideState
+            });
+          }
+          return this.toggle.call({
+            el: last,
+            gmsg: gmsg,
+            hideState: hideState
+          });
+        }
+      },
+      toggle: function() {
+        var el, gmsg, hideState;
+        el = this.el, gmsg = this.gmsg, hideState = this.hideState;
+        switch (el.id) {
+          case 'hgMessage':
+            gmsg.classList.toggle('hidden');
+            if (el.textContent === 'Hide') {
+              hideState.hidden = true;
+              el.textContent = 'Show';
+            } else {
+              hideState.hidden = false;
+              el.textContent = 'Hide';
+            }
+            break;
+          case 'dgMessage':
+            if (el.textContent === 'Dismiss') {
+              hideState.gmsg = gmsg.textContent;
+              el.textContent = 'Detain';
+            } else {
+              delete hideState.gmsg;
+              el.textContent = 'Dismiss';
+            }
+        }
+        return $.set('hidegMessage', hideState);
+      }
+    },
     namespace: '4chan_x.',
     version: '2.37.7',
     callbacks: [],
@@ -6687,6 +6760,7 @@ a[href="javascript:;"] {\
 \
 .thread > .hidden_thread ~ *,\
 [hidden],\
+#globalMessage.hidden,\
 #content > [name=tab]:not(:checked) + div,\
 #updater:not(:hover) > :not(.move),\
 .autohide:not(:hover) > form,\
