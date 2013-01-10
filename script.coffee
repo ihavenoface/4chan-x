@@ -2272,7 +2272,7 @@ QR =
           "Reason: #{$('.reason', doc).innerHTML}"
     else if err = doc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
-    else unless msg = $ 'b', doc
+    else unless msg = $ 'body', doc
       err = 'Connection error with sys.4chan.org.'
 
     if err
