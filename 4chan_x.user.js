@@ -2861,7 +2861,7 @@
         if ((_ref = $('a', err)) != null) {
           _ref.target = '_blank';
         }
-      } else if (!(msg = $('b', doc))) {
+      } else if (!(msg = $('body', doc))) {
         err = 'Connection error with sys.4chan.org.';
       }
       if (err) {
