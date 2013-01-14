@@ -4157,13 +4157,10 @@ Linkify =
     if e.shiftKey
       e.preventDefault()
       e.stopPropagation()
-      if ((el = @nextElementSibling or @nextSibling).tagName.toLowerCase() is "wbr" or el.className is 'spoiler') and el.nextSibling.className isnt "abbr"
-        @href = if el.textContent
-          @textContent += el.textContent + el.nextSibling.textContent
-        else
-          @textContent += el.nextSibling.textContent
-        $.rm el
-        $.rm @nextSibling
+      if ((el = @nextElementSibling or @nextSibling).localName is 'wbr' or el.className is 'spoiler') and el.nextSibling.className isnt 'abbr'
+        $.add @, [el, @nextSibling]
+      else if last = @lastChild
+        $.add @, [last.previousSibling.cloneNode(false), @nextSibling]
 
   json: (info) ->
     $.cache info.url, ->
