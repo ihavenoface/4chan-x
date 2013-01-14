@@ -5062,9 +5062,10 @@
       if (e.shiftKey) {
         e.preventDefault();
         e.stopPropagation();
-        if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
+        if (((el = this.nextElementSibling || this.nextSibling).tagName.toLowerCase() === "wbr" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
           this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
-          return $.rm(el);
+          $.rm(el);
+          return $.rm(this.nextSibling);
         }
       }
     },
