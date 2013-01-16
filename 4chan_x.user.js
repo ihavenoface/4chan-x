@@ -5540,7 +5540,7 @@
         return;
       }
       $.id('postcount').textContent = ++ThreadStats.posts;
-      if (!post.img || post.hasPdf) {
+      if (!post.img) {
         return;
       }
       imgcount = $.id('imagecount');
