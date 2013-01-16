@@ -4501,7 +4501,7 @@ ThreadStats =
   node: (post) ->
     return if post.isInlined
     $.id('postcount').textContent = ++ThreadStats.posts
-    return unless post.img
+    return if (!post.img or post.hasPdf)
     imgcount = $.id 'imagecount'
     imgcount.textContent = ++ThreadStats.images
     if ThreadStats.images > ThreadStats.imgLimit
@@ -4750,7 +4750,7 @@ ImageHover =
   init: ->
     Main.callbacks.push @node
   node: (post) ->
-    return unless post.img
+    return if (!post.img or post.hasPdf)
     $.on post.img, 'mouseover', ImageHover.mouseover
   mouseover: ->
     # Make sure to remove the previous image hover
@@ -4847,7 +4847,7 @@ ImageExpand =
     @dialog()
 
   node: (post) ->
-    return unless post.img
+    return if (!post.img or post.hasPdf)
     a = post.img.parentNode
     $.on a, 'click', ImageExpand.cb.toggle
     return if Conf['Don\'t Expand Spoilers'] and !Conf['Reveal Spoilers'] and /^Spoiler\ Image/.test a.firstChild.alt
@@ -5312,8 +5312,10 @@ Main =
     if img = $ 'img[data-md5]', el
       # Make sure to not add deleted images,
       # those do not have a data-md5 attribute.
-      post.fileInfo = img.parentNode.previousElementSibling
+      imgParent = img.parentNode
       post.img      = img
+      post.fileInfo = imgParent.previousElementSibling
+      post.hasPdf   = /\.pdf$/.test imgParent.href
     Main.prettify post.blockquote
     post
   node: (nodes, notify) ->
