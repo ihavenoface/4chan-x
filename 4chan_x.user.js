@@ -2024,7 +2024,7 @@
       return $.on(d, 'dragstart dragend', QR.drag);
     },
     node: function(post) {
-      return $.on($('a[title="Quote this post"]', post.el), 'click', QR.quote);
+      return $.on($('.postInfo a[title="Quote this post"]', post.el), 'click', QR.quote);
     },
     open: function() {
       if (QR.el) {
