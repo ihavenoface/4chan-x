@@ -5058,14 +5058,13 @@
       return $.replace(span.el, [span.node, $.tn(' '), span.embed]);
     },
     concat: function(e) {
-      var el, last;
+      var el;
       if (e.shiftKey) {
         e.preventDefault();
         e.stopPropagation();
-        if (((el = this.nextElementSibling || this.nextSibling).localName === 'wbr' || el.className === 'spoiler') && el.nextSibling.className !== 'abbr') {
-          return $.add(this, [el, this.nextSibling]);
-        } else if (last = this.lastChild) {
-          return $.add(this, [last.previousSibling.cloneNode(false), this.nextSibling]);
+        if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
+          this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
+          return $.rm(el);
         }
       }
     },
