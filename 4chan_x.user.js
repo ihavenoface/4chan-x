@@ -2898,10 +2898,6 @@
           postID: postID
         }
       }));
-      if ($.get('isBanned')) {
-        $.rm($('h2'));
-        $["delete"]('isBanned');
-      }
       QR.cooldown.set({
         post: reply,
         isReply: threadID !== '0'
