@@ -2317,7 +2317,6 @@ QR =
     $.set 'persona', persona
 
     [_, threadID, postID] = doc.body.lastChild.textContent.match /thread:(\d+),no:(\d+)/
-    Updater.postID = postID
 
     # Post/upload confirmed as successful.
     $.event QR.el, new CustomEvent 'QRPostSuccessful',
@@ -2822,7 +2821,9 @@ Updater =
 
     $.add d.body, dialog
 
-    $.on d, 'QRPostSuccessful', @cb.post
+    $.on d, 'QRPostSuccessful', (e) ->
+      Updater.cb.post()
+      Updater.postID = e.detail.postID
     $.on d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', @cb.visibility
 
   ###

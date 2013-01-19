@@ -2891,7 +2891,6 @@
       };
       $.set('persona', persona);
       _ref1 = doc.body.lastChild.textContent.match(/thread:(\d+),no:(\d+)/), _ = _ref1[0], threadID = _ref1[1], postID = _ref1[2];
-      Updater.postID = postID;
       $.event(QR.el, new CustomEvent('QRPostSuccessful', {
         bubbles: true,
         detail: {
@@ -3453,7 +3452,10 @@
         }
       }
       $.add(d.body, dialog);
-      $.on(d, 'QRPostSuccessful', this.cb.post);
+      $.on(d, 'QRPostSuccessful', function(e) {
+        Updater.cb.post();
+        return Updater.postID = e.detail.postID;
+      });
       return $.on(d, 'visibilitychange ovisibilitychange mozvisibilitychange webkitvisibilitychange', this.cb.visibility);
     },
     /*
