@@ -4694,9 +4694,6 @@
         if (Conf['Reveal Spoilers']) {
           RevealSpoilers.node(post);
         }
-        if (Conf['Image Auto-Gif']) {
-          AutoGif.node(post);
-        }
         if (Conf['Time Formatting']) {
           Time.node(post);
         }
