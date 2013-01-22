@@ -4001,6 +4001,7 @@ Linkify =
     ///(((magnet|mailto)\:|(news|(ht|f)tp(s?))\://){1}\S+)///gi
 
   node: (post) ->
+    return if post.isInlined and not post.isCrosspost # Will be repaired later.
     data = post.blockquote.innerHTML.replace /(<(br|\/span))/g, ' $1'
     return unless links = data.match Linkify.regString
     newQuote = []
@@ -4454,6 +4455,7 @@ ArchiveLink =
 
 EmbedLink =
   init: ->
+    return # Will be repaired later.
     a = $.el 'a',
       className: 'embed_link'
       textContent: 'Embed all in post'

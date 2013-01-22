@@ -4886,6 +4886,9 @@
     regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
       var a, blockquote, data, index, key, link, linked, links, match, newQuote, service, text, type, _i, _j, _len, _len1, _ref, _ref1;
+      if (post.isInlined && !post.isCrosspost) {
+        return;
+      }
       data = post.blockquote.innerHTML.replace(/(<(br|\/span))/g, ' $1');
       if (!(links = data.match(Linkify.regString))) {
         return;
@@ -5471,6 +5474,7 @@
   EmbedLink = {
     init: function() {
       var a;
+      return;
       a = $.el('a', {
         className: 'embed_link',
         textContent: 'Embed all in post'
