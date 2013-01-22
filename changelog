@@ -1,6 +1,21 @@
 master
-  Incredibly important new features and bugfixes that lead me to slap the bigger version marker like everywhere.
-  Honestly, who reads this thing?
+- Mayhem
+  Fix image expanding.
+- noface
+  More breakage.
+  Basic fix for Linkification and Embedding.
+
+2.37.6 - 2.37.9
+- aeosynth
+  Don't expand pdfs
+  Beep on new post to completely read thread
+- Mayhem
+  Fix quoting.
+  Fix successful posting causing errors.
+  Fix 4chan X trying to interact with >>>/board/rules links.
+  Fix dead quotes.
+- noface
+  Various breakage.
 
 2.37.5
 - Mayhem
