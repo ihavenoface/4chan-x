@@ -3998,70 +3998,28 @@ Linkify =
     Main.callbacks.push @node
 
   regString:
-      /// (
-        \b (
-          [a-z][-a-z0-9+.]+://
-          |
-          www\.
-          |
-          magnet:
-          |
-          mailto:
-          |
-          news:
-        ) [^\s'"<>()]+
-          |
-          \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b
-      ) ///gi
+    ///(((magnet|mailto)\:|(news|(ht|f)tp(s?))\://){1}\S+)///gi
 
   node: (post) ->
-    if post.isInlined and not post.isCrosspost
-      if Conf['Embed']
-        for embed in $$ 'a.embed', post.blockquote
-          $.on embed, 'click', Linkify.toggle
-      return
+    data = post.blockquote.innerHTML.replace /(<br)/g, ' $1'
+    return unless links = data.match Linkify.regString
+    newQuote = []
+    for link in links
+      index = data.indexOf link
+      if text = data[...index]
+        newQuote.push text
+      newQuote.push "<a rel='nofollow noreferrer' target=blank class=linkify href='#{(if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link).replace(/<(wbr|s)>/, '')}'>#{link}</a>"
+      data = data[index + link.length..]
+    if data
+      newQuote.push data
+    blockquote = $.el 'blockquote'
+      innerHTML: newQuote.join ''
+    $.replace post.blockquote, blockquote
+    post.blockquote = blockquote
 
-    for spoiler in $$ 's', post.blockquote
-      if not /\w/.test(spoiler.textContent) and (p = spoiler.previousSibling) and (n = spoiler.nextSibling) and (n and p).nodeName is '#text'
-        el = $.tn p.textContent + spoiler.textContent + n.textContent
-        $.rm(p) and $.rm n
-        $.replace spoiler, el
+    return unless Conf['Embed']
 
-    # XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE is 6
-    # Get all the text nodes that are not inside an anchor.
-    snapshot = d.evaluate './/text()', post.blockquote, null, 6, null
-
-    for i in [0...snapshot.snapshotLength]
-      node = snapshot.snapshotItem i
-      data = node.data
-      unless links = data.match Linkify.regString
-        # Only accept nodes with potentially valid links
-        continue
-
-      nodes = []
-
-      for link in links
-        index   = data.indexOf link
-        if text = data[...index]
-          # Potential text before this valid link.
-          nodes.push $.tn text
-        a = $.el 'a',
-          textContent: link
-          rel:         'nofollow noreferrer'
-          target:      'blank'
-          href:        if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link
-        nodes.push a
-        data = data[index + link.length..]
-
-      if data
-        # Potential text after the last valid link.
-        nodes.push $.tn data
-      $.replace node, nodes
-
-      $.on a, 'click', Linkify.concat
-
-      continue unless Conf['Embed']
-
+    for a in $$ 'a.linkify', blockquote
       if linked = Linkify.linked[a.href]
         if linked.title
           if Conf['Show FavIcons']

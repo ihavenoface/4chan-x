@@ -4883,59 +4883,37 @@
     init: function() {
       return Main.callbacks.push(this.node);
     },
-    regString: /(\b([a-z][-a-z0-9+.]+:\/\/|www\.|magnet:|mailto:|news:)[^\s'"<>()]+|\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)/gi,
+    regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
-      var a, data, el, embed, i, index, key, link, linked, links, match, n, node, nodes, p, service, snapshot, spoiler, text, type, _i, _j, _k, _l, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
-      if (post.isInlined && !post.isCrosspost) {
-        if (Conf['Embed']) {
-          _ref = $$('a.embed', post.blockquote);
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            embed = _ref[_i];
-            $.on(embed, 'click', Linkify.toggle);
-          }
-        }
+      var a, blockquote, data, index, key, link, linked, links, match, newQuote, service, text, type, _i, _j, _len, _len1, _ref, _ref1;
+      data = post.blockquote.innerHTML.replace(/(<br)/g, ' $1');
+      if (!(links = data.match(Linkify.regString))) {
         return;
       }
-      _ref1 = $$('s', post.blockquote);
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        spoiler = _ref1[_j];
-        if (!/\w/.test(spoiler.textContent) && (p = spoiler.previousSibling) && (n = spoiler.nextSibling) && (n && p).nodeName === '#text') {
-          el = $.tn(p.textContent + spoiler.textContent + n.textContent);
-          $.rm(p) && $.rm(n);
-          $.replace(spoiler, el);
+      newQuote = [];
+      for (_i = 0, _len = links.length; _i < _len; _i++) {
+        link = links[_i];
+        index = data.indexOf(link);
+        if (text = data.slice(0, index)) {
+          newQuote.push(text);
         }
+        newQuote.push("<a rel='nofollow noreferrer' target=blank class=linkify href='" + ((link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link).replace(/<(wbr|s)>/, '')) + "'>" + link + "</a>");
+        data = data.slice(index + link.length);
       }
-      snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
-      for (i = _k = 0, _ref2 = snapshot.snapshotLength; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
-        node = snapshot.snapshotItem(i);
-        data = node.data;
-        if (!(links = data.match(Linkify.regString))) {
-          continue;
-        }
-        nodes = [];
-        for (_l = 0, _len2 = links.length; _l < _len2; _l++) {
-          link = links[_l];
-          index = data.indexOf(link);
-          if (text = data.slice(0, index)) {
-            nodes.push($.tn(text));
-          }
-          a = $.el('a', {
-            textContent: link,
-            rel: 'nofollow noreferrer',
-            target: 'blank',
-            href: link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link
-          });
-          nodes.push(a);
-          data = data.slice(index + link.length);
-        }
-        if (data) {
-          nodes.push($.tn(data));
-        }
-        $.replace(node, nodes);
-        $.on(a, 'click', Linkify.concat);
-        if (!Conf['Embed']) {
-          continue;
-        }
+      if (data) {
+        newQuote.push(data);
+      }
+      blockquote = $.el('blockquote', {
+        innerHTML: newQuote.join('')
+      });
+      $.replace(post.blockquote, blockquote);
+      post.blockquote = blockquote;
+      if (!Conf['Embed']) {
+        return;
+      }
+      _ref = $$('a.linkify', blockquote);
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        a = _ref[_j];
         if (linked = Linkify.linked[a.href]) {
           if (linked.title) {
             if (Conf['Show FavIcons']) {
@@ -4947,9 +4925,9 @@
           }
           Linkify.createToggle(a, post.ID);
         } else {
-          _ref3 = Linkify.types;
-          for (key in _ref3) {
-            type = _ref3[key];
+          _ref1 = Linkify.types;
+          for (key in _ref1) {
+            type = _ref1[key];
             if (!(match = a.href.match(type.regExp))) {
               continue;
             }
