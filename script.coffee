@@ -4028,23 +4028,23 @@ Linkify =
           else
             a.textContent = "[#{linked.service.low}] #{linked.title}"
         Linkify.createToggle a, post.ID
-      else
-        for key, type of Linkify.types
-          unless match = a.href.match type.regExp
-            continue
-          service =
-            low:   key
-            name:  key.charAt(0).toUpperCase() + key[1..]
-            type:  type
-          break
-        continue if match is null or not service
-        link =
-          name:    match[1]
-          href:    a.href
-          service: service
-          posts:   {}
-        Linkify.linked[a.href] = link
-        Linkify.createToggle a, post.ID
+        continue
+      for key, type of Linkify.types
+        unless match = a.href.match type.regExp
+          continue
+        service =
+          low:   key
+          name:  key.charAt(0).toUpperCase() + key[1..]
+          type:  type
+        break
+      continue if match is null or not service
+      link =
+        name:    match[1]
+        href:    a.href
+        service: service
+        posts:   {}
+      Linkify.linked[a.href] = link
+      Linkify.createToggle a, post.ID
     return
 
   linked: {}
@@ -4053,10 +4053,10 @@ Linkify =
     embed = $.el 'a'
       href:        'javascript:;'
       className:   'embed'
-      textContent: '(embed)'
+      textContent: '[embed]'
     unembed = embed.cloneNode true
     unembed.className   = 'unembed'
-    unembed.textContent = '(unembed)'
+    unembed.textContent = '[unembed]'
 
     {href} = node
     $.on embed, 'click', -> Linkify.embed (href), postID
@@ -4088,7 +4088,7 @@ Linkify =
         $.rm span.embed
         return $.replace span.node, [span.el, $.tn(' '), span.unembed]
       return unless el = link.service.type.el link, postID
-      if link.service.type.style
+      if (type = link.service.type).style
         for key, value of type.style
           el.style[key]  = value
       else
@@ -4105,17 +4105,6 @@ Linkify =
   unembed: (span) ->
     $.rm span.unembed
     $.replace span.el, [span.node, $.tn(' '), span.embed]
-
-  concat: (e) ->
-    if e.shiftKey
-      e.preventDefault()
-      e.stopPropagation()
-      if ((el = @nextSibling).tagName.toLowerCase() is "br" or el.className is 'spoiler') and el.nextSibling.className isnt "abbr"
-        @href = if el.textContent
-          @textContent += el.textContent + el.nextSibling.textContent
-        else
-          @textContent += el.nextSibling.textContent
-        $.rm el
 
   json: (info) ->
     $.cache info.url, ->
@@ -4198,6 +4187,9 @@ Linkify =
 
     audio:
       regExp:  /(.*\.(mp3|ogg|wav))$/
+      style:
+        width:  '400px'
+        heigth: '30px'
       el: (link) ->
         $.el 'audio'
           controls:    'controls'

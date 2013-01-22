@@ -4924,32 +4924,32 @@
             }
           }
           Linkify.createToggle(a, post.ID);
-        } else {
-          _ref1 = Linkify.types;
-          for (key in _ref1) {
-            type = _ref1[key];
-            if (!(match = a.href.match(type.regExp))) {
-              continue;
-            }
-            service = {
-              low: key,
-              name: key.charAt(0).toUpperCase() + key.slice(1),
-              type: type
-            };
-            break;
-          }
-          if (match === null || !service) {
+          continue;
+        }
+        _ref1 = Linkify.types;
+        for (key in _ref1) {
+          type = _ref1[key];
+          if (!(match = a.href.match(type.regExp))) {
             continue;
           }
-          link = {
-            name: match[1],
-            href: a.href,
-            service: service,
-            posts: {}
+          service = {
+            low: key,
+            name: key.charAt(0).toUpperCase() + key.slice(1),
+            type: type
           };
-          Linkify.linked[a.href] = link;
-          Linkify.createToggle(a, post.ID);
+          break;
         }
+        if (match === null || !service) {
+          continue;
+        }
+        link = {
+          name: match[1],
+          href: a.href,
+          service: service,
+          posts: {}
+        };
+        Linkify.linked[a.href] = link;
+        Linkify.createToggle(a, post.ID);
       }
     },
     linked: {},
@@ -4958,11 +4958,11 @@
       embed = $.el('a', {
         href: 'javascript:;',
         className: 'embed',
-        textContent: '(embed)'
+        textContent: '[embed]'
       });
       unembed = embed.cloneNode(true);
       unembed.className = 'unembed';
-      unembed.textContent = '(unembed)';
+      unembed.textContent = '[unembed]';
       href = node.href;
       $.on(embed, 'click', function() {
         return Linkify.embed(href, postID);
@@ -4994,7 +4994,7 @@
       }
     },
     embed: function(href, postID) {
-      var el, key, link, span, value, _ref, _ref1;
+      var el, key, link, span, type, value, _ref, _ref1;
       if (typeof href === 'string') {
         link = Linkify.linked[href];
         span = link.posts[postID];
@@ -5005,7 +5005,7 @@
         if (!(el = link.service.type.el(link, postID))) {
           return;
         }
-        if (link.service.type.style) {
+        if ((type = link.service.type).style) {
           _ref = type.style;
           for (key in _ref) {
             value = _ref[key];
@@ -5029,17 +5029,6 @@
     unembed: function(span) {
       $.rm(span.unembed);
       return $.replace(span.el, [span.node, $.tn(' '), span.embed]);
-    },
-    concat: function(e) {
-      var el;
-      if (e.shiftKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (((el = this.nextSibling).tagName.toLowerCase() === "br" || el.className === 'spoiler') && el.nextSibling.className !== "abbr") {
-          this.href = el.textContent ? this.textContent += el.textContent + el.nextSibling.textContent : this.textContent += el.nextSibling.textContent;
-          return $.rm(el);
-        }
-      }
     },
     json: function(info) {
       return $.cache(info.url, function() {
@@ -5163,6 +5152,10 @@
       },
       audio: {
         regExp: /(.*\.(mp3|ogg|wav))$/,
+        style: {
+          width: '400px',
+          heigth: '30px'
+        },
         el: function(link) {
           return $.el('audio', {
             controls: 'controls',
