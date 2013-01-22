@@ -4001,7 +4001,7 @@ Linkify =
     ///(((magnet|mailto)\:|(news|(ht|f)tp(s?))\://){1}\S+)///gi
 
   node: (post) ->
-    data = post.blockquote.innerHTML.replace /(<br)/g, ' $1'
+    data = post.blockquote.innerHTML.replace /(<(br|\/span))/g, ' $1'
     return unless links = data.match Linkify.regString
     newQuote = []
     for link in links

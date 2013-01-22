@@ -4886,7 +4886,7 @@
     regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
       var a, blockquote, data, index, key, link, linked, links, match, newQuote, service, text, type, _i, _j, _len, _len1, _ref, _ref1;
-      data = post.blockquote.innerHTML.replace(/(<br)/g, ' $1');
+      data = post.blockquote.innerHTML.replace(/(<(br|\/span))/g, ' $1');
       if (!(links = data.match(Linkify.regString))) {
         return;
       }
