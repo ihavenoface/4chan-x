@@ -4008,7 +4008,7 @@ Linkify =
       index = data.indexOf link
       if text = data[...index]
         newQuote.push text
-      newQuote.push "<a rel='nofollow noreferrer' target=blank class=linkify href='#{(if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link).replace(/<(wbr|s)>/, '')}'>#{link}</a>"
+      newQuote.push "<a rel='nofollow noreferrer' target=blank class=linkify href='#{(if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link).replace(/<(wbr|\/?s)>/g, '')}'>#{link}</a>"
       data = data[index + link.length..]
     if data
       newQuote.push data

@@ -4897,7 +4897,7 @@
         if (text = data.slice(0, index)) {
           newQuote.push(text);
         }
-        newQuote.push("<a rel='nofollow noreferrer' target=blank class=linkify href='" + ((link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link).replace(/<(wbr|s)>/, '')) + "'>" + link + "</a>");
+        newQuote.push("<a rel='nofollow noreferrer' target=blank class=linkify href='" + ((link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link).replace(/<(wbr|\/?s)>/g, '')) + "'>" + link + "</a>");
         data = data.slice(index + link.length);
       }
       if (data) {
