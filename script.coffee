@@ -4968,7 +4968,7 @@ ImageExpand =
     return if $.x 'ancestor-or-self::*[@hidden]', thumb
     thumb.hidden = true
     $.addClass thumb.parentNode.parentNode.parentNode, 'image_expanded'
-    if img = thumb.nextSibling
+    if (img = thumb.nextSibling) && img.nodeName is 'IMG'
       # Expand already loaded picture
       img.hidden = false
       return
@@ -4976,7 +4976,7 @@ ImageExpand =
     img = $.el 'img',
       src: url or a.href
     $.on img, 'error', ImageExpand.error
-    $.add a, img
+    $.after thumb, img
 
   error: ->
     thumb = @previousSibling
