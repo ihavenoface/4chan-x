@@ -5760,7 +5760,7 @@
       },
       'TheDarkCave': {
         base: 'http://archive.thedarkcave.org',
-        boards: ['c', 'po'],
+        boards: ['c', 'int', 'po'],
         type: 'foolfuuka'
       },
       'Warosu': {
