@@ -6306,7 +6306,9 @@
       if (Conf['Thread Hiding']) {
         ThreadHiding.init();
       }
-      return $.ready(Main.hidegMessage.create);
+      return setTimeout(function() {
+        return Main.hidegMessage.create();
+      });
     },
     features: function() {
       var cutoff, hiddenThreads, id, now, timestamp, _ref;

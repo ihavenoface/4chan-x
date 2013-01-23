@@ -5081,7 +5081,7 @@ Main =
     if Conf['Thread Hiding']
       ThreadHiding.init()
 
-    $.ready Main.hidegMessage.create
+    setTimeout -> Main.hidegMessage.create()
 
   features: ->
     Options.init()
