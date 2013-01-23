@@ -4885,38 +4885,48 @@
     },
     regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
-      var a, blockquote, data, index, key, link, linked, links, match, newQuote, service, text, type, _i, _j, _len, _len1, _ref, _ref1;
+      var a, data, i, index, key, link, linked, links, match, node, nodes, service, snapshot, text, type, wbr, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
-      data = post.blockquote.innerHTML.replace(/(<(br|\/span))/g, ' $1');
-      if (!(links = data.match(Linkify.regString))) {
-        return;
+      _ref = $$('wbr', post.blockquote);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        wbr = _ref[_i];
+        $.replace(wbr.previousSibling, $.tn([wbr.previousSibling.textContent + wbr.nextSibling.textContent]));
+        $.rm(wbr.nextSibling);
+        $.rm(wbr);
       }
-      newQuote = [];
-      for (_i = 0, _len = links.length; _i < _len; _i++) {
-        link = links[_i];
-        index = data.indexOf(link);
-        if (text = data.slice(0, index)) {
-          newQuote.push(text);
+      snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
+      for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        node = snapshot.snapshotItem(i);
+        data = node.data;
+        if (!(links = data.match(Linkify.regString))) {
+          continue;
         }
-        newQuote.push("<a rel='nofollow noreferrer' target=blank class=linkify href='" + ((link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link).replace(/<(wbr|\/?s)>/g, '')) + "'>" + link + "</a>");
-        data = data.slice(index + link.length);
-      }
-      if (data) {
-        newQuote.push(data);
-      }
-      blockquote = $.el('blockquote', {
-        innerHTML: newQuote.join('')
-      });
-      $.replace(post.blockquote, blockquote);
-      post.blockquote = blockquote;
-      if (!Conf['Embed']) {
-        return;
-      }
-      _ref = $$('a.linkify', blockquote);
-      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        a = _ref[_j];
+        nodes = [];
+        for (_k = 0, _len1 = links.length; _k < _len1; _k++) {
+          link = links[_k];
+          index = data.indexOf(link);
+          if (text = data.slice(0, index)) {
+            nodes.push($.tn(text));
+          }
+          a = $.el('a', {
+            textContent: link,
+            rel: 'nofollow noreferrer',
+            target: 'blank',
+            href: link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link
+          });
+          nodes.push(a);
+          data = data.slice(index + link.length);
+        }
+        if (data) {
+          nodes.push($.tn(data));
+        }
+        $.replace(node, nodes);
+        $.on(a, 'click', Linkify.concat);
+        if (!Conf['Embed']) {
+          continue;
+        }
         if (linked = Linkify.linked[a.href]) {
           if (linked.title) {
             if (Conf['Show FavIcons']) {
@@ -4927,32 +4937,32 @@
             }
           }
           Linkify.createToggle(a, post.ID);
-          continue;
-        }
-        _ref1 = Linkify.types;
-        for (key in _ref1) {
-          type = _ref1[key];
-          if (!(match = a.href.match(type.regExp))) {
+        } else {
+          _ref2 = Linkify.types;
+          for (key in _ref2) {
+            type = _ref2[key];
+            if (!(match = a.href.match(type.regExp))) {
+              continue;
+            }
+            service = {
+              low: key,
+              name: key.charAt(0).toUpperCase() + key.slice(1),
+              type: type
+            };
+            break;
+          }
+          if (match === null || !service) {
             continue;
           }
-          service = {
-            low: key,
-            name: key.charAt(0).toUpperCase() + key.slice(1),
-            type: type
+          link = {
+            name: match[1],
+            href: a.href,
+            service: service,
+            posts: {}
           };
-          break;
+          Linkify.linked[a.href] = link;
+          Linkify.createToggle(a, post.ID);
         }
-        if (match === null || !service) {
-          continue;
-        }
-        link = {
-          name: match[1],
-          href: a.href,
-          service: service,
-          posts: {}
-        };
-        Linkify.linked[a.href] = link;
-        Linkify.createToggle(a, post.ID);
       }
     },
     linked: {},

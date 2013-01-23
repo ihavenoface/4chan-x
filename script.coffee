@@ -4002,25 +4002,44 @@ Linkify =
 
   node: (post) ->
     return if post.isInlined and not post.isCrosspost # Will be repaired later.
-    data = post.blockquote.innerHTML.replace /(<(br|\/span))/g, ' $1'
-    return unless links = data.match Linkify.regString
-    newQuote = []
-    for link in links
-      index = data.indexOf link
-      if text = data[...index]
-        newQuote.push text
-      newQuote.push "<a rel='nofollow noreferrer' target=blank class=linkify href='#{(if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link).replace(/<(wbr|\/?s)>/g, '')}'>#{link}</a>"
-      data = data[index + link.length..]
-    if data
-      newQuote.push data
-    blockquote = $.el 'blockquote'
-      innerHTML: newQuote.join ''
-    $.replace post.blockquote, blockquote
-    post.blockquote = blockquote
+    for wbr in $$ 'wbr', post.blockquote
+      $.replace wbr.previousSibling, $.tn [wbr.previousSibling.textContent + wbr.nextSibling.textContent]
+      $.rm wbr.nextSibling
+      $.rm wbr
 
-    return unless Conf['Embed']
+    snapshot = d.evaluate './/text()', post.blockquote, null, 6, null
 
-    for a in $$ 'a.linkify', blockquote
+    for i in [0...snapshot.snapshotLength]
+      node = snapshot.snapshotItem i
+      data = node.data
+      unless links = data.match Linkify.regString
+        # Only accept nodes with potentially valid links
+        continue
+
+      nodes = []
+
+      for link in links
+        index   = data.indexOf link
+        if text = data[...index]
+          # Potential text before this valid link.
+          nodes.push $.tn text
+        a = $.el 'a',
+          textContent: link
+          rel:         'nofollow noreferrer'
+          target:      'blank'
+          href:        if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link
+        nodes.push a
+        data = data[index + link.length..]
+
+      if data
+        # Potential text after the last valid link.
+        nodes.push $.tn data
+      $.replace node, nodes
+
+      $.on a, 'click', Linkify.concat
+
+      continue unless Conf['Embed']
+
       if linked = Linkify.linked[a.href]
         if linked.title
           if Conf['Show FavIcons']
@@ -4029,23 +4048,23 @@ Linkify =
           else
             a.textContent = "[#{linked.service.low}] #{linked.title}"
         Linkify.createToggle a, post.ID
-        continue
-      for key, type of Linkify.types
-        unless match = a.href.match type.regExp
-          continue
-        service =
-          low:   key
-          name:  key.charAt(0).toUpperCase() + key[1..]
-          type:  type
-        break
-      continue if match is null or not service
-      link =
-        name:    match[1]
-        href:    a.href
-        service: service
-        posts:   {}
-      Linkify.linked[a.href] = link
-      Linkify.createToggle a, post.ID
+      else
+        for key, type of Linkify.types
+          unless match = a.href.match type.regExp
+            continue
+          service =
+            low:   key
+            name:  key.charAt(0).toUpperCase() + key[1..]
+            type:  type
+          break
+        continue if match is null or not service
+        link =
+          name:    match[1]
+          href:    a.href
+          service: service
+          posts:   {}
+        Linkify.linked[a.href] = link
+        Linkify.createToggle a, post.ID
     return
 
   linked: {}

@@ -1,4 +1,6 @@
 master
+- noface
+  Replacing html directly is a bad idea.
 
 2.38.0
 - James Campos
