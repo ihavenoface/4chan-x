@@ -170,6 +170,7 @@
         'OP Backlinks': [false, 'Add backlinks to the OP'],
         'Quote Highlighting': [true, 'Highlight the previewed post'],
         'Quote Inline': [true, 'Show quoted post inline on quote click'],
+        'QI only on index': [false, 'Only activate Quote Inline on board index'],
         'Quote Preview': [true, 'Show quote content on hover'],
         'Resurrect Quotes': [true, 'Linkify dead quotes to archives'],
         'Indicate OP quote': [true, 'Add \'(OP)\' to OP quotes'],
@@ -4512,7 +4513,7 @@
         if (Conf['Quote Preview']) {
           $.on(link, 'mouseover', QuotePreview.mouseover);
         }
-        if (Conf['Quote Inline']) {
+        if (Conf['Quote Inline'] && !(Conf['QI only on index'] && g.REPLY)) {
           $.on(link, 'click', QuoteInline.toggle);
         }
         if (!(container = $.id("blc" + qid))) {
@@ -4533,6 +4534,9 @@
     },
     node: function(post) {
       var quote, _i, _j, _len, _len1, _ref, _ref1;
+      if (Conf['QI only on index'] && g.REPLY) {
+        return;
+      }
       _ref = post.quotes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
