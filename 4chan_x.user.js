@@ -4889,15 +4889,17 @@
     },
     regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
-      var a, data, i, index, key, link, linked, links, match, node, nodes, service, snapshot, text, type, wbr, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var a, data, i, index, key, link, linked, links, match, next, node, nodes, service, snapshot, text, type, wbr, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
       _ref = $$('wbr', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         wbr = _ref[_i];
-        $.replace(wbr.previousSibling, $.tn([wbr.previousSibling.textContent + wbr.nextSibling.textContent]));
-        $.rm(wbr.nextSibling);
+        $.replace(wbr.previousSibling, $.tn([wbr.previousSibling.data + ((next = wbr.nextSibling) && next.data ? next.data : '')]));
+        if (next) {
+          $.rm(wbr.nextSibling);
+        }
         $.rm(wbr);
       }
       snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
