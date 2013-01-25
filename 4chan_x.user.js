@@ -4889,21 +4889,24 @@
     },
     regString: /(((magnet|mailto)\:|(news|(ht|f)tp(s?))\:\/\/){1}\S+)/gi,
     node: function(post) {
-      var a, data, i, index, key, link, linked, links, match, next, node, nodes, service, snapshot, text, type, wbr, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var a, data, i, index, key, link, linked, links, match, next, node, nodes, prev, service, snapshot, text, type, wbr, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
       _ref = $$('wbr', post.blockquote);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         wbr = _ref[_i];
-        $.replace(wbr.previousSibling, $.tn([wbr.previousSibling.data + ((next = wbr.nextSibling) && next.data ? next.data : '')]));
-        if (next) {
-          $.rm(wbr.nextSibling);
+        prev = wbr.previousSibling;
+        next = wbr.nextSibling;
+        if (!(((_ref1 = prev && next) != null ? _ref1.data : void 0) && prev.data.match(Linkify.regString))) {
+          continue;
         }
+        $.replace(prev, $.tn([prev.data + next.data]));
+        $.rm(next);
         $.rm(wbr);
       }
       snapshot = d.evaluate('.//text()', post.blockquote, null, 6, null);
-      for (i = _j = 0, _ref1 = snapshot.snapshotLength; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      for (i = _j = 0, _ref2 = snapshot.snapshotLength; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
         node = snapshot.snapshotItem(i);
         data = node.data;
         if (!(links = data.match(Linkify.regString))) {
@@ -4944,9 +4947,9 @@
           }
           Linkify.createToggle(a, post.ID);
         } else {
-          _ref2 = Linkify.types;
-          for (key in _ref2) {
-            type = _ref2[key];
+          _ref3 = Linkify.types;
+          for (key in _ref3) {
+            type = _ref3[key];
             if (!(match = a.href.match(type.regExp))) {
               continue;
             }

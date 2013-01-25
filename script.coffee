@@ -4005,8 +4005,11 @@ Linkify =
   node: (post) ->
     return if post.isInlined and not post.isCrosspost # Will be repaired later.
     for wbr in $$ 'wbr', post.blockquote
-      $.replace wbr.previousSibling, $.tn [wbr.previousSibling.data + if (next = wbr.nextSibling) and next.data then next.data else '']
-      $.rm wbr.nextSibling if next
+      prev = wbr.previousSibling
+      next = wbr.nextSibling
+      continue unless (prev and next)?.data and prev.data.match Linkify.regString
+      $.replace prev, $.tn [prev.data + next.data]
+      $.rm next
       $.rm wbr
 
     snapshot = d.evaluate './/text()', post.blockquote, null, 6, null

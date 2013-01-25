@@ -1,4 +1,6 @@
 master
+- noface
+  Only remove <wbr>'s should there be an url to avoid reformatting where not necessary.
 
 2.38.2
 - BRBCarbon
