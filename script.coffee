@@ -5411,7 +5411,7 @@ Main =
       $.set 'hidegMessage', hideState
 
   namespace: '4chan_x.'
-  version: '2.38.2'
+  version: '2.38.3'
   callbacks: []
   css: '
 /* dialog styling */
