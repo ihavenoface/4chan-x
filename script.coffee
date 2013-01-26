@@ -4007,7 +4007,7 @@ Linkify =
     for wbr in $$ 'wbr', post.blockquote
       prev = wbr.previousSibling
       next = wbr.nextSibling
-      continue unless (prev and next)?.data and prev.data.match Linkify.regString
+      continue unless (prev and next)? and prev.data and next.data and prev.data.match Linkify.regString
       $.replace prev, $.tn [prev.data + next.data]
       $.rm next
       $.rm wbr
