@@ -3852,7 +3852,7 @@
           case '$1':
             return "' + (isArchived ? img.firstChild.src : 'http://thumbs.4chan.org' + img.pathname.replace(/src(\\/\\d+).+$/, 'thumb$1s.jpg')) + '";
           case '$2':
-            return "' + img.href + '";
+            return "' + encodeURIComponent(img.href) + '";
           case '$3':
             return "' + encodeURIComponent(img.firstChild.dataset.md5) + '";
           case '$4':

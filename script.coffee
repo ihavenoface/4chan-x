@@ -3117,7 +3117,7 @@ Sauce =
         when '$1'
           "' + (isArchived ? img.firstChild.src : 'http://thumbs.4chan.org' + img.pathname.replace(/src(\\/\\d+).+$/, 'thumb$1s.jpg')) + '"
         when '$2'
-          "' + img.href + '"
+          "' + encodeURIComponent(img.href) + '"
         when '$3'
           "' + encodeURIComponent(img.firstChild.dataset.md5) + '"
         when '$4'
