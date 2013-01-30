@@ -5378,10 +5378,10 @@ Main =
       hideBtn   = $.el 'div'
         id:        'hideBtn'
         innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " +
-                   "[<a href=javascript:; id=dgMessage>Dismiss</a>]"
+                   "<span>[<a href=javascript:; id=dgMessage>Dismiss</a>]</span>"
       $.on (first = hideBtn.firstElementChild), 'click', ->
         Main.hidegMessage.toggle.call {el: first, gmsg, hideState}
-      $.on (last  = hideBtn.lastElementChild),  'click', ->
+      $.on (last  = hideBtn.lastElementChild.firstElementChild),  'click', ->
         Main.hidegMessage.toggle.call {el: last,  gmsg, hideState}
       $.before gmsg, hideBtn
       if hideState.hidden and not hideState.gmsg and hideState.gmsg isnt gmsg.textContent
@@ -5394,7 +5394,8 @@ Main =
       {el, gmsg, hideState} = @
       switch el.id
         when 'hgMessage'
-          gmsg.classList.toggle 'hidden'
+          for i in [gmsg, el.nextElementSibling]
+            i.classList.toggle 'hidden'
           if el.textContent is 'Hide'
             hideState.hidden = true
             el.textContent   = 'Show'

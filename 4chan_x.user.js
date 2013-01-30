@@ -6677,7 +6677,7 @@
         });
         hideBtn = $.el('div', {
           id: 'hideBtn',
-          innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " + "[<a href=javascript:; id=dgMessage>Dismiss</a>]"
+          innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " + "<span>[<a href=javascript:; id=dgMessage>Dismiss</a>]</span>"
         });
         $.on((first = hideBtn.firstElementChild), 'click', function() {
           return Main.hidegMessage.toggle.call({
@@ -6686,7 +6686,7 @@
             hideState: hideState
           });
         });
-        $.on((last = hideBtn.lastElementChild), 'click', function() {
+        $.on((last = hideBtn.lastElementChild.firstElementChild), 'click', function() {
           return Main.hidegMessage.toggle.call({
             el: last,
             gmsg: gmsg,
@@ -6717,11 +6717,15 @@
         }
       },
       toggle: function() {
-        var el, gmsg, hideState;
+        var el, gmsg, hideState, i, _i, _len, _ref;
         el = this.el, gmsg = this.gmsg, hideState = this.hideState;
         switch (el.id) {
           case 'hgMessage':
-            gmsg.classList.toggle('hidden');
+            _ref = [gmsg, el.nextElementSibling];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              i = _ref[_i];
+              i.classList.toggle('hidden');
+            }
             if (el.textContent === 'Hide') {
               hideState.hidden = true;
               el.textContent = 'Show';
