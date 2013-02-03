@@ -5168,7 +5168,7 @@
         regExp: /.*(?:youtu.be\/|youtube.*v=|youtube.*\/embed\/|youtube.*\/v\/|youtube.*videos\/)([^#\&\?]*).*/,
         el: function(link) {
           return $.el('iframe', {
-            src: "//www.youtube.com/embed/" + link.name + "?wmode=transparent"
+            src: "//www.youtube.com/embed/" + link.name
           });
         },
         title: function() {
