@@ -6837,24 +6837,20 @@
       }
     },
     cleanup: function() {
-      var ad, annoyances, div, el, hr, _i, _j, _len, _len1, _ref, _ref1;
-      annoyances = [];
+      var ad, div, el, hr, _i, _len, _ref, _ref1;
       _ref = ['.topad', '.middlead', '.bottomad'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         ad = _ref[_i];
         if (!(el = $(ad))) {
           continue;
         }
-        annoyances.push(div = el.parentNode.parentNode);
+        div = el.parentNode.parentNode;
         if (((_ref1 = (hr = div.nextSibling)) != null ? _ref1.localName : void 0) === 'hr') {
-          annoyances.push(hr);
+          $.rm(hr);
         }
+        $.rm(div);
       }
-      annoyances.push($('.postingMode.desktop'));
-      for (_j = 0, _len1 = annoyances.length; _j < _len1; _j++) {
-        el = annoyances[_j];
-        $.rm(el);
-      }
+      return $.rm($('.postingMode.desktop'));
     },
     namespace: '4chan_x.',
     version: '2.38.3',

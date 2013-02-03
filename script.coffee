@@ -5522,18 +5522,13 @@ Main =
       $.set 'hidegMessage', hideState
 
   cleanup: ->
-    annoyances = []
-
     for ad in ['.topad', '.middlead', '.bottomad']
       continue unless el = $ ad
-      annoyances.push div = el.parentNode.parentNode
+      div = el.parentNode.parentNode
       if (hr = div.nextSibling)?.localName is 'hr'
-        annoyances.push hr
-    annoyances.push $ '.postingMode.desktop'
-
-    for el in annoyances
-      $.rm el
-    return
+        $.rm hr
+      $.rm div
+    $.rm $ '.postingMode.desktop'
 
   namespace: '4chan_x.'
   version: '2.38.3'
