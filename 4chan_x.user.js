@@ -6850,7 +6850,9 @@
         }
         $.rm(div);
       }
-      return $.rm($('.postingMode.desktop'));
+      if (g.REPLY) {
+        return $.rm($('.postingMode.desktop'));
+      }
     },
     namespace: '4chan_x.',
     version: '2.38.3',

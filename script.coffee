@@ -5528,7 +5528,7 @@ Main =
       if (hr = div.nextSibling)?.localName is 'hr'
         $.rm hr
       $.rm div
-    $.rm $ '.postingMode.desktop'
+    $.rm $ '.postingMode.desktop' if g.REPLY
 
   namespace: '4chan_x.'
   version: '2.38.3'
