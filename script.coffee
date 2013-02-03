@@ -4184,13 +4184,13 @@ Linkify =
         $.el 'iframe', src: "http://www.liveleak.com/e/#{link.name}?autostart=true"
 
     vocaroo:
-      regExp:  /.*(?:vocaroo.com\/)([^#\&\?]*).*/
+      regExp:  /.*(?:vocaroo.com\/i\/)([^#\&\?]*).*/
       style:
         border: '0'
         width:  '150px'
         height: '45px'
       el: (link) ->
-        $.el 'iframe', src: "http://vocaroo.com/player.swf?playMediaID=#{link.name.replace /^i\//, ''}&autoplay=0"
+        $.el 'iframe', src: "http://vocaroo.com/player.swf?playMediaID=#{link.name}&autoplay=0"
 
     soundcloud:
       regExp:  /.*(?:soundcloud.com\/|snd.sc\/)([^#\&\?]*).*/

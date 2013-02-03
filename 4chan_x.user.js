@@ -5133,7 +5133,7 @@
         }
       },
       vocaroo: {
-        regExp: /.*(?:vocaroo.com\/)([^#\&\?]*).*/,
+        regExp: /.*(?:vocaroo.com\/i\/)([^#\&\?]*).*/,
         style: {
           border: '0',
           width: '150px',
@@ -5141,7 +5141,7 @@
         },
         el: function(link) {
           return $.el('iframe', {
-            src: "http://vocaroo.com/player.swf?playMediaID=" + (link.name.replace(/^i\//, '')) + "&autoplay=0"
+            src: "http://vocaroo.com/player.swf?playMediaID=" + link.name + "&autoplay=0"
           });
         }
       },
