@@ -6837,18 +6837,18 @@
       }
     },
     cleanup: function() {
-      var ad, div, el, hr, _i, _len, _ref, _ref1;
-      _ref = ['.topad', '.middlead', '.bottomad'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        ad = _ref[_i];
-        if (!(el = $(ad))) {
-          continue;
+      var ad, bottom, hr, middle, top, _i, _len, _ref, _ref1;
+      if (top = (_ref = $('.topad')) != null ? _ref.parentNode.parentNode : void 0) {
+        middle = (ad = $('.middlead')) ? ad.parentNode.parentNode : $$('a[href$=pass]')[1].parentNode;
+        bottom = $('.bottomad').parentNode.parentNode;
+        _ref1 = [top, middle, bottom];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          ad = _ref1[_i];
+          if ((hr = ad.nextSibling).localName === 'hr') {
+            $.rm(hr);
+          }
+          $.rm(ad);
         }
-        div = el.parentNode.parentNode;
-        if (((_ref1 = (hr = div.nextSibling)) != null ? _ref1.localName : void 0) === 'hr') {
-          $.rm(hr);
-        }
-        $.rm(div);
       }
       if (g.REPLY) {
         return $.rm($('.postingMode.desktop'));
