@@ -1,6 +1,6 @@
 master
 - Queue
-  Add relative time ("35 seconds ago") date formatting option.
+  Add Relative Post Dates ("35 seconds ago"), disabled by default.
 
 2.38.3
 - noface
