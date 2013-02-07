@@ -6,7 +6,7 @@ Config =
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
       'Time Formatting':              [true,  'Arbitrarily formatted timestamps, using your local time']
-      'Relative Post Dates':          [false, 'Display post times as "3 minutes ago" or similar. Overrides "Time Formatting".']
+      'Relative Post Dates':          [false, 'Display post times as "3 minutes ago" or similar. Hover tooltip will display the original or formatted timestamp']
       'File Info Formatting':         [true,  'Reformats the file information']
       'Comment Expansion':            [true,  'Expand too long comments']
       'Thread Expansion':             [true,  'View all replies']
@@ -3242,28 +3242,30 @@ RelativeDates =
   init: ->
     Main.callbacks.push @node
 
-    @timeout = setTimeout @flush, @INTERVAL
-
     # flush when page becomes visible again
     $.on d, 'visibilitychange', @flush
   node: (post) ->
-    date = $ '.postInfo > .dateTime', post.el
-    RelativeDates.format date
-    RelativeDates.setUpdate date
+    dateEl = $ '.postInfo > .dateTime', post.el
+
+    utc = dateEl.dataset.utc * 1000 # convert data-utc to milliseconds
+
+    # Show original absolute time as tooltip so users can still know exact times
+    # Since "Time Formatting" runs `node` before us, the title tooltip will
+    # pick up the user-formatted time instead of 4chan time when enabled.
+    dateEl.title = dateEl.textContent
+
+    diff = Date.now() - utc
+
+    dateEl.textContent = RelativeDates.relative diff
+    RelativeDates.setUpdate dateEl, diff
 
     # Main calls @node whenever a DOM node is added (update, inline post,
     # whatever), so use also this reflow opportunity to flush any other dates
     # flush is debounced, so this won't burn too much cpu
     RelativeDates.flush()
-  format: (dateEl) ->
-    date               = new Date dateEl.dataset.utc * 1000
-    dateEl.textContent = RelativeDates.relative date
 
-    # Show absolute time as tooltip so users can still know exact times
-    dateEl.title       = date.toString()
-  relative: (date) ->
-    diff = Date.now() - date.getTime()
-
+  # diff is milliseconds from now
+  relative: (diff) ->
     unit = if (number = (diff / $.DAY)) > 1
       'day'
     else if (number = (diff / $.HOUR)) > 1
@@ -3293,20 +3295,22 @@ RelativeDates =
     return if d.hidden
     for dateEl in RelativeDates.stale
       if d.contains dateEl # not removed from DOM
-        RelativeDates.format dateEl
-        RelativeDates.setUpdate dateEl
+        diff = Date.now() - dateEl.dataset.utc * 1000
+        dateEl.textContent = RelativeDates.relative diff
+        RelativeDates.setUpdate dateEl, diff
     RelativeDates.stale = []
     clearTimeout RelativeDates.timeout
     RelativeDates.timeout = setTimeout RelativeDates.flush, RelativeDates.INTERVAL)
-  setUpdate: (dateEl) ->
-    diff = Date.now() - dateEl.dataset.utc * 1000
+
+  # Add element to stale list when the relative date string would change
+  # diff is in milliseconds between dateEl and now
+  setUpdate: (dateEl, diff) ->
     delay = if diff > $.HOUR
       diff % $.HOUR
     else if diff > $.MINUTE
       diff % $.MINUTE
     else
       diff % $.SECOND
-    # Add element to stale list when the relative date string would change
     setTimeout (-> RelativeDates.stale.push dateEl), delay
 
 FileInfo =

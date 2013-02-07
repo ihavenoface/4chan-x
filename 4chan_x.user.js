@@ -91,7 +91,7 @@
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
         'Time Formatting': [true, 'Arbitrarily formatted timestamps, using your local time'],
-        'Relative Post Dates': [false, 'Display post times as "3 minutes ago" or similar. Overrides "Time Formatting".'],
+        'Relative Post Dates': [false, 'Display post times as "3 minutes ago" or similar. Hover tooltip will display the original or formatted timestamp'],
         'File Info Formatting': [true, 'Reformats the file information'],
         'Comment Expansion': [true, 'Expand too long comments'],
         'Thread Expansion': [true, 'View all replies'],
@@ -4033,25 +4033,20 @@
     INTERVAL: $.MINUTE,
     init: function() {
       Main.callbacks.push(this.node);
-      this.timeout = setTimeout(this.flush, this.INTERVAL);
       return $.on(d, 'visibilitychange', this.flush);
     },
     node: function(post) {
-      var date;
-      date = $('.postInfo > .dateTime', post.el);
-      RelativeDates.format(date);
-      RelativeDates.setUpdate(date);
+      var dateEl, diff, utc;
+      dateEl = $('.postInfo > .dateTime', post.el);
+      utc = dateEl.dataset.utc * 1000;
+      dateEl.title = dateEl.textContent;
+      diff = Date.now() - utc;
+      dateEl.textContent = RelativeDates.relative(diff);
+      RelativeDates.setUpdate(dateEl, diff);
       return RelativeDates.flush();
     },
-    format: function(dateEl) {
-      var date;
-      date = new Date(dateEl.dataset.utc * 1000);
-      dateEl.textContent = RelativeDates.relative(date);
-      return dateEl.title = date.toString();
-    },
-    relative: function(date) {
-      var diff, number, rounded, unit;
-      diff = Date.now() - date.getTime();
+    relative: function(diff) {
+      var number, rounded, unit;
       unit = (number = diff / $.DAY) > 1 ? 'day' : (number = diff / $.HOUR) > 1 ? 'hour' : (number = diff / $.MINUTE) > 1 ? 'minute' : (number = diff / $.SECOND, 'second');
       rounded = Math.round(number);
       if (rounded !== 1) {
@@ -4061,7 +4056,7 @@
     },
     stale: [],
     flush: $.debounce($.SECOND, function() {
-      var dateEl, _i, _len, _ref;
+      var dateEl, diff, _i, _len, _ref;
       if (d.hidden) {
         return;
       }
@@ -4069,17 +4064,17 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         dateEl = _ref[_i];
         if (d.contains(dateEl)) {
-          RelativeDates.format(dateEl);
-          RelativeDates.setUpdate(dateEl);
+          diff = Date.now() - dateEl.dataset.utc * 1000;
+          dateEl.textContent = RelativeDates.relative(diff);
+          RelativeDates.setUpdate(dateEl, diff);
         }
       }
       RelativeDates.stale = [];
       clearTimeout(RelativeDates.timeout);
       return RelativeDates.timeout = setTimeout(RelativeDates.flush, RelativeDates.INTERVAL);
     }),
-    setUpdate: function(dateEl) {
-      var delay, diff;
-      diff = Date.now() - dateEl.dataset.utc * 1000;
+    setUpdate: function(dateEl, diff) {
+      var delay;
       delay = diff > $.HOUR ? diff % $.HOUR : diff > $.MINUTE ? diff % $.MINUTE : diff % $.SECOND;
       return setTimeout((function() {
         return RelativeDates.stale.push(dateEl);
