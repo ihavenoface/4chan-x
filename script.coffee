@@ -5554,7 +5554,7 @@ Main =
     $.rm $ '.postingMode.desktop' if g.REPLY
 
   namespace: '4chan_x.'
-  version: '2.38.3'
+  version: '2.38.4'
   callbacks: []
   css: '
 /* dialog styling */

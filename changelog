@@ -1,4 +1,8 @@
 master
+
+2.38.4
+- noface
+  Change some defaults in the settings.
 - Queue
   Add Relative Post Dates ("35 seconds ago"), disabled by default.
 
