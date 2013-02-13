@@ -5540,18 +5540,12 @@ Main =
       $.set 'hidegMessage', hideState
 
   cleanup: ->
-    if top = $('.topad')?.parentNode.parentNode
-      middle = if ad = $ '.middlead'
-        ad.parentNode.parentNode
-      else
-        $$('a[href$=pass]')[1].parentNode
-      bottom = $('.bottomad').parentNode.parentNode
-
-      for ad in [top, middle, bottom]
-        if (hr = ad.nextSibling).localName is 'hr'
-          $.rm hr
-        $.rm ad
-    $.rm $ '.postingMode.desktop' if g.REPLY
+    for ad in $$ "a[href$='jlist.com/home']"
+      ad = ad.parentNode
+      if (hr = ad.nextSibling).localName is 'hr'
+        $.rm hr
+      $.rm ad
+    return
 
   namespace: '4chan_x.'
   version: '2.38.4'

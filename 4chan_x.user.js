@@ -6841,21 +6841,15 @@
       }
     },
     cleanup: function() {
-      var ad, bottom, hr, middle, top, _i, _len, _ref, _ref1;
-      if (top = (_ref = $('.topad')) != null ? _ref.parentNode.parentNode : void 0) {
-        middle = (ad = $('.middlead')) ? ad.parentNode.parentNode : $$('a[href$=pass]')[1].parentNode;
-        bottom = $('.bottomad').parentNode.parentNode;
-        _ref1 = [top, middle, bottom];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          ad = _ref1[_i];
-          if ((hr = ad.nextSibling).localName === 'hr') {
-            $.rm(hr);
-          }
-          $.rm(ad);
+      var ad, hr, _i, _len, _ref;
+      _ref = $$("a[href$='jlist.com/home']");
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        ad = _ref[_i];
+        ad = ad.parentNode;
+        if ((hr = ad.nextSibling).localName === 'hr') {
+          $.rm(hr);
         }
-      }
-      if (g.REPLY) {
-        return $.rm($('.postingMode.desktop'));
+        $.rm(ad);
       }
     },
     namespace: '4chan_x.',
