@@ -6845,7 +6845,9 @@
       _ref = $$("a[href$='jlist.com/home']");
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         ad = _ref[_i];
-        ad = ad.parentNode;
+        if (!(ad = ad.parentNode)) {
+          continue;
+        }
         if ((hr = ad.nextSibling).localName === 'hr') {
           $.rm(hr);
         }

@@ -5541,7 +5541,7 @@ Main =
 
   cleanup: ->
     for ad in $$ "a[href$='jlist.com/home']"
-      ad = ad.parentNode
+      continue unless ad = ad.parentNode
       if (hr = ad.nextSibling).localName is 'hr'
         $.rm hr
       $.rm ad
