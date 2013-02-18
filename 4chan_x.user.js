@@ -25,7 +25,7 @@
 /* LICENSE
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
- * Copyright (c) 2012 Nicolas Stepien <stepien.nicolas@gmail.com>
+ * Copyright (c) 2012-2013 Nicolas Stepien <stepien.nicolas@gmail.com>
  * http://mayhemydg.github.com/4chan-x/
  * 4chan X 2.38.4
  *
