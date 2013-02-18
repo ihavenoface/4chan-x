@@ -1,6 +1,8 @@
 master
 
 2.38.4
+- Mayhem
+  Fix a little regression introduced in 2.38.0 for webkit browsers.
 - noface
   Change some defaults in the settings.
 - Queue
