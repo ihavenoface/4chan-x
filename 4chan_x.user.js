@@ -2804,6 +2804,7 @@
       QR.status({
         progress: '...'
       });
+      reply.com = reply.com.replace(/>>(\d+)/g, '$1');
       post = {
         resto: threadID,
         name: reply.name,
