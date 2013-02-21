@@ -153,7 +153,7 @@ http://www.google.com/searchbyimage?image_url=$1
 """
   time: '%m/%d/%y(%a)%H:%M'
   backlink: '>>%id'
-  fileInfo: '%l (%p%s, %r)'
+  fileInfo: '%L (%p%s, %r)'
   favicon: 'ferongr'
   updateIncrease: '5,10,15,20,30,60,90,120,240,300'
   updateIncreaseB: '5,10,15,20,30,60,90,120,240,300'

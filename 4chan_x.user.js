@@ -196,7 +196,7 @@
     sauces: "http://iqdb.org/?url=$1\nhttp://www.google.com/searchbyimage?image_url=$1\n#http://tineye.com/search?url=$1\n#http://saucenao.com/search.php?db=999&url=$1\n#http://3d.iqdb.org/?url=$1\n#http://regex.info/exif.cgi?imgurl=$2\n# uploaders:\n#http://imgur.com/upload?url=$2;text:Upload to imgur\n#http://omploader.org/upload?url1=$2;text:Upload to omploader\n# \"View Same\" in archives:\n#http://archive.foolz.us/_/search/image/$3/;text:View same on foolz\n#http://archive.foolz.us/$4/search/image/$3/;text:View same on foolz /$4/\n#https://archive.installgentoo.net/$4/image/$3;text:View same on installgentoo /$4/",
     time: '%m/%d/%y(%a)%H:%M',
     backlink: '>>%id',
-    fileInfo: '%l (%p%s, %r)',
+    fileInfo: '%L (%p%s, %r)',
     favicon: 'ferongr',
     updateIncrease: '5,10,15,20,30,60,90,120,240,300',
     updateIncreaseB: '5,10,15,20,30,60,90,120,240,300',
