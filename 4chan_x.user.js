@@ -5270,53 +5270,49 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, board, data, i, id, index, m, node, nodes, quote, quotes, snapshot, text, _i, _j, _len, _ref;
+      var a, board, deadlink, id, m, postBoard, quote, _i, _len, _ref, _ref1;
       if (post.isInlined && !post.isCrosspost) {
         return;
       }
-      snapshot = d.evaluate('.//text()[not(parent::a)]', post.blockquote, null, 6, null);
-      for (i = _i = 0, _ref = snapshot.snapshotLength; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-        node = snapshot.snapshotItem(i);
-        data = node.data;
-        if (!(quotes = data.match(/>(>\/[a-z\d]+\/)?\d+/g))) {
+      _ref = $$('.deadlink', post.blockquote);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        deadlink = _ref[_i];
+        if (deadlink.parentNode.className === 'prettyprint') {
+          $.replace(deadlink, Array.prototype.slice.call(deadlink.childNodes));
           continue;
         }
-        nodes = [];
-        for (_j = 0, _len = quotes.length; _j < _len; _j++) {
-          quote = quotes[_j];
-          index = data.indexOf(quote);
-          if (text = data.slice(0, index)) {
-            nodes.push($.tn(text));
-          }
-          id = quote.match(/\d+$/)[0];
-          board = (m = quote.match(/^>>>\/([a-z\d]+)/)) ? m[1] : $('a[title="Highlight this post"]', post.el).pathname.split('/')[1];
-          nodes.push(a = $.el('a', {
-            textContent: ">" + quote
-          }));
-          if (board === g.BOARD && $.id("p" + id)) {
-            a.href = "#p" + id;
-            a.className = 'quotelink';
-          } else {
-            a.href = Redirect.to({
-              board: board,
-              threadID: 0,
-              postID: id
-            });
-            a.className = 'deadlink';
-            a.target = '_blank';
-            a.textContent += '\u00A0(Dead)';
-            if (Redirect.post(board, id)) {
-              $.addClass(a, 'quotelink');
-              a.setAttribute('data-board', board);
-              a.setAttribute('data-id', id);
-            }
-          }
-          data = data.slice(index + quote.length);
+        quote = deadlink.textContent;
+        a = $.el('a', {
+          textContent: "" + quote + "\u00A0(Dead)"
+        });
+        if (!(id = (_ref1 = quote.match(/\d+$/)) != null ? _ref1[0] : void 0)) {
+          continue;
         }
-        if (data) {
-          nodes.push($.tn(data));
+        if (m = quote.match(/^>>>\/([a-z\d]+)/)) {
+          board = m[1];
+        } else if (postBoard) {
+          board = postBoard;
+        } else {
+          board = postBoard = $('a[title="Highlight this post"]', post.el).pathname.split('/')[1];
         }
-        $.replace(node, nodes);
+        if (board === g.BOARD && $.id("p" + id)) {
+          a.href = "#p" + id;
+          a.className = 'quotelink';
+        } else {
+          a.href = Redirect.to({
+            board: board,
+            threadID: 0,
+            postID: id
+          });
+          a.className = 'deadlink';
+          a.target = '_blank';
+          if (Redirect.post(board, id)) {
+            $.addClass(a, 'quotelink');
+            a.setAttribute('data-board', board);
+            a.setAttribute('data-id', id);
+          }
+        }
+        $.replace(deadlink, a);
       }
     }
   };
