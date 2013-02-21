@@ -2225,7 +2225,7 @@ QR =
     QR.status progress: '...'
 
     # Temporary work-around for those borked quotes.
-    reply.com = reply.com.replace />>(\d+)/g, '$1'
+    reply.com = reply.com.replace />>(\d+)/g, '>$1'
 
     post =
       resto:    threadID
