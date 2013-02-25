@@ -679,28 +679,28 @@
     },
     ucs2_encode: function(value) {
       /*
-          From Punycode.js: https://github.com/bestiejs/punycode.js
+      From Punycode.js: https://github.com/bestiejs/punycode.js
       
-          Copyright Mathias Bynens <http://mathiasbynens.be/>
+      Copyright Mathias Bynens <http://mathiasbynens.be/>
       
-          Permission is hereby granted, free of charge, to any person obtaining
-          a copy of this software and associated documentation files (the
-          "Software"), to deal in the Software without restriction, including
-          without limitation the rights to use, copy, modify, merge, publish,
-          distribute, sublicense, and/or sell copies of the Software, and to
-          permit persons to whom the Software is furnished to do so, subject to
-          the following conditions:
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
       
-          The above copyright notice and this permission notice shall be
-          included in all copies or substantial portions of the Software.
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
       
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-          EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF`
-          MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-          NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-          LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-          OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-          WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF`
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       */
 
       var output;
@@ -3539,8 +3539,8 @@
       return $.on(d, 'visibilitychange', this.cb.visibility);
     },
     /*
-      http://freesound.org/people/pierrecartoons1979/sounds/90112/
-      cc-by-nc-3.0
+    http://freesound.org/people/pierrecartoons1979/sounds/90112/
+    cc-by-nc-3.0
     */
 
     audio: $.el('audio', {
@@ -3629,9 +3629,9 @@
           case 0:
           case 304:
             /*
-                      Status Code 304: Not modified
-                      By sending the `If-Modified-Since` header we get a proper status code, and no response.
-                      This saves bandwidth for both the user and the servers and avoid unnecessary computation.
+            Status Code 304: Not modified
+            By sending the `If-Modified-Since` header we get a proper status code, and no response.
+            This saves bandwidth for both the user and the servers and avoid unnecessary computation.
             */
 
             Updater.unsuccessfulFetchCount++;
@@ -4519,8 +4519,8 @@
     },
     post: function(o, isArchived) {
       /*
-          This function contains code from 4chan-JS (https://github.com/4chan/4chan-JS).
-          @license: https://github.com/4chan/4chan-JS/blob/master/LICENSE
+      This function contains code from 4chan-JS (https://github.com/4chan/4chan-JS).
+      @license: https://github.com/4chan/4chan-JS/blob/master/LICENSE
       */
 
       var a, board, capcode, capcodeClass, capcodeStart, closed, comment, container, date, dateUTC, email, emailEnd, emailStart, ext, file, fileDims, fileHTML, fileInfo, fileSize, fileThumb, filename, flag, flagCode, flagName, href, imgSrc, isClosed, isOP, isSticky, name, postID, quote, shortFilename, spoilerRange, staticPath, sticky, subject, threadID, tripcode, uniqueID, userID, _i, _len, _ref;

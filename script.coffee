@@ -1547,7 +1547,7 @@ BanChecker =
 
   prepend: ->
     @text = $.get('isBanned')
-    el = $.el 'h2'
+    el = $.el 'h2',
       innerHTML:
         "<span>#{@text.match /^.*(?=banned)/}</span><a href=#{BanChecker.url} title='Click to find out why.' target=_blank>banned</a><span>#{@text.match(/banned.*$/).toString().replace /^banned/, ''}</span>"
       title:  'Click to recheck.'
@@ -2116,7 +2116,7 @@ QR =
         if g.BOARD is 'f'
           $('select[name=filetag]').cloneNode true
         else
-          $.el 'select'
+          $.el 'select',
             innerHTML: threads
             title: 'Create a new thread / Reply to a thread'
       $.prepend $('.move > span', QR.el), QR.threadSelector
@@ -2386,7 +2386,7 @@ Options =
       Options.dialog()
 
   dialog: ->
-    dialog = Options.el = $.el 'div'
+    dialog = Options.el = $.el 'div',
       id: 'options'
       className: 'reply dialog'
       innerHTML: '<div id=optionsbar>
@@ -4231,7 +4231,7 @@ Linkify =
   linked: {}
 
   createToggle: (node, postID) ->
-    embed = $.el 'a'
+    embed = $.el 'a',
       href:        'javascript:;'
       className:   'embed'
       textContent: '[embed]'
@@ -4355,8 +4355,9 @@ Linkify =
         {href} = link
         $.cache Linkify.types.soundcloud.url + href, ->
           response =
-            el: $.el 'div'
-              innerHTML: JSON.parse(@responseText).html
+            el:
+              $.el 'div',
+                innerHTML: JSON.parse(@responseText).html
             href:   href
             postID: postID
           Linkify.embed response
@@ -4372,7 +4373,7 @@ Linkify =
         width:  '400px'
         heigth: '30px'
       el: (link) ->
-        $.el 'audio'
+        $.el 'audio',
           controls:    'controls'
           preload:     'auto'
           src:         link.href
@@ -4943,7 +4944,7 @@ ImageHover =
     # Don't stop other elements from dragging
     return if UI.el
 
-    el = UI.el = $.el 'img'
+    el = UI.el = $.el 'img',
       id: 'ihover'
       src: @parentNode.href
     $.add d.body, el
@@ -5491,7 +5492,7 @@ Main =
   message: (e) ->
     {version} = e.data
     if version and version isnt Main.version
-      xupdate = $.el 'div'
+      xupdate = $.el 'div',
         id: 'xupdater'
         innerHTML:
           "An updated version of <a href=https://raw.github.com/ihavenoface/4chan-x/#{version}/4chan_x.user.js>4chan X</a> (v#{version}) is available.<a href=javascript:; id=dismiss_xupdate>  ×</a>"
@@ -5557,7 +5558,7 @@ Main =
       return unless gmsg = $.id 'globalMessage'
       $.rm $.id 'toggleMsgBtn' if g.CATALOG
       hideState = $.get 'hidegMessage', hidden: false
-      hideBtn   = $.el 'div'
+      hideBtn   = $.el 'div',
         id:        'hideBtn'
         innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " +
                    "<span>[<a href=javascript:; id=dgMessage>Dismiss</a>]</span>"
