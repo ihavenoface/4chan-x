@@ -5595,8 +5595,8 @@ Main =
       $.set 'hidegMessage', hideState
 
   cleanup: ->
-    for ad in $$ "a[href$='jlist.com/home']"
-      continue unless ad = ad.parentNode
+    for ad in ['top', 'middle', 'bottom']
+      continue unless ad = $ ".#{ad}ad"
       if (hr = ad.nextSibling).localName is 'hr'
         $.rm hr
       $.rm ad

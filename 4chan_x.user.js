@@ -6913,10 +6913,10 @@
     },
     cleanup: function() {
       var ad, hr, _i, _len, _ref;
-      _ref = $$("a[href$='jlist.com/home']");
+      _ref = ['top', 'middle', 'bottom'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         ad = _ref[_i];
-        if (!(ad = ad.parentNode)) {
+        if (!(ad = $("." + ad + "ad"))) {
           continue;
         }
         if ((hr = ad.nextSibling).localName === 'hr') {
