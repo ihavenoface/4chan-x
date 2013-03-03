@@ -6477,7 +6477,8 @@
         ThreadHiding.init();
       }
       return setTimeout(function() {
-        return Main.hidegMessage.create();
+        Main.hidegMessage.create();
+        return Main.cleanup();
       });
     },
     features: function() {

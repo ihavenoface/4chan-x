@@ -5265,7 +5265,9 @@ Main =
     if Conf['Thread Hiding']
       ThreadHiding.init()
 
-    setTimeout -> Main.hidegMessage.create()
+    setTimeout ->
+      Main.hidegMessage.create()
+      Main.cleanup()
 
   features: ->
     Options.init()
