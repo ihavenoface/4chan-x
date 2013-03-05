@@ -83,6 +83,7 @@ Config =
       'Quote Preview':                [true,  'Show quote content on hover']
       'Resurrect Quotes':             [true,  'Linkify dead quotes to archives']
       'Indicate OP quote':            [true,  'Add \'(OP)\' to OP quotes']
+      'Indicate Quotes of You':       [false, 'Add \'(You)\' to your quotes']
       'Indicate Cross-thread Quotes': [true,  'Add \'(Cross-thread)\' to cross-threads quotes']
       'Forward Hiding':               [true,  'Hide original posts of inlined backlinks']
   filter:
@@ -4061,6 +4062,37 @@ QuotePreview =
     $.off @, 'mousemove',      UI.hover
     $.off @, 'mouseout click', QuotePreview.mouseout
 
+QuoteYou =
+  init: ->
+    $.on d, 'QRPostSuccessful', @post
+    $.on d, 'theThreadisDead',  @prune
+
+    @posts = $.get 'yourPosts', {}
+    Main.callbacks.push @node
+
+  post: (e) ->
+    {postID, threadID} = e.detail
+    return if threadID is '0'
+    unless posts = QuoteYou.posts[threadID]
+      posts = []
+    posts.push postID
+    QuoteYou.posts[threadID] = posts
+    $.set 'yourPosts', QuoteYou.posts
+
+  node: (post) ->
+    {posts} = QuoteYou
+    posts   = posts[g.THREAD_ID]
+    return if not posts or post.isInlined and not post.isCrosspost
+    for quote in post.quotes
+      if quote.hash[2..] in posts
+        $.add quote, $.tn '\u00A0(You)'
+    return
+
+  prune: ->
+    {posts} = QuoteYou
+    delete QuoteYou.posts[g.THREAD_ID] if posts[g.THREAD_ID]
+    $.set 'yourPosts', QuoteYou.posts
+
 QuoteOP =
   init: ->
     Main.callbacks.push @node
@@ -5378,6 +5410,9 @@ Main =
 
     if Conf['Indicate OP quote']
       QuoteOP.init()
+
+    if Conf['Indicate Quotes of You']
+      QuoteYou.init()
 
     if Conf['Indicate Cross-thread Quotes']
       QuoteCT.init()

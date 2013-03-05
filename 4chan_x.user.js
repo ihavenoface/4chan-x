@@ -81,7 +81,8 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, Quotify, Redirect, RelativeDates, RemoveSpoilers, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base;
+  var $, $$, Anonymize, ArchiveLink, BanChecker, Build, CatalogLinks, Conf, Config, DeleteLink, DownloadLink, EmbedLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Get, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Markdown, Menu, Nav, Options, Prefetch, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteYou, Quotify, Redirect, RelativeDates, RemoveSpoilers, ReplyHiding, ReportLink, RevealSpoilers, Sauce, StrikethroughQuotes, ThreadHiding, ThreadStats, Time, TitlePost, UI, Unread, Updater, Watcher, d, g, _base,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Config = {
     main: {
@@ -175,6 +176,7 @@
         'Quote Preview': [true, 'Show quote content on hover'],
         'Resurrect Quotes': [true, 'Linkify dead quotes to archives'],
         'Indicate OP quote': [true, 'Add \'(OP)\' to OP quotes'],
+        'Indicate Quotes of You': [false, 'Add \'(You)\' to your quotes'],
         'Indicate Cross-thread Quotes': [true, 'Add \'(Cross-thread)\' to cross-threads quotes'],
         'Forward Hiding': [true, 'Hide original posts of inlined backlinks']
       }
@@ -4901,6 +4903,51 @@
     }
   };
 
+  QuoteYou = {
+    init: function() {
+      $.on(d, 'QRPostSuccessful', this.post);
+      $.on(d, 'theThreadisDead', this.prune);
+      this.posts = $.get('yourPosts', {});
+      return Main.callbacks.push(this.node);
+    },
+    post: function(e) {
+      var postID, posts, threadID, _ref;
+      _ref = e.detail, postID = _ref.postID, threadID = _ref.threadID;
+      if (threadID === '0') {
+        return;
+      }
+      if (!(posts = QuoteYou.posts[threadID])) {
+        posts = [];
+      }
+      posts.push(postID);
+      QuoteYou.posts[threadID] = posts;
+      return $.set('yourPosts', QuoteYou.posts);
+    },
+    node: function(post) {
+      var posts, quote, _i, _len, _ref, _ref1;
+      posts = QuoteYou.posts;
+      posts = posts[g.THREAD_ID];
+      if (!posts || post.isInlined && !post.isCrosspost) {
+        return;
+      }
+      _ref = post.quotes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        quote = _ref[_i];
+        if (_ref1 = quote.hash.slice(2), __indexOf.call(posts, _ref1) >= 0) {
+          $.add(quote, $.tn('\u00A0(You)'));
+        }
+      }
+    },
+    prune: function() {
+      var posts;
+      posts = QuoteYou.posts;
+      if (posts[g.THREAD_ID]) {
+        delete QuoteYou.posts[g.THREAD_ID];
+      }
+      return $.set('yourPosts', QuoteYou.posts);
+    }
+  };
+
   QuoteOP = {
     init: function() {
       return Main.callbacks.push(this.node);
@@ -6593,6 +6640,9 @@
       }
       if (Conf['Indicate OP quote']) {
         QuoteOP.init();
+      }
+      if (Conf['Indicate Quotes of You']) {
+        QuoteYou.init();
       }
       if (Conf['Indicate Cross-thread Quotes']) {
         QuoteCT.init();
