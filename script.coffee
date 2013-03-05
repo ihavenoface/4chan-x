@@ -2944,6 +2944,7 @@ Updater =
     load: ->
       switch @status
         when 404
+          $.event d, new CustomEvent 'theThreadisDead'
           Updater.set 'timer', ''
           Updater.set 'count', 404
           Updater.count.className = 'warning'

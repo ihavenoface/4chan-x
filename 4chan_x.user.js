@@ -3615,6 +3615,7 @@
       load: function() {
         switch (this.status) {
           case 404:
+            $.event(d, new CustomEvent('theThreadisDead'));
             Updater.set('timer', '');
             Updater.set('count', 404);
             Updater.count.className = 'warning';
