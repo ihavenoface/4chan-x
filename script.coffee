@@ -5653,7 +5653,7 @@ hr.abovePostForm {
   width: 100% !important;
 }
 .post.reply.yourPost {
-  border-left: 1px solid rgb(221, 0, 0);
+  border-left: 1px solid rgb(221, 0, 0) !important;
 }
 .dialog.reply {
   display: block;
