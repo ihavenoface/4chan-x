@@ -4047,6 +4047,10 @@ QuotePreview =
     $.on @, 'mouseout click', QuotePreview.mouseout
 
     return unless el
+    if Conf['Indicate Quotes of You'] and /\byourPost\b/.test el.className
+      $.rmClass (yourPost = $('.reply.yourPost', qp)), 'yourPost'
+      $.addClass qp, 'yourPost'
+
     if Conf['Quote Highlighting']
       if /\bop\b/.test el.className
         $.addClass el.parentNode, 'qphl'
@@ -5652,7 +5656,7 @@ Main =
 hr.abovePostForm {
   width: 100% !important;
 }
-.post.reply.yourPost {
+.post.reply.yourPost, #qp.yourPost {
   border-left: 1px solid rgb(221, 0, 0) !important;
 }
 .dialog.reply {

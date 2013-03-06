@@ -4801,7 +4801,7 @@
       }
     },
     mouseover: function(e) {
-      var board, el, path, postID, qp, quote, quoterID, threadID, _i, _len, _ref;
+      var board, el, path, postID, qp, quote, quoterID, threadID, yourPost, _i, _len, _ref;
       if (/\binlined\b/.test(this.className)) {
         return;
       }
@@ -4878,6 +4878,10 @@
       $.on(this, 'mouseout click', QuotePreview.mouseout);
       if (!el) {
         return;
+      }
+      if (Conf['Indicate Quotes of You'] && /\byourPost\b/.test(el.className)) {
+        $.rmClass((yourPost = $('.reply.yourPost', qp)), 'yourPost');
+        $.addClass(qp, 'yourPost');
       }
       if (Conf['Quote Highlighting']) {
         if (/\bop\b/.test(el.className)) {
@@ -6990,7 +6994,7 @@
 hr.abovePostForm {\
   width: 100% !important;\
 }\
-.post.reply.yourPost {\
+.post.reply.yourPost, #qp.yourPost {\
   border-left: 1px solid rgb(221, 0, 0) !important;\
 }\
 .dialog.reply {\
