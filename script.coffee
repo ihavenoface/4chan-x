@@ -83,7 +83,7 @@ Config =
       'Quote Preview':                [true,  'Show quote content on hover']
       'Resurrect Quotes':             [true,  'Linkify dead quotes to archives']
       'Indicate OP quote':            [true,  'Add \'(OP)\' to OP quotes']
-      'Indicate Quotes of You':       [false, 'Add \'(You)\' to your quotes']
+      'Indicate Quotes of You':       [true,  'Add \'(You)\' to your quotes']
       'Indicate Cross-thread Quotes': [true,  'Add \'(Cross-thread)\' to cross-threads quotes']
       'Forward Hiding':               [true,  'Hide original posts of inlined backlinks']
   filter:
@@ -4090,8 +4090,8 @@ QuoteYou =
     return
 
   prune: ->
-    {posts} = QuoteYou
-    delete QuoteYou.posts[g.THREAD_ID] if posts[g.THREAD_ID]
+    return unless QuoteYou.posts[g.THREAD_ID]
+    delete QuoteYou.posts[g.THREAD_ID]
     $.set 'yourPosts', QuoteYou.posts
 
 QuoteOP =

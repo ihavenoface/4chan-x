@@ -176,7 +176,7 @@
         'Quote Preview': [true, 'Show quote content on hover'],
         'Resurrect Quotes': [true, 'Linkify dead quotes to archives'],
         'Indicate OP quote': [true, 'Add \'(OP)\' to OP quotes'],
-        'Indicate Quotes of You': [false, 'Add \'(You)\' to your quotes'],
+        'Indicate Quotes of You': [true, 'Add \'(You)\' to your quotes'],
         'Indicate Cross-thread Quotes': [true, 'Add \'(Cross-thread)\' to cross-threads quotes'],
         'Forward Hiding': [true, 'Hide original posts of inlined backlinks']
       }
@@ -4940,11 +4940,10 @@
       }
     },
     prune: function() {
-      var posts;
-      posts = QuoteYou.posts;
-      if (posts[g.THREAD_ID]) {
-        delete QuoteYou.posts[g.THREAD_ID];
+      if (!QuoteYou.posts[g.THREAD_ID]) {
+        return;
       }
+      delete QuoteYou.posts[g.THREAD_ID];
       return $.set('yourPosts', QuoteYou.posts);
     }
   };
