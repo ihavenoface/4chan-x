@@ -4928,16 +4928,19 @@
       return $.set('yourPosts', QuoteYou.posts);
     },
     node: function(post) {
-      var posts, quote, _i, _len, _ref, _ref1;
+      var posts, quote, _i, _len, _ref, _ref1, _ref2;
       posts = QuoteYou.posts;
       posts = posts[post.threadID];
       if (!posts || post.isInlined && !post.isCrosspost) {
         return;
       }
-      _ref = post.quotes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        quote = _ref[_i];
-        if (_ref1 = quote.hash.slice(2), __indexOf.call(posts, _ref1) >= 0) {
+      if (_ref = post.ID, __indexOf.call(posts, _ref) >= 0) {
+        $.addClass(post.el, 'yourPost');
+      }
+      _ref1 = post.quotes;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        quote = _ref1[_i];
+        if (_ref2 = quote.hash.slice(2), __indexOf.call(posts, _ref2) >= 0) {
           $.add(quote, $.tn('\u00A0(You)'));
         }
       }
@@ -6986,6 +6989,9 @@
 /* dialog styling */\
 hr.abovePostForm {\
   width: 100% !important;\
+}\
+.reply.yourPost {\
+  border-left: 1px solid rgb(221, 0, 0);\
 }\
 .dialog.reply {\
   display: block;\

@@ -4086,6 +4086,8 @@ QuoteYou =
     {posts} = QuoteYou
     posts   = posts[post.threadID]
     return if not posts or post.isInlined and not post.isCrosspost
+    if post.ID in posts
+      $.addClass post.el, 'yourPost'
     for quote in post.quotes
       if quote.hash[2..] in posts
         $.add quote, $.tn '\u00A0(You)'
@@ -5649,6 +5651,9 @@ Main =
 /* dialog styling */
 hr.abovePostForm {
   width: 100% !important;
+}
+.reply.yourPost {
+  border-left: 1px solid rgb(221, 0, 0);
 }
 .dialog.reply {
   display: block;
