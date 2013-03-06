@@ -6995,7 +6995,7 @@ hr.abovePostForm {\
   width: 100% !important;\
 }\
 .post.reply.yourPost, #qp.yourPost {\
-  border-left: 1px solid rgb(221, 0, 0) !important;\
+  border-left: 1px solid rgba(221,0,0,.5) !important;\
 }\
 .dialog.reply {\
   display: block;\
