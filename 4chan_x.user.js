@@ -6990,7 +6990,7 @@
 hr.abovePostForm {\
   width: 100% !important;\
 }\
-.reply.yourPost {\
+.post.reply.yourPost {\
   border-left: 1px solid rgb(221, 0, 0);\
 }\
 .dialog.reply {\
