@@ -910,6 +910,8 @@ ExpandComment =
       QuoteInline.node    post
     if Conf['Indicate OP quote']
       QuoteOP.node        post
+    if Conf['Indicate Quotes of You']
+      QuoteYou.node       post
     if Conf['Indicate Cross-thread Quotes']
       QuoteCT.node        post
     $.replace bq, clone
@@ -4082,7 +4084,7 @@ QuoteYou =
 
   node: (post) ->
     {posts} = QuoteYou
-    posts   = posts[g.THREAD_ID]
+    posts   = posts[post.threadID]
     return if not posts or post.isInlined and not post.isCrosspost
     for quote in post.quotes
       if quote.hash[2..] in posts

@@ -1095,6 +1095,9 @@
       if (Conf['Indicate OP quote']) {
         QuoteOP.node(post);
       }
+      if (Conf['Indicate Quotes of You']) {
+        QuoteYou.node(post);
+      }
       if (Conf['Indicate Cross-thread Quotes']) {
         QuoteCT.node(post);
       }
@@ -4927,7 +4930,7 @@
     node: function(post) {
       var posts, quote, _i, _len, _ref, _ref1;
       posts = QuoteYou.posts;
-      posts = posts[g.THREAD_ID];
+      posts = posts[post.threadID];
       if (!posts || post.isInlined && !post.isCrosspost) {
         return;
       }
