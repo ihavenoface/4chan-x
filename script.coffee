@@ -5449,16 +5449,19 @@ Main =
         # Gotta make it work in temporary boards.
         $.addClass a, 'current'
 
-    for nav in ['.navLinks', '.navLinksBot']
-      passLink = $.el 'a',
-        textContent: '4chan Pass'
-        className: 'enterPass'
-        href: 'javascript:;'
-      $.on passLink, 'click', ->
-        window.open '//sys.4chan.org/auth', 'This will steal your data.', 'left=20,top=20,width=500,height=255,toolbar=0,resizable=0'
-      nav = $ nav
-      $.rm nav.childNodes[4]
-      $.after nav.childNodes[3], [$.tn '] ['; passLink, $.tn '] [']
+    if g.REPLY
+      for nav in ['.navLinks', '.navLinksBot']
+        continue unless nav = $ nav
+        passLink = $.el 'a',
+          textContent: '4chan Pass'
+          className: 'enterPass'
+          href: 'javascript:;'
+        $.on passLink, 'click', ->
+          window.open '//sys.4chan.org/auth',
+            'This will steal your data.'
+            'left=20,top=20,width=500,height=255,toolbar=0,resizable=0'
+        $.rm nav.childNodes[4]
+        $.after nav.childNodes[3], [$.tn '] ['; passLink, $.tn '] [']
 
     Main.hidegMessage.create()
     Main.cleanup()
