@@ -5180,14 +5180,12 @@
     linked: {},
     createToggle: function(node, postID) {
       var cached, embed, href, link, service, titles, unembed;
-      embed = $.el('a', {
-        href: 'javascript:;',
-        className: 'embed',
-        textContent: '[embed]'
+      embed = $.el('span', {
+        innerHTML: '[<a href=javascript:; class=embed>embed</a>]'
       });
-      unembed = embed.cloneNode(true);
-      unembed.className = 'unembed';
-      unembed.textContent = '[unembed]';
+      unembed = $.el('span', {
+        innerHTML: '[<a href=javascript:; class=unembed>unembed</a>]'
+      });
       href = node.href;
       $.on(embed, 'click', function() {
         return Linkify.embed(href, postID);
@@ -5209,7 +5207,7 @@
             node.className = "" + service + "Title";
             return node.textContent = cached;
           }
-          return node.textContent = "[" + service + "] " + cached;
+          node.textContent = "[" + service + "] " + cached;
         }
         return link.service.type.title.call({
           node: node,

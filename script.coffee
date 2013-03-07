@@ -4272,17 +4272,14 @@ Linkify =
   linked: {}
 
   createToggle: (node, postID) ->
-    embed = $.el 'a',
-      href:        'javascript:;'
-      className:   'embed'
-      textContent: '[embed]'
-    unembed = embed.cloneNode true
-    unembed.className   = 'unembed'
-    unembed.textContent = '[unembed]'
+    embed = $.el 'span',
+      innerHTML: '[<a href=javascript:; class=embed>embed</a>]'
+    unembed = $.el 'span',
+      innerHTML: '[<a href=javascript:; class=unembed>unembed</a>]'
 
     {href} = node
-    $.on embed, 'click', -> Linkify.embed (href), postID
-    $.after node, [$.tn(' '), embed]
+    $.on embed, 'click', -> Linkify.embed href, postID
+    $.after node, [$.tn ' '; embed]
     Linkify.linked[href].posts[postID] = {node, embed, unembed}
     link = Linkify.linked[href]
 
@@ -4295,7 +4292,7 @@ Linkify =
         if Conf['Show FavIcons']
           node.className = "#{service}Title"
           return node.textContent =  cached
-        return node.textContent   = "[#{service}] #{cached}"
+        node.textContent = "[#{service}] #{cached}"
 
       link.service.type.title.call
         node:    node
@@ -4308,7 +4305,7 @@ Linkify =
       span = link.posts[postID]
       if span.el
         $.rm span.embed
-        return $.replace span.node, [span.el, $.tn(' '), span.unembed]
+        return $.replace span.node, [span.el, $.tn ' '; span.unembed]
       return unless el = link.service.type.el link, postID
       if (type = link.service.type).style
         for key, value of type.style
@@ -4322,11 +4319,11 @@ Linkify =
     Linkify.linked[href].posts[postID].el = el
     $.on span.unembed, 'click', -> Linkify.unembed span
     $.rm span.embed
-    $.replace span.node, [span.el, $.tn(' '), span.unembed]
+    $.replace span.node, [span.el, $.tn ' '; span.unembed]
 
   unembed: (span) ->
     $.rm span.unembed
-    $.replace span.el, [span.node, $.tn(' '), span.embed]
+    $.replace span.el, [span.node, $.tn ' '; span.embed]
 
   json: (info) ->
     $.cache info.url, ->
