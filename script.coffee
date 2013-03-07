@@ -5266,7 +5266,7 @@ Main =
                 window.close()
               else
                 window.history.back()
-            , 2000
+            , 1500
         return
       when 'images.4chan.org'
         $.ready ->

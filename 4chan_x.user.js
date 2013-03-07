@@ -6498,7 +6498,7 @@
                 } else {
                   return window.history.back();
                 }
-              }, 2000);
+              }, 1500);
             });
           }
           return;
