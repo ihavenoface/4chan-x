@@ -6664,7 +6664,7 @@
       return $.ready(Main.featuresReady);
     },
     featuresReady: function() {
-      var MutationObserver, a, board, nav, node, nodes, observer, _i, _j, _len, _len1, _ref, _ref1;
+      var MutationObserver, a, board, nav, node, nodes, observer, passLink, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       if (/^4chan - 404/.test(d.title)) {
         if (Conf['404 Redirect'] && /^\d+$/.test(g.THREAD_ID)) {
           location.href = Redirect.to({
@@ -6686,6 +6686,21 @@
         if (a = $("a[href$='/" + g.BOARD + "/']", $.id(nav))) {
           $.addClass(a, 'current');
         }
+      }
+      _ref1 = ['.navLinks', '.navLinksBot'];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        nav = _ref1[_j];
+        passLink = $.el('a', {
+          textContent: '4chan Pass',
+          className: 'enterPass',
+          href: 'javascript:;'
+        });
+        $.on(passLink, 'click', function() {
+          return window.open('//sys.4chan.org/auth', 'This will steal your data.', 'left=20,top=20,width=500,height=255,toolbar=0,resizable=0');
+        });
+        nav = $(nav);
+        $.rm(nav.childNodes[4]);
+        $.after(nav.childNodes[3], [$.tn('] ['), passLink, $.tn('] [')]);
       }
       Main.hidegMessage.create();
       Main.cleanup();
@@ -6757,9 +6772,9 @@
       }
       board = $('.board');
       nodes = [];
-      _ref1 = $$('.postContainer', board);
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        node = _ref1[_j];
+      _ref2 = $$('.postContainer', board);
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        node = _ref2[_k];
         nodes.push(Main.preParse(node));
       }
       Main.node(nodes, function() {
@@ -7520,6 +7535,9 @@ div.opContainer {\
   width: auto !important;\
   height: auto !important;\
   overflow: visible !important;\
+}\
+.enterPass {\
+  text-decoration: underline !important;\
 }\
 '
   };
