@@ -6708,7 +6708,7 @@
           href: 'javascript:;'
         });
         $.on(passLink, 'click', function() {
-          return window.open('//sys.4chan.org/auth', 'This will steal your data.', 'left=20,top=20,width=500,height=255,toolbar=0,resizable=0');
+          return window.open('//sys.4chan.org/auth', 'This will steal your data.', 'left=0,top=0,width=500,height=255,toolbar=0,resizable=0');
         });
         $.before(styleSelector.previousSibling, [$.tn('['), passLink, $.tn(']\u00A0\u00A0')]);
       }
