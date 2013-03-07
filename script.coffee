@@ -5258,6 +5258,15 @@ Main =
               response = field.value.trim()
               field.value = "#{response} #{response}" unless /\s/.test response
               form.submit()
+        if /auth/.test location.pathname
+          $.ready ->
+            return unless message = $ 'span'
+            setTimeout ->
+              if /^Success!/.test message.textContent
+                window.close()
+              else
+                window.history.back()
+            , 2000
         return
       when 'images.4chan.org'
         $.ready ->

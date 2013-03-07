@@ -6486,6 +6486,21 @@
               });
             });
           }
+          if (/auth/.test(location.pathname)) {
+            $.ready(function() {
+              var message;
+              if (!(message = $('span'))) {
+                return;
+              }
+              return setTimeout(function() {
+                if (/^Success!/.test(message.textContent)) {
+                  return window.close();
+                } else {
+                  return window.history.back();
+                }
+              }, 2000);
+            });
+          }
           return;
         case 'images.4chan.org':
           $.ready(function() {
