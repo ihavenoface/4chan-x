@@ -4098,9 +4098,9 @@ QuoteYou =
     return
 
   prune: ->
-    return unless QuoteYou.posts[g.THREAD_ID]
-    delete QuoteYou.posts[g.THREAD_ID]
-    $.set 'yourPosts', QuoteYou.posts
+    return unless (posts = QuoteYou.posts)[g.THREAD_ID]
+    delete posts[g.THREAD_ID]
+    $.set 'yourPosts', posts
 
 QuoteOP =
   init: ->

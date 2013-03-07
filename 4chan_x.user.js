@@ -4950,11 +4950,12 @@
       }
     },
     prune: function() {
-      if (!QuoteYou.posts[g.THREAD_ID]) {
+      var posts;
+      if (!(posts = QuoteYou.posts)[g.THREAD_ID]) {
         return;
       }
-      delete QuoteYou.posts[g.THREAD_ID];
-      return $.set('yourPosts', QuoteYou.posts);
+      delete posts[g.THREAD_ID];
+      return $.set('yourPosts', posts);
     }
   };
 
