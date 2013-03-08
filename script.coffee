@@ -2079,8 +2079,11 @@ QR =
             QR.error "Bad CAPTCHA"
           else
             console.error "Could not understand response from CAPTCHA validator:", data.responseText
+            QR.error "Validation connection failed; adding CAPTCHA anyway"
+            QR.captcha.addCaptcha challenge, response
         onerror: ->
           console.error "CAPTCHA validation connection failed, adding CAPTCHA anyway"
+          QR.error "Validation connection failed; adding CAPTCHA anyway"
           QR.captcha.addCaptcha challenge, response
       $.crossAjax "//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc", callbacks, opts
     save: ->

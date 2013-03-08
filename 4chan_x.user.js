@@ -2656,11 +2656,14 @@
               console.log("Bad CAPTCHA");
               return QR.error("Bad CAPTCHA");
             } else {
-              return console.error("Could not understand response from CAPTCHA validator:", data.responseText);
+              console.error("Could not understand response from CAPTCHA validator:", data.responseText);
+              QR.error("Validation connection failed; adding CAPTCHA anyway");
+              return QR.captcha.addCaptcha(challenge, response);
             }
           },
           onerror: function() {
             console.error("CAPTCHA validation connection failed, adding CAPTCHA anyway");
+            QR.error("Validation connection failed; adding CAPTCHA anyway");
             return QR.captcha.addCaptcha(challenge, response);
           }
         };
