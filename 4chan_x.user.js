@@ -156,6 +156,7 @@
         'Quick Reply': [true, 'Reply without leaving the page'],
         'Focus on Alert': [true, 'Switch to tab if an error occurs'],
         'Cooldown': [true, 'Prevent "flood detected" errors'],
+        'Validate CAPTCHA': [true, 'Validate cached CAPTCHAs'],
         'Persistent QR': [false, 'The Quick reply won\'t disappear after posting'],
         'Auto Hide QR': [false, 'Automatically hide the quick reply when posting'],
         'Open Reply in New Tab': [false, 'Open replies in a new tab that are made from the main board'],
@@ -405,6 +406,39 @@
       }
       r.send(form);
       return r;
+    },
+    crossAjax: function(url, callbacks, opts) {
+      var gmopts, newonload;
+      if (opts == null) {
+        opts = {};
+      }
+      if (typeof GM_xmlhttpRequest !== 'undefined') {
+        gmopts = {
+          url: url,
+          data: opts.form,
+          method: opts.form ? 'POST' : 'GET',
+          onload: callbacks.onload,
+          onabort: callbacks.onabort,
+          onerror: callbacks.onerror,
+          headers: {
+            Accept: 'text/html'
+          }
+        };
+        return GM_xmlhttpRequest(gmopts);
+      } else {
+        if (callbacks.onload) {
+          newonload = function() {
+            return callbacks.onload({
+              readyState: this.readyState,
+              responseText: this.responseText,
+              status: this.status,
+              statusText: this.statusText
+            });
+          };
+          callbacks.onload = newonload;
+        }
+        return $.ajax(url, callbacks, opts);
+      }
     },
     cache: function(url, cb) {
       var req;
@@ -2573,22 +2607,63 @@
         this.count($.get('captchas', []).length);
         return this.reload();
       },
-      save: function() {
-        var captcha, captchas, response;
-        if (!(response = this.input.value)) {
-          return;
-        }
+      addCaptcha: function(challenge, response) {
+        var captcha, captchas;
         captchas = $.get('captchas', []);
         while ((captcha = captchas[0]) && captcha.time < Date.now()) {
           captchas.shift();
         }
         captchas.push({
-          challenge: this.challenge.firstChild.value,
+          challenge: challenge,
           response: response,
           time: this.timeout
         });
         $.set('captchas', captchas);
-        this.count(captchas.length);
+        return this.count(captchas.length);
+      },
+      validateCaptcha: function(challenge, response) {
+        var callbacks, opts;
+        opts = {
+          form: $.formData({
+            recaptcha_challenge_field: challenge,
+            recaptcha_response_field: response
+          })
+        };
+        callbacks = {
+          onload: function(data) {
+            var doc, key, ta;
+            doc = d.implementation.createHTMLDocument('');
+            doc.documentElement.innerHTML = data.responseText;
+            if (ta = $('textarea', doc)) {
+              key = ta.textContent;
+              QR.cleanError();
+              return QR.captcha.addCaptcha(key, 'manual_challenge');
+            } else if ($('#recaptcha_response_field', doc)) {
+              return QR.error('Bad CAPTCHA');
+            } else {
+              $.log('Could not understand response from CAPTCHA validator:', data.responseText);
+              QR.error('Validation connection failed; adding CAPTCHA anyway');
+              return QR.captcha.addCaptcha(challenge, response);
+            }
+          },
+          onerror: function() {
+            QR.error('Validation connection failed; adding CAPTCHA anyway');
+            return QR.captcha.addCaptcha(challenge, response);
+          }
+        };
+        return $.crossAjax('//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc', callbacks, opts);
+      },
+      save: function() {
+        var challenge, response;
+        if (!(response = this.input.value)) {
+          return;
+        }
+        challenge = this.challenge.firstChild.value;
+        if (Conf['Validate CAPTCHA']) {
+          this.validateCaptcha(challenge, response);
+        } else {
+          this.addCaptcha(challenge, response);
+        }
         return this.reload();
       },
       load: function() {
@@ -2787,7 +2862,7 @@
           err = 'No valid captcha.';
         } else {
           response = response.trim();
-          if (!/\s/.test(response)) {
+          if (!/\s|_/.test(response)) {
             response = "" + response + " " + response;
           }
         }
