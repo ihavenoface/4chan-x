@@ -408,19 +408,16 @@
       return r;
     },
     crossAjax: function(url, callbacks, opts) {
-      var gmopts, method, newonload, _ref;
+      var gmopts, newonload;
       if (opts == null) {
         opts = {};
       }
-      if (typeof GM_xmlhttpRequest !== "undefined") {
-        method = (_ref = opts.form) != null ? _ref : {
-          "POST": "GET"
-        };
+      if (typeof GM_xmlhttpRequest !== 'undefined') {
         gmopts = {
           url: url,
-          method: opts.form ? "POST" : "GET",
+          method: opts.form ? 'POST' : 'GET',
           headers: {
-            Accept: "text/html"
+            Accept: 'text/html'
           }
         };
         if (opts.form) {
@@ -2648,21 +2645,21 @@
             if (ta = $('textarea', doc)) {
               key = ta.innerHTML;
               QR.cleanError();
-              return QR.captcha.addCaptcha(key, "manual_challenge");
-            } else if ($('#recaptcha_response_field', doc)) {
-              return QR.error("Bad CAPTCHA");
+              return QR.captcha.addCaptcha(key, 'manual_challenge');
+            } else if ($.id('recaptcha_response_field', doc)) {
+              return QR.error('Bad CAPTCHA');
             } else {
-              $.log("Could not understand response from CAPTCHA validator:", data.responseText);
-              QR.error("Validation connection failed; adding CAPTCHA anyway");
+              $.log('Could not understand response from CAPTCHA validator:', data.responseText);
+              QR.error('Validation connection failed; adding CAPTCHA anyway');
               return QR.captcha.addCaptcha(challenge, response);
             }
           },
           onerror: function() {
-            QR.error("Validation connection failed; adding CAPTCHA anyway");
+            QR.error('Validation connection failed; adding CAPTCHA anyway');
             return QR.captcha.addCaptcha(challenge, response);
           }
         };
-        return $.crossAjax("//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc", callbacks, opts);
+        return $.crossAjax('//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc', callbacks, opts);
       },
       save: function() {
         var challenge, response;

@@ -338,13 +338,12 @@ $.extend $,
     r.send form
     r
   crossAjax: (url, callbacks, opts={}) ->
-    if typeof GM_xmlhttpRequest != "undefined"
-      method = opts.form ? "POST" : "GET"
+    if typeof GM_xmlhttpRequest != 'undefined'
       gmopts =
         url: url
-        method: if opts.form then "POST" else "GET"
+        method: if opts.form then 'POST' else 'GET'
         headers:
-          Accept: "text/html"
+          Accept: 'text/html'
       if opts.form
         gmopts.data = opts.form
       if callbacks.onload
@@ -2070,17 +2069,17 @@ QR =
           if ta = $ 'textarea', doc
             key = ta.innerHTML
             QR.cleanError()
-            QR.captcha.addCaptcha key, "manual_challenge"
-          else if $ '#recaptcha_response_field', doc
-            QR.error "Bad CAPTCHA"
+            QR.captcha.addCaptcha key, 'manual_challenge'
+          else if $.id 'recaptcha_response_field', doc
+            QR.error 'Bad CAPTCHA'
           else
-            $.log "Could not understand response from CAPTCHA validator:", data.responseText
-            QR.error "Validation connection failed; adding CAPTCHA anyway"
+            $.log 'Could not understand response from CAPTCHA validator:', data.responseText
+            QR.error 'Validation connection failed; adding CAPTCHA anyway'
             QR.captcha.addCaptcha challenge, response
         onerror: ->
-          QR.error "Validation connection failed; adding CAPTCHA anyway"
+          QR.error 'Validation connection failed; adding CAPTCHA anyway'
           QR.captcha.addCaptcha challenge, response
-      $.crossAjax "//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc", callbacks, opts
+      $.crossAjax '//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc', callbacks, opts
     save: ->
       return unless response = @input.value
       challenge = @challenge.firstChild.value
