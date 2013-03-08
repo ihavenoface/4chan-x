@@ -2063,10 +2063,10 @@ QR =
           doc = d.implementation.createHTMLDocument ''
           doc.documentElement.innerHTML = data.responseText
           if ta = $ 'textarea', doc
-            key = ta.innerHTML
+            key = ta.textContent
             QR.cleanError()
             QR.captcha.addCaptcha key, 'manual_challenge'
-          else if $.id 'recaptcha_response_field', doc
+          else if $ '#recaptcha_response_field', doc
             QR.error 'Bad CAPTCHA'
           else
             $.log 'Could not understand response from CAPTCHA validator:', data.responseText

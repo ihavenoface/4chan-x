@@ -2635,10 +2635,10 @@
             doc = d.implementation.createHTMLDocument('');
             doc.documentElement.innerHTML = data.responseText;
             if (ta = $('textarea', doc)) {
-              key = ta.innerHTML;
+              key = ta.textContent;
               QR.cleanError();
               return QR.captcha.addCaptcha(key, 'manual_challenge');
-            } else if ($.id('recaptcha_response_field', doc)) {
+            } else if ($('#recaptcha_response_field', doc)) {
               return QR.error('Bad CAPTCHA');
             } else {
               $.log('Could not understand response from CAPTCHA validator:', data.responseText);
