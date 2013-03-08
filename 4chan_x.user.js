@@ -2592,12 +2592,16 @@
         return this.reload();
       },
       load: function() {
-        var challenge;
+        var challenge,
+          _this = this;
         this.timeout = Date.now() + 4 * $.MINUTE;
         challenge = this.challenge.firstChild.value;
         this.img.alt = challenge;
         this.img.src = "//www.google.com/recaptcha/api/image?c=" + challenge;
-        return this.input.value = null;
+        return this.img.onload = function() {
+          _this.img.style.visibility = 'visible';
+          return _this.input.value = null;
+        };
       },
       count: function(count) {
         this.input.placeholder = (function() {
@@ -2613,6 +2617,8 @@
         return this.input.alt = count;
       },
       reload: function(focus) {
+        QR.captcha.input.value = null;
+        QR.captcha.img.style.visibility = 'hidden';
         $.globalEval('javascript:Recaptcha.reload("t")');
         if (focus) {
           return QR.captcha.input.focus();
