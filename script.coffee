@@ -2091,7 +2091,9 @@ QR =
       challenge = @challenge.firstChild.value
       @img.alt  = challenge
       @img.src  = "//www.google.com/recaptcha/api/image?c=#{challenge}"
-      @input.value = null
+      @img.onload = =>
+        @img.style.visibility = 'visible'
+        @input.value = null
     count: (count) ->
       @input.placeholder = switch count
         when 0
@@ -2102,6 +2104,8 @@ QR =
           "Verification (#{count} cached captchas)"
       @input.alt = count # For XTRM RICE.
     reload: (focus) ->
+      QR.captcha.input.value = null
+      QR.captcha.img.style.visibility = 'hidden'
       # the "t" argument prevents the input from being focused
       $.globalEval 'javascript:Recaptcha.reload("t")'
       # Focus if we meant to.
