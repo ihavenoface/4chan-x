@@ -64,6 +64,7 @@ Config =
       'Quick Reply':                  [true,  'Reply without leaving the page']
       'Focus on Alert':               [true,  'Switch to tab if an error occurs']
       'Cooldown':                     [true,  'Prevent "flood detected" errors']
+      'Validate CAPTCHA':             [true,  'Validate cached CAPTCHAs']
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting']
       'Auto Hide QR':                 [false, 'Automatically hide the quick reply when posting']
       'Open Reply in New Tab':        [false, 'Open replies in a new tab that are made from the main board']
@@ -336,6 +337,35 @@ $.extend $,
     r.withCredentials = true if type is 'post'
     r.send form
     r
+  crossAjax: (url, callbacks, opts={}) ->
+    if typeof GM_xmlhttpRequest != "undefined"
+      console.log "Using GM_xmlhttpRequest"
+      method = opts.form ? "POST" : "GET"
+      gmopts =
+        url: url
+        method: if opts.form then "POST" else "GET"
+        headers:
+          Accept: "text/html"
+      if opts.form
+        gmopts.data = opts.form
+      if callbacks.onload
+        gmopts.onload = callbacks.onload
+      if callbacks.onabort
+        gmopts.onabort = callbacks.onabort
+      if callbacks.onerror
+        gmopts.onerror = callbacks.onerror
+      GM_xmlhttpRequest gmopts
+    else
+      console.log "Using regular $.ajax"
+      if callbacks.onload
+        newonload = ->
+          callbacks.onload
+            readyState: @readyState
+            responseText: @responseText
+            status: @status
+            statusText: @statusText
+        callbacks.onload = newonload
+      $.ajax url, callbacks, opts
   cache: (url, cb) ->
     if req = $.cache.requests[url]
       if req.readyState is 4
@@ -2019,18 +2049,47 @@ QR =
       @count $.get('captchas', []).length
       # start with an uncached captcha
       @reload()
-    save: ->
-      return unless response = @input.value
+    addCaptcha: (challenge, response) ->
       captchas = $.get 'captchas', []
       # Remove old captchas.
       while (captcha = captchas[0]) and captcha.time < Date.now()
         captchas.shift()
       captchas.push
-        challenge: @challenge.firstChild.value
+        challenge: challenge
         response:  response
         time:      @timeout
       $.set 'captchas', captchas
       @count captchas.length
+    validateCaptcha: (challenge, response) ->
+      opts =
+        form: $.formData
+          recaptcha_challenge_field: challenge
+          recaptcha_response_field: response
+      callbacks =
+        onload: (data) ->
+          doc = d.implementation.createHTMLDocument ''
+          doc.documentElement.innerHTML = data.responseText
+          if ta = $ 'textarea', doc
+            key = ta.innerHTML
+            console.log "Good CAPTCHA"
+            QR.cleanError()
+            QR.captcha.addCaptcha key, "manual_challenge"
+          else if $ '#recaptcha_response_field', doc
+            console.log "Bad CAPTCHA"
+            QR.error "Bad CAPTCHA"
+          else
+            console.error "Could not understand response from CAPTCHA validator:", data.responseText
+        onerror: ->
+          console.error "CAPTCHA validation connection failed, adding CAPTCHA anyway"
+          QR.captcha.addCaptcha challenge, response
+      $.crossAjax "//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc", callbacks, opts
+    save: ->
+      return unless response = @input.value
+      challenge = @challenge.firstChild.value
+      if Conf['Validate CAPTCHA']
+        @validateCaptcha challenge, response
+      else
+        @addCaptcha challenge, response
       @reload()
     load: ->
       # Timeout is available at RecaptchaState.timeout in seconds.
