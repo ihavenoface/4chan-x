@@ -413,7 +413,6 @@
         opts = {};
       }
       if (typeof GM_xmlhttpRequest !== "undefined") {
-        console.log("Using GM_xmlhttpRequest");
         method = (_ref = opts.form) != null ? _ref : {
           "POST": "GET"
         };
@@ -438,7 +437,6 @@
         }
         return GM_xmlhttpRequest(gmopts);
       } else {
-        console.log("Using regular $.ajax");
         if (callbacks.onload) {
           newonload = function() {
             return callbacks.onload({
@@ -2649,20 +2647,17 @@
             doc.documentElement.innerHTML = data.responseText;
             if (ta = $('textarea', doc)) {
               key = ta.innerHTML;
-              console.log("Good CAPTCHA");
               QR.cleanError();
               return QR.captcha.addCaptcha(key, "manual_challenge");
             } else if ($('#recaptcha_response_field', doc)) {
-              console.log("Bad CAPTCHA");
               return QR.error("Bad CAPTCHA");
             } else {
-              console.error("Could not understand response from CAPTCHA validator:", data.responseText);
+              $.log("Could not understand response from CAPTCHA validator:", data.responseText);
               QR.error("Validation connection failed; adding CAPTCHA anyway");
               return QR.captcha.addCaptcha(challenge, response);
             }
           },
           onerror: function() {
-            console.error("CAPTCHA validation connection failed, adding CAPTCHA anyway");
             QR.error("Validation connection failed; adding CAPTCHA anyway");
             return QR.captcha.addCaptcha(challenge, response);
           }

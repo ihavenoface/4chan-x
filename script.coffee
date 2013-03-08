@@ -339,7 +339,6 @@ $.extend $,
     r
   crossAjax: (url, callbacks, opts={}) ->
     if typeof GM_xmlhttpRequest != "undefined"
-      console.log "Using GM_xmlhttpRequest"
       method = opts.form ? "POST" : "GET"
       gmopts =
         url: url
@@ -356,7 +355,6 @@ $.extend $,
         gmopts.onerror = callbacks.onerror
       GM_xmlhttpRequest gmopts
     else
-      console.log "Using regular $.ajax"
       if callbacks.onload
         newonload = ->
           callbacks.onload
@@ -2071,18 +2069,15 @@ QR =
           doc.documentElement.innerHTML = data.responseText
           if ta = $ 'textarea', doc
             key = ta.innerHTML
-            console.log "Good CAPTCHA"
             QR.cleanError()
             QR.captcha.addCaptcha key, "manual_challenge"
           else if $ '#recaptcha_response_field', doc
-            console.log "Bad CAPTCHA"
             QR.error "Bad CAPTCHA"
           else
-            console.error "Could not understand response from CAPTCHA validator:", data.responseText
+            $.log "Could not understand response from CAPTCHA validator:", data.responseText
             QR.error "Validation connection failed; adding CAPTCHA anyway"
             QR.captcha.addCaptcha challenge, response
         onerror: ->
-          console.error "CAPTCHA validation connection failed, adding CAPTCHA anyway"
           QR.error "Validation connection failed; adding CAPTCHA anyway"
           QR.captcha.addCaptcha challenge, response
       $.crossAjax "//www.google.com/recaptcha/api/noscript?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc", callbacks, opts
