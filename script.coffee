@@ -340,27 +340,23 @@ $.extend $,
   crossAjax: (url, callbacks, opts={}) ->
     if typeof GM_xmlhttpRequest != 'undefined'
       gmopts =
-        url: url
-        method: if opts.form then 'POST' else 'GET'
+        url:     url
+        data:    opts.form
+        method:  if opts.form then 'POST' else 'GET'
+        onload:  callbacks.onload
+        onabort: callbacks.onabort
+        onerror: callbacks.onerror
         headers:
           Accept: 'text/html'
-      if opts.form
-        gmopts.data = opts.form
-      if callbacks.onload
-        gmopts.onload = callbacks.onload
-      if callbacks.onabort
-        gmopts.onabort = callbacks.onabort
-      if callbacks.onerror
-        gmopts.onerror = callbacks.onerror
       GM_xmlhttpRequest gmopts
     else
       if callbacks.onload
         newonload = ->
           callbacks.onload
-            readyState: @readyState
+            readyState:   @readyState
             responseText: @responseText
-            status: @status
-            statusText: @statusText
+            status:       @status
+            statusText:   @statusText
         callbacks.onload = newonload
       $.ajax url, callbacks, opts
   cache: (url, cb) ->

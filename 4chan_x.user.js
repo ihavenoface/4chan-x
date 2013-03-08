@@ -415,23 +415,15 @@
       if (typeof GM_xmlhttpRequest !== 'undefined') {
         gmopts = {
           url: url,
+          data: opts.form,
           method: opts.form ? 'POST' : 'GET',
+          onload: callbacks.onload,
+          onabort: callbacks.onabort,
+          onerror: callbacks.onerror,
           headers: {
             Accept: 'text/html'
           }
         };
-        if (opts.form) {
-          gmopts.data = opts.form;
-        }
-        if (callbacks.onload) {
-          gmopts.onload = callbacks.onload;
-        }
-        if (callbacks.onabort) {
-          gmopts.onabort = callbacks.onabort;
-        }
-        if (callbacks.onerror) {
-          gmopts.onerror = callbacks.onerror;
-        }
         return GM_xmlhttpRequest(gmopts);
       } else {
         if (callbacks.onload) {
