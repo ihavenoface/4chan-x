@@ -2862,7 +2862,7 @@
           err = 'No valid captcha.';
         } else {
           response = response.trim();
-          if (!/\s/.test(response)) {
+          if (!/\s|_/.test(response)) {
             response = "" + response + " " + response;
           }
         }
