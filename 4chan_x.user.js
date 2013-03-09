@@ -5585,7 +5585,8 @@
       menu = $.id('menu');
       id = menu.dataset.id;
       if (DeleteLink.cooldown[id]) {
-        return;
+        this.textContent = 'Waiting for cooldown...';
+        return DeleteLink.cooldown["delete"] = true;
       }
       $.off(this, 'click', DeleteLink["delete"]);
       this.textContent = 'Deleting...';
@@ -5646,6 +5647,10 @@
           }
           delete DeleteLink.cooldown[postID];
           delete DeleteLink.cooldown.el;
+          if (DeleteLink.cooldown["delete"]) {
+            DeleteLink.cooldown["delete"] = false;
+            $.event(el != null ? el.nextSibling.firstChild : void 0, new Event('click'));
+          }
           return;
         }
         if (el != null) {

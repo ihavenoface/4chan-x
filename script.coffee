@@ -4572,7 +4572,10 @@ DeleteLink =
   delete: ->
     menu = $.id 'menu'
     {id} = menu.dataset
-    return if DeleteLink.cooldown[id]
+
+    if DeleteLink.cooldown[id]
+      @textContent = 'Waiting for cooldown...'
+      return DeleteLink.cooldown.delete = true
 
     $.off @, 'click', DeleteLink.delete
     @textContent = 'Deleting...'
@@ -4630,6 +4633,9 @@ DeleteLink =
         el?.textContent = 'Delete'
         delete DeleteLink.cooldown[postID]
         delete DeleteLink.cooldown.el
+        if DeleteLink.cooldown.delete
+          DeleteLink.cooldown.delete = false
+          $.event el?.nextSibling.firstChild, new Event 'click'
         return
       el?.textContent = "Delete (#{seconds})"
       DeleteLink.cooldown[postID] = seconds
