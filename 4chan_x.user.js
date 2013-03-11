@@ -140,7 +140,7 @@
       },
       Monitoring: {
         'Thread Updater': [true, 'Update threads. Has more options in its own dialog.'],
-        'Optional Increase': [false, 'Increase value of Updater over time.'],
+        'Dynamic Increase': [false, 'Increase update timings based on a threads activity'],
         'Interval per board': [false, 'Change the intervals of updates on a board-by-board basis.'],
         'Unread Count': [true, 'Show unread post count in tab title'],
         'Unread Favicon': [true, 'Show a different favicon when there are unread posts'],
@@ -3568,6 +3568,7 @@
   Updater = {
     init: function() {
       var checkbox, checked, dialog, html, input, name, title, _i, _len, _ref;
+      this.getInput();
       html = '<div class=move><span id=count></span> <span id=timer></span></div>';
       checkbox = Config.updater.checkbox;
       for (name in checkbox) {
@@ -3576,8 +3577,7 @@
         html += "<div><label title='" + title + "'>" + name + "<input name='" + name + "' type=checkbox " + checked + "></label></div>";
       }
       checked = Conf['Auto Update'] ? 'checked' : '';
-      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>";
-      html += "<div><input value='Update Now' type=button name='Update Now'></div>";
+      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><input value='Update Now' type=button name='Update Now'></div>";
       dialog = UI.dialog('updater', 'bottom: 0; right: 0;', html);
       this.count = $('#count', dialog);
       this.timer = $('#timer', dialog);
@@ -3586,6 +3586,7 @@
       this.checkPostCount = 0;
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
+      this.name = Conf['Interval per board'] ? d.hidden ? "Interval_" + g.BOARD : "BGInterval_" + g.BOARD : d.hidden ? 'BGInterval' : 'Interval';
       _ref = $$('input', dialog);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         input = _ref[_i];
@@ -3652,23 +3653,17 @@
       },
       visibility: function() {
         if (d.hidden) {
+          Updater.name = Conf['Interval per board'] ? "BGInterval_" + g.BOARD : 'BGInterval';
           return;
         }
+        Updater.name = Conf['Interval per board'] ? "Interval_" + g.BOARD : 'Interval';
         Updater.unsuccessfulFetchCount = 0;
-        if (Conf['Interval per board']) {
-          if (Updater.timer.textContent < -Conf['Interval_' + g.BOARD]) {
-            return Updater.set('timer', -Updater.getInterval());
-          }
-        } else {
-          if (Updater.timer.textContent < -Conf['Interval']) {
-            return Updater.set('timer', -Updater.getInterval());
-          }
+        if (Updater.timer.textContent < -Conf[Updater.name]) {
+          return Updater.set('timer', -Updater.getInterval());
         }
       },
       interval: function() {
-        var val;
-        val = parseInt(this.value, 10);
-        this.value = val > 0 ? val : 30;
+        this.value = parseInt(this.value, 10);
         $.cb.value.call(this);
         return Updater.set('timer', -Updater.getInterval());
       },
@@ -3795,38 +3790,34 @@
         return el.textContent = text;
       }
     },
-    getInput: function(input) {
-      var number, _i, _len, _results;
-      while (input.length < 10) {
-        input.push(input[input.length - 1]);
+    getInput: function() {
+      var input, split, type, _i, _len, _ref;
+      _ref = ['updateIncrease', 'updateIncreaseB'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        split = Conf[type].split(',');
+        while (split.length < 10) {
+          split.push(split[split.length - 1]);
+        }
+        Updater[type] = (function() {
+          var _j, _results;
+          _results = [];
+          for (input = _j = 0; _j < 10; input = ++_j) {
+            input = split[input];
+            _results.push(parseInt(input, 10));
+          }
+          return _results;
+        })();
       }
-      _results = [];
-      for (_i = 0, _len = input.length; _i < _len; _i++) {
-        number = input[_i];
-        _results.push(Number(number));
-      }
-      return _results;
     },
     getInterval: function() {
-      var bg, i, j;
-      if (Conf['Interval per board']) {
-        i = +Conf['Interval_' + g.BOARD];
-        bg = +Conf['BGInterval_' + g.BOARD];
-      } else {
-        i = +Conf['Interval'];
-        bg = +Conf['BGInterval'];
-      }
-      j = Math.min(this.unsuccessfulFetchCount, 9);
-      if (!d.hidden) {
-        if (Conf['Optional Increase']) {
-          return Math.max(i, Updater.getInput(Conf['updateIncrease'].split(','))[j]);
-        }
+      var i, j;
+      i = +Conf[Updater.name];
+      if (!Conf['Dynamic Increase']) {
         return i;
       }
-      if (Conf['Optional Increase']) {
-        return Math.max(bg, Updater.getInput(Conf['updateIncreaseB'].split(','))[j]);
-      }
-      return bg;
+      j = Math.min(this.unsuccessfulFetchCount, 9);
+      return Math.max(i, (!d.hidden ? Updater.updateIncrease : Updater.updateIncreaseB)[j]);
     },
     timeout: function() {
       var n;

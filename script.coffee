@@ -49,7 +49,7 @@ Config =
       'Embed Link':                   [true,  'Add an embed link to the menu to embed all supported formats in a post']
     Monitoring:
       'Thread Updater':               [true,  'Update threads. Has more options in its own dialog.']
-      'Optional Increase':            [false, 'Increase value of Updater over time.']
+      'Dynamic Increase':             [false, 'Increase update timings based on a threads activity']
       'Interval per board':           [false, 'Change the intervals of updates on a board-by-board basis.']
       'Unread Count':                 [true,  'Show unread post count in tab title']
       'Unread Favicon':               [true,  'Show a different favicon when there are unread posts']
@@ -2895,6 +2895,7 @@ Options =
 
 Updater =
   init: ->
+    @getInput()
     html = '<div class=move><span id=count></span> <span id=timer></span></div>'
     {checkbox} = Config.updater
     for name of checkbox
@@ -2905,10 +2906,9 @@ Updater =
     checked = if Conf['Auto Update'] then 'checked' else ''
     html += "
       <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox #{checked}></label></div>
-      <div><label>Interval (s)<input type=number name=Interval#{if Conf['Interval per board'] then "_" + g.BOARD else ''} class=field min=1></label></div>
-      <div><label>BGInterval<input type=number name=BGInterval#{if Conf['Interval per board'] then "_" + g.BOARD else ''} class=field min=1></label></div>"
-
-    html += "<div><input value='Update Now' type=button name='Update Now'></div>"
+      <div><label>Interval (s)<input type=number name=Interval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
+      <div><label>BGInterval<input type=number name=BGInterval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
+      <div><input value='Update Now' type=button name='Update Now'></div>"
 
     dialog = UI.dialog 'updater', 'bottom: 0; right: 0;', html
 
@@ -2920,6 +2920,11 @@ Updater =
     @checkPostCount = 0
     @unsuccessfulFetchCount = 0
     @lastModified = '0'
+
+    @name = if Conf['Interval per board']
+      if d.hidden then "Interval_#{g.BOARD}" else "BGInterval_#{g.BOARD}"
+    else
+      if d.hidden then 'BGInterval' else 'Interval'
 
     for input in $$ 'input', dialog
       if input.type is 'checkbox'
@@ -2934,7 +2939,7 @@ Updater =
         when 'Auto Update This'
           $.on input, 'click', @cb.autoUpdate
           @cb.autoUpdate.call input
-        when 'Interval', 'BGInterval', "Interval_" + g.BOARD, "BGInterval_" + g.BOARD
+        when 'Interval', 'BGInterval', "Interval_#{g.BOARD}", "BGInterval_#{g.BOARD}"
           input.value = Conf[input.name]
           $.on input, 'change', @cb.interval
           @cb.interval.call input
@@ -2966,18 +2971,22 @@ Updater =
       Updater.checkPostCount = 0
       delete Updater.postID
     visibility: ->
-      return if d.hidden
+      if d.hidden
+        Updater.name = if Conf['Interval per board']
+          "BGInterval_#{g.BOARD}"
+        else
+          'BGInterval'
+        return
+      Updater.name = if Conf['Interval per board']
+          "Interval_#{g.BOARD}"
+        else
+          'Interval'
       # Reset the counter when we focus this tab.
       Updater.unsuccessfulFetchCount = 0
-      if Conf['Interval per board']
-        if Updater.timer.textContent < -Conf['Interval_' + g.BOARD]
-          Updater.set 'timer', -Updater.getInterval()
-      else
-        if Updater.timer.textContent < -Conf['Interval']
-          Updater.set 'timer', -Updater.getInterval()
+      if Updater.timer.textContent < -Conf[Updater.name]
+        Updater.set 'timer', -Updater.getInterval()
     interval: ->
-      val = parseInt @value, 10
-      @value = if val > 0 then val else 30
+      @value = parseInt @value, 10
       $.cb.value.call @
       Updater.set 'timer', -Updater.getInterval()
     verbose: ->
@@ -3079,26 +3088,23 @@ Updater =
     else
       el.textContent = text
 
-  getInput: (input) ->
-    while input.length < 10
-      input.push input[input.length - 1]
-    Number number for number in input
+  getInput: ->
+    for type in ['updateIncrease', 'updateIncreaseB']
+      split = Conf[type].split ','
+      while split.length < 10
+        split.push split[split.length - 1]
+      Updater[type] =
+        for input in [0...10]
+          input = split[input]
+          parseInt input, 10
+    return
 
   getInterval: ->
-    if Conf['Interval per board']
-      i  = +Conf['Interval_' + g.BOARD]
-      bg = +Conf['BGInterval_' + g.BOARD]
-    else
-      i  = +Conf['Interval']
-      bg = +Conf['BGInterval']
-    j = Math.min @unsuccessfulFetchCount, 9
-    unless d.hidden
-      if Conf['Optional Increase']
-        return Math.max i, Updater.getInput(Conf['updateIncrease'].split ',')[j]
+    i = +Conf[Updater.name]
+    unless Conf['Dynamic Increase']
       return i
-    if Conf['Optional Increase']
-      return Math.max bg, Updater.getInput(Conf['updateIncreaseB'].split ',')[j]
-    bg
+    j = Math.min @unsuccessfulFetchCount, 9
+    Math.max i, (if !d.hidden then Updater.updateIncrease else Updater.updateIncreaseB)[j]
 
   timeout: ->
     Updater.timeoutID = setTimeout Updater.timeout, 1000
