@@ -80,7 +80,7 @@ Config =
       'OP Backlinks':                 [true,  'Add backlinks to the OP']
       'Quote Highlighting':           [true,  'Highlight the previewed post']
       'Quote Inline':                 [true,  'Show quoted post inline on quote click']
-      'QI only on index':             [false, 'Only activate Quote Inline on board index']
+      'Quote Inline on index':        [false, 'Only activate Quote Inline on board index']
       'Quote Preview':                [true,  'Show quote content on hover']
       'Resurrect Quotes':             [true,  'Linkify dead quotes to archives']
       'Indicate OP quote':            [true,  'Add \'(OP)\' to OP quotes']
@@ -3954,7 +3954,7 @@ QuoteBacklink =
       link = a.cloneNode true
       if Conf['Quote Preview']
         $.on link, 'mouseover', QuotePreview.mouseover
-      if Conf['Quote Inline'] and not (Conf['QI only on index'] and g.REPLY)
+      if Conf['Quote Inline'] and not (Conf['Quote Inline on index'] and g.REPLY)
         $.on link, 'click', QuoteInline.toggle
       unless container = $.id "blc#{qid}"
         container = $.el 'span',
