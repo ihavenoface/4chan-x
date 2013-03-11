@@ -4284,7 +4284,7 @@ Linkify =
         a = $.el 'a',
           textContent: link
           rel:         'nofollow noreferrer'
-          target:      'blank'
+          target:      '_blank'
           href:        if link.indexOf(':') < 0 then (if link.indexOf('@') > 0 then 'mailto:' + link else 'http://' + link) else link
         nodes.push a
         data = data[index + link.length..]

@@ -5206,7 +5206,7 @@
           a = $.el('a', {
             textContent: link,
             rel: 'nofollow noreferrer',
-            target: 'blank',
+            target: '_blank',
             href: link.indexOf(':') < 0 ? (link.indexOf('@') > 0 ? 'mailto:' + link : 'http://' + link) : link
           });
           nodes.push(a);
