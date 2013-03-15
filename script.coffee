@@ -4194,24 +4194,29 @@ QuoteCT =
 IDColor =
   init: ->
     return unless g.BOARD in ['b', 'q', 'soc']
+    @highlight =
+      ed: []
+    @current = $.get "highlightedID/#{g.BOARD}/", false
+    @ids = {}
     Main.callbacks.push @node
 
   node: (post) ->
-    return unless uid = post.el.getElementsByClassName('hand')[1]
+    return unless uid = $$('.hand', post.el)[1]
     str = uid.textContent
-    if uid.nodeName is 'SPAN'
+    if uid.localName is 'span'
       uid.style.cssText = IDColor.apply.call str
 
     unless IDColor.highlight[str]
       IDColor.highlight[str] = []
-    if str is $.get "highlightedID/#{g.BOARD}/"
+
+    if str is IDColor.current
       $.addClass post.el, 'highlight'
-      IDColor.highlight.current.push post
+      IDColor.highlight.ed.push post
 
     IDColor.highlight[str].push post
-    $.on uid, 'click', -> IDColor.idClick str
+    $.on uid, 'click', ->
+      IDColor.idClick str
 
-  ids: {}
   compute: (str) ->
     rgb = []
     hash = @hash str
@@ -4237,21 +4242,18 @@ IDColor =
       ++i
     msg
 
-  highlight:
-    current: []
-
   idClick: (str) ->
-    for post in @highlight.current
+    for post in @highlight.ed
       $.rmClass post.el, 'highlight'
     last = $.get value = "highlightedID/#{g.BOARD}/", false
     if str is last
-      @highlight.current = []
+      @highlight.ed = []
       return $.delete value
 
     for post in @highlight[str]
       continue if post.isInlined
       $.addClass post.el, 'highlight'
-      @highlight.current.push post
+      @highlight.ed.push post
     $.set value, str
 
 Linkify =

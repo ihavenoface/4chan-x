@@ -5079,30 +5079,34 @@
       if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
         return;
       }
+      this.highlight = {
+        ed: []
+      };
+      this.current = $.get("highlightedID/" + g.BOARD + "/", false);
+      this.ids = {};
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
       var str, uid;
-      if (!(uid = post.el.getElementsByClassName('hand')[1])) {
+      if (!(uid = $$('.hand', post.el)[1])) {
         return;
       }
       str = uid.textContent;
-      if (uid.nodeName === 'SPAN') {
+      if (uid.localName === 'span') {
         uid.style.cssText = IDColor.apply.call(str);
       }
       if (!IDColor.highlight[str]) {
         IDColor.highlight[str] = [];
       }
-      if (str === $.get("highlightedID/" + g.BOARD + "/")) {
+      if (str === IDColor.current) {
         $.addClass(post.el, 'highlight');
-        IDColor.highlight.current.push(post);
+        IDColor.highlight.ed.push(post);
       }
       IDColor.highlight[str].push(post);
       return $.on(uid, 'click', function() {
         return IDColor.idClick(str);
       });
     },
-    ids: {},
     compute: function(str) {
       var hash, rgb;
       rgb = [];
@@ -5130,19 +5134,16 @@
       }
       return msg;
     },
-    highlight: {
-      current: []
-    },
     idClick: function(str) {
       var last, post, value, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.highlight.current;
+      _ref = this.highlight.ed;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         post = _ref[_i];
         $.rmClass(post.el, 'highlight');
       }
       last = $.get(value = "highlightedID/" + g.BOARD + "/", false);
       if (str === last) {
-        this.highlight.current = [];
+        this.highlight.ed = [];
         return $["delete"](value);
       }
       _ref1 = this.highlight[str];
@@ -5152,7 +5153,7 @@
           continue;
         }
         $.addClass(post.el, 'highlight');
-        this.highlight.current.push(post);
+        this.highlight.ed.push(post);
       }
       return $.set(value, str);
     }
