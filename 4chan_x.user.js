@@ -7088,6 +7088,10 @@ a[href="javascript:;"] {\
   display: none !important;\
 }\
 \
+#globalMessage {\
+  margin-bottom: 20px\
+}\
+\
 .menu_button {\
   display: inline-block;\
 }\
