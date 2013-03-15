@@ -2,7 +2,7 @@ Config =
   main:
     Enhancing:
       'Disable 4chan\'s extension':   [true,  'Avoid conflicts between 4chan X and 4chan\'s inline extension']
-      'Unhide global Announcement':   [false, 'Open the global Announcement should it contain new content']
+      'Unhide Announcement':          [false, 'Open the global Announcement should it contain new content']
       'Catalog Links':                [true,  'Turn Navigation links into links to each board\'s catalog']
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
@@ -5695,11 +5695,7 @@ Main =
       id: 'toggleMsgBtn'
       innerHTML: "[<a href=javascript:;>Hide</a>]"
     $.before gmsg, hideButton
-
     toggle = hideButton.firstElementChild
-    if hideState.gmsg
-      if Conf['Unhide global Announcement'] and gmsg.textContent isnt hideState.gmsg
-        $.event toggle, new Event 'click'
 
     $.on toggle, 'click', ->
       if hideState.hidden
@@ -5716,6 +5712,9 @@ Main =
           delete hideState.gmsg
 
       $.set 'hidegMessage', hideState
+
+    if Conf['Unhide Announcement'] and gmsg.textContent isnt hideState.gmsg
+      $.event toggle, new Event 'click'
 
   cleanup: ->
     for ad in ['top', 'middle', 'bottom']

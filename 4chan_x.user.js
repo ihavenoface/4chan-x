@@ -88,7 +88,7 @@
     main: {
       Enhancing: {
         'Disable 4chan\'s extension': [true, 'Avoid conflicts between 4chan X and 4chan\'s inline extension'],
-        'Unhide global Announcement': [false, 'Open the global Announcement should it contain new content'],
+        'Unhide Announcement': [false, 'Open the global Announcement should it contain new content'],
         'Catalog Links': [true, 'Turn Navigation links into links to each board\'s catalog'],
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
@@ -7007,12 +7007,7 @@
       });
       $.before(gmsg, hideButton);
       toggle = hideButton.firstElementChild;
-      if (hideState.gmsg) {
-        if (Conf['Unhide global Announcement'] && gmsg.textContent !== hideState.gmsg) {
-          $.event(toggle, new Event('click'));
-        }
-      }
-      return $.on(toggle, 'click', function() {
+      $.on(toggle, 'click', function() {
         if (hideState.hidden) {
           $.addClass(gmsg, 'hidden');
           this.textContent = 'Hide';
@@ -7030,6 +7025,9 @@
         }
         return $.set('hidegMessage', hideState);
       });
+      if (Conf['Unhide Announcement'] && gmsg.textContent !== hideState.gmsg) {
+        return $.event(toggle, new Event('click'));
+      }
     },
     cleanup: function() {
       var ad, hr, _i, _len, _ref;
