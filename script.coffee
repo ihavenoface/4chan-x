@@ -5692,29 +5692,30 @@ Main =
     $.rm $.id 'toggleMsgBtn' if g.CATALOG
     hideState  = $.get 'hidegMessage', {}
     hideButton = $.el 'span',
-      id: 'toggleMsgBtn'
-      innerHTML: "[<a href=javascript:;>Hide</a>]"
+      id: 'toggleMsgButton'
+      innerHTML: "[<a href=javascript:;>#{if hideState.hidden then 'Show' else 'Hide'}</a>]"
     $.before gmsg, hideButton
     toggle = hideButton.firstElementChild
 
     $.on toggle, 'click', ->
+      gmsg.classList.toggle 'hidden'
       if hideState.hidden
-        $.addClass gmsg, 'hidden'
         @textContent = 'Hide'
         hideState.hidden = false
-        if Conf['Unhide global Announcement']
-          hideState.gmsg = gmsg.textContent
+        if Conf['Unhide Announcement']
+          delete hideState.gmsg
       else
-        $.rmClass gmsg, 'hidden'
         @textContent = 'Show'
         hideState.hidden = true
-        if Conf['Unhide global Announcement']
-          delete hideState.gmsg
+        if Conf['Unhide Announcement']
+          hideState.gmsg = gmsg.textContent
 
       $.set 'hidegMessage', hideState
 
-    if Conf['Unhide Announcement'] and gmsg.textContent isnt hideState.gmsg
-      $.event toggle, new Event 'click'
+    if hideState.hidden
+      gmsg.classList.toggle 'hidden'
+      if Conf['Unhide Announcement'] and gmsg.textContent isnt hideState.gmsg
+        $.event toggle, new Event 'click'
 
   cleanup: ->
     for ad in ['top', 'middle', 'bottom']

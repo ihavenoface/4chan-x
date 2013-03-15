@@ -7002,31 +7002,33 @@
       }
       hideState = $.get('hidegMessage', {});
       hideButton = $.el('span', {
-        id: 'toggleMsgBtn',
-        innerHTML: "[<a href=javascript:;>Hide</a>]"
+        id: 'toggleMsgButton',
+        innerHTML: "[<a href=javascript:;>" + (hideState.hidden ? 'Show' : 'Hide') + "</a>]"
       });
       $.before(gmsg, hideButton);
       toggle = hideButton.firstElementChild;
       $.on(toggle, 'click', function() {
+        gmsg.classList.toggle('hidden');
         if (hideState.hidden) {
-          $.addClass(gmsg, 'hidden');
           this.textContent = 'Hide';
           hideState.hidden = false;
-          if (Conf['Unhide global Announcement']) {
-            hideState.gmsg = gmsg.textContent;
+          if (Conf['Unhide Announcement']) {
+            delete hideState.gmsg;
           }
         } else {
-          $.rmClass(gmsg, 'hidden');
           this.textContent = 'Show';
           hideState.hidden = true;
-          if (Conf['Unhide global Announcement']) {
-            delete hideState.gmsg;
+          if (Conf['Unhide Announcement']) {
+            hideState.gmsg = gmsg.textContent;
           }
         }
         return $.set('hidegMessage', hideState);
       });
-      if (Conf['Unhide Announcement'] && gmsg.textContent !== hideState.gmsg) {
-        return $.event(toggle, new Event('click'));
+      if (hideState.hidden) {
+        gmsg.classList.toggle('hidden');
+        if (Conf['Unhide Announcement'] && gmsg.textContent !== hideState.gmsg) {
+          return $.event(toggle, new Event('click'));
+        }
       }
     },
     cleanup: function() {
