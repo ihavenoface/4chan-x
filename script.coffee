@@ -2,6 +2,7 @@ Config =
   main:
     Enhancing:
       'Disable 4chan\'s extension':   [true,  'Avoid conflicts between 4chan X and 4chan\'s inline extension']
+      'Unhide global Announcement':   [false, 'Open the global Announcement should it contain new content']
       'Catalog Links':                [true,  'Turn Navigation links into links to each board\'s catalog']
       '404 Redirect':                 [true,  'Redirect dead threads and images']
       'Keybinds':                     [true,  'Binds actions to keys']
@@ -5383,7 +5384,7 @@ Main =
       ThreadHiding.init()
 
     setTimeout ->
-      Main.hidegMessage.create()
+      Main.hidegMessage()
       Main.cleanup()
 
   features: ->
@@ -5535,7 +5536,7 @@ Main =
           'left=0,top=0,width=500,height=255,toolbar=0,resizable=0'
       $.before styleSelector.previousSibling, [$.tn '['; passLink, $.tn ']\u00A0\u00A0']
 
-    Main.hidegMessage.create()
+    Main.hidegMessage()
     Main.cleanup()
 
     Favicon.init()
@@ -5686,45 +5687,34 @@ Main =
       return
     $.globalEval "(#{code})()".replace '_id_', bq.id
 
-  hidegMessage:
-    create: ->
-      return unless gmsg = $.id 'globalMessage'
-      $.rm $.id 'toggleMsgBtn' if g.CATALOG
-      hideState = $.get 'hidegMessage', hidden: false
-      hideBtn   = $.el 'div',
-        id:        'hideBtn'
-        innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " +
-                   "<span>[<a href=javascript:; id=dgMessage>Dismiss</a>]</span>"
-      $.on (first = hideBtn.firstElementChild), 'click', ->
-        Main.hidegMessage.toggle.call {el: first, gmsg, hideState}
-      $.on (last  = hideBtn.lastElementChild.firstElementChild),  'click', ->
-        Main.hidegMessage.toggle.call {el: last,  gmsg, hideState}
-      $.before gmsg, hideBtn
-      if hideState.hidden and not hideState.gmsg and hideState.gmsg isnt gmsg.textContent
-        @toggle.call {el: first, gmsg, hideState}
-      if hideState.gmsg and hideState.gmsg is gmsg.textContent
-        @toggle.call {el: first, gmsg, hideState} if hideState.hidden
-        @toggle.call {el: last,  gmsg, hideState}
+  hidegMessage: ->
+    return unless gmsg = $.id 'globalMessage'
+    $.rm $.id 'toggleMsgBtn' if g.CATALOG
+    hideState  = $.get 'hidegMessage', {}
+    hideButton = $.el 'span',
+      id: 'toggleMsgBtn'
+      innerHTML: "[<a href=javascript:;>Hide</a>]"
+    $.before gmsg, hideButton
 
-    toggle: ->
-      {el, gmsg, hideState} = @
-      switch el.id
-        when 'hgMessage'
-          for i in [gmsg, el.nextElementSibling]
-            i.classList.toggle 'hidden'
-          if el.textContent is 'Hide'
-            hideState.hidden = true
-            el.textContent   = 'Show'
-          else
-            hideState.hidden = false
-            el.textContent   = 'Hide'
-        when 'dgMessage'
-          if el.textContent is 'Dismiss'
-            hideState.gmsg = gmsg.textContent
-            el.textContent = 'Detain'
-          else
-            delete hideState.gmsg
-            el.textContent = 'Dismiss'
+    toggle = hideButton.firstElementChild
+    if hideState.gmsg
+      if Conf['Unhide global Announcement'] and gmsg.textContent isnt hideState.gmsg
+        $.event toggle, new Event 'click'
+
+    $.on toggle, 'click', ->
+      if hideState.hidden
+        $.addClass gmsg, 'hidden'
+        @textContent = 'Hide'
+        hideState.hidden = false
+        if Conf['Unhide global Announcement']
+          hideState.gmsg = gmsg.textContent
+      else
+        $.rmClass gmsg, 'hidden'
+        @textContent = 'Show'
+        hideState.hidden = true
+        if Conf['Unhide global Announcement']
+          delete hideState.gmsg
+
       $.set 'hidegMessage', hideState
 
   cleanup: ->

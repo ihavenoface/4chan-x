@@ -88,6 +88,7 @@
     main: {
       Enhancing: {
         'Disable 4chan\'s extension': [true, 'Avoid conflicts between 4chan X and 4chan\'s inline extension'],
+        'Unhide global Announcement': [false, 'Open the global Announcement should it contain new content'],
         'Catalog Links': [true, 'Turn Navigation links into links to each board\'s catalog'],
         '404 Redirect': [true, 'Redirect dead threads and images'],
         'Keybinds': [true, 'Binds actions to keys'],
@@ -6626,7 +6627,7 @@
         ThreadHiding.init();
       }
       return setTimeout(function() {
-        Main.hidegMessage.create();
+        Main.hidegMessage();
         return Main.cleanup();
       });
     },
@@ -6788,7 +6789,7 @@
         });
         $.before(styleSelector.previousSibling, [$.tn('['), passLink, $.tn(']\u00A0\u00A0')]);
       }
-      Main.hidegMessage.create();
+      Main.hidegMessage();
       Main.cleanup();
       Favicon.init();
       if (Conf['Quick Reply']) {
@@ -6991,88 +6992,44 @@
       };
       return $.globalEval(("(" + code + ")()").replace('_id_', bq.id));
     },
-    hidegMessage: {
-      create: function() {
-        var first, gmsg, hideBtn, hideState, last;
-        if (!(gmsg = $.id('globalMessage'))) {
-          return;
+    hidegMessage: function() {
+      var gmsg, hideButton, hideState, toggle;
+      if (!(gmsg = $.id('globalMessage'))) {
+        return;
+      }
+      if (g.CATALOG) {
+        $.rm($.id('toggleMsgBtn'));
+      }
+      hideState = $.get('hidegMessage', {});
+      hideButton = $.el('span', {
+        id: 'toggleMsgBtn',
+        innerHTML: "[<a href=javascript:;>Hide</a>]"
+      });
+      $.before(gmsg, hideButton);
+      toggle = hideButton.firstElementChild;
+      if (hideState.gmsg) {
+        if (Conf['Unhide global Announcement'] && gmsg.textContent !== hideState.gmsg) {
+          $.event(toggle, new Event('click'));
         }
-        if (g.CATALOG) {
-          $.rm($.id('toggleMsgBtn'));
-        }
-        hideState = $.get('hidegMessage', {
-          hidden: false
-        });
-        hideBtn = $.el('div', {
-          id: 'hideBtn',
-          innerHTML: "[<a href=javascript:; id=hgMessage>Hide</a>] " + "<span>[<a href=javascript:; id=dgMessage>Dismiss</a>]</span>"
-        });
-        $.on((first = hideBtn.firstElementChild), 'click', function() {
-          return Main.hidegMessage.toggle.call({
-            el: first,
-            gmsg: gmsg,
-            hideState: hideState
-          });
-        });
-        $.on((last = hideBtn.lastElementChild.firstElementChild), 'click', function() {
-          return Main.hidegMessage.toggle.call({
-            el: last,
-            gmsg: gmsg,
-            hideState: hideState
-          });
-        });
-        $.before(gmsg, hideBtn);
-        if (hideState.hidden && !hideState.gmsg && hideState.gmsg !== gmsg.textContent) {
-          this.toggle.call({
-            el: first,
-            gmsg: gmsg,
-            hideState: hideState
-          });
-        }
-        if (hideState.gmsg && hideState.gmsg === gmsg.textContent) {
-          if (hideState.hidden) {
-            this.toggle.call({
-              el: first,
-              gmsg: gmsg,
-              hideState: hideState
-            });
+      }
+      return $.on(toggle, 'click', function() {
+        if (hideState.hidden) {
+          $.addClass(gmsg, 'hidden');
+          this.textContent = 'Hide';
+          hideState.hidden = false;
+          if (Conf['Unhide global Announcement']) {
+            hideState.gmsg = gmsg.textContent;
           }
-          return this.toggle.call({
-            el: last,
-            gmsg: gmsg,
-            hideState: hideState
-          });
-        }
-      },
-      toggle: function() {
-        var el, gmsg, hideState, i, _i, _len, _ref;
-        el = this.el, gmsg = this.gmsg, hideState = this.hideState;
-        switch (el.id) {
-          case 'hgMessage':
-            _ref = [gmsg, el.nextElementSibling];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              i = _ref[_i];
-              i.classList.toggle('hidden');
-            }
-            if (el.textContent === 'Hide') {
-              hideState.hidden = true;
-              el.textContent = 'Show';
-            } else {
-              hideState.hidden = false;
-              el.textContent = 'Hide';
-            }
-            break;
-          case 'dgMessage':
-            if (el.textContent === 'Dismiss') {
-              hideState.gmsg = gmsg.textContent;
-              el.textContent = 'Detain';
-            } else {
-              delete hideState.gmsg;
-              el.textContent = 'Dismiss';
-            }
+        } else {
+          $.rmClass(gmsg, 'hidden');
+          this.textContent = 'Show';
+          hideState.hidden = true;
+          if (Conf['Unhide global Announcement']) {
+            delete hideState.gmsg;
+          }
         }
         return $.set('hidegMessage', hideState);
-      }
+      });
     },
     cleanup: function() {
       var ad, hr, _i, _len, _ref;
