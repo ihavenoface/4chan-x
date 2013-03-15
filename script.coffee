@@ -339,7 +339,7 @@ $.extend $,
     r.send form
     r
   crossAjax: (url, callbacks, opts={}) ->
-    if typeof GM_xmlhttpRequest != 'undefined'
+    if GM_xmlhttpRequest?
       gmopts =
         url:     url
         data:    opts.form

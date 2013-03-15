@@ -413,7 +413,7 @@
       if (opts == null) {
         opts = {};
       }
-      if (typeof GM_xmlhttpRequest !== 'undefined') {
+      if (typeof GM_xmlhttpRequest !== "undefined" && GM_xmlhttpRequest !== null) {
         gmopts = {
           url: url,
           data: opts.form,
