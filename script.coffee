@@ -3968,7 +3968,7 @@ QuoteInline =
   init: ->
     Main.callbacks.push @node
   node: (post) ->
-    return if Conf['QI only on index'] and g.REPLY
+    return if Conf['Quote Inline on index'] and g.REPLY
     for quote in post.quotes
       continue unless quote.hash and quote.hostname is 'boards.4chan.org' and !/catalog$/.test(quote.pathname) or /\bdeadlink\b/.test quote.className
       $.on quote, 'click', QuoteInline.toggle

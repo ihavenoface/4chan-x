@@ -4757,7 +4757,7 @@
     },
     node: function(post) {
       var quote, _i, _j, _len, _len1, _ref, _ref1;
-      if (Conf['QI only on index'] && g.REPLY) {
+      if (Conf['Quote Inline on index'] && g.REPLY) {
         return;
       }
       _ref = post.quotes;
