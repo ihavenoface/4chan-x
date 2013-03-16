@@ -157,7 +157,7 @@
         'Quick Reply': [true, 'Reply without leaving the page'],
         'Focus on Alert': [true, 'Switch to tab if an error occurs'],
         'Cooldown': [true, 'Prevent "flood detected" errors'],
-        'Validate CAPTCHA': [true, 'Validate cached CAPTCHAs'],
+        'Validate CAPTCHA': [false, 'Validate cached CAPTCHAs'],
         'Persistent QR': [false, 'The Quick reply won\'t disappear after posting'],
         'Auto Hide QR': [false, 'Automatically hide the quick reply when posting'],
         'Open Reply in New Tab': [false, 'Open replies in a new tab that are made from the main board'],
