@@ -5156,6 +5156,7 @@
         $.addClass(post.el, 'highlight');
         this.highlight.ed.push(post);
       }
+      IDColor.current = str;
       return $.set(value, str);
     }
   };
@@ -6093,11 +6094,15 @@
       return names;
     },
     to: function(data) {
-      var aboard, board;
+      var aboard, board, url;
       if (aboard = this.archiver[this.archive[board = data.board] || (this.archive[board] = $.get("archiver/" + board + "/", this.select(board)[0]))]) {
         return this.path(aboard.base, aboard.type, data);
       } else if (!data.isSearch && data.threadID) {
-        return "//boards.4chan.org/" + board + "/";
+        url = "//boards.4chan.org/" + board + "/";
+        if ($.get('CatalogIsToggled', false)) {
+          url += 'catalog/';
+        }
+        return url;
       } else {
         return null;
       }

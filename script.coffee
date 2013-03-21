@@ -4255,6 +4255,7 @@ IDColor =
       continue if post.isInlined
       $.addClass post.el, 'highlight'
       @highlight.ed.push post
+    IDColor.current = str
     $.set value, str
 
 Linkify =
@@ -4993,7 +4994,10 @@ Redirect =
     if aboard = @archiver[@archive[board = data.board] or @archive[board] = $.get "archiver/#{board}/", @select(board)[0]]
       @path aboard.base, aboard.type, data
     else if not data.isSearch and data.threadID
-      "//boards.4chan.org/#{board}/"
+      url = "//boards.4chan.org/#{board}/"
+      if $.get 'CatalogIsToggled', false
+        url += 'catalog/'
+      url
     else
       null
 
