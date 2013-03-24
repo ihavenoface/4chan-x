@@ -6323,7 +6323,7 @@
       } else if (!data.isSearch && data.threadID) {
         url = "//boards.4chan.org/" + board + "/";
         if ($.get('CatalogIsToggled', false)) {
-          url += 'catalog/';
+          url += 'catalog';
         }
         return url;
       } else {

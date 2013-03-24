@@ -4996,7 +4996,7 @@ Redirect =
     else if not data.isSearch and data.threadID
       url = "//boards.4chan.org/#{board}/"
       if $.get 'CatalogIsToggled', false
-        url += 'catalog/'
+        url += 'catalog'
       url
     else
       null
