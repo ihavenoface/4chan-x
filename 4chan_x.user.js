@@ -495,21 +495,12 @@
       }
     },
     addStyle: function(css) {
-      var f, style;
+      var style;
 
       style = $.el('style', {
         textContent: css
       });
-      f = function() {
-        var root;
-
-        if (root = d.head || d.documentElement) {
-          return $.add(root, style);
-        } else {
-          return setTimeout(f, 20);
-        }
-      };
-      f();
+      $.add(d.head || d.documentElement, style);
       return style;
     },
     x: function(path, root) {
