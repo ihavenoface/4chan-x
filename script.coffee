@@ -3004,7 +3004,6 @@ Updater =
     load: ->
       switch @status
         when 404
-          $.event d, new CustomEvent 'theThreadisDead'
           Updater.set 'timer', ''
           Updater.set 'count', 404
           Updater.count.className = 'warning'
@@ -4127,24 +4126,21 @@ QuotePreview =
 QuoteYou =
   init: ->
     $.on d, 'QRPostSuccessful', @post
-    $.on d, 'theThreadisDead',  @prune
-
-    @posts = $.get 'yourPosts', {}
+    @str = 'yourPosts'
+    @posts = @storage false, g.THREAD_ID
     Main.callbacks.push @node
 
   post: (e) ->
     {postID, threadID} = e.detail
     return if threadID is '0'
-    unless posts = QuoteYou.posts[threadID]
-      posts = []
+    posts = QuoteYou.storage false, threadID
     posts.push postID
-    QuoteYou.posts[threadID] = posts
-    $.set 'yourPosts', QuoteYou.posts
+    QuoteYou.posts = posts
+    QuoteYou.storage posts, threadID
 
   node: (post) ->
     {posts} = QuoteYou
-    posts   = posts[post.threadID]
-    return if not posts or post.isInlined and not post.isCrosspost
+    return if post.isInlined and not post.isCrosspost
     if post.ID in posts
       $.addClass post.el, 'yourPost'
     for quote in post.quotes
@@ -4152,10 +4148,19 @@ QuoteYou =
         $.add quote, $.tn '\u00A0(You)'
     return
 
-  prune: ->
-    return unless (posts = QuoteYou.posts)[g.THREAD_ID]
-    delete posts[g.THREAD_ID]
-    $.set 'yourPosts', posts
+  storage: (set, threadID) ->
+    # Saving by board,
+    # hopefully this will improve with v3.
+    data = $.get @str, {}
+    unless set
+      return if data[g.BOARD]?[threadID]
+        data[g.BOARD][threadID]
+      else
+        []
+    unless data[g.BOARD]
+      data[g.BOARD] = {}
+    data[g.BOARD][threadID] = set
+    $.set @str, data
 
 QuoteOP =
   init: ->

@@ -3816,7 +3816,6 @@
       load: function() {
         switch (this.status) {
           case 404:
-            $.event(d, new CustomEvent('theThreadisDead'));
             Updater.set('timer', '');
             Updater.set('count', 404);
             Updater.count.className = 'warning';
@@ -5157,8 +5156,8 @@
   QuoteYou = {
     init: function() {
       $.on(d, 'QRPostSuccessful', this.post);
-      $.on(d, 'theThreadisDead', this.prune);
-      this.posts = $.get('yourPosts', {});
+      this.str = 'yourPosts';
+      this.posts = this.storage(false, g.THREAD_ID);
       return Main.callbacks.push(this.node);
     },
     post: function(e) {
@@ -5168,19 +5167,16 @@
       if (threadID === '0') {
         return;
       }
-      if (!(posts = QuoteYou.posts[threadID])) {
-        posts = [];
-      }
+      posts = QuoteYou.storage(false, threadID);
       posts.push(postID);
-      QuoteYou.posts[threadID] = posts;
-      return $.set('yourPosts', QuoteYou.posts);
+      QuoteYou.posts = posts;
+      return QuoteYou.storage(posts, threadID);
     },
     node: function(post) {
       var posts, quote, _i, _len, _ref, _ref1, _ref2;
 
       posts = QuoteYou.posts;
-      posts = posts[post.threadID];
-      if (!posts || post.isInlined && !post.isCrosspost) {
+      if (post.isInlined && !post.isCrosspost) {
         return;
       }
       if (_ref = post.ID, __indexOf.call(posts, _ref) >= 0) {
@@ -5194,14 +5190,22 @@
         }
       }
     },
-    prune: function() {
-      var posts;
+    storage: function(set, threadID) {
+      var data, _ref;
 
-      if (!(posts = QuoteYou.posts)[g.THREAD_ID]) {
-        return;
+      data = $.get(this.str, {});
+      if (!set) {
+        if ((_ref = data[g.BOARD]) != null ? _ref[threadID] : void 0) {
+          return data[g.BOARD][threadID];
+        } else {
+          return [];
+        }
       }
-      delete posts[g.THREAD_ID];
-      return $.set('yourPosts', posts);
+      if (!data[g.BOARD]) {
+        data[g.BOARD] = {};
+      }
+      data[g.BOARD][threadID] = set;
+      return $.set(this.str, data);
     }
   };
 
