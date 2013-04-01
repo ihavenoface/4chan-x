@@ -4921,6 +4921,8 @@ Redirect =
         "//archive.foolz.us/#{board}/full_image/#{filename}"
       when 'u'
         "//nsfw.foolz.us/#{board}/full_image/#{filename}"
+      when 'po'
+        "//archive.thedarkcave.org/#{board}/full_image/#{filename}"
       when 'ck', 'lit'
         "//fuuka.warosu.org/#{board}/full_image/#{filename}"
       when 'cgl', 'g', 'mu', 'w'
@@ -4934,10 +4936,12 @@ Redirect =
 
   post: (board, postID) ->
     switch board
-      when 'a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr','wsg', 'dev', 'foolz'
+      when 'a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg', 'dev', 'foolz'
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
+      when 'c', 'int', 'out', 'po'
+        "//archive.thedarkcave.org/_/api/chan/post/?board=#{board}&num=#{postID}"
 
   archive:    {}
 
@@ -4952,7 +4956,7 @@ Redirect =
       type:    'foolfuuka'
     'TheDarkCave':
       base:    'http://archive.thedarkcave.org'
-      boards:  ['c', 'int','po']
+      boards:  ['c', 'int', 'out', 'po']
       type:    'foolfuuka'
     'Warosu':
       base:    '//fuuka.warosu.org'
