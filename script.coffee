@@ -4917,7 +4917,7 @@ Redirect =
   image: (board, filename) ->
     # Do not use g.BOARD, the image url can originate from a cross-quote.
     switch board
-      when 'a', 'jp', 'm', 'q', 'sp', 'tg', 'vg', 'wsg'
+      when 'a', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'vg', 'vp', 'vr', 'wsg'
         "//archive.foolz.us/#{board}/full_image/#{filename}"
       when 'u'
         "//nsfw.foolz.us/#{board}/full_image/#{filename}"
@@ -4934,7 +4934,7 @@ Redirect =
 
   post: (board, postID) ->
     switch board
-      when 'a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'
+      when 'a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr','wsg', 'dev', 'foolz'
         "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'u', 'kuku'
         "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
@@ -4944,7 +4944,7 @@ Redirect =
   archiver:
     'Foolz':
       base:    '//archive.foolz.us'
-      boards:  ['a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz']
+      boards:  ['a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr','wsg', 'dev', 'foolz']
       type:    'foolfuuka'
     'NSFWFoolz':
       base:    '//nsfw.foolz.us'

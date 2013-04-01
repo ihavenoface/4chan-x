@@ -6198,12 +6198,16 @@
     image: function(board, filename) {
       switch (board) {
         case 'a':
+        case 'gd':
         case 'jp':
         case 'm':
+        case 'mlp':
         case 'q':
         case 'sp':
         case 'tg':
         case 'vg':
+        case 'vp':
+        case 'vr':
         case 'wsg':
           return "//archive.foolz.us/" + board + "/full_image/" + filename;
         case 'u':
@@ -6231,14 +6235,18 @@
       switch (board) {
         case 'a':
         case 'co':
+        case 'gd':
         case 'jp':
         case 'm':
+        case 'mlp':
         case 'q':
         case 'sp':
         case 'tg':
         case 'tv':
         case 'v':
         case 'vg':
+        case 'vp':
+        case 'vr':
         case 'wsg':
         case 'dev':
         case 'foolz':
@@ -6252,7 +6260,7 @@
     archiver: {
       'Foolz': {
         base: '//archive.foolz.us',
-        boards: ['a', 'co', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'wsg', 'dev', 'foolz'],
+        boards: ['a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg', 'dev', 'foolz'],
         type: 'foolfuuka'
       },
       'NSFWFoolz': {
