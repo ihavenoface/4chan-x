@@ -5731,7 +5731,7 @@ Main =
     return
 
   namespace: '4chan_x.'
-  version: '2.38.7'
+  version: '2.38.8'
   callbacks: []
   css: '
 /* dialog styling */
