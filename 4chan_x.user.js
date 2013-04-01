@@ -3662,7 +3662,7 @@
         var data, err;
 
         try {
-          data = JSON.parse(decodeURIComponent(escape(e.target.result)));
+          data = JSON.parse(e.target.result);
           Options.loadSettings(data);
           if (confirm('Import successful. Refresh now?')) {
             return window.location.reload();
