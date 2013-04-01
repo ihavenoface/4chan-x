@@ -5255,11 +5255,6 @@
 
   IDColor = {
     init: function() {
-      var _ref;
-
-      if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
-        return;
-      }
       this.highlight = {
         ed: []
       };
@@ -5268,7 +5263,7 @@
       return Main.callbacks.push(this.node);
     },
     node: function(post) {
-      var str, uid;
+      var str, uid, _ref;
 
       if (!(uid = $$('.hand', post.el)[1])) {
         return;
@@ -5276,6 +5271,9 @@
       str = uid.textContent;
       if (uid.localName === 'span') {
         uid.style.cssText = IDColor.apply.call(str);
+      }
+      if ((_ref = g.BOARD) !== 'b' && _ref !== 'q' && _ref !== 'soc') {
+        return;
       }
       if (!IDColor.highlight[str]) {
         IDColor.highlight[str] = [];

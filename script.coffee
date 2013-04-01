@@ -4191,7 +4191,6 @@ QuoteCT =
 
 IDColor =
   init: ->
-    return unless g.BOARD in ['b', 'q', 'soc']
     @highlight =
       ed: []
     @current = $.get "highlightedID/#{g.BOARD}/", false
@@ -4203,6 +4202,7 @@ IDColor =
     str = uid.textContent
     if uid.localName is 'span'
       uid.style.cssText = IDColor.apply.call str
+    return unless g.BOARD in ['b', 'q', 'soc']
 
     unless IDColor.highlight[str]
       IDColor.highlight[str] = []
