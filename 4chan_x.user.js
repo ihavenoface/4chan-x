@@ -6324,16 +6324,12 @@
       return names;
     },
     to: function(data) {
-      var aboard, board, url;
+      var aboard, board;
 
       if (aboard = this.archiver[this.archive[board = data.board] || (this.archive[board] = $.get("archiver/" + board + "/", this.select(board)[0]))]) {
         return this.path(aboard.base, aboard.type, data);
       } else if (!data.isSearch && data.threadID) {
-        url = "//boards.4chan.org/" + board + "/";
-        if ($.get('CatalogIsToggled', false)) {
-          url += 'catalog';
-        }
-        return url;
+        return "//boards.4chan.org/" + board + "/";
       } else {
         return null;
       }
@@ -7016,15 +7012,19 @@
       return $.ready(Main.featuresReady);
     },
     featuresReady: function() {
-      var MutationObserver, a, board, nav, node, nodes, observer, passLink, styleSelector, _i, _j, _len, _len1, _ref, _ref1;
+      var MutationObserver, a, board, href, nav, node, nodes, observer, passLink, styleSelector, _i, _j, _len, _len1, _ref, _ref1;
 
       if (/^4chan - 404/.test(d.title)) {
         if (Conf['404 Redirect'] && /^\d+$/.test(g.THREAD_ID)) {
-          location.href = Redirect.to({
+          href = Redirect.to({
             board: g.BOARD,
             threadID: g.THREAD_ID,
             postID: location.hash
           });
+          if ($.get('CatalogIsToggled', false)) {
+            href += 'catalog';
+          }
+          location.href = href;
         }
         return;
       }

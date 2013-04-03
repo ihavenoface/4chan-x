@@ -4995,10 +4995,7 @@ Redirect =
     if aboard = @archiver[@archive[board = data.board] or @archive[board] = $.get "archiver/#{board}/", @select(board)[0]]
       @path aboard.base, aboard.type, data
     else if not data.isSearch and data.threadID
-      url = "//boards.4chan.org/#{board}/"
-      if $.get 'CatalogIsToggled', false
-        url += 'catalog'
-      url
+      "//boards.4chan.org/#{board}/"
     else
       null
 
@@ -5516,11 +5513,13 @@ Main =
   featuresReady: ->
     if /^4chan - 404/.test d.title
       if Conf['404 Redirect'] and /^\d+$/.test g.THREAD_ID
-        location.href =
-          Redirect.to
-            board:    g.BOARD
-            threadID: g.THREAD_ID
-            postID:   location.hash
+        href = Redirect.to
+          board:    g.BOARD
+          threadID: g.THREAD_ID
+          postID:   location.hash
+        if $.get 'CatalogIsToggled', false
+          href += 'catalog'
+        location.href = href
       return
     unless $.id 'navtopright'
       return
