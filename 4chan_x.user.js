@@ -5199,12 +5199,14 @@
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         quote = _ref1[_i];
         if (_ref2 = quote.hash.slice(2), __indexOf.call(posts, _ref2) >= 0) {
+          if (!com) {
+            com = post.blockquote.textContent;
+            post.quoted = true;
+          }
           $.add(quote, $.tn('\u00A0(You)'));
-          post.quoted = true;
         }
       }
-      if (d.hidden && post.quoted && Conf['Notify']) {
-        com = post.blockquote.textContent;
+      if (post.quoted && Conf['Notify']) {
         new Notification(d.title.slice(0, 41), {
           body: $.engine === 'webkit' ? com : com.slice(0, 41)
         });

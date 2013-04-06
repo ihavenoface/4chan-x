@@ -4151,10 +4151,11 @@ QuoteYou =
       $.addClass post.el, 'yourPost'
     for quote in post.quotes
       if quote.hash[2..] in posts
+        unless com
+          com = post.blockquote.textContent
+          post.quoted = true
         $.add quote, $.tn '\u00A0(You)'
-        post.quoted = true
-    if d.hidden and post.quoted and Conf['Notify']
-      com = post.blockquote.textContent
+    if post.quoted and Conf['Notify']
       new Notification d.title[..40],
         body: if $.engine is 'webkit' then com else com[..40]
     return
