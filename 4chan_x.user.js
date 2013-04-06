@@ -238,6 +238,7 @@
     updater: {
       checkbox: {
         'Beep': [false, 'Beep on new post to completely read thread'],
+        'Notify': [false, 'Display a Desktop Notification when someone mentiones your post. Works in Chrome and Nightly.'],
         'Scrolling': [false, 'Scroll updated posts into view. Only enabled at bottom of page.'],
         'Scroll BG': [false, 'Scroll background tabs'],
         'Verbose': [true, 'Show countdown timer, new post count'],
@@ -3699,7 +3700,7 @@
         html += "<div><label title='" + title + "'>" + name + "<input name='" + name + "' type=checkbox " + checked + "></label></div>";
       }
       checked = Conf['Auto Update'] ? 'checked' : '';
-      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><input value='Update Now' type=button name='Update Now'></div>";
+      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><input value='Update Now' type=button name='Update Now'></div>      " + ((Notification.permission === 'default') || window.webkitNotifications.checkPermission() ? "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" : '');
       dialog = UI.dialog('updater', 'bottom: 0; right: 0;', html);
       this.count = $('#count', dialog);
       this.timer = $('#timer', dialog);
@@ -3738,6 +3739,18 @@
             break;
           case 'Update Now':
             $.on(input, 'click', this.update);
+            break;
+          case 'Grant Notification':
+            $.on(input, 'click', function() {
+              var el;
+
+              el = this;
+              return Notification.requestPermission(function(p) {
+                if (p === 'granted') {
+                  return $.rm(el);
+                }
+              });
+            });
         }
       }
       $.add(d.body, dialog);
@@ -5173,7 +5186,7 @@
       return QuoteYou.storage(posts, threadID);
     },
     node: function(post) {
-      var posts, quote, _i, _len, _ref, _ref1, _ref2;
+      var com, posts, quote, _i, _len, _ref, _ref1, _ref2;
 
       posts = QuoteYou.posts;
       if (post.isInlined && !post.isCrosspost) {
@@ -5187,7 +5200,14 @@
         quote = _ref1[_i];
         if (_ref2 = quote.hash.slice(2), __indexOf.call(posts, _ref2) >= 0) {
           $.add(quote, $.tn('\u00A0(You)'));
+          post.quoted = true;
         }
+      }
+      if (d.hidden && post.quoted && Conf['Notify']) {
+        com = post.blockquote.textContent;
+        new Notification(d.title.slice(0, 41), {
+          body: $.engine === 'webkit' ? com : com.slice(0, 41)
+        });
       }
     },
     storage: function(set, threadID) {

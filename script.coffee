@@ -198,11 +198,12 @@ http://www.google.com/searchbyimage?image_url=$1
   updater:
     checkbox:
       'Beep':        [false, 'Beep on new post to completely read thread']
+      'Notify':      [false, 'Display a Desktop Notification when someone mentiones your post. Works in Chrome and Nightly.']
       'Scrolling':   [false, 'Scroll updated posts into view. Only enabled at bottom of page.']
       'Scroll BG':   [false, 'Scroll background tabs']
       'Verbose':     [true,  'Show countdown timer, new post count']
       'Auto Update': [true,  'Automatically fetch new posts']
-    'Interval': 30
+    'Interval':   30
     'BGInterval': 60
   embedWidth:  640
   embedHeight: 390
@@ -2901,7 +2902,8 @@ Updater =
       <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox #{checked}></label></div>
       <div><label>Interval (s)<input type=number name=Interval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
       <div><label>BGInterval<input type=number name=BGInterval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
-      <div><input value='Update Now' type=button name='Update Now'></div>"
+      <div><input value='Update Now' type=button name='Update Now'></div>
+      #{if (Notification.permission is 'default') or window.webkitNotifications.checkPermission() then "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" else ''}"
 
     dialog = UI.dialog 'updater', 'bottom: 0; right: 0;', html
 
@@ -2938,6 +2940,10 @@ Updater =
           @cb.interval.call input
         when 'Update Now'
           $.on input, 'click', @update
+        when 'Grant Notification'
+          $.on input, 'click', ->
+            el = @
+            Notification.requestPermission (p) -> $.rm el if p is 'granted'
 
     $.add d.body, dialog
 
@@ -2950,7 +2956,7 @@ Updater =
   http://freesound.org/people/pierrecartoons1979/sounds/90112/
   cc-by-nc-3.0
   ###
-  audio: $.el('audio', src: 'data:audio/wav;base64,UklGRjQDAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAc21wbDwAAABBAAADAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkYXRhzAIAAGMms8em0tleMV4zIpLVo8nhfSlcPR102Ki+5JspVEkdVtKzs+K1NEhUIT7DwKrcy0g6WygsrM2k1NpiLl0zIY/WpMrjgCdbPhxw2Kq+5Z4qUkkdU9K1s+K5NkVTITzBwqnczko3WikrqM+l1NxlLF0zIIvXpsnjgydZPhxs2ay95aIrUEkdUdC3suK8N0NUIjq+xKrcz002WioppdGm091pK1w0IIjYp8jkhydXPxxq2K295aUrTkoeTs65suK+OUFUIzi7xqrb0VA0WSoootKm0t5tKlo1H4TYqMfkiydWQBxm16+85actTEseS8y7seHAPD9TIza5yKra01QyWSson9On0d5wKVk2H4DYqcfkjidUQB1j1rG75KsvSkseScu8seDCPz1TJDW2yara1FYxWSwnm9Sn0N9zKVg2H33ZqsXkkihSQR1g1bK65K0wSEsfR8i+seDEQTxUJTOzy6rY1VowWC0mmNWoz993KVc3H3rYq8TklSlRQh1d1LS647AyR0wgRMbAsN/GRDpTJTKwzKrX1l4vVy4lldWpzt97KVY4IXbUr8LZljVPRCxhw7W3z6ZISkw1VK+4sMWvXEhSPk6buay9sm5JVkZNiLWqtrJ+TldNTnquqbCwilZXU1BwpKirrpNgWFhTaZmnpquZbFlbVmWOpaOonHZcXlljhaGhpZ1+YWBdYn2cn6GdhmdhYGN3lp2enIttY2Jjco+bnJuOdGZlZXCImJqakHpoZ2Zug5WYmZJ/bGlobX6RlpeSg3BqaW16jZSVkoZ0bGtteImSk5KIeG5tbnaFkJKRinxxbm91gY2QkIt/c3BwdH6Kj4+LgnZxcXR8iI2OjIR5c3J0e4WLjYuFe3VzdHmCioyLhn52dHR5gIiKioeAeHV1eH+GiYqHgXp2dnh9hIiJh4J8eHd4fIKHiIeDfXl4eHyBhoeHhH96eHmA')
+  audio: $.el 'audio', src: 'data:audio/wav;base64,UklGRjQDAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAc21wbDwAAABBAAADAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkYXRhzAIAAGMms8em0tleMV4zIpLVo8nhfSlcPR102Ki+5JspVEkdVtKzs+K1NEhUIT7DwKrcy0g6WygsrM2k1NpiLl0zIY/WpMrjgCdbPhxw2Kq+5Z4qUkkdU9K1s+K5NkVTITzBwqnczko3WikrqM+l1NxlLF0zIIvXpsnjgydZPhxs2ay95aIrUEkdUdC3suK8N0NUIjq+xKrcz002WioppdGm091pK1w0IIjYp8jkhydXPxxq2K295aUrTkoeTs65suK+OUFUIzi7xqrb0VA0WSoootKm0t5tKlo1H4TYqMfkiydWQBxm16+85actTEseS8y7seHAPD9TIza5yKra01QyWSson9On0d5wKVk2H4DYqcfkjidUQB1j1rG75KsvSkseScu8seDCPz1TJDW2yara1FYxWSwnm9Sn0N9zKVg2H33ZqsXkkihSQR1g1bK65K0wSEsfR8i+seDEQTxUJTOzy6rY1VowWC0mmNWoz993KVc3H3rYq8TklSlRQh1d1LS647AyR0wgRMbAsN/GRDpTJTKwzKrX1l4vVy4lldWpzt97KVY4IXbUr8LZljVPRCxhw7W3z6ZISkw1VK+4sMWvXEhSPk6buay9sm5JVkZNiLWqtrJ+TldNTnquqbCwilZXU1BwpKirrpNgWFhTaZmnpquZbFlbVmWOpaOonHZcXlljhaGhpZ1+YWBdYn2cn6GdhmdhYGN3lp2enIttY2Jjco+bnJuOdGZlZXCImJqakHpoZ2Zug5WYmZJ/bGlobX6RlpeSg3BqaW16jZSVkoZ0bGtteImSk5KIeG5tbnaFkJKRinxxbm91gY2QkIt/c3BwdH6Kj4+LgnZxcXR8iI2OjIR5c3J0e4WLjYuFe3VzdHmCioyLhn52dHR5gIiKioeAeHV1eH+GiYqHgXp2dnh9hIiJh4J8eHd4fIKHiIeDfXl4eHyBhoeHhH96eHmA'
 
   cb:
     post: ->
@@ -4146,6 +4152,11 @@ QuoteYou =
     for quote in post.quotes
       if quote.hash[2..] in posts
         $.add quote, $.tn '\u00A0(You)'
+        post.quoted = true
+    if d.hidden and post.quoted and Conf['Notify']
+      com = post.blockquote.textContent
+      new Notification d.title[..40],
+        body: if $.engine is 'webkit' then com else com[..40]
     return
 
   storage: (set, threadID) ->
