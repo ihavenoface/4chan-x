@@ -198,7 +198,7 @@ http://www.google.com/searchbyimage?image_url=$1
   updater:
     checkbox:
       'Beep':        [false, 'Beep on new post to completely read thread']
-      'Notify':      [false, 'Display a Desktop Notification when someone mentiones your post. Works in Chrome and Nightly.']
+      'Notify':      [false, 'Display a Desktop Notification when someone mentiones your post. Works in newer versions of Chrome and Nightly.']
       'Scrolling':   [false, 'Scroll updated posts into view. Only enabled at bottom of page.']
       'Scroll BG':   [false, 'Scroll background tabs']
       'Verbose':     [true,  'Show countdown timer, new post count']
@@ -2903,7 +2903,7 @@ Updater =
       <div><label>Interval (s)<input type=number name=Interval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
       <div><label>BGInterval<input type=number name=BGInterval#{if Conf['Interval per board'] then "_#{g.BOARD}" else ''} class=field min=1></label></div>
       <div><input value='Update Now' type=button name='Update Now'></div>
-      #{if (Notification.permission is 'default') or window.webkitNotifications.checkPermission() then "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" else ''}"
+      #{if (Notification.permission is 'default') or window.webkitNotifications?.checkPermission() then "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" else ''}"
 
     dialog = UI.dialog 'updater', 'bottom: 0; right: 0;', html
 

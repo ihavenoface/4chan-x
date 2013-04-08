@@ -238,7 +238,7 @@
     updater: {
       checkbox: {
         'Beep': [false, 'Beep on new post to completely read thread'],
-        'Notify': [false, 'Display a Desktop Notification when someone mentiones your post. Works in Chrome and Nightly.'],
+        'Notify': [false, 'Display a Desktop Notification when someone mentiones your post. Works in newer versions of Chrome and Nightly.'],
         'Scrolling': [false, 'Scroll updated posts into view. Only enabled at bottom of page.'],
         'Scroll BG': [false, 'Scroll background tabs'],
         'Verbose': [true, 'Show countdown timer, new post count'],
@@ -3689,7 +3689,7 @@
 
   Updater = {
     init: function() {
-      var checkbox, checked, dialog, html, input, name, title, _i, _len, _ref;
+      var checkbox, checked, dialog, html, input, name, title, _i, _len, _ref, _ref1;
 
       this.getInput();
       html = '<div class=move><span id=count></span> <span id=timer></span></div>';
@@ -3700,7 +3700,7 @@
         html += "<div><label title='" + title + "'>" + name + "<input name='" + name + "' type=checkbox " + checked + "></label></div>";
       }
       checked = Conf['Auto Update'] ? 'checked' : '';
-      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><input value='Update Now' type=button name='Update Now'></div>      " + ((Notification.permission === 'default') || window.webkitNotifications.checkPermission() ? "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" : '');
+      html += "      <div><label title='Controls whether *this* thread automatically updates or not'>Auto Update This<input name='Auto Update This' type=checkbox " + checked + "></label></div>      <div><label>Interval (s)<input type=number name=Interval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><label>BGInterval<input type=number name=BGInterval" + (Conf['Interval per board'] ? "_" + g.BOARD : '') + " class=field min=1></label></div>      <div><input value='Update Now' type=button name='Update Now'></div>      " + ((Notification.permission === 'default') || ((_ref = window.webkitNotifications) != null ? _ref.checkPermission() : void 0) ? "<div><input value='Grant Notification' type=button name='Grant Notification'></div>" : '');
       dialog = UI.dialog('updater', 'bottom: 0; right: 0;', html);
       this.count = $('#count', dialog);
       this.timer = $('#timer', dialog);
@@ -3710,9 +3710,9 @@
       this.unsuccessfulFetchCount = 0;
       this.lastModified = '0';
       this.name = Conf['Interval per board'] ? d.hidden ? "Interval_" + g.BOARD : "BGInterval_" + g.BOARD : d.hidden ? 'BGInterval' : 'Interval';
-      _ref = $$('input', dialog);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        input = _ref[_i];
+      _ref1 = $$('input', dialog);
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        input = _ref1[_i];
         if (input.type === 'checkbox') {
           $.on(input, 'click', $.cb.checked);
         }
