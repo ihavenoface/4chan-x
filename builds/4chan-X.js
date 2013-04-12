@@ -1381,6 +1381,7 @@
       Settings.addSection('Sauce', Settings.sauce);
       Settings.addSection('Rice', Settings.rice);
       Settings.addSection('Keybinds', Settings.keybinds);
+      Settings.addSection('Refresh', d.location.reload);
       $.on(d, 'AddSettingsSection', Settings.addSection);
       $.on(d, 'OpenSettings', function(e) {
         return Settings.open(e.detail);
