@@ -15,13 +15,13 @@
 // @grant        GM_deleteValue
 // @grant        GM_openInTab
 // @run-at       document-start
-// @updateURL    https://github.com/ihavenoface/4chan-x/tree/v3builds/4chan-X.meta.js
-// @downloadURL  https://github.com/ihavenoface/4chan-x/tree/v3builds/4chan-X.user.js
+// @updateURL    https://github.com/ihavenoface/4chan-x/tree/v3/builds/4chan-X.meta.js
+// @downloadURL  https://github.com/ihavenoface/4chan-x/tree/v3/builds/4chan-X.user.js
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
 /* 4chan X - Version 3.0.4 - 2013-04-12
- * https://github.com/ihavenoface/4chan-x/tree/v3
+ * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
  * Copyright (c) 2012-2013 Nicolas Stepien <stepien.nicolas@gmail.com>
@@ -1402,7 +1402,7 @@
         return;
       }
       $.event('CloseMenu');
-      html = "<div id=fourchanx-settings class=dialog>\n  <nav>\n    <div class=sections-list></div>\n    <div class=credits>\n      <a href='https://github.com/ihavenoface/4chan-x/tree/v3' target=_blank>4chan X</a> |\n      <a href='https://github.com/ihavenoface/4chan-x/blob/v3/CHANGELOG.md' target=_blank>" + g.VERSION + "</a> |\n      <a href='https://github.com/ihavenoface/4chan-x/blob/v3/CONTRIBUTING.md#reporting-bugs' target=_blank>Issues</a> |\n      <a href=javascript:; class=close title=Close>×</a>\n    </div>\n  </nav>\n  <hr>\n  <div class=section-container><section></section></div>\n</div>";
+      html = "<div id=fourchanx-settings class=dialog>\n  <nav>\n    <div class=sections-list></div>\n    <div class=credits>\n      <a href='https://github.com/ihavenoface/4chan-x/tree/v3/' target=_blank>4chan X</a> |\n      <a href='https://github.com/ihavenoface/4chan-x/blob/v3/CHANGELOG.md' target=_blank>" + g.VERSION + "</a> |\n      <a href='https://github.com/ihavenoface/4chan-x/blob/v3/CONTRIBUTING.md#reporting-bugs' target=_blank>Issues</a> |\n      <a href=javascript:; class=close title=Close>×</a>\n    </div>\n  </nav>\n  <hr>\n  <div class=section-container><section></section></div>\n</div>";
       Settings.dialog = overlay = $.el('div', {
         id: 'overlay',
         innerHTML: html
@@ -8503,7 +8503,7 @@
         if (items.lastupdate > now - freq || items.lastchecked > now - $.DAY) {
           return;
         }
-        return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3builds/version', {
+        return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/builds/version', {
           onload: function() {
             var el, version;
 
@@ -8520,7 +8520,7 @@
             }
             $.set('lastchecked', now);
             el = $.el('span', {
-              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=https://github.com/ihavenoface/4chan-x/tree/v3 target=_blank>here</a>."
+              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=https://github.com/ihavenoface/4chan-x/tree/v3/ target=_blank>here</a>."
             });
             return new Notification('info', el, 120);
           }
@@ -8582,7 +8582,7 @@
       errors = Main.errors.map(function(d) {
         return d.message + ' ' + d.error.stack;
       });
-      return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3errors', {}, {
+      return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/errors', {}, {
         sync: true,
         form: $.formData({
           n: "4chan X v" + g.VERSION,

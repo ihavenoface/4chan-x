@@ -5,7 +5,7 @@
   "meta": {
     "name": "4chan X",
     "repo": "https://github.com/ihavenoface/4chan-x/",
-    "page": "https://github.com/ihavenoface/4chan-x/tree/v3",
+    "page": "https://github.com/ihavenoface/4chan-x/tree/v3/",
     "buildsPath": "builds/",
     "mainBranch": "v3",
     "matches": [
