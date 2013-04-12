@@ -8566,28 +8566,8 @@
     },
     errors: [],
     logError: function(data) {
-      if (!Main.errors.length) {
-        $.on(window, 'unload', Main.postErrors);
-      }
       c.error(data.message, data.error.stack);
       return Main.errors.push(data);
-    },
-    postErrors: function() {
-      var errors;
-
-      errors = Main.errors.map(function(d) {
-        return d.message + ' ' + d.error.stack;
-      });
-      return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/errors', {}, {
-        sync: true,
-        form: $.formData({
-          n: "4chan X v" + g.VERSION,
-          t: 'userscript',
-          ua: window.navigator.userAgent,
-          url: window.location.href,
-          e: errors.join('\n')
-        })
-      });
     },
     isThisPageLegit: function() {
       var _ref;
