@@ -1,11 +1,11 @@
 {
   "name": "4chan-X",
   "version": "3.0.4",
-  "description": "Cross-browser extension for productive lurking on 4chan.",
+  "description": "Essentially it's 4chan X plus more bloat.",
   "meta": {
     "name": "4chan X",
-    "repo": "https://github.com/MayhemYDG/4chan-x/",
-    "page": "https://4chan-x.just-believe.in/",
+    "repo": "https://github.com/ihavenoface/4chan-x/",
+    "page": "https://github.com/ihavenoface/4chan-x/tree/v3",
     "buildsPath": "builds/",
     "mainBranch": "v3",
     "matches": [
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/MayhemYDG/4chan-x.git"
+    "url": "git://github.com/ihavenoface/4chan-x.git"
   },
   "author": "Nicolas Stepien <stepien.nicolas@gmail.com>",
   "contributors": [

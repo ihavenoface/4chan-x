@@ -3946,7 +3946,7 @@ ThreadUpdater =
       <div class=move><span id=update-status></span> <span id=update-timer></span></div>
       #{html}
       <div><label title='Controls whether *this* thread automatically updates or not'><input type=checkbox name='Auto Update This' #{checked}> Auto Update This</label></div>
-      <div><label><input type=number name=Interval class=field min=5 value=#{Conf['Interval']}> Refresh rate (s)</label></div>
+      <div><label><input type=number name=Interval class=field min=1 value=#{Conf['Interval']}> Refresh rate (s)</label></div>
       <div><input value='Update' type=button name='Update'></div>
       """
 
@@ -4026,8 +4026,8 @@ ThreadUpdater =
       else
         clearTimeout ThreadUpdater.timeoutID
     interval: ->
-      val = Math.max 5, parseInt @value, 10
-      ThreadUpdater.interval = @value = val
+      val = if @value < 1 then 1 else @value
+      ThreadUpdater.interval = val
       $.cb.value.call @
     load: ->
       {req} = ThreadUpdater
@@ -4063,12 +4063,8 @@ ThreadUpdater =
       delete ThreadUpdater.req
 
   getInterval: ->
-    i = ThreadUpdater.interval
-    j = Math.min ThreadUpdater.outdateCount, 10
-    unless d.hidden
-      # Lower the max refresh rate limit on visible tabs.
-      j = Math.min j, 7
-    ThreadUpdater.seconds = Math.max i, [0, 5, 10, 15, 20, 30, 60, 90, 120, 240, 300][j]
+    # hurr durr
+    ThreadUpdater.seconds = ThreadUpdater.interval
 
   set: (name, text, klass) ->
     el = ThreadUpdater[name]
