@@ -106,6 +106,7 @@ a[href="javascript:;"] {
 #header {
   right: 0;
   left: 0;
+  position: absolute;
 }
 #header.top {
   top: 0;
