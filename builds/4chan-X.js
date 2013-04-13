@@ -4745,7 +4745,7 @@
         _ref = [post].concat(post.clones);
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           singlePost = _ref[_i];
-          singlePost.nodes.date.textContent = relative;
+          singlePost.nodes.date.firstChild.textContent = relative;
         }
         return setOwnTimeout(diff);
       };
