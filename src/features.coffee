@@ -1981,7 +1981,13 @@ Keybinds =
 
 Nav =
   init: ->
-    return if g.VIEW is 'index' and !Conf['Index Navigation'] or g.VIEW is 'thread' and !Conf['Reply Navigation']
+    switch g.VIEW
+      when 'index'
+        return unless Conf['Index Navigation']
+      when 'thread'
+        return unless Conf['Reply Navigation']
+      else # catalog
+        return
 
     span = $.el 'span',
       id: 'navlinks'
