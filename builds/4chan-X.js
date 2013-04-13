@@ -1381,7 +1381,7 @@
       Settings.addSection('Sauce', Settings.sauce);
       Settings.addSection('Rice', Settings.rice);
       Settings.addSection('Keybinds', Settings.keybinds);
-      Settings.addSection('Refresh', d.location.reload);
+      Settings.addSection('Refresh', Settings.refresh);
       $.on(d, 'AddSettingsSection', Settings.addSection);
       $.on(d, 'OpenSettings', function(e) {
         return Settings.open(e.detail);
@@ -1883,6 +1883,10 @@
       }
       this.value = key;
       return $.cb.value.call(this);
+    },
+    refresh: function(section) {
+      section.innerHTML = "<h2>Reloading. Please wait.</h2>";
+      return d.location.reload();
     }
   };
 
