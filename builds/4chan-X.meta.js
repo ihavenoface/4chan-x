@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.0.4
+// @version      3.0.5
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @copyright    2009-2011 James Campos <james.r.campos@gmail.com>
