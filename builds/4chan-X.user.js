@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.0.5
+// @version      3.0.6
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @copyright    2009-2011 James Campos <james.r.campos@gmail.com>
@@ -20,7 +20,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.0.5 - 2013-04-14
+/* 4chan X - Version 3.0.6 - 2013-04-14
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
@@ -205,7 +205,7 @@
   doc = d.documentElement;
 
   g = {
-    VERSION: '3.0.5',
+    VERSION: '3.0.6',
     NAMESPACE: '4chan X.',
     boards: {},
     threads: {},
