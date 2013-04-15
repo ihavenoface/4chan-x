@@ -20,7 +20,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.0.6 - 2013-04-14
+/* 4chan X - Version 3.0.6 - 2013-04-16
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
@@ -216,18 +216,18 @@
     var Menu, dialog, drag, dragend, dragstart, hover, hoverend, hoverstart, touchend, touchmove;
 
     dialog = function(id, position, html) {
-      var el, move;
+      var el;
 
       el = $.el('div', {
         className: 'dialog',
         innerHTML: html,
         id: id
       });
+      el.style.cssText = position;
       $.get("" + id + ".position", position, function(item) {
         return el.style.cssText = item["" + id + ".position"];
       });
-      move = $('.move', el);
-      $.on(move, 'touchstart mousedown', dragstart);
+      $.on($('.move', el), 'touchstart mousedown', dragstart);
       return el;
     };
     Menu = (function() {
@@ -635,7 +635,6 @@
     MINUTE: 1000 * 60,
     HOUR: 1000 * 60 * 60,
     DAY: 1000 * 60 * 60 * 24,
-    engine: 'gecko',
     id: function(id) {
       return d.getElementById(id);
     },
@@ -786,6 +785,13 @@
         };
       }
     })(),
+    rmAll: function(root) {
+      var node;
+
+      while (node = root.firstChild) {
+        $.rm(node);
+      }
+    },
     tn: function(s) {
       return d.createTextNode(s);
     },
@@ -1129,7 +1135,7 @@
       var as, list, nodes;
 
       list = $('#custom-board-list', Header.bar);
-      list.innerHTML = null;
+      $.rmAll(list);
       if (!text) {
         return;
       }
@@ -1242,7 +1248,7 @@
         headRect = Header.toggle.getBoundingClientRect();
         top += -headRect.top - headRect.height;
       }
-      return ($.engine === 'webkit' ? d.body : doc).scrollTop += top;
+      return doc.scrollTop += top;
     },
     toggleBarVisibility: function(e) {
       var hide, message;
@@ -1477,7 +1483,7 @@
       }
       $.addClass($(".tab-" + this.hyphenatedTitle, Settings.dialog), 'tab-selected');
       section = $('section', Settings.dialog);
-      section.innerHTML = null;
+      $.rmAll(section);
       section.className = "section-" + this.hyphenatedTitle;
       this.open(section, g);
       return section.scrollTop = 0;
@@ -1601,12 +1607,8 @@
         href: "data:application/json;base64," + (btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))))),
         target: '_blank'
       });
-      if ($.engine !== 'gecko') {
-        a.click();
-        return;
-      }
       p = $('.imp-exp-result', Settings.dialog);
-      p.innerHTML = null;
+      $.rmAll(p);
       return $.add(p, a);
     },
     "import": function() {
@@ -1747,7 +1749,7 @@
 
       div = this.nextElementSibling;
       if ((name = this.value) !== 'guide') {
-        div.innerHTML = null;
+        $.rmAll(div);
         ta = $.el('textarea', {
           name: name,
           className: 'field',
@@ -3097,10 +3099,11 @@
     init: function() {
       var a;
 
+      return;
       if (g.VIEW === 'catalog' || !Conf['Menu'] || !Conf['Download Link']) {
         return;
       }
-      if ($.engine === 'gecko' || $.el('a').download === void 0) {
+      if (!('download' in $.el('a'))) {
         return;
       }
       a = $.el('a', {
@@ -3673,10 +3676,10 @@
         case 's4s':
           return Redirect.path('//fuuka.warosu.org', 'fuuka', data);
         case 'diy':
+        case 'g':
         case 'sci':
           return Redirect.path('//archive.installgentoo.net', 'fuuka', data);
         case 'cgl':
-        case 'g':
         case 'mu':
         case 'w':
           return Redirect.path('//rbt.asia', 'fuuka', data);
@@ -3988,9 +3991,9 @@
       clone = post.addClone(context);
       Main.callbackNodes(Post, [clone]);
       nodes = clone.nodes;
-      nodes.root.innerHTML = null;
+      $.rmAll(nodes.root);
       $.add(nodes.root, nodes.post);
-      root.innerHTML = null;
+      $.rmAll(root);
       return $.add(root, nodes.root);
     },
     fetchedPost: function(req, boardID, threadID, postID, root, context) {
@@ -4142,71 +4145,78 @@
       });
     },
     node: function() {
-      var a, boardID, deadlink, m, post, postID, quote, quoteID, redirect, _i, _len, _ref, _ref1;
+      var deadlink, _i, _len, _ref;
 
-      if (this.isClone) {
-        return;
-      }
       _ref = $$('.deadlink', this.nodes.comment);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         deadlink = _ref[_i];
-        if (deadlink.parentNode.className === 'prettyprint') {
-          $.replace(deadlink, __slice.call(deadlink.childNodes));
-          continue;
-        }
-        quote = deadlink.textContent;
-        if (!(postID = (_ref1 = quote.match(/\d+$/)) != null ? _ref1[0] : void 0)) {
-          continue;
-        }
-        boardID = (m = quote.match(/^>>>\/([a-z\d]+)/)) ? m[1] : this.board.ID;
-        quoteID = "" + boardID + "." + postID;
-        if (post = g.posts[quoteID]) {
-          if (!post.isDead) {
-            a = $.el('a', {
-              href: "/" + boardID + "/" + post.thread + "/res/#p" + postID,
-              className: 'quotelink',
-              textContent: quote
-            });
-          } else {
-            a = $.el('a', {
-              href: "/" + boardID + "/" + post.thread + "/res/#p" + postID,
-              className: 'quotelink deadlink',
-              target: '_blank',
-              textContent: "" + quote + "\u00A0(Dead)"
-            });
-            a.setAttribute('data-boardid', boardID);
-            a.setAttribute('data-threadid', post.thread.ID);
-            a.setAttribute('data-postid', postID);
+        if (this.isClone) {
+          if ($.hasClass(deadlink, 'quotelink')) {
+            this.nodes.quotelinks.push(deadlink);
           }
-        } else if (redirect = Redirect.to({
-          boardID: boardID,
-          threadID: 0,
-          postID: postID
-        })) {
+        } else {
+          Quotify.parseDeadlink.call(this, deadlink);
+        }
+      }
+    },
+    parseDeadlink: function(deadlink) {
+      var a, boardID, m, post, postID, quote, quoteID, redirect, _ref;
+
+      if (deadlink.parentNode.className === 'prettyprint') {
+        $.replace(deadlink, __slice.call(deadlink.childNodes));
+        return;
+      }
+      quote = deadlink.textContent;
+      if (!(postID = (_ref = quote.match(/\d+$/)) != null ? _ref[0] : void 0)) {
+        return;
+      }
+      boardID = (m = quote.match(/^>>>\/([a-z\d]+)/)) ? m[1] : this.board.ID;
+      quoteID = "" + boardID + "." + postID;
+      if (post = g.posts[quoteID]) {
+        if (!post.isDead) {
           a = $.el('a', {
-            href: redirect,
-            className: 'deadlink',
+            href: "/" + boardID + "/" + post.thread + "/res/#p" + postID,
+            className: 'quotelink',
+            textContent: quote
+          });
+        } else {
+          a = $.el('a', {
+            href: "/" + boardID + "/" + post.thread + "/res/#p" + postID,
+            className: 'quotelink deadlink',
             target: '_blank',
             textContent: "" + quote + "\u00A0(Dead)"
           });
-          if (Redirect.post(boardID, postID)) {
-            $.addClass(a, 'quotelink');
-            a.setAttribute('data-boardid', boardID);
-            a.setAttribute('data-postid', postID);
-          }
+          a.setAttribute('data-boardid', boardID);
+          a.setAttribute('data-threadid', post.thread.ID);
+          a.setAttribute('data-postid', postID);
         }
-        if (__indexOf.call(this.quotes, quoteID) < 0) {
-          this.quotes.push(quoteID);
+      } else if (redirect = Redirect.to({
+        boardID: boardID,
+        threadID: 0,
+        postID: postID
+      })) {
+        a = $.el('a', {
+          href: redirect,
+          className: 'deadlink',
+          target: '_blank',
+          textContent: "" + quote + "\u00A0(Dead)"
+        });
+        if (Redirect.post(boardID, postID)) {
+          $.addClass(a, 'quotelink');
+          a.setAttribute('data-boardid', boardID);
+          a.setAttribute('data-postid', postID);
         }
-        if (!a) {
-          deadlink.textContent += "\u00A0(Dead)";
-          continue;
-        }
-        $.replace(deadlink, a);
-        if ($.hasClass(a, 'quotelink')) {
-          this.nodes.quotelinks.push(a);
-        }
-        a = null;
+      }
+      if (__indexOf.call(this.quotes, quoteID) < 0) {
+        this.quotes.push(quoteID);
+      }
+      if (!a) {
+        deadlink.textContent = "" + quote + "\u00A0(Dead)";
+        return;
+      }
+      $.replace(deadlink, a);
+      if ($.hasClass(a, 'quotelink')) {
+        return this.nodes.quotelinks.push(a);
       }
     }
   };
@@ -5061,7 +5071,7 @@
         headRect = Header.toggle.getBoundingClientRect();
         top += -headRect.top - headRect.height;
       }
-      root = $.engine === 'webkit' ? d.body : doc;
+      root = doc;
       if (rect.top < 0) {
         root.scrollTop += top;
       }
@@ -5124,7 +5134,7 @@
         if (!(prev.top + prev.height <= 0)) {
           return;
         }
-        root = $.engine === 'webkit' ? d.body : doc;
+        root = doc;
         curr = post.nodes.root.getBoundingClientRect();
         return root.scrollTop += curr.height - prev.height + curr.top - prev.top;
       });
@@ -6265,7 +6275,7 @@
         $.add(ThreadUpdater.root, nodes);
         if (scroll) {
           if (Conf['Bottom Scroll']) {
-            ($.engine === 'webkit' ? d.body : doc).scrollTop = d.body.clientHeight;
+            doc.scrollTop = d.body.clientHeight;
           } else {
             Header.scrollToPost(nodes[0]);
           }
@@ -6361,7 +6371,7 @@
           nodes.push(div);
         }
       }
-      ThreadWatcher.dialog.innerHTML = '';
+      $.rmAll(ThreadWatcher.dialog);
       $.add(ThreadWatcher.dialog, nodes);
       watched = watched[g.BOARD] || {};
       _ref1 = g.BOARD.threads;
@@ -6464,9 +6474,6 @@
         return QR.nodes.com.focus();
       });
       Header.addShortcut(sc);
-      if ($.engine === 'webkit') {
-        $.on(d, 'paste', QR.paste);
-      }
       $.on(d, 'dragover', QR.dragOver);
       $.on(d, 'drop', QR.dropFile);
       $.on(d, 'dragstart dragend', QR.drag);
@@ -6744,7 +6751,7 @@
       }
     },
     quote: function(e) {
-      var OP, caretPos, com, post, range, s, sel, selectionRoot, text, thread, _ref;
+      var OP, caretPos, com, index, post, range, s, sel, selectionRoot, text, thread, _ref;
 
       if (e != null) {
         e.preventDefault();
@@ -6762,6 +6769,12 @@
         text += ">" + s + "\n";
       }
       QR.open();
+      if (QR.selected.isLocked) {
+        index = QR.posts.indexOf(QR.selected);
+        (QR.posts[index + 1] || new QR.post()).select();
+        $.addClass(QR.nodes.el, 'dump');
+        QR.cooldown.auto = true;
+      }
       _ref = QR.nodes, com = _ref.com, thread = _ref.thread;
       if (!com.value) {
         thread.value = OP.ID;
@@ -7433,9 +7446,7 @@
       QR.mimeTypes = mimeTypes.split(', ');
       QR.mimeTypes.push('');
       nodes.fileInput.max = $('input[name=MAX_FILE_SIZE]').value;
-      if ($.engine !== 'presto') {
-        nodes.fileInput.accept = "text/*, " + mimeTypes;
-      }
+      nodes.fileInput.accept = "text/*, " + mimeTypes;
       QR.spoiler = !!$('input[name=spoiler]');
       nodes.spoiler.hidden = !QR.spoiler;
       if (g.BOARD.ID === 'f') {
@@ -8326,6 +8337,8 @@
         g.THREADID = +pathname[3];
       }
       switch (location.hostname) {
+        case 'api.4chan.org':
+          return;
         case 'sys.4chan.org':
           Report.init();
           return;
@@ -8414,7 +8427,7 @@
       if ((_ref = $('link[href*=mobile]', d.head)) != null) {
         _ref.disabled = true;
       }
-      $.addClass(doc, $.engine);
+      $.addClass(doc, 'gecko');
       $.addClass(doc, 'fourchan-x');
       $.addStyle(Main.css);
       if (g.VIEW === 'catalog') {
@@ -8507,9 +8520,6 @@
       }
       if ($.hasClass(d.body, 'fourchan_x')) {
         alert('4chan X v2 detected: Disable it or v3 will break.');
-      }
-      if (/Firefox\/1/.test(navigator.userAgent)) {
-        alert('Your version of Firefox is incompatible with 4chan X v3. Firefox 20+ is required.');
       }
       $.event('4chanXInitFinished');
       return Main.checkUpdate();
