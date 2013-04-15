@@ -28,6 +28,11 @@ QR =
       QR.nodes.com.focus()
     Header.addShortcut sc
 
+    $.on d, 'QRGetSelectedPost', ({detail: cb}) ->
+      cb QR.selected
+    $.on d, 'QRAddPreSubmitHook', ({detail: cb}) ->
+      QR.preSubmitHooks.push cb
+
     <% if (type === 'crx') { %>
     $.on d, 'paste',              QR.paste
     <% } %>
@@ -448,6 +453,7 @@ QR =
       rectList = @nodes.el.parentNode.getBoundingClientRect()
       @nodes.el.parentNode.scrollLeft += rectEl.left + rectEl.width/2 - rectList.left - rectList.width/2
       @load()
+      $.event 'QRPostSelection', @
     load: ->
       # Load this post's values.
       for name in ['thread', 'name', 'email', 'sub', 'com']
@@ -859,6 +865,7 @@ QR =
     # Use it to extend the QR's functionalities, or for XTRM RICE.
     $.event 'QRDialogCreation', null, dialog
 
+  preSubmitHooks: []
   submit: (e) ->
     e?.preventDefault()
 
@@ -891,6 +898,9 @@ QR =
       err = 'No file selected.'
     else if post.file and thread.fileLimit and !thread.isSticky
       err = 'Max limit of image replies has been reached.'
+    else for hook in QR.preSubmitHooks
+      if err = hook post, thread
+        break
 
     if QR.captcha.isEnabled and !err
       {challenge, response} = QR.captcha.getOne()
@@ -1045,11 +1055,10 @@ QR =
       val: true
 
     # Post/upload confirmed as successful.
-    $.event 'QRPostSuccessful', {
+    $.event 'QRPostSuccessful',
       board: g.BOARD
       threadID
       postID
-    }, QR.nodes.el
 
     # Enable auto-posting if we have stuff to post, disable it otherwise.
     QR.cooldown.auto = QR.posts.length > 1 and isReply
