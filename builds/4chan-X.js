@@ -7759,8 +7759,10 @@
         val: true
       });
       $.event('QRPostSuccessful', {
-        board: g.BOARD
-      }, threadID, postID);
+        board: g.BOARD,
+        threadID: threadID,
+        postID: postID
+      });
       QR.cooldown.auto = QR.posts.length > 1 && isReply;
       if (!(Conf['Persistent QR'] || QR.cooldown.auto)) {
         QR.close();
