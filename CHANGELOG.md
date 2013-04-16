@@ -1,3 +1,5 @@
+- Fix inputs in the `Rice` tab being empty when `Custom Board Navigation` is disabled.
+
 ### 3.1.4 - *2013-04-16*
 
 - Fix commitderpage.
