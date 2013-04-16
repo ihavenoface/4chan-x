@@ -298,6 +298,7 @@ Settings =
     localStorage.setItem '4chan-settings', JSON.stringify settings
 
   open: (openSection) ->
+    $.off d, '4chanXInitFinished', Settings.open
     return if Settings.dialog
     $.event 'CloseMenu'
 
@@ -1642,7 +1643,7 @@ ReportLink =
 
 DeleteLink =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Menu'] or !Conf['Delete Link'] or !Conf['Quick Reply']
+    return if g.VIEW is 'catalog' or !Conf['Menu'] or !Conf['Delete Link']
 
     div = $.el 'div',
       className: 'delete-link'
@@ -1744,12 +1745,10 @@ DeleteLink =
       return if DeleteLink.cooldown.counting isnt post
       unless 0 <= seconds <= length
         if DeleteLink.cooldown.counting is post
+          node.textContent = 'Delete'
           delete DeleteLink.cooldown.counting
         return
       setTimeout DeleteLink.cooldown.count, 1000, post, seconds - 1, length, node
-      if seconds is 0
-        node.textContent = 'Delete'
-        return
       node.textContent = "Delete (#{seconds})"
 
 DownloadLink =
@@ -1836,11 +1835,13 @@ Keybinds =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Keybinds']
 
-    $.on d, '4chanXInitFinished', ->
+    init = ->
+      $.off d, '4chanXInitFinished', init
       $.on d, 'keydown',  Keybinds.keydown
       for node in $$ '[accesskey]'
         node.removeAttribute 'accesskey'
       return
+    $.on d, '4chanXInitFinished', init
 
   keydown: (e) ->
     return unless key = Keybinds.keyCode e
@@ -2057,7 +2058,10 @@ Nav =
     $.on next, 'click', @next
 
     $.add span, [prev, $.tn(' '), next]
-    $.on d, '4chanXInitFinished', -> $.add d.body, span
+    append = ->
+      $.off d, '4chanXInitFinished', append
+      $.add d.body, span
+    $.on d, '4chanXInitFinished', append
 
   prev: ->
     if g.VIEW is 'thread'
@@ -2120,9 +2124,9 @@ Redirect =
     # Remove necessary HTTPS procotol in September 2013.
     switch boardID
       when 'a', 'co', 'gd', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg'
-        "//archive.foolz.us/_/api/chan/post/?board=#{boardID}&num=#{postID}"
+        "https://archive.foolz.us/_/api/chan/post/?board=#{boardID}&num=#{postID}"
       when 'u'
-        "//nsfw.foolz.us/_/api/chan/post/?board=#{boardID}&num=#{postID}"
+        "https://nsfw.foolz.us/_/api/chan/post/?board=#{boardID}&num=#{postID}"
       when 'c', 'int', 'out', 'po'
         "//archive.thedarkcave.org/_/api/chan/post/?board=#{boardID}&num=#{postID}"
     # for fuuka-based archives:
@@ -4313,6 +4317,7 @@ ThreadWatcher =
       $.delete 'AutoWatch'
 
   ready: ->
+    $.off d, '4chanXInitFinished', ThreadWatcher.ready
     return unless Main.isThisPageLegit()
     ThreadWatcher.refresh()
     $.add d.body, ThreadWatcher.dialog
