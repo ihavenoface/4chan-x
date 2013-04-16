@@ -6606,10 +6606,7 @@
         QR.posts[0].rm();
       }
       QR.cooldown.auto = false;
-      QR.status();
-      if (!Conf['Remember Spoiler'] && QR.nodes.spoiler.checked) {
-        return QR.nodes.spoiler.click();
-      }
+      return QR.status();
     },
     focusin: function() {
       return $.addClass(QR.nodes.el, 'has-focus');
@@ -7238,9 +7235,7 @@
         if (this.file) {
           QR.nodes.filename.textContent = this.filename;
           QR.nodes.filename.title = this.filename;
-          if (QR.spoiler) {
-            QR.nodes.spoiler.checked = this.spoiler;
-          }
+          QR.nodes.spoiler.checked = this.spoiler;
           return $.addClass(QR.nodes.fileSubmit, 'has-file');
         } else {
           return $.rmClass(QR.nodes.fileSubmit, 'has-file');
