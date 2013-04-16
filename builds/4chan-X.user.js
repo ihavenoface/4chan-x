@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.1.3
+// @version      3.1.4
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @copyright    2009-2011 James Campos <james.r.campos@gmail.com>
@@ -20,7 +20,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.1.3 - 2013-04-16
+/* 4chan X - Version 3.1.4 - 2013-04-16
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
@@ -206,7 +206,7 @@
   doc = d.documentElement;
 
   g = {
-    VERSION: '3.1.3',
+    VERSION: '3.1.4',
     NAMESPACE: '4chan X.',
     boards: {},
     threads: {},
@@ -6158,8 +6158,8 @@
       interval: function() {
         var val;
 
-        val = this.value < 1 ? 1 : this.value;
-        ThreadUpdater.interval = val;
+        val = !(val = parseInt(this.value)) ? Config.updater.Interval : val < 1 ? 1 : val;
+        ThreadUpdater.interval = this.value = val;
         return $.cb.value.call(this);
       },
       load: function() {
