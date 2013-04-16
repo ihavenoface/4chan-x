@@ -1383,9 +1383,6 @@
           }
           prev = previous.match(/\d+/g).map(Number);
           curr = g.VERSION.match(/\d+/g).map(Number);
-          if (!(prev[0] <= curr[0] && prev[1] <= curr[1] && prev[2] <= curr[2])) {
-            return;
-          }
           changelog = 'https://github.com/ihavenoface/4chan-x/blob/v3/CHANGELOG.md';
           el = $.el('span', {
             innerHTML: "4chan X has been updated to <a href='" + changelog + "' target=_blank>version " + g.VERSION + "</a>."
@@ -3316,7 +3313,7 @@
           Settings.open();
           break;
         case Conf['Close']:
-          if ($.id('fourchanx-settings')) {
+          if (Settings.dialog) {
             Settings.close();
           } else if ((notifications = $$('.notification')).length) {
             for (_i = 0, _len = notifications.length; _i < _len; _i++) {
