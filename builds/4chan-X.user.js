@@ -7531,7 +7531,6 @@
           textContent: "Thread No." + thread
         }));
       }
-      $.after(nodes.autohide, nodes.thread);
       _ref = $$('*', QR.nodes.el);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elm = _ref[_i];

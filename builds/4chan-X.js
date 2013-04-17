@@ -7528,7 +7528,6 @@
           textContent: "Thread No." + thread
         }));
       }
-      $.after(nodes.autohide, nodes.thread);
       $.on(QR.nodes.el, 'focusin', QR.focusin);
       $.on(QR.nodes.el, 'focusout', QR.focusout);
       _ref = [nodes.fileButton, nodes.filename.parentNode];
