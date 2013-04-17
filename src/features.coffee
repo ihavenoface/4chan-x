@@ -2428,6 +2428,8 @@ Get =
       OP.info.comment.replace(/\n+/g, ' // ') or
       Conf['Anonymize'] and 'Anonymous' or
       $('.nameBlock', OP.nodes.info).textContent.trim()
+    if excerpt.length > 70
+      excerpt = "#{excerpt[...67]}..."
     "/#{thread.board}/ - #{excerpt}"
   postFromRoot: (root) ->
     link    = $ 'a[title="Highlight this post"]', root
@@ -3734,10 +3736,7 @@ ThreadExcerpt =
       name: 'Thread Excerpt'
       cb:   @node
   node: ->
-    d.title = if (excerpt = Get.threadExcerpt @).length > 80
-      "#{excerpt[...77]}..."
-    else
-      excerpt
+    d.title = Get.threadExcerpt @
 
 Unread =
   init: ->
