@@ -2073,10 +2073,13 @@
       });
     },
     sync: function(hiddenPSAs) {
-      var psa, _ref;
+      var hr, psa, _ref;
 
       psa = $.id('globalMessage');
-      return psa.hidden = PSAHiding.btn.hidden = (_ref = PSAHiding.trim(psa), __indexOf.call(hiddenPSAs, _ref) >= 0) ? true : false;
+      psa.hidden = PSAHiding.btn.hidden = (_ref = PSAHiding.trim(psa), __indexOf.call(hiddenPSAs, _ref) >= 0) ? true : false;
+      if (hr = $.x('following-sibling::hr', psa)) {
+        return hr.hidden = psa.hidden;
+      }
     },
     trim: function(psa) {
       return psa.textContent.replace(/\W+/g, '').toLowerCase();
