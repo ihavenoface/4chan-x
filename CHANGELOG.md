@@ -1,3 +1,4 @@
+- Added the `board-replace` setting to Custom Board Navigation ricing.
 - Added the option `Cooldown Prediction`, enabled by default.
 - Added the option `Hide Unread Count at (0)`, disabled by default.
 - Fix QR remembering the file spoiler state when it shouldn't, for real this time.
