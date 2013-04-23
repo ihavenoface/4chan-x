@@ -1,3 +1,4 @@
+- Added the option `Cooldown Prediction`, enabled by default.
 - Added the option `Hide Unread Count at (0)`, disabled by default.
 - Fix QR remembering the file spoiler state when it shouldn't, for real this time.
 - Fix inputs in the `Rice` tab being empty when `Custom Board Navigation` is disabled.
