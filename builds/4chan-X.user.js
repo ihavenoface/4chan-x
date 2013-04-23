@@ -1925,7 +1925,7 @@
       entry = {
         type: 'header',
         el: $.el('a', {
-          textContent: 'Show announcement.',
+          textContent: 'Show announcement',
           className: 'show-announcement',
           href: 'javascript:;'
         }),
