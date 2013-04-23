@@ -85,6 +85,7 @@ module.exports = function(grunt) {
         options: shellOptions,
         command: [
           'git checkout <%= pkg.meta.mainBranch %>',
+          'grunt',
           'git commit -am "Release <%= pkg.meta.name %> v<%= pkg.version %>."',
           'git tag -a <%= pkg.version %> -m "<%= pkg.meta.name %> v<%= pkg.version %>."',
           'git tag -af stable-v3 -m "<%= pkg.meta.name %> v<%= pkg.version %>."'
@@ -180,7 +181,7 @@ module.exports = function(grunt) {
   grunt.registerTask('reloadPkg', 'Reload the package', function() {
     // Update the `pkg` object with the new version.
     pkg = grunt.file.readJSON('package.json');
-    concatOptions.process.data = pkg;
+    grunt.config.data.pkg = concatOptions.process.data = pkg;
     grunt.log.ok('pkg reloaded.');
   });
 
