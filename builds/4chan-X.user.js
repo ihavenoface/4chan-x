@@ -1054,7 +1054,7 @@
 
   Header = {
     init: function() {
-      var barPositionToggler, catalogToggler, customNavToggler, headerEl, headerToggler;
+      var barPositionToggler, catalogToggler, customNavToggler, editCustomNav, headerEl, headerToggler;
 
       headerEl = $.el('div', {
         id: 'header',
@@ -1079,6 +1079,10 @@
       customNavToggler = $.el('label', {
         innerHTML: '<input type=checkbox name="Custom Board Navigation"> Custom board navigation'
       });
+      editCustomNav = $.el('a', {
+        textContent: 'Edit custom board navigation',
+        href: 'javascript:;'
+      });
       this.headerToggler = headerToggler.firstElementChild;
       this.barPositionToggler = barPositionToggler.firstElementChild;
       this.catalogToggler = catalogToggler.firstElementChild;
@@ -1087,6 +1091,7 @@
       $.on(this.barPositionToggler, 'change', this.toggleBarPosition);
       $.on(this.catalogToggler, 'change', this.toggleCatalogLinks);
       $.on(this.customNavToggler, 'change', this.toggleCustomNav);
+      $.on(editCustomNav, 'click', this.editCustomNav);
       this.setBarVisibility(Conf['Header auto-hide']);
       this.setBarPosition(Conf['Bottom header']);
       $.sync('Header auto-hide', this.setBarVisibility);
@@ -1106,6 +1111,8 @@
             el: catalogToggler
           }, {
             el: customNavToggler
+          }, {
+            el: editCustomNav
           }
         ]
       });
@@ -1277,6 +1284,13 @@
     toggleCustomNav: function() {
       $.cb.checked.call(this);
       return Header.setCustomNav(this.checked);
+    },
+    editCustomNav: function() {
+      var settings;
+
+      Settings.open('Rice');
+      settings = $.id('fourchanx-settings');
+      return $('input[name=boardnav]', settings).focus();
     },
     hashScroll: function() {
       var post;
