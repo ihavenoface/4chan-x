@@ -53,7 +53,6 @@
     main: {
       'Miscellaneous': {
         'Enable 4chan\'s Extension': [false, 'Compatibility between 4chan X and 4chan\'s inline extension is NOT guaranteed.'],
-        'Custom Board Navigation': [false, 'Show custom links instead of the full board list'],
         'Announcement Hiding': [true, 'Add button to hide 4chan announcements.'],
         '404 Redirect': [true, 'Redirect dead threads and images.'],
         'Keybinds': [true, 'Bind actions to keyboard shortcuts.'],
@@ -148,9 +147,12 @@
     },
     sauces: ['https://www.google.com/searchbyimage?image_url=%TURL', 'http://iqdb.org/?url=%TURL', '#//tineye.com/search?url=%TURL', '#http://saucenao.com/search.php?url=%TURL', '#http://3d.iqdb.org/?url=%TURL', '#http://regex.info/exif.cgi?imgurl=%URL', '# uploaders:', '#http://imgur.com/upload?url=%URL;text:Upload to imgur', '#http://ompldr.org/upload?url1=%URL;text:Upload to ompldr', '# "View Same" in archives:', '#//archive.foolz.us/_/search/image/%MD5/;text:View same on foolz', '#//archive.foolz.us/%board/search/image/%MD5/;text:View same on foolz /%board/', '#//archive.installgentoo.net/%board/image/%MD5;text:View same on installgentoo /%board/'].join('\n'),
     'Custom CSS': false,
-    'Bottom header': false,
-    'Header auto-hide': false,
-    'Header catalog links': false,
+    Header: {
+      'Header catalog links': false,
+      'Header auto-hide': false,
+      'Bottom header': false,
+      'Custom Board Navigation': true
+    },
     boardnav: '[current-title / toggle-all]',
     time: '%m/%d/%y(%a)%H:%M:%S',
     backlink: '>>%id',
@@ -1061,7 +1063,7 @@
 
   Header = {
     init: function() {
-      var barPositionToggler, catalogToggler, headerEl, headerToggler;
+      var barPositionToggler, catalogToggler, customNavToggler, headerEl, headerToggler;
 
       headerEl = $.el('div', {
         id: 'header',
@@ -1074,21 +1076,26 @@
       $.on(this.toggle, 'mousedown', this.toggleBarVisibility);
       $.on(window, 'load hashchange', Header.hashScroll);
       $.on(d, 'CreateNotification', this.createNotification);
-      catalogToggler = $.el('label', {
-        innerHTML: '<input type=checkbox name="Header catalog links"> Use catalog board links'
-      });
       headerToggler = $.el('label', {
         innerHTML: '<input type=checkbox name="Header auto-hide"> Auto-hide header'
       });
       barPositionToggler = $.el('label', {
         innerHTML: '<input type=checkbox name="Bottom header"> Bottom header'
       });
-      this.catalogToggler = catalogToggler.firstElementChild;
+      catalogToggler = $.el('label', {
+        innerHTML: '<input type=checkbox name="Header catalog links"> Use catalog board links'
+      });
+      customNavToggler = $.el('label', {
+        innerHTML: '<input type=checkbox name="Custom Board Navigation"> Custom board navigation'
+      });
       this.headerToggler = headerToggler.firstElementChild;
       this.barPositionToggler = barPositionToggler.firstElementChild;
-      $.on(this.catalogToggler, 'change', this.toggleCatalogLinks);
+      this.catalogToggler = catalogToggler.firstElementChild;
+      this.customNavToggler = customNavToggler.firstElementChild;
       $.on(this.headerToggler, 'change', this.toggleBarVisibility);
       $.on(this.barPositionToggler, 'change', this.toggleBarPosition);
+      $.on(this.catalogToggler, 'change', this.toggleCatalogLinks);
+      $.on(this.customNavToggler, 'change', this.toggleCustomNav);
       this.setBarVisibility(Conf['Header auto-hide']);
       this.setBarPosition(Conf['Bottom header']);
       $.sync('Header auto-hide', this.setBarVisibility);
@@ -1101,11 +1108,13 @@
         order: 105,
         subEntries: [
           {
-            el: catalogToggler
-          }, {
             el: headerToggler
           }, {
             el: barPositionToggler
+          }, {
+            el: catalogToggler
+          }, {
+            el: customNavToggler
           }
         ]
       });
@@ -1129,29 +1138,25 @@
         a.className = 'current';
       }
       fullBoardList = $('#full-board-list', Header.bar);
-      $.add(fullBoardList, __slice.call(nav.childNodes));
-      if (Conf['Custom Board Navigation']) {
-        Header.generateBoardList(Conf['boardnav']);
-        $.sync('boardnav', Header.generateBoardList);
-        btn = $.el('span', {
-          className: 'hide-board-list-button brackets-wrap',
-          innerHTML: '<a href=javascript:;> - </a>'
-        });
-        $.on(btn, 'click', Header.toggleBoardList);
-        $.add(fullBoardList, btn);
-      } else {
-        $.rm($('#custom-board-list', Header.bar));
-        fullBoardList.hidden = false;
-      }
+      fullBoardList.innerHTML = nav.innerHTML;
+      $.rm($('#navtopright', fullBoardList));
+      btn = $.el('span', {
+        className: 'hide-board-list-button brackets-wrap',
+        innerHTML: '<a href=javascript:;> - </a>'
+      });
+      $.on(btn, 'click', Header.toggleBoardList);
+      $.add(fullBoardList, btn);
       Header.setCatalogLinks(Conf['Header catalog links']);
-      return $.sync('Header catalog links', Header.setCatalogLinks);
+      Header.setCustomNav(Conf['Custom Board Navigation']);
+      Header.generateBoardList(Conf['boardnav']);
+      $.sync('Header catalog links', Header.setCatalogLinks);
+      $.sync('Custom Board Navigation', Header.setCustomNav);
+      return $.sync('boardnav', Header.generateBoardList);
     },
     generateBoardList: function(text) {
       var as, list, nodes;
 
-      if (!(list = $('#custom-board-list', Header.bar))) {
-        return;
-      }
+      list = $('#custom-board-list', Header.bar);
       $.rmAll(list);
       if (!text) {
         return;
@@ -1216,24 +1221,6 @@
       custom.hidden = !showBoardList;
       return full.hidden = showBoardList;
     },
-    setCatalogLinks: function(useCatalog) {
-      var a, as, path, _i, _len;
-
-      Header.catalogToggler.checked = useCatalog;
-      as = $$('#board-list a[href*="boards.4chan.org"]', Header.bar);
-      path = useCatalog ? 'catalog' : '';
-      for (_i = 0, _len = as.length; _i < _len; _i++) {
-        a = as[_i];
-        if (a.dataset.only) {
-          continue;
-        }
-        a.pathname = "/" + (a.pathname.split('/')[1]) + "/" + path;
-      }
-    },
-    toggleCatalogLinks: function() {
-      $.cb.checked.call(this);
-      return Header.setCatalogLinks(this.checked);
-    },
     setBarVisibility: function(hide) {
       Header.headerToggler.checked = hide;
       $.event('CloseMenu');
@@ -1268,6 +1255,37 @@
     toggleBarPosition: function() {
       $.cb.checked.call(this);
       return Header.setBarPosition(this.checked);
+    },
+    setCatalogLinks: function(useCatalog) {
+      var a, as, path, _i, _len;
+
+      Header.catalogToggler.checked = useCatalog;
+      as = $$('#board-list a[href*="boards.4chan.org"]', Header.bar);
+      path = useCatalog ? 'catalog' : '';
+      for (_i = 0, _len = as.length; _i < _len; _i++) {
+        a = as[_i];
+        if (a.dataset.only) {
+          continue;
+        }
+        a.pathname = "/" + (a.pathname.split('/')[1]) + "/" + path;
+      }
+    },
+    toggleCatalogLinks: function() {
+      $.cb.checked.call(this);
+      return Header.setCatalogLinks(this.checked);
+    },
+    setCustomNav: function(show) {
+      var btn, cust, full, _ref;
+
+      Header.customNavToggler.checked = show;
+      cust = $('#custom-board-list', Header.bar);
+      full = $('#full-board-list', Header.bar);
+      btn = $('.hide-board-list-button', full);
+      return _ref = show ? [false, true, false] : [true, false, true], cust.hidden = _ref[0], full.hidden = _ref[1], btn.hidden = _ref[2], _ref;
+    },
+    toggleCustomNav: function() {
+      $.cb.checked.call(this);
+      return Header.setCustomNav(this.checked);
     },
     hashScroll: function() {
       var post;
