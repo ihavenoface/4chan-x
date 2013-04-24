@@ -20,7 +20,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.0 - 2013-04-24
+/* 4chan X - Version 3.2.0 - 2013-04-25
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
@@ -43,7 +43,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGIF, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, ImageExpand, ImageHover, Keybinds, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, c, d, doc, g,
+  var $, $$, Anonymize, ArchiveLink, AutoGIF, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, IDColor, ImageExpand, ImageHover, Keybinds, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, c, d, doc, g,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
@@ -99,7 +99,8 @@
         'Thread Stats': [true, 'Display reply and image count.'],
         'Thread Watcher': [true, 'Bookmark threads.'],
         'Auto Watch': [true, 'Automatically watch threads you start.'],
-        'Auto Watch Reply': [false, 'Automatically watch threads you reply to.']
+        'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
+        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -6667,6 +6668,50 @@
     }
   };
 
+  IDColor = {
+    init: function() {
+      if (!Conf['Color user IDs']) {
+        return;
+      }
+      this.ids = {};
+      return Post.prototype.callbacks.push({
+        name: 'Color user IDs',
+        cb: this.node
+      });
+    },
+    node: function() {
+      var rgb, span, uniqueID;
+
+      if (!(span = this.nodes.uniqueID)) {
+        return;
+      }
+      uniqueID = this.info.uniqueID;
+      rgb = IDColor.ids[uniqueID] || IDColor.compute(uniqueID);
+      return span.firstElementChild.style.cssText = ("background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;" : "white;");
+    },
+    compute: function(uniqueID) {
+      var hash, rgb;
+
+      rgb = [];
+      hash = this.hash(uniqueID);
+      rgb[0] = (hash >> 24) & 0xFF;
+      rgb[1] = (hash >> 16) & 0xFF;
+      rgb[2] = (hash >> 8) & 0xFF;
+      rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125;
+      this.ids[uniqueID] = rgb;
+      return rgb;
+    },
+    hash: function(uniqueID) {
+      var i, msg, _i, _ref;
+
+      msg = 0;
+      for (i = _i = 0, _ref = uniqueID.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        msg = ((msg << 5) - msg) + uniqueID.charCodeAt(i);
+      }
+      return msg;
+    }
+  };
+
   QR = {
     init: function() {
       if (!Conf['Quick Reply']) {
@@ -8662,6 +8707,7 @@
       initFeature('Thread Watcher', ThreadWatcher);
       initFeature('Index Navigation', Nav);
       initFeature('Keybinds', Keybinds);
+      initFeature('Color user IDs', IDColor);
       $.on(d, 'AddCallback', Main.addCallback);
       return $.ready(Main.initReady);
     },
@@ -8677,6 +8723,9 @@
       }
       $.addClass(doc, 'gecko');
       $.addClass(doc, 'fourchan-x');
+      if (Conf['Color user IDs']) {
+        Main.css += ".posteruid .hand {  padding: 0 5px;  border-radius: 6px;  font-size: 0.8em;}";
+      }
       $.addStyle(Main.css);
       if (g.VIEW === 'catalog') {
         $.addClass(doc, $.id('base-css').href.match(/catalog_(\w+)/)[1].replace('_new', '').replace(/_+/g, '-'));

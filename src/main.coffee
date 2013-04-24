@@ -390,6 +390,7 @@ Main =
     initFeature 'Thread Watcher',           ThreadWatcher
     initFeature 'Index Navigation',         Nav
     initFeature 'Keybinds',                 Keybinds
+    initFeature 'Color user IDs',           IDColor
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback
@@ -402,6 +403,8 @@ Main =
     $('link[href*=mobile]', d.head)?.disabled = true
     $.addClass doc, '<% if (type === 'crx') { %>webkit<% } else if (type === 'userjs') { %>presto<% } else { %>gecko<% } %>'
     $.addClass doc, 'fourchan-x'
+    if Conf['Color user IDs']
+      Main.css += "<%= grunt.file.read('css/uidcolor.css') %>"
     $.addStyle Main.css
 
     if g.VIEW is 'catalog'
