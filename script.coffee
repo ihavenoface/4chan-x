@@ -4935,7 +4935,9 @@ Redirect =
         "//nsfw.foolz.us/#{board}/full_image/#{filename}"
       when 'po'
         "//archive.thedarkcave.org/#{board}/full_image/#{filename}"
-      when 'ck', 'lit'
+      when 'hr', 'tv'
+        "http://archive.4plebs.org/#{board}/full_image/#{filename}"
+      when 'ck', 'fa', 'lit', 's4s'
         "//fuuka.warosu.org/#{board}/full_image/#{filename}"
       when 'cgl', 'g', 'mu', 'w'
         "//rbt.asia/#{board}/full_image/#{filename}"
@@ -4948,12 +4950,14 @@ Redirect =
 
   post: (board, postID) ->
     switch board
-      when 'a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg', 'dev', 'foolz'
-        "//archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
-      when 'u', 'kuku'
-        "//nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
+      when 'a', 'co', 'gd', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg'
+        "https://archive.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
+      when 'u'
+        "https://nsfw.foolz.us/_/api/chan/post/?board=#{board}&num=#{postID}"
       when 'c', 'int', 'out', 'po'
         "//archive.thedarkcave.org/_/api/chan/post/?board=#{board}&num=#{postID}"
+      when 'hr', 'x'
+        "http://archive.4plebs.org/_/api/chan/post/?board=#{board}&num=#{postID}"
 
   archive:    {}
 
@@ -4972,7 +4976,7 @@ Redirect =
       type:    'foolfuuka'
     'Warosu':
       base:    '//fuuka.warosu.org'
-      boards:  ['cgl', 'ck', 'jp', 'lit', 'q', 'tg']
+      boards:  ['cgl', 'ck', 'fa', 'jp', 'lit', 'q', 's4s', 'tg', 'vr']
       type:    'fuuka'
     'RebeccaBlackTech':
       base:    '//rbt.asia'
@@ -4987,13 +4991,17 @@ Redirect =
       boards:  ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x']
       type:    'fuuka'
     'Cliché':
-      base: '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
-      boards: ['e']
-      type: 'fuuka'
+      base:    '//www.xn--clich-fsa.net/4chan/cgi-board.pl'
+      boards:  ['e']
+      type:    'fuuka'
     'NyaFuu':
-      base: '//archive.nyafuu.org'
-      boards: ['c', 'w']
-      type: 'fuuka'
+      base:    '//archive.nyafuu.org'
+      boards:  ['c', 'w']
+      type:    'fuuka'
+    '4plebs':
+      base:    'http://archive.4plebs.org'
+      boards:  ['hr', 'tg', 'tv', 'x']
+      type:    'foolfuuka'
 
   select: (board) ->
     names = []

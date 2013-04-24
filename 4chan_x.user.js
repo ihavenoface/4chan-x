@@ -6234,8 +6234,13 @@
           return "//nsfw.foolz.us/" + board + "/full_image/" + filename;
         case 'po':
           return "//archive.thedarkcave.org/" + board + "/full_image/" + filename;
+        case 'hr':
+        case 'tv':
+          return "http://archive.4plebs.org/" + board + "/full_image/" + filename;
         case 'ck':
+        case 'fa':
         case 'lit':
+        case 's4s':
           return "//fuuka.warosu.org/" + board + "/full_image/" + filename;
         case 'cgl':
         case 'g':
@@ -6260,7 +6265,6 @@
         case 'gd':
         case 'jp':
         case 'm':
-        case 'mlp':
         case 'q':
         case 'sp':
         case 'tg':
@@ -6270,17 +6274,17 @@
         case 'vp':
         case 'vr':
         case 'wsg':
-        case 'dev':
-        case 'foolz':
-          return "//archive.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
+          return "https://archive.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
         case 'u':
-        case 'kuku':
-          return "//nsfw.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
+          return "https://nsfw.foolz.us/_/api/chan/post/?board=" + board + "&num=" + postID;
         case 'c':
         case 'int':
         case 'out':
         case 'po':
           return "//archive.thedarkcave.org/_/api/chan/post/?board=" + board + "&num=" + postID;
+        case 'hr':
+        case 'x':
+          return "http://archive.4plebs.org/_/api/chan/post/?board=" + board + "&num=" + postID;
       }
     },
     archive: {},
@@ -6302,7 +6306,7 @@
       },
       'Warosu': {
         base: '//fuuka.warosu.org',
-        boards: ['cgl', 'ck', 'jp', 'lit', 'q', 'tg'],
+        boards: ['cgl', 'ck', 'fa', 'jp', 'lit', 'q', 's4s', 'tg', 'vr'],
         type: 'fuuka'
       },
       'RebeccaBlackTech': {
@@ -6329,6 +6333,11 @@
         base: '//archive.nyafuu.org',
         boards: ['c', 'w'],
         type: 'fuuka'
+      },
+      '4plebs': {
+        base: 'http://archive.4plebs.org',
+        boards: ['hr', 'tg', 'tv', 'x'],
+        type: 'foolfuuka'
       }
     },
     select: function(board) {
