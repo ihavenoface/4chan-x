@@ -3581,26 +3581,29 @@ RevealSpoilers =
     thumb.removeAttribute 'style'
     thumb.src = @file.thumbURL
 
-AutoGIF =
+ImageReplace =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Auto-GIF'] or g.BOARD.ID in ['gif', 'wsg']
+    @active = {}
+    for type in ['JPG', 'PNG', 'GIF']
+      if Conf["Replace #{type}"]
+        @active[type] = true
+    return if g.VIEW is 'catalog' or !Object.keys(@active).length
 
     Post::callbacks.push
-      name: 'Auto-GIF'
+      name: 'Replace Image'
       cb:   @node
   node: ->
     return if @isClone or @isHidden or @thread.isHidden or !@file?.isImage
     {thumb, URL} = @file
-    return unless /gif$/.test(URL) and !/spoiler/.test thumb.src
+    type = URL[-3..].toUpperCase()
+    return unless ImageReplace.active[type] and !/spoiler/.test thumb.src
     if @file.isSpoiler
-      # Revealed spoilers do not have height/width set, this fixes auto-gifs dimensions.
       {style} = thumb
       style.maxHeight = style.maxWidth = if @isReply then '125px' else '250px'
-    gif = $.el 'img'
-    $.on gif, 'load', ->
-      # Replace the thumbnail once the GIF has finished loading.
+    img = $.el 'img'
+    $.on img, 'load', ->
       thumb.src = URL
-    gif.src = URL
+    img.src = URL
 
 ImageHover =
   init: ->
@@ -4476,7 +4479,7 @@ ThreadWatcher =
 
 IDColor =
   init: ->
-    return unless Conf['Color user IDs']
+    return if g.VIEW is 'catalog' or !Conf['Color user IDs']
     @ids = {}
 
     Post::callbacks.push

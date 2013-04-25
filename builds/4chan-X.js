@@ -43,7 +43,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, AutoGIF, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, IDColor, ImageExpand, ImageHover, Keybinds, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, c, d, doc, g,
+  var $, $$, Anonymize, ArchiveLink, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, c, d, doc, g,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
@@ -74,7 +74,9 @@
         'Stubs': [true, 'Show stubs of hidden threads / replies.']
       },
       'Images': {
-        'Auto-GIF': [false, 'Animate GIF thumbnails (disabled on /gif/, /wsg/).'],
+        'Replace JPG': [false, 'Replace thumbnail of JPGs with its actual image.'],
+        'Replace PNG': [false, 'Replace thumbnail of PNGs with its actual image.'],
+        'Replace GIF': [false, 'Animate GIF thumbnails.'],
         'Image Expansion': [true, 'Expand images inline.'],
         'Image Hover': [false, 'Show a floating expanded image on hover.'],
         'Sauce': [true, 'Add sauce links to images.'],
@@ -5485,37 +5487,46 @@
     }
   };
 
-  AutoGIF = {
+  ImageReplace = {
     init: function() {
-      var _ref;
+      var type, _i, _len, _ref;
 
-      if (g.VIEW === 'catalog' || !Conf['Auto-GIF'] || ((_ref = g.BOARD.ID) === 'gif' || _ref === 'wsg')) {
+      this.active = {};
+      _ref = ['JPG', 'PNG', 'GIF'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        if (Conf["Replace " + type]) {
+          this.active[type] = true;
+        }
+      }
+      if (g.VIEW === 'catalog' || !Object.keys(this.active).length) {
         return;
       }
       return Post.prototype.callbacks.push({
-        name: 'Auto-GIF',
+        name: 'Replace Image',
         cb: this.node
       });
     },
     node: function() {
-      var URL, gif, style, thumb, _ref, _ref1;
+      var URL, img, style, thumb, type, _ref, _ref1;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !((_ref = this.file) != null ? _ref.isImage : void 0)) {
         return;
       }
       _ref1 = this.file, thumb = _ref1.thumb, URL = _ref1.URL;
-      if (!(/gif$/.test(URL) && !/spoiler/.test(thumb.src))) {
+      type = URL.slice(-3).toUpperCase();
+      if (!(ImageReplace.active[type] && !/spoiler/.test(thumb.src))) {
         return;
       }
       if (this.file.isSpoiler) {
         style = thumb.style;
         style.maxHeight = style.maxWidth = this.isReply ? '125px' : '250px';
       }
-      gif = $.el('img');
-      $.on(gif, 'load', function() {
+      img = $.el('img');
+      $.on(img, 'load', function() {
         return thumb.src = URL;
       });
-      return gif.src = URL;
+      return img.src = URL;
     }
   };
 
@@ -6674,7 +6685,7 @@
 
   IDColor = {
     init: function() {
-      if (!Conf['Color user IDs']) {
+      if (g.VIEW === 'catalog' || !Conf['Color user IDs']) {
         return;
       }
       this.ids = {};
@@ -8674,7 +8685,7 @@
       initFeature('Image Expansion', ImageExpand);
       initFeature('Image Expansion (Menu)', ImageExpand.menu);
       initFeature('Reveal Spoilers', RevealSpoilers);
-      initFeature('Auto-GIF', AutoGIF);
+      initFeature('Replace Image', ImageReplace);
       initFeature('Image Hover', ImageHover);
       initFeature('Comment Expansion', ExpandComment);
       initFeature('Thread Expansion', ExpandThread);

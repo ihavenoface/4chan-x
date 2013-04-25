@@ -378,7 +378,7 @@ Main =
     initFeature 'Image Expansion',          ImageExpand
     initFeature 'Image Expansion (Menu)',   ImageExpand.menu
     initFeature 'Reveal Spoilers',          RevealSpoilers
-    initFeature 'Auto-GIF',                 AutoGIF
+    initFeature 'Replace Image',            ImageReplace
     initFeature 'Image Hover',              ImageHover
     initFeature 'Comment Expansion',        ExpandComment
     initFeature 'Thread Expansion',         ExpandThread

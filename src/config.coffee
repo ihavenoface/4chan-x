@@ -21,7 +21,9 @@ Config =
       'Reply Hiding':                 [true,  'Add buttons to hide single replies.']
       'Stubs':                        [true,  'Show stubs of hidden threads / replies.']
     'Images':
-      'Auto-GIF':                     [false, 'Animate GIF thumbnails (disabled on /gif/, /wsg/).']
+      'Replace JPG':                  [false, 'Replace thumbnail of JPGs with its actual image.']
+      'Replace PNG':                  [false, 'Replace thumbnail of PNGs with its actual image.']
+      'Replace GIF':                  [false, 'Animate GIF thumbnails.']
       'Image Expansion':              [true,  'Expand images inline.']
       'Image Hover':                  [false, 'Show a floating expanded image on hover.']
       'Sauce':                        [true,  'Add sauce links to images.']
