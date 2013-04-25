@@ -3,9 +3,7 @@
 // @version      3.2.0
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
-// @copyright    2009-2011 James Campos <james.r.campos@gmail.com>
-// @copyright    2012-2013 Nicolas Stepien <stepien.nicolas@gmail.com>
-// @license      MIT; http://en.wikipedia.org/wiki/Mit_license
+// @license      MIT; https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
 // @match        *://api.4chan.org/*
 // @match        *://boards.4chan.org/*
 // @match        *://images.4chan.org/*
@@ -23,10 +21,7 @@
 /* 4chan X - Version 3.2.0 - 2013-04-25
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
- * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
- * Copyright (c) 2012-2013 Nicolas Stepien <stepien.nicolas@gmail.com>
- * Licensed under the MIT license.
- * https://github.com/ihavenoface/4chan-x/blob/master/LICENSE
+ * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
  *
  * Contributors:
  * https://github.com/ihavenoface/4chan-x/graphs/contributors
@@ -4003,11 +3998,6 @@
       return Build.post(o);
     },
     post: function(o, isArchived) {
-      /*
-      This function contains code from 4chan-JS (https://github.com/4chan/4chan-JS).
-      @license: https://github.com/4chan/4chan-JS/blob/master/LICENSE
-      */
-
       var a, boardID, capcode, capcodeClass, capcodeStart, closed, comment, container, date, dateUTC, email, emailEnd, emailStart, ext, file, fileDims, fileHTML, fileInfo, fileSize, fileThumb, filename, flag, flagCode, flagName, href, imgSrc, isClosed, isOP, isSticky, name, postID, quote, shortFilename, spoilerRange, staticPath, sticky, subject, threadID, tripcode, uniqueID, userID, _i, _len, _ref;
 
       postID = o.postID, threadID = o.threadID, boardID = o.boardID, name = o.name, capcode = o.capcode, tripcode = o.tripcode, uniqueID = o.uniqueID, email = o.email, subject = o.subject, flagCode = o.flagCode, flagName = o.flagName, date = o.date, dateUTC = o.dateUTC, isSticky = o.isSticky, isClosed = o.isClosed, comment = o.comment, file = o.file;

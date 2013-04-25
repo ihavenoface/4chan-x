@@ -3,9 +3,7 @@
 // @version      3.2.0
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
-// @copyright    2009-2011 James Campos <james.r.campos@gmail.com>
-// @copyright    2012-2013 Nicolas Stepien <stepien.nicolas@gmail.com>
-// @license      MIT; http://en.wikipedia.org/wiki/Mit_license
+// @license      MIT; https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
 // @match        *://api.4chan.org/*
 // @match        *://boards.4chan.org/*
 // @match        *://images.4chan.org/*
