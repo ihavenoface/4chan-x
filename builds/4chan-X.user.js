@@ -102,7 +102,7 @@
         'Thread Watcher': [true, 'Bookmark threads.'],
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
-        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them']
+        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -5487,15 +5487,17 @@
     init: function() {
       var type, _i, _len, _ref;
 
-      this.active = {};
       _ref = ['JPG', 'PNG', 'GIF'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
         if (Conf["Replace " + type]) {
+          if (!this.active) {
+            this.active = {};
+          }
           this.active[type] = true;
         }
       }
-      if (g.VIEW === 'catalog' || !Object.keys(this.active).length) {
+      if (g.VIEW === 'catalog' || !this.active) {
         return;
       }
       return Post.prototype.callbacks.push({

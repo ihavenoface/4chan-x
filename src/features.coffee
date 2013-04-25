@@ -3583,11 +3583,12 @@ RevealSpoilers =
 
 ImageReplace =
   init: ->
-    @active = {}
     for type in ['JPG', 'PNG', 'GIF']
       if Conf["Replace #{type}"]
+        unless @active
+          @active = {}
         @active[type] = true
-    return if g.VIEW is 'catalog' or !Object.keys(@active).length
+    return if g.VIEW is 'catalog' or !@active
 
     Post::callbacks.push
       name: 'Replace Image'

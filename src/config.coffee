@@ -50,7 +50,7 @@ Config =
       'Thread Watcher':               [true,  'Bookmark threads.']
       'Auto Watch':                   [true,  'Automatically watch threads you start.']
       'Auto Watch Reply':             [false, 'Automatically watch threads you reply to.']
-      'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them']
+      'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
     'Posting':
       'Quick Reply':                  [true,  'All-in-one form to reply, create threads, automate dumping and more.']
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting.']
