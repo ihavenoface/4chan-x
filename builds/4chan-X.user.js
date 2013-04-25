@@ -6219,11 +6219,11 @@
         checked = Conf[name] ? 'checked' : '';
         html += "<div><label title='" + conf[1] + "'><input name='" + name + "' type=checkbox " + checked + "> " + name + "</label></div>";
       }
-      checked = Conf['Auto Update'] ? 'checked' : '';
-      html = "<div class=move><span id=update-status></span> <span id=update-timer></span></div>\n" + html + "\n<div><label title='Controls whether *this* thread automatically updates or not'><input type=checkbox name='Auto Update This' " + checked + "> Auto Update This</label></div>\n<div><label><input type=number name=Interval class=field min=1 value=" + Conf['Interval'] + "> Refresh rate (s)</label></div>\n<div><input value='Update' type=button name='Update'></div>";
+      html = "<div class=move><span id=update-status></span> <span id=update-timer></span></div>\n" + html + "\n<div><label title='Controls whether *this* thread automatically updates or not'><input type=checkbox name='Auto Update This' " + (Conf['Auto Update'] ? 'checked' : '') + "> Auto Update This</label></div>\n<div><label><input type=number name=Interval class=field min=1 value=" + Conf['Interval'] + "> Refresh rate (s)</label></div>\n<div><input value='Update' type=button name='Update'></div>";
       this.dialog = UI.dialog('updater', 'bottom: 0; right: 0;', html);
       this.timer = $('#update-timer', this.dialog);
       this.status = $('#update-status', this.dialog);
+      this.isUpdating = Conf['Auto Update'];
       return Thread.prototype.callbacks.push({
         name: 'Thread Updater',
         cb: this.node
@@ -6249,6 +6249,7 @@
             ThreadUpdater.cb.scrollBG();
             break;
           case 'Auto Update This':
+            $.off(input, 'change', $.cb.checked);
             $.on(input, 'change', ThreadUpdater.cb.autoUpdate);
             $.event('change', null, input);
             break;
@@ -6277,7 +6278,7 @@
         if (ThreadUpdater.online = navigator.onLine) {
           ThreadUpdater.outdateCount = 0;
           ThreadUpdater.set('timer', ThreadUpdater.getInterval());
-          if (Conf['Auto Update This']) {
+          if (ThreadUpdater.isUpdating) {
             ThreadUpdater.update();
           }
           ThreadUpdater.set('status', null, null);
@@ -6288,7 +6289,7 @@
         return ThreadUpdater.cb.autoUpdate();
       },
       post: function(e) {
-        if (!(Conf['Auto Update This'] && e.detail.threadID === ThreadUpdater.thread.ID)) {
+        if (!(ThreadUpdater.isUpdating && e.detail.threadID === ThreadUpdater.thread.ID)) {
           return;
         }
         ThreadUpdater.outdateCount = 0;
@@ -6312,8 +6313,11 @@
           return !d.hidden;
         };
       },
-      autoUpdate: function() {
-        if (Conf['Auto Update This'] && ThreadUpdater.online) {
+      autoUpdate: function(e) {
+        if (e) {
+          ThreadUpdater.isUpdating = this.checked;
+        }
+        if (ThreadUpdater.isUpdating && ThreadUpdater.online) {
           return ThreadUpdater.timeoutID = setTimeout(ThreadUpdater.timeout, 1000);
         } else {
           return clearTimeout(ThreadUpdater.timeoutID);
