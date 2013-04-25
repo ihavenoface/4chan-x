@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.0 - 2013-04-25
+/* 4chan X - Version 3.2.0 - 2013-04-26
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6323,12 +6323,14 @@
           return clearTimeout(ThreadUpdater.timeoutID);
         }
       },
-      interval: function() {
+      interval: function(e) {
         var val;
 
         val = !(val = parseInt(this.value)) ? Config.updater.Interval : val < 1 ? 1 : val;
         ThreadUpdater.interval = this.value = val;
-        return $.cb.value.call(this);
+        if (e) {
+          return $.cb.value.call(this);
+        }
       },
       load: function() {
         var klass, req, text, _ref, _ref1;

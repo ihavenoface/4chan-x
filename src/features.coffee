@@ -4186,7 +4186,7 @@ ThreadUpdater =
         ThreadUpdater.timeoutID = setTimeout ThreadUpdater.timeout, 1000
       else
         clearTimeout ThreadUpdater.timeoutID
-    interval: ->
+    interval: (e) ->
       val = unless val = parseInt @value
         Config.updater.Interval
       else if val < 1
@@ -4194,7 +4194,7 @@ ThreadUpdater =
       else
         val
       ThreadUpdater.interval = @value = val
-      $.cb.value.call @
+      $.cb.value.call @ if e
     load: ->
       {req} = ThreadUpdater
       switch req.status
