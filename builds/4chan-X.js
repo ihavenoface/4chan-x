@@ -6691,7 +6691,7 @@
       }
       uniqueID = this.info.uniqueID;
       rgb = IDColor.ids[uniqueID] || IDColor.compute(uniqueID);
-      return span.firstElementChild.style.cssText = ("background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "); color: ") + (rgb[3] ? "black;" : "white;");
+      return span.firstElementChild.style.cssText = "background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ");       color: " + (rgb[3] ? 'black' : 'white') + ";";
     },
     compute: function(uniqueID) {
       var hash, rgb;

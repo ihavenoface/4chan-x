@@ -4488,7 +4488,8 @@ IDColor =
     {uniqueID} = @info
     rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
     span.firstElementChild.style.cssText =
-      "background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]}); color: " + if rgb[3] then "black;" else "white;"
+      "background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]});
+       color: #{if rgb[3] then 'black' else 'white'};"
 
   compute: (uniqueID) ->
     rgb = []
