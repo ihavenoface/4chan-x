@@ -912,23 +912,23 @@
   })();
 
   $.debounce = function(wait, fn) {
-    var args, exec, that, timeout;
+    var args, exec, lastCall, that, timeout;
 
+    lastCall = 0;
     timeout = null;
     that = null;
     args = null;
     exec = function() {
-      fn.apply(that, args);
-      return timeout = null;
+      lastCall = Date.now();
+      return fn.apply(that, args);
     };
     return function() {
       args = arguments;
       that = this;
-      if (timeout) {
-        clearTimeout(timeout);
-      } else {
-        exec();
+      if (lastCall < Date.now() - wait) {
+        return exec();
       }
+      clearTimeout(timeout);
       return timeout = setTimeout(exec, wait);
     };
   };
@@ -6068,13 +6068,13 @@
         return Unread.update();
       }
     },
-    saveLastReadPost: $.debounce(2 * $.SECOND, function() {
+    saveLastReadPost: function() {
       return Unread.db.set({
         boardID: Unread.thread.board.ID,
         threadID: Unread.thread.ID,
         val: Unread.lastReadPost
       });
-    }),
+    },
     setLine: function(force) {
       var post, root;
 
