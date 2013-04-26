@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.1 - 2013-04-26
+/* 4chan X - Version 3.2.1 - 2013-04-27
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6634,7 +6634,6 @@
         case 'm':
         case 'q':
         case 'tg':
-        case 'vg':
         case 'vp':
         case 'vr':
         case 'wsg':
@@ -6676,8 +6675,6 @@
         case 'sp':
         case 'tg':
         case 'tv':
-        case 'v':
-        case 'vg':
         case 'vp':
         case 'vr':
         case 'wsg':
@@ -6708,8 +6705,6 @@
         case 'sp':
         case 'tg':
         case 'tv':
-        case 'v':
-        case 'vg':
         case 'vp':
         case 'vr':
         case 'wsg':
