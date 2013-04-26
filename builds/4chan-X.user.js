@@ -2524,6 +2524,12 @@
       if ((ThreadHiding.db.data.lastChecked || 0) > Date.now() - $.MINUTE) {
         ThreadHiding.cleanCatalog(hiddenThreadsOnCatalog);
       }
+      if (!Object.keys(hiddenThreads).length) {
+        ThreadHiding.db["delete"]({
+          boardID: g.BOARD.ID
+        });
+        return;
+      }
       return ThreadHiding.db.set({
         boardID: g.BOARD.ID,
         val: hiddenThreads
