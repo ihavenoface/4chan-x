@@ -7746,7 +7746,7 @@
 
       psa = $.id('globalMessage');
       psa.hidden = PSAHiding.btn.hidden = (_ref = PSAHiding.trim(psa), __indexOf.call(hiddenPSAs, _ref) >= 0) ? true : false;
-      if (hr = $.x('following-sibling::hr', psa)) {
+      if ((hr = psa.nextElementSibling) && hr.nodeName === 'HR') {
         return hr.hidden = psa.hidden;
       }
     },
