@@ -121,6 +121,7 @@ module.exports = function(grunt) {
           'package.json',
           'lib/**/*',
           'src/**/*',
+          'html/**/*',
           'css/**/*',
           'img/**/*'
         ],
