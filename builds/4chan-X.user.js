@@ -1887,7 +1887,7 @@
       return $.on(sauce, 'change', $.cb.value);
     },
     rice: function(section) {
-      var event, input, inputs, items, name, _i, _len, _ref;
+      var input, inputs, items, name, _i, _len, _ref;
 
       section.innerHTML = "<fieldset><legend>Custom Board Navigation <span class=\"warning\" " + (Conf['Custom Board Navigation'] ? 'hidden' : '') + ">is disabled.</span></legend><div><input name=\"boardnav\" class=\"field\" spellcheck=\"false\"></div><div>In the following, <code>board</code> can translate to a board ID (<code>a</code>, <code>b</code>, etc...), the current board (<code>current</code>), or the Status/Twitter link (<code>status</code>, <code>@</code>).</div><div>Board link: <code>board</code></div><div>Title link: <code>board-title</code></div><div>Board link (Replace with title when on that board): <code>board-replace</code></div><div>Full text link: <code>board-full</code></div><div>Custom text link: <code>board-text:\"VIP Board\"</code></div><div>Index-only link: <code>board-index</code></div><div>Catalog-only link: <code>board-catalog</code></div><div>Combinations are possible: <code>board-index-text:\"VIP Index\"</code></div><div>Full board list toggle: <code>toggle-all</code></div></fieldset><fieldset><legend>Time Formatting <span class=\"warning\" " + (Conf['Time Formatting'] ? 'hidden' : '') + ">is disabled.</span></legend><div><input name=\"time\" class=\"field\" spellcheck=\"false\">: <span class=\"time-preview\"></span></div><div>Supported <a href=\"//en.wikipedia.org/wiki/Date_%28Unix%29#Formatting\">format specifiers</a>:</div><div>Day: <code>%a</code>, <code>%A</code>, <code>%d</code>, <code>%e</code></div><div>Month: <code>%m</code>, <code>%b</code>, <code>%B</code></div><div>Year: <code>%y</code></div><div>Hour: <code>%k</code>, <code>%H</code>, <code>%l</code>, <code>%I</code>, <code>%p</code>, <code>%P</code></div><div>Minute: <code>%M</code></div><div>Second: <code>%S</code></div></fieldset><fieldset><legend>Quote Backlinks formatting <span class=\"warning\" " + (Conf['Quote Backlinks'] ? 'hidden' : '') + ">is disabled.</span></legend><div><input name=\"backlink\" class=\"field\" spellcheck=\"false\">: <span class=\"backlink-preview\"></span></div></fieldset><fieldset><legend>File Info Formatting <span class=\"warning\" " + (Conf['File Info Formatting'] ? 'hidden' : '') + ">is disabled.</span></legend><div><input name=\"fileInfo\" class=\"field\" spellcheck=\"false\">: <span class=\"fileText file-info-preview\"></span></div><div>Link: <code>%l</code> (truncated), <code>%L</code> (untruncated), <code>%T</code> (Unix timestamp)</div><div>Original file name: <code>%n</code> (truncated), <code>%N</code> (untruncated), <code>%t</code> (Unix timestamp)</div><div>Spoiler indicator: <code>%p</code></div><div>Size: <code>%B</code> (Bytes), <code>%K</code> (KB), <code>%M</code> (MB), <code>%s</code> (4chan default)</div><div>Resolution: <code>%r</code> (Displays 'PDF' for PDF files)</div></fieldset><fieldset><legend>Unread Tab Icon <span class=\"warning\" " + (Conf['Unread Tab Icon'] ? 'hidden' : '') + ">is disabled.</span></legend><select name=\"favicon\"><option value=\"ferongr\">ferongr</option><option value=\"xat-\">xat-</option><option value=\"Mayhem\">Mayhem</option><option value=\"Original\">Original</option></select><span class=\"favicon-preview\"></span></fieldset><fieldset><legend><label><input type=\"checkbox\" name=\"Custom CSS\" " + (Conf['Custom CSS'] ? 'checked' : '') + "> Custom CSS</label></legend><button id=\"apply-css\">Apply CSS</button><textarea name=\"usercss\" class=\"field\" spellcheck=\"false\" " + (Conf['Custom CSS'] ? '' : 'disabled') + "></textarea></fieldset>";
       items = {};
@@ -1898,20 +1898,21 @@
         input = $("[name=" + name + "]", section);
         items[name] = Conf[name];
         inputs[name] = input;
-        event = name === 'favicon' || name === 'usercss' ? 'change' : 'input';
-        $.on(input, event, $.cb.value);
+        $.on(input, 'change', $.cb.value);
       }
       $.get(items, function(items) {
-        var key, val;
+        var event, key, val;
 
         for (key in items) {
           val = items[key];
           input = inputs[key];
           input.value = val;
-          if (key !== 'usercss') {
-            $.on(input, event, Settings[key]);
-            Settings[key].call(input);
+          if (key === 'usercss') {
+            continue;
           }
+          event = key === 'favicon' || key === 'usercss' ? 'change' : 'input';
+          $.on(input, event, Settings[key]);
+          Settings[key].call(input);
         }
       });
       $.on($('input[name="Custom CSS"]', section), 'change', Settings.togglecss);
@@ -1927,7 +1928,7 @@
       return this.nextElementSibling.textContent = funk(Time, new Date());
     },
     backlink: function() {
-      return this.nextElementSibling.textContent = Conf['backlink'].replace(/%id/, '123456789');
+      return this.nextElementSibling.textContent = this.value.replace(/%id/, '123456789');
     },
     fileInfo: function() {
       var data, funk;
