@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.2 - 2013-04-27
+/* 4chan X - Version 3.2.2 - 2013-04-28
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -5433,17 +5433,18 @@
     init: function() {
       var type, _i, _len, _ref;
 
+      if (g.VIEW === 'catalog') {
+        return;
+      }
+      this.active = {};
       _ref = ['JPG', 'PNG', 'GIF'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
         if (Conf["Replace " + type]) {
-          if (!this.active) {
-            this.active = {};
-          }
           this.active[type] = true;
         }
       }
-      if (g.VIEW === 'catalog' || !this.active) {
+      if (!Object.keys(this.active).length) {
         return;
       }
       return Post.prototype.callbacks.push({

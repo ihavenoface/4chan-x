@@ -1,11 +1,12 @@
 ImageReplace =
   init: ->
+    return if g.VIEW is 'catalog'
+    @active = {}
     for type in ['JPG', 'PNG', 'GIF']
       if Conf["Replace #{type}"]
-        unless @active
-          @active = {}
         @active[type] = true
-    return if g.VIEW is 'catalog' or !@active
+
+    return unless Object.keys(@active).length
 
     Post::callbacks.push
       name: 'Replace Image'
