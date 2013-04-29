@@ -6659,6 +6659,10 @@
         case 'hr':
         case 'tv':
           return "http://archive.4plebs.org/" + boardID + "/full_image/" + filename;
+        case 'c':
+        case 'w':
+        case 'wg':
+          return "//archive.nyafuu.org/" + boardID + "/full_image/" + filename;
         case 'ck':
         case 'fa':
         case 'lit':
@@ -6667,15 +6671,12 @@
         case 'cgl':
         case 'g':
         case 'mu':
-        case 'w':
           return "//rbt.asia/" + boardID + "/full_image/" + filename;
         case 'an':
         case 'k':
         case 'toy':
         case 'x':
           return "http://archive.heinessen.com/" + boardID + "/full_image/" + filename;
-        case 'c':
-          return "//archive.nyafuu.org/" + boardID + "/full_image/" + filename;
       }
     },
     post: function(boardID, postID) {
@@ -6695,7 +6696,6 @@
           return "https://archive.foolz.us/_/api/chan/post/?board=" + boardID + "&num=" + postID;
         case 'u':
           return "https://nsfw.foolz.us/_/api/chan/post/?board=" + boardID + "&num=" + postID;
-        case 'c':
         case 'int':
         case 'out':
         case 'po':
@@ -6703,6 +6703,10 @@
         case 'hr':
         case 'x':
           return "http://archive.4plebs.org/_/api/chan/post/?board=" + boardID + "&num=" + postID;
+        case 'c':
+        case 'w':
+        case 'wg':
+          return "//archive.nyafuu.org/_/api/chan/post/?board=" + boardID + "&num=" + postID;
       }
     },
     to: function(data) {
@@ -6731,6 +6735,10 @@
           return Redirect.path('//archive.thedarkcave.org', 'foolfuuka', data);
         case 'hr':
           return Redirect.path('http://archive.4plebs.org', 'foolfuuka', data);
+        case 'c':
+        case 'w':
+        case 'wg':
+          return Redirect.path('//archive.nyafuu.org', 'foolfuuka', data);
         case 'ck':
         case 'fa':
         case 'lit':
@@ -6742,7 +6750,6 @@
           return Redirect.path('//archive.installgentoo.net', 'fuuka', data);
         case 'cgl':
         case 'mu':
-        case 'w':
           return Redirect.path('//rbt.asia', 'fuuka', data);
         case 'an':
         case 'fit':
@@ -6752,8 +6759,6 @@
         case 'toy':
         case 'x':
           return Redirect.path('http://archive.heinessen.com', 'fuuka', data);
-        case 'c':
-          return Redirect.path('//archive.nyafuu.org', 'fuuka', data);
         default:
           if (data.threadID) {
             return "//boards.4chan.org/" + boardID + "/";
