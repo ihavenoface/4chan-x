@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.2 - 2013-04-28
+/* 4chan X - Version 3.2.2 - 2013-04-29
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -1235,26 +1235,15 @@
           a = as[_i];
           if (a.textContent === board) {
             a = a.cloneNode(true);
-            if (/-title/.test(t)) {
-              a.textContent = a.title;
-            } else if (/-replace/.test(t)) {
-              if ($.hasClass(a, 'current')) {
-                a.textContent = a.title;
+            a.textContent = /-title/.test(t) || /-replace/.test(t) && $.hasClass(a, 'current') ? a.title : /-full/.test(t) ? "/" + board + "/ - " + a.title : (m = t.match(/-text:"(.+)"/)) ? m[1] : a.textContent;
+            if (m = t.match(/-(index|catalog)/)) {
+              a.setAttribute('data-only', m[1]);
+              a.href = "//boards.4chan.org/" + board + "/";
+              if (m[1] === 'catalog') {
+                a.href += 'catalog';
               }
-            } else if (/-full/.test(t)) {
-              a.textContent = "/" + board + "/ - " + a.title;
-            } else if (/-(index|catalog|text)/.test(t)) {
-              if (m = t.match(/-(index|catalog)/)) {
-                a.setAttribute('data-only', m[1]);
-                a.href = "//boards.4chan.org/" + board + "/";
-                if (m[1] === 'catalog') {
-                  a.href += 'catalog';
-                }
-              }
-              if (m = t.match(/-text:"(.+)"/)) {
-                a.textContent = m[1];
-              }
-            } else if (board === '@') {
+            }
+            if (board === '@') {
               $.addClass(a, 'navSmall');
             }
             return a;
