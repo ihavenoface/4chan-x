@@ -6663,6 +6663,10 @@
         case 'w':
         case 'wg':
           return "//archive.nyafuu.org/" + boardID + "/full_image/" + filename;
+        case 'vg':
+          return "http://archive.nihil-ad-rem.net/" + boardID + "/full_image/" + filename;
+        case 'd':
+          return "//loveisover.me/" + boardID + "/full_image/" + filename;
         case 'ck':
         case 'fa':
         case 'lit':
@@ -6707,6 +6711,11 @@
         case 'w':
         case 'wg':
           return "//archive.nyafuu.org/_/api/chan/post/?board=" + boardID + "&num=" + postID;
+        case 'v':
+        case 'vg':
+          return "http://archive.nihil-ad-rem.net/_/api/chan/post/?board=" + boardID + "&num=" + postID;
+        case 'd':
+          return "//loveisover.me/_/api/chan/post/?board=" + boardID + "&num=" + postID;
       }
     },
     to: function(data) {
@@ -6739,6 +6748,11 @@
         case 'w':
         case 'wg':
           return Redirect.path('//archive.nyafuu.org', 'foolfuuka', data);
+        case 'v':
+        case 'vg':
+          return Redirect.path('http://archive.nihil-ad-rem.net', 'foolfuuka', data);
+        case 'd':
+          return Redirect.path('//loveisover.me', 'foolfuuka', data);
         case 'ck':
         case 'fa':
         case 'lit':
