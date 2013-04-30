@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.2.2
+// @version      3.2.3
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @license      MIT; https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE

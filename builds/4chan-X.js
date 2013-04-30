@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.2.2
+// @version      3.2.3
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @license      MIT; https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.2.2 - 2013-04-30
+/* 4chan X - Version 3.2.3 - 2013-04-30
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -212,7 +212,7 @@
   doc = d.documentElement;
 
   g = {
-    VERSION: '3.2.2',
+    VERSION: '3.2.3',
     NAMESPACE: '4chan X.',
     boards: {},
     threads: {},
