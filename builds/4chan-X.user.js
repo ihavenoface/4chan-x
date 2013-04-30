@@ -3067,19 +3067,13 @@
       return $.prepend(this.OP.nodes.root, ThreadHiding.makeButton(this, 'hide'));
     },
     syncCatalog: function() {
-      var e, hiddenThreads, hiddenThreadsOnCatalog, threadID;
+      var hiddenThreads, hiddenThreadsOnCatalog, threadID;
 
       hiddenThreads = ThreadHiding.db.get({
         boardID: g.BOARD.ID,
         defaultValue: {}
       });
-      try {
-        hiddenThreadsOnCatalog = JSON.parse(localStorage.getItem("4chan-hide-t-" + g.BOARD)) || {};
-      } catch (_error) {
-        e = _error;
-        localStorage.setItem("4chan-hide-t-" + g.BOARD, JSON.stringify({}));
-        return ThreadHiding.syncCatalog();
-      }
+      hiddenThreadsOnCatalog = JSON.parse(localStorage.getItem("4chan-hide-t-" + g.BOARD)) || {};
       for (threadID in hiddenThreadsOnCatalog) {
         if (!(threadID in hiddenThreads)) {
           hiddenThreads[threadID] = {};
