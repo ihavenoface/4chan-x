@@ -7266,12 +7266,18 @@
     node: function() {
       var rgb, span, uniqueID;
 
-      if (!(span = this.nodes.uniqueID)) {
+      if (this.isClone || this.isHidden || this.thread.isHidden || !(span = this.nodes.uniqueID)) {
         return;
       }
       uniqueID = this.info.uniqueID;
       rgb = IDColor.ids[uniqueID] || IDColor.compute(uniqueID);
-      return span.firstElementChild.style.cssText = "background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ");       color: " + (rgb[3] ? 'black' : 'white') + ";";
+      span.firstElementChild.style.cssText = "background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ");       color: " + (rgb[3] ? 'black' : 'white') + ";";
+      if (span.firstChild) {
+        $.rm(span.firstChild);
+      }
+      if (span.lastChild) {
+        return $.rm(span.lastChild);
+      }
     },
     compute: function(uniqueID) {
       var hash, rgb;

@@ -8,12 +8,14 @@ IDColor =
       cb:   @node
 
   node: ->
-    return unless span = @nodes.uniqueID
+    return if @isClone or @isHidden or @thread.isHidden or !span = @nodes.uniqueID
     {uniqueID} = @info
     rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
     span.firstElementChild.style.cssText =
       "background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]});
        color: #{if rgb[3] then 'black' else 'white'};"
+    $.rm span.firstChild if span.firstChild
+    $.rm span.lastChild  if span.lastChild
 
   compute: (uniqueID) ->
     rgb = []
