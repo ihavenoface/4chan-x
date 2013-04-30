@@ -6843,7 +6843,7 @@
     node: function() {
       var a;
 
-      if (a = $('.abbr > a', this.nodes.comment)) {
+      if (a = $('.abbr > a:not([onclick])', this.nodes.comment)) {
         return $.on(a, 'click', ExpandComment.cb);
       }
     },
