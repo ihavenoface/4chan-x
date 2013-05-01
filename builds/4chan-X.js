@@ -6732,7 +6732,11 @@
         case 'wg':
           return "//archive.nyafuu.org/" + boardID + "/full_image/" + filename;
         case 'd':
+        case 'h':
+        case 'v':
           return "//loveisover.me/" + boardID + "/full_image/" + filename;
+        case 'vg':
+          return "http://nth.pensivenonsen.se/" + boardID + "/full_image/" + filename;
         case 'ck':
         case 'fa':
         case 'lit':
@@ -6778,7 +6782,11 @@
         case 'wg':
           return "//archive.nyafuu.org/_/api/chan/post/?board=" + boardID + "&num=" + postID;
         case 'd':
+        case 'h':
+        case 'v':
           return "//loveisover.me/_/api/chan/post/?board=" + boardID + "&num=" + postID;
+        case 'vg':
+          return "http://nth.pensivenonsen.se/_/api/chan/post/?board=" + boardID + "&num=" + postID;
       }
     },
     to: function(data) {
@@ -6812,7 +6820,11 @@
         case 'wg':
           return Redirect.path('//archive.nyafuu.org', 'foolfuuka', data);
         case 'd':
+        case 'h':
+        case 'v':
           return Redirect.path('//loveisover.me', 'foolfuuka', data);
+        case 'vg':
+          return Redirect.path('http://nth.pensivenonsen.se', 'foolfuuka', data);
         case 'ck':
         case 'fa':
         case 'lit':
