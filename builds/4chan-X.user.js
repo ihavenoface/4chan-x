@@ -7355,7 +7355,9 @@
       _ref = $$('.prettyprint', this.nodes.comment);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         pre = _ref[_i];
-        $.event('prettyprint', pre, window);
+        if (!$('.pln', pre)) {
+          $.event('prettyprint', pre, window);
+        }
       }
     },
     math: function() {
