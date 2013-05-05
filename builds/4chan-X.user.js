@@ -9015,7 +9015,7 @@
               return;
             }
             version = this.response;
-            if (!/^\d\.\d+\.\d+$/.test(version)) {
+            if (!/^\d\.\d+\.\d+$/.test(version.trim())) {
               return;
             }
             if (g.VERSION === version) {
@@ -9024,7 +9024,7 @@
             }
             $.set('lastchecked', now);
             el = $.el('span', {
-              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=https://github.com/ihavenoface/4chan-x/tree/v3/ target=_blank>here</a>."
+              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=http://ihavenoface.github.io/4chan-x/ target=_blank>here</a>."
             });
             return new Notification('info', el, 120);
           }

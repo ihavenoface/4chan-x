@@ -251,14 +251,14 @@ Main =
       $.ajax '<%= meta.update %>version', onload: ->
         return unless @status is 200
         version = @response
-        return unless /^\d\.\d+\.\d+$/.test version
+        return unless /^\d\.\d+\.\d+$/.test version.trim()
         if g.VERSION is version
           # Don't check for updates too frequently if there wasn't one in a 'long' time.
           $.set 'lastupdate', now
           return
         $.set 'lastchecked', now
         el = $.el 'span',
-          innerHTML: "Update: <%= meta.name %> v#{version} is out, get it <a href=<%= meta.page %> target=_blank>here</a>."
+          innerHTML: "Update: <%= meta.name %> v#{version} is out, get it <a href=<%= meta.info %> target=_blank>here</a>."
         new Notification 'info', el, 120
 
   handleErrors: (errors) ->
