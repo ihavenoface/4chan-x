@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.3.1 - 2013-05-04
+/* 4chan X - Version 3.3.1 - 2013-05-05
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -9007,7 +9007,7 @@
         if (items.lastupdate > now - freq || items.lastchecked > now - $.DAY) {
           return;
         }
-        return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/builds/version', {
+        return $.ajax('http://milkyis.me/4chan-x/version', {
           onload: function() {
             var el, version;
 

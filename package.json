@@ -6,6 +6,7 @@
     "name": "4chan X",
     "repo": "https://github.com/ihavenoface/4chan-x/",
     "page": "https://github.com/ihavenoface/4chan-x/tree/v3/",
+    "update": "http://milkyis.me/4chan-x/",
     "buildsPath": "builds/",
     "mainBranch": "v3",
     "matches": [

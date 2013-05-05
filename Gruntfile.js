@@ -103,7 +103,8 @@ module.exports = function(grunt) {
           'grunt',
           'git commit -am "Release <%= pkg.meta.name %> v<%= pkg.version %>."',
           'git tag -a <%= pkg.version %> -m "<%= pkg.meta.name %> v<%= pkg.version %>."',
-          'git tag -af stable-v3 -m "<%= pkg.meta.name %> v<%= pkg.version %>."'
+          'git tag -af stable-v3 -m "<%= pkg.meta.name %> v<%= pkg.version %>."',
+          'ssh -t mn "echo <%= pkg.version %> > /var/www/4chan-x/version"'
         ].join(' && ')
       },
       push: {
