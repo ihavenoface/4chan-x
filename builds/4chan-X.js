@@ -6470,7 +6470,7 @@
         watched = item['WatchedThreads'];
         watched[_name = thread.board] || (watched[_name] = {});
         watched[thread.board][thread] = {
-          href: "/" + thread.board + "/res/" + thread,
+          href: "/" + thread.board + "/res/" + thread + "#p" + thread,
           textContent: Get.threadExcerpt(thread)
         };
         ThreadWatcher.refresh(watched);

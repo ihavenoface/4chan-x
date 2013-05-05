@@ -93,7 +93,7 @@ ThreadWatcher =
       watched = item['WatchedThreads']
       watched[thread.board] or= {}
       watched[thread.board][thread] =
-        href: "/#{thread.board}/res/#{thread}"
+        href: "/#{thread.board}/res/#{thread}#p#{thread}"
         textContent: Get.threadExcerpt thread
       ThreadWatcher.refresh watched
       $.set 'WatchedThreads', watched
