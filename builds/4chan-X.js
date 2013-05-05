@@ -3553,7 +3553,7 @@
       }
     },
     mouseover: function(e) {
-      var boardID, clone, origin, post, postID, posts, qp, quote, quoterID, threadID, _i, _j, _len, _len1, _ref, _ref1;
+      var boardID, clone, origin, post, postID, posts, qp, quote, quoterID, root, threadID, workaround, _i, _j, _len, _len1, _ref, _ref1;
 
       if ($.hasClass(this, 'inlined')) {
         return;
@@ -3575,6 +3575,18 @@
           return qp.firstElementChild;
         }
       });
+      root = this;
+      workaround = function(e) {
+        if (this === root) {
+          e.stopPropagation();
+          return;
+        }
+        $.event('mouseout', null, root);
+        $.off(d, 'mousemove', workaround);
+        return $.off(root, 'mousemove', workaround);
+      };
+      $.on(d, 'mousemove', workaround);
+      $.on(root, 'mousemove', workaround);
       if (!(origin = g.posts["" + boardID + "." + postID])) {
         return;
       }
