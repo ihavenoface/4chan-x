@@ -1477,7 +1477,7 @@
         }
       });
       $.get('previousversion', null, function(item) {
-        var changelog, el, previous;
+        var changelog, el, now, previous;
 
         if (previous = item['previousversion']) {
           if (previous === g.VERSION) {
@@ -1491,8 +1491,12 @@
         } else {
           $.on(d, '4chanXInitFinished', Settings.open);
         }
+        Conf['archives'] = Redirect.archives;
+        now = Date.now();
         return $.set({
-          lastupdate: Date.now(),
+          archives: Conf['archives'],
+          lastarchivecheck: now,
+          lastupdate: now,
           previousversion: g.VERSION
         });
       });
@@ -1975,7 +1979,7 @@
 
       section.innerHTML = "<div class=\"warning\" " + (Conf['404 Redirect'] ? 'hidden' : '') + "><code>404 Redirect</code> is disabled.</div><p>Disabled selections indicate that only one archive is available for that board and redirection type.</p><table><caption>Archived boards</caption><thead><th>Board</th><th>Thread redirection</th><th>Post fetching</th><th>File redirection</th></thead><tbody></tbody></table>";
       boards = {};
-      _ref = Redirect.archives;
+      _ref = Conf['archives'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         archive = _ref[_i];
         _ref1 = archive.boards;
@@ -6859,12 +6863,13 @@
     init: function() {
       var archive, arr, boardID, data, type, uid, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
 
+      Redirect.update();
       _ref = Conf['selectedArchives'];
       for (boardID in _ref) {
         data = _ref[boardID];
         for (type in data) {
           uid = data[type];
-          _ref1 = Redirect.archives;
+          _ref1 = Conf['archives'];
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
             archive = _ref1[_i];
             if (archive.uid !== uid || type === 'post' && archive.software !== 'foolfuuka') {
@@ -6877,7 +6882,7 @@
           }
         }
       }
-      _ref2 = Redirect.archives;
+      _ref2 = Conf['archives'];
       for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
         archive = _ref2[_j];
         _ref3 = archive.boards;
@@ -6894,6 +6899,34 @@
           }
         }
       }
+    },
+    update: function() {
+      var items;
+
+      items = {
+        lastarchivecheck: 0,
+        lastupdate: 0
+      };
+      return $.get(items, function(items) {
+        var now;
+
+        now = Date.now();
+        if (items.lastupdate > now - 4 * $.DAY || items.lastarchivecheck > now - 4 * $.DAY) {
+          return;
+        }
+        return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/json/archives.json', {
+          onload: function() {
+            if (this.status !== 200) {
+              return;
+            }
+            Conf['archives'] = JSON.parse(this.response);
+            return $.set({
+              lastarchivecheck: now,
+              archives: Conf['archives']
+            });
+          }
+        });
+      });
     },
     to: function(dest, data) {
       var archive;
@@ -8776,6 +8809,7 @@
         };
       }
       Conf['selectedArchives'] = {};
+      Conf['archives'] = Redirect.archives;
       $.get(Conf, Main.initFeatures);
       return $.on(d, '4chanMainInit', Main.initStyle);
     },
