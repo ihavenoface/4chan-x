@@ -124,6 +124,7 @@ module.exports = function(grunt) {
           'src/**/*',
           'html/**/*',
           'css/**/*',
+          'json/**/*',
           'img/**/*'
         ],
         tasks: 'build'
