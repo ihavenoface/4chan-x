@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.3.1 - 2013-05-05
+/* 4chan X - Version 3.3.1 - 2013-05-06
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6546,10 +6546,13 @@
         }
       }
       Unread.addPosts(posts);
+      if (!Conf['Scroll to Last Read Post']) {
+        return;
+      }
       return Unread.scroll();
     },
     scroll: function() {
-      var hash, post, posts, prevID, root;
+      var hash, onload, post, posts, prevID, root;
 
       if ((hash = location.hash.match(/\d+/)) && hash[0] in Unread.thread.posts) {
         return;
@@ -6566,11 +6569,17 @@
             break;
           }
         }
-        root.scrollIntoView(false);
-        return;
+        onload = function() {
+          return root.scrollIntoView(false);
+        };
+      } else {
+        posts = Object.keys(Unread.thread.posts);
+        post = Unread.thread.posts[posts[posts.length - 1]];
+        onload = function() {
+          return Header.scrollToPost(post.nodes.root);
+        };
       }
-      posts = Object.keys(Unread.thread.posts);
-      return Header.scrollToPost(Unread.thread.posts[posts[posts.length - 1]].nodes.root);
+      return $.on(window, 'load', onload);
     },
     sync: function() {
       var lastReadPost;
