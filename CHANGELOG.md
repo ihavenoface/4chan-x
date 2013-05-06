@@ -1,3 +1,5 @@
+## 3.4.0 - *2013-05-07*
+
 - **New feature**: `Archive selection`
  - Select which archive you want for specific boards and redirection type.
  - Access it in the `Archives` tab of the Settings window.
