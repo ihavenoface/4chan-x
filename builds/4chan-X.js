@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.0 - 2013-05-08
+/* 4chan X - Version 3.4.0 - 2013-05-09
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -1174,7 +1174,9 @@
           return;
         }
         $.asap((function() {
-          return $.id('boardNavMobile') || d.readyState === 'complete';
+          var _ref;
+
+          return $.id('boardNavMobile') || ((_ref = d.readyState) === 'interactive' || _ref === 'complete');
         }), Header.setBoardList);
         return $.prepend(d.body, headerEl);
       });
@@ -8795,7 +8797,11 @@
       Conf['selectedArchives'] = {};
       Conf['archives'] = Redirect.archives;
       $.get(Conf, Main.initFeatures);
-      return $.on(d, '4chanMainInit', Main.initStyle);
+      return $.asap((function() {
+        var _ref;
+
+        return d.head && $('link[rel="shortcut icon"]', d.head) || ((_ref = d.readyState) === 'interactive' || _ref === 'complete');
+      }), Main.initStyle);
     },
     initFeatures: function(items) {
       var initFeature, pathname;
@@ -8907,7 +8913,6 @@
     initStyle: function() {
       var MutationObserver, mainStyleSheet, observer, setStyle, style, styleSheets, _ref;
 
-      $.off(d, '4chanMainInit', Main.initStyle);
       if (!Main.isThisPageLegit()) {
         return;
       }
