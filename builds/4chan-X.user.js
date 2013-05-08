@@ -6901,7 +6901,7 @@
       }
     },
     update: function() {
-      return $.get(lastarchivecheck, 0, function(_arg) {
+      return $.get('lastarchivecheck', 0, function(_arg) {
         var lastarchivecheck, now;
 
         lastarchivecheck = _arg.lastarchivecheck;
