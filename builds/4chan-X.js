@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.0 - 2013-05-07
+/* 4chan X - Version 3.4.0 - 2013-05-08
  * https://github.com/ihavenoface/4chan-x/tree/v3/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6890,17 +6890,12 @@
       }
     },
     update: function() {
-      var items;
+      return $.get(lastarchivecheck, 0, function(_arg) {
+        var lastarchivecheck, now;
 
-      items = {
-        lastarchivecheck: 0,
-        lastupdate: 0
-      };
-      return $.get(items, function(items) {
-        var now;
-
+        lastarchivecheck = _arg.lastarchivecheck;
         now = Date.now();
-        if (items.lastupdate > now - 4 * $.DAY || items.lastarchivecheck > now - 4 * $.DAY) {
+        if (lastarchivecheck > now - 4 * $.DAY) {
           return;
         }
         return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/json/archives.json', {
