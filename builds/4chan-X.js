@@ -130,20 +130,20 @@
       'Expand from here': [true, 'Expand all images only from current position to thread end.']
     },
     filter: {
-      name: ['# Filter any namefags:', '#/^(?!Anonymous$)/'].join('\n'),
-      uniqueID: ['# Filter a specific ID:', '#/Txhvk1Tl/'].join('\n'),
-      tripcode: ['# Filter any tripfag', '#/^!/'].join('\n'),
-      capcode: ['# Set a custom class for mods:', '#/Mod$/;highlight:mod;op:yes', '# Set a custom class for moot:', '#/Admin$/;highlight:moot;op:yes'].join('\n'),
-      email: ['# Filter any e-mails that are not `sage` on /a/ and /jp/:', '#/^(?!sage$)/;boards:a,jp'].join('\n'),
-      subject: ['# Filter Generals on /v/:', '#/general/i;boards:v;op:only'].join('\n'),
-      comment: ['# Filter Stallman copypasta on /g/:', '#/what you\'re refer+ing to as linux/i;boards:g'].join('\n'),
-      flag: [''].join('\n'),
-      filename: [''].join('\n'),
-      dimensions: ['# Highlight potential wallpapers:', '#/1920x1080/;op:yes;highlight;top:no;boards:w,wg'].join('\n'),
-      filesize: [''].join('\n'),
-      MD5: [''].join('\n')
+      name: "# Filter any namefags:\n#/^(?!Anonymous$)/",
+      uniqueID: "# Filter a specific ID:\n#/Txhvk1Tl/",
+      tripcode: "# Filter any tripfag\n#/^!/",
+      capcode: "# Set a custom class for mods:\n#/Mod$/;highlight:mod;op:yes\n# Set a custom class for moot:\n#/Admin$/;highlight:moot;op:yes",
+      email: "# Filter any e-mails that are not `sage` on /a/ and /jp/:\n#/^(?!sage$)/;boards:a,jp",
+      subject: "# Filter Generals on /v/:\n#/general/i;boards:v;op:only",
+      comment: "# Filter Stallman copypasta on /g/:\n#/what you're refer+ing to as linux/i;boards:g",
+      flag: "",
+      filename: "",
+      dimensions: "# Highlight potential wallpapers:\n#/1920x1080/;op:yes;highlight;top:no;boards:w,wg",
+      filesize: "",
+      MD5: ""
     },
-    sauces: ['https://www.google.com/searchbyimage?image_url=%TURL', 'http://iqdb.org/?url=%TURL', '#//tineye.com/search?url=%TURL', '#http://saucenao.com/search.php?url=%TURL', '#http://3d.iqdb.org/?url=%TURL', '#http://regex.info/exif.cgi?imgurl=%URL', '# uploaders:', '#http://imgur.com/upload?url=%URL;text:Upload to imgur', '#http://ompldr.org/upload?url1=%URL;text:Upload to ompldr', '# "View Same" in archives:', '#//archive.foolz.us/_/search/image/%MD5/;text:View same on foolz', '#//archive.foolz.us/%board/search/image/%MD5/;text:View same on foolz /%board/', '#//archive.installgentoo.net/%board/image/%MD5;text:View same on installgentoo /%board/'].join('\n'),
+    sauces: "https://www.google.com/searchbyimage?image_url=%TURL\nhttp://iqdb.org/?url=%TURL\n#//tineye.com/search?url=%TURL\n#http://saucenao.com/search.php?url=%TURL\n#http://3d.iqdb.org/?url=%TURL\n#http://regex.info/exif.cgi?imgurl=%URL\n# uploaders:\n#http://imgur.com/upload?url=%URL;text:Upload to imgur\n#http://ompldr.org/upload?url1=%URL;text:Upload to ompldr\n# \"View Same\" in archives:\n#//archive.foolz.us/_/search/image/%MD5/;text:View same on foolz\n#//archive.foolz.us/%board/search/image/%MD5/;text:View same on foolz /%board/\n#//archive.installgentoo.net/%board/image/%MD5;text:View same on installgentoo /%board/",
     'Custom CSS': false,
     Header: {
       'Header auto-hide': false,
@@ -154,7 +154,7 @@
       'Custom Board Navigation': true
     },
     QR: {
-      'QR.personas': ['#email:"sage";boards:jp;always', 'email:"sage"'].join('\n')
+      'QR.personas': "#email:\"sage\";boards:jp;always\nemail:\"sage\""
     },
     boardnav: '[current-title / toggle-all]',
     time: '%m/%d/%y(%a)%H:%M:%S',
