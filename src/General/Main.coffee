@@ -93,6 +93,7 @@ Main =
     initFeature 'Mark Quotes of You',       QuoteYou
     initFeature 'Mark OP Quotes',           QuoteOP
     initFeature 'Mark Cross-thread Quotes', QuoteCT
+    initFeature 'Mark own Posts',           YourPosts
     initFeature 'Anonymize',                Anonymize
     initFeature 'Time Formatting',          Time
     initFeature 'Relative Post Dates',      RelativeDates

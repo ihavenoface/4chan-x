@@ -893,3 +893,9 @@ a.hide-announcement {
 .entry input {
   margin: 0;
 }
+
+/* postContainer */
+
+.your-post > .reply {
+  border-left: 1px solid rgba(221,0,0,.5) !important;
+}
