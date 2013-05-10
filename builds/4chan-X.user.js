@@ -7922,11 +7922,12 @@
       return $.on(d, '4chanXInitFinished', this.setup);
     },
     setup: function() {
-      var btn, psa;
+      var btn, items, psa;
 
       $.off(d, '4chanXInitFinished', PSAHiding.setup);
       if (!(psa = $.id('globalMessage'))) {
         $.rmClass(doc, 'hide-announcement');
+        $.rmClass(doc, 'hide-announcement-enabled');
         return;
       }
       PSAHiding.btn = btn = $.el('a', {
@@ -7936,45 +7937,47 @@
         href: 'javascript:;'
       });
       $.on(btn, 'click', PSAHiding.toggle);
-      $.get('hiddenPSAs', [], function(item) {
-        PSAHiding.sync(item['hiddenPSAs']);
+      items = {
+        hiddenPSA: 0,
+        hiddenPSAs: null
+      };
+      $.get(items, function(_arg) {
+        var hiddenPSA, hiddenPSAs, _ref;
+
+        hiddenPSA = _arg.hiddenPSA, hiddenPSAs = _arg.hiddenPSAs;
+        if (hiddenPSAs) {
+          $["delete"]('hiddenPSAs');
+          if (_ref = psa.textContent.replace(/\W+/g, '').toLowerCase(), __indexOf.call(hiddenPSAs, _ref) >= 0) {
+            hiddenPSA = +$.id('globalMessage').dataset.utc;
+            $.set('hiddenPSA', hiddenPSA);
+          }
+        }
+        PSAHiding.sync(hiddenPSA);
         $.before(psa, btn);
         return $.rmClass(doc, 'hide-announcement');
       });
-      return $.sync('hiddenPSAs', PSAHiding.sync);
+      return $.sync('hiddenPSA', PSAHiding.sync);
     },
     toggle: function(e) {
-      var hide, text;
+      var UTC;
 
-      hide = $.hasClass(this, 'hide-announcement');
-      text = PSAHiding.trim($.id('globalMessage'));
-      return $.get('hiddenPSAs', [], function(_arg) {
-        var hiddenPSAs, i;
-
-        hiddenPSAs = _arg.hiddenPSAs;
-        if (hide) {
-          hiddenPSAs.push(text);
-          hiddenPSAs = hiddenPSAs.slice(-5);
-        } else {
-          $.event('CloseMenu');
-          i = hiddenPSAs.indexOf(text);
-          hiddenPSAs.splice(i, 1);
-        }
-        PSAHiding.sync(hiddenPSAs);
-        return $.set('hiddenPSAs', hiddenPSAs);
-      });
+      if ($.hasClass(this, 'hide-announcement')) {
+        UTC = +$.id('globalMessage').dataset.utc;
+        $.set('hiddenPSA', UTC);
+      } else {
+        $.event('CloseMenu');
+        $["delete"]('hiddenPSA');
+      }
+      return PSAHiding.sync(UTC);
     },
-    sync: function(hiddenPSAs) {
-      var hr, psa, _ref;
+    sync: function(UTC) {
+      var hr, psa;
 
       psa = $.id('globalMessage');
-      psa.hidden = PSAHiding.btn.hidden = (_ref = PSAHiding.trim(psa), __indexOf.call(hiddenPSAs, _ref) >= 0) ? true : false;
+      psa.hidden = PSAHiding.btn.hidden = UTC && UTC >= +psa.dataset.utc ? true : false;
       if ((hr = psa.nextElementSibling) && hr.nodeName === 'HR') {
         return hr.hidden = psa.hidden;
       }
-    },
-    trim: function(psa) {
-      return psa.textContent.replace(/\W+/g, '').toLowerCase();
     }
   };
 
