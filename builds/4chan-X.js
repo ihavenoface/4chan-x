@@ -19,7 +19,7 @@
 // ==/UserScript==
 
 /* 4chan X - Version 3.4.0 - 2013-05-10
- * https://github.com/ihavenoface/4chan-x/tree/v3/
+ * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
  *

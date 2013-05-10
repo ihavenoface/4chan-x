@@ -1,5 +1,5 @@
 /* <%= meta.name %> - Version <%= version %> - <%= grunt.template.today('yyyy-mm-dd') %>
- * <%= meta.page %>
+ * <%= meta.info %>
  *
  * Copyrights and License: <%= meta.repo %>blob/<%= meta.mainBranch %>/LICENSE
  *
