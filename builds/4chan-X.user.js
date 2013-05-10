@@ -6414,7 +6414,7 @@
           continue;
         }
         count++;
-        node = Build.postFromObject(postObject, ThreadUpdater.thread.board);
+        node = Build.postFromObject(postObject, ThreadUpdater.thread.board.ID);
         nodes.push(node);
         posts.push(new Post(node, ThreadUpdater.thread, ThreadUpdater.thread.board));
       }
@@ -7280,7 +7280,7 @@
           nodes.push(post.nodes.root);
           continue;
         }
-        node = Build.postFromObject(reply, thread.board);
+        node = Build.postFromObject(reply, thread.board.ID);
         post = new Post(node, thread, thread.board);
         link = $('a[title="Highlight this post"]', node);
         link.href = "res/" + thread + "#p" + post;
