@@ -7893,13 +7893,22 @@
 
   PSAHiding = {
     init: function() {
-      var entry;
-
       if (!Conf['Announcement Hiding']) {
         return;
       }
       $.addClass(doc, 'hide-announcement');
       $.addClass(doc, 'hide-announcement-enabled');
+      return $.on(d, '4chanXInitFinished', this.setup);
+    },
+    setup: function() {
+      var btn, entry, items, psa;
+
+      $.off(d, '4chanXInitFinished', PSAHiding.setup);
+      if (!(psa = $.id('globalMessage'))) {
+        $.rmClass(doc, 'hide-announcement');
+        $.rmClass(doc, 'hide-announcement-enabled');
+        return;
+      }
       entry = {
         type: 'header',
         el: $.el('a', {
@@ -7909,27 +7918,11 @@
         }),
         order: 50,
         open: function() {
-          var _ref;
-
-          if ((_ref = $.id('globalMessage')) != null ? _ref.hidden : void 0) {
-            return true;
-          }
-          return false;
+          return psa.hidden;
         }
       };
       $.event('AddMenuEntry', entry);
       $.on(entry.el, 'click', PSAHiding.toggle);
-      return $.on(d, '4chanXInitFinished', this.setup);
-    },
-    setup: function() {
-      var btn, items, psa;
-
-      $.off(d, '4chanXInitFinished', PSAHiding.setup);
-      if (!(psa = $.id('globalMessage'))) {
-        $.rmClass(doc, 'hide-announcement');
-        $.rmClass(doc, 'hide-announcement-enabled');
-        return;
-      }
       PSAHiding.btn = btn = $.el('a', {
         innerHTML: '<span>[&nbsp;-&nbsp;]</span>',
         title: 'Hide announcement.',
