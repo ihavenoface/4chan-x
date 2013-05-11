@@ -894,6 +894,14 @@ a.hide-announcement {
   margin: 0;
 }
 
+/* colorerd uid */
+
+.painted .hand {
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 0.8em;
+}
+
 /* postContainer */
 
 .your-post > .reply {

@@ -133,8 +133,6 @@ Main =
     $.addClass doc, 'gecko'
     <% } %>
     $.addClass doc, 'fourchan-x'
-    if Conf['Color user IDs']
-      Main.css += "<%= grunt.file.read('css/uidcolor.css') %>"
     $.addStyle Main.css
 
     if g.VIEW is 'catalog'
