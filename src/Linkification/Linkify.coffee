@@ -45,11 +45,10 @@ Linkify =
           continue
         continue unless data = node.data
         continue unless data.match Linkify.regex
-        href =
-          if /^www/.test link
-            "http://#{link}"
-          else
-            link
+        href = if !/(^m(ailto|agnet))|\:\/\//.test link
+          "http://#{link}"
+        else
+          link
         if (index = data.indexOf link) >= 0
           if text = data[...index]
             nodes.push $.tn text

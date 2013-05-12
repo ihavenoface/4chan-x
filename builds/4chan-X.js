@@ -6931,7 +6931,7 @@
           if (!data.match(Linkify.regex)) {
             continue;
           }
-          href = /^www/.test(link) ? "http://" + link : link;
+          href = !/\:\/\//.test(link) ? "http://" + link : link;
           if ((index = data.indexOf(link)) >= 0) {
             if (text = data.slice(0, index)) {
               nodes.push($.tn(text));
