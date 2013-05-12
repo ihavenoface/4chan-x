@@ -35,6 +35,7 @@ module.exports = function(grunt) {
           'src/Images/**/*',
           'src/Menu/**/*',
           'src/Monitoring/**/*',
+          'src/Linkification/**/*',
           'src/Archive/**/*',
           'src/Miscellaneous/**/*',
           // <--|

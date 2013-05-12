@@ -115,6 +115,7 @@ Main =
     initFeature 'Index Navigation',         Nav
     initFeature 'Keybinds',                 Keybinds
     initFeature 'Color user IDs',           IDColor
+    initFeature 'Linkification',            Linkify
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback

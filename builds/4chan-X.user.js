@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.0 - 2013-05-11
+/* 4chan X - Version 3.4.0 - 2013-05-12
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -38,7 +38,7 @@
  */
 
 (function() {
-  var $, $$, Anonymize, ArchiveLink, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, YourPosts, c, d, doc, g,
+  var $, $$, Anonymize, ArchiveLink, Board, Build, Clone, Conf, Config, CustomCSS, DataBoard, DataBoards, DeleteLink, DownloadLink, ExpandComment, ExpandThread, Favicon, FileInfo, Filter, Fourchan, Get, Header, IDColor, ImageExpand, ImageHover, ImageReplace, Keybinds, Linkify, Main, Menu, Nav, Notification, PSAHiding, Polyfill, Post, PostHiding, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteYou, Quotify, Recursive, Redirect, RelativeDates, Report, ReportLink, RevealSpoilers, Sauce, Settings, Thread, ThreadExcerpt, ThreadHiding, ThreadStats, ThreadUpdater, ThreadWatcher, Time, UI, Unread, YourPosts, c, d, doc, g,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
@@ -97,7 +97,8 @@
         'Thread Watcher': [true, 'Bookmark threads.'],
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
-        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.']
+        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.'],
+        'Linkification': [true, 'It links stuff.']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -6877,6 +6878,104 @@
     }
   };
 
+  Linkify = {
+    init: function() {
+      if (g.VIEW === 'catalog' || !Conf['Linkification']) {
+        return;
+      }
+      this.regex = /((ht|f)tp(s?):\/\/|www\.|(mailto|magnet):){1}\S+/gi;
+      return Post.prototype.callbacks.push({
+        name: 'Linkification',
+        cb: this.node
+      });
+    },
+    node: function() {
+      var a, container, current, data, href, index, link, links, node, nodes, seeking, text, _i, _j, _len, _len1, _ref;
+
+      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.regex))) {
+        return;
+      }
+      for (_i = 0, _len = links.length; _i < _len; _i++) {
+        link = links[_i];
+        seeking = false;
+        nodes = [];
+        _ref = this.nodes.comment.childNodes;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          node = _ref[_j];
+          if (!node) {
+            continue;
+          }
+          if (seeking) {
+            switch (node.localName || node.nodeName) {
+              case '#text':
+                break;
+              case 'wbr':
+                container.nodes.push(node);
+                continue;
+              case 's':
+                current += node.firstChild.data;
+                container.nodes.push(node);
+                continue;
+              default:
+                continue;
+            }
+            current += node.data;
+            if (link.length > current.length) {
+              container.nodes.push(node);
+              continue;
+            } else {
+              container.nodes.push(node);
+              a = $.el('a', {
+                target: '_blank',
+                rel: 'nofollow noreferrer',
+                href: container.href
+              });
+              $.add(a, container.nodes);
+              $.replace(container.entry, a);
+              break;
+            }
+            continue;
+          }
+          if (!(data = node.data)) {
+            continue;
+          }
+          if (!data.match(Linkify.regex)) {
+            continue;
+          }
+          href = /^www/.test(link) ? "http://" + link : link;
+          if ((index = data.indexOf(link)) >= 0) {
+            if (text = data.slice(0, index)) {
+              nodes.push($.tn(text));
+            }
+            a = $.el('a', {
+              target: '_blank',
+              rel: 'nofollow noreferrer',
+              href: href,
+              textContent: link
+            });
+            nodes.push(a);
+            data = data.slice(index + link.length);
+            if (data) {
+              nodes.push($.tn(data));
+            }
+            $.replace(node, nodes);
+            break;
+          }
+          if (link.indexOf(data) >= 0) {
+            container = {
+              nodes: [node.cloneNode(true)],
+              entry: node,
+              href: href
+            };
+            current = data;
+            seeking = true;
+            continue;
+          }
+        }
+      }
+    }
+  };
+
   Redirect = {
     archives: [{"uid":0,"name":"Foolz","domain":"archive.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["a","co","gd","jp","m","q","sp","tg","tv","vp","vr","wsg"],"files":["a","gd","jp","m","q","tg","vp","vr","wsg"]},{"uid":1,"name":"NSFW Foolz","domain":"nsfw.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["u"],"files":["u"]},{"uid":2,"name":"The Dark Cave","domain":"archive.thedarkcave.org","http":true,"https":true,"software":"foolfuuka","boards":["c","int","out","po"],"files":["c","po"]},{"uid":3,"name":"4plebs","domain":"archive.4plebs.org","http":true,"https":false,"software":"foolfuuka","boards":["hr","tg","tv","x"],"files":["hr","tg","tv","x"]},{"uid":4,"name":"Nyafuu","domain":"archive.nyafuu.org","http":true,"https":true,"software":"foolfuuka","boards":["c","w","wg"],"files":["c","w","wg"]},{"uid":5,"name":"Love is Over","domain":"loveisover.me","http":true,"https":true,"software":"foolfuuka","boards":["d","h","v"],"files":["d","h","v"]},{"uid":6,"name":"nth-chan","domain":"nth.pensivenonsen.se","http":true,"https":false,"software":"foolfuuka","boards":["vg"],"files":["vg"]},{"uid":11,"name":"Foolz a Shit","domain":"archive.foolzashit.com","http":true,"https":true,"software":"foolfuuka","boards":["adv","asp","cm","e","i","lgbt","n","o","p","s","s4s","t","trv","y"],"files":["adv","asp","cm","e","i","lgbt","n","o","p","s","s4s","t","trv","y"]},{"uid":7,"name":"Install Gentoo","domain":"archive.installgentoo.net","http":true,"https":true,"software":"fuuka","boards":["diy","g","sci"],"files":[]},{"uid":8,"name":"Rebecca Black Tech","domain":"rbt.asia","http":true,"https":true,"software":"fuuka","boards":["cgl","g","mu","w"],"files":["cgl","g","mu","w"]},{"uid":9,"name":"Heinessen","domain":"archive.heinessen.com","http":true,"https":false,"software":"fuuka","boards":["an","fit","k","mlp","r9k","toy","x"],"files":["an","k","toy","x"]},{"uid":10,"name":"warosu","domain":"fuuka.warosu.org","http":true,"https":true,"software":"fuuka","boards":["3","cgl","ck","fa","ic","jp","lit","q","s4s","tg","vr"],"files":["3","cgl","ck","fa","ic","jp","lit","q","s4s","vr"]}],
     thread: {},
@@ -8936,6 +9035,7 @@
       initFeature('Index Navigation', Nav);
       initFeature('Keybinds', Keybinds);
       initFeature('Color user IDs', IDColor);
+      initFeature('Linkification', Linkify);
       $.on(d, 'AddCallback', Main.addCallback);
       return $.ready(Main.initReady);
     },
