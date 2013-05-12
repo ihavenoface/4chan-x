@@ -6872,7 +6872,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.regex = /((((ht|f)tp(s?):\/\/|www\.|(mailto|magnet):)[^\s\/$.?\#].)|[^\s]*\.(org|a(rpa|ero|sia|c-g|i|m-o|q-u|w-z)|b(iz|a|b|e-j|m-o|r-t|v|w-z)|c(om|at|oop|a|c-o|r|u|v|x-z)|d(e|j|k|m|o|z)|e(du|c|e|g|r-u)|f(i-k|m|o|r)|g(ov|a|b|d|e-i|l|m|n|p|r-w|y)|h(k|m|n|r|t|u)|i(nfo|nt|d|e|l|m-t)|j(obs|e|m-p)|k(e|g-i|m|n|p|r|w|y|z)|l(a-c|i|k|r-v|y)|m(il|obi|useum|a-e|g-p|r-z)|n(ame|et|a|c|e-g|i|l|o|p|r|u|z|om)|p(ro|a|e-h|k-n|r-t|w|y)|qa|r(e|a|s|u|w)|s(a|b-e|g-o|r|t-v|y|z)|t(el|ravel|c|d|f-p|r|t|v|w|z)|u(a|g|k|s|y|z)|v(a|c|e|g|i|n|u)|w(f|s)|y(e|t|u)|z(a|m|w)))[^\s]*/gi;
+      this.regex = /((((ht|f)tp(s?):\/\/|www\.|(mailto|magnet):)[^\s\/$.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*/gi;
       return Post.prototype.callbacks.push({
         name: 'Linkification',
         cb: this.node
@@ -6931,7 +6931,7 @@
           if (!data.match(Linkify.regex)) {
             continue;
           }
-          href = !/\:\/\//.test(link) ? "http://" + link : link;
+          href = !/(^m(ailto|agnet))|\:\/\//.test(link) ? "http://" + link : link;
           if ((index = data.indexOf(link)) >= 0) {
             if (text = data.slice(0, index)) {
               nodes.push($.tn(text));
