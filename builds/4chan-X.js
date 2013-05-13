@@ -1713,6 +1713,7 @@
           };
         }
         $.get(Conf, function(Conf) {
+          delete Conf['archives'];
           data.Conf = Conf;
           return Settings["export"](now, data);
         });
