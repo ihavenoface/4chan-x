@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.0 - 2013-05-12
+/* 4chan X - Version 3.4.0 - 2013-05-13
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6872,16 +6872,17 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.regex = /((((ht|f)tp(s?):\/\/|www\.|(mailto|magnet):)[^\s\/$.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*/gi;
+      this.catchAll = /(((?:ftp(?::\/\/|s:\/\/)|http(?::\/\/|s:\/\/)|ma(?:gnet:\/\/|ilto:\/\/)|irc:\/\/)[^\s\/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmoqtuwxz])|b(?:iz?|[abdefghjmnorstvwz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghlmnpqrstuwy])|i(?:n(?:fo|t)|[delmoqrst])|j(?:o(?:bs)?|[em])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om|[cfgilpruz])|org|p(?:ro?|[aefghklmstw])|t(?:el|r(?:avel)?|[cdfgjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*/gi;
+      this.protocol = /(?:ftp(?::\/\/|s:\/\/)|http(?::\/\/|s:\/\/)|ma(?:gnet:\/\/|ilto:\/\/)|irc:\/\/)[^\s\/$.?\#].[^\s]*/gi;
       return Post.prototype.callbacks.push({
         name: 'Linkification',
         cb: this.node
       });
     },
     node: function() {
-      var a, container, current, data, href, index, link, links, node, nodes, seeking, text, _i, _j, _len, _len1, _ref;
+      var a, after, container, current, data, index, link, links, node, nodes, prot, result, seeking, _i, _j, _len, _len1, _ref;
 
-      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.regex))) {
+      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.catchAll))) {
         return;
       }
       for (_i = 0, _len = links.length; _i < _len; _i++) {
@@ -6913,6 +6914,9 @@
               container.nodes.push(node);
               continue;
             } else {
+              if (after = current.slice(link.length)) {
+                node.data = node.data.slice(0, -after.length);
+              }
               container.nodes.push(node);
               a = $.el('a', {
                 target: '_blank',
@@ -6920,7 +6924,11 @@
                 href: container.href
               });
               $.add(a, container.nodes);
-              $.replace(container.entry, a);
+              nodes.push(a);
+              if (after) {
+                nodes.push($.tn(after));
+              }
+              $.replace(container.entry, nodes);
               break;
             }
             continue;
@@ -6928,18 +6936,22 @@
           if (!(data = node.data)) {
             continue;
           }
-          if (!data.match(Linkify.regex)) {
+          prot = Linkify.protocol.exec(data);
+          if (!(result = prot || Linkify.catchAll.exec(data))) {
             continue;
           }
-          href = !/(^m(ailto|agnet))|\:\/\//.test(link) ? "http://" + link : link;
+          if (prot && prot.index) {
+            nodes.push($.tn(data.slice(0, prot.index)));
+            data = node.data = data.slice(prot.index);
+          }
           if ((index = data.indexOf(link)) >= 0) {
-            if (text = data.slice(0, index)) {
-              nodes.push($.tn(text));
+            if (index) {
+              nodes.push($.tn(data.slice(0, index)));
             }
             a = $.el('a', {
               target: '_blank',
               rel: 'nofollow noreferrer',
-              href: href,
+              href: link,
               textContent: link
             });
             nodes.push(a);
@@ -6954,7 +6966,7 @@
             container = {
               nodes: [node.cloneNode(true)],
               entry: node,
-              href: href
+              href: link
             };
             current = data;
             seeking = true;
