@@ -6995,8 +6995,15 @@
     post: {},
     file: {},
     init: function() {
-      var archive, arr, boardID, data, type, uid, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var archive, arr, boardID, data, err, type, uid, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
 
+      try {
+        Conf['archives'].length;
+      } catch (_error) {
+        err = _error;
+        Conf['archives'] = Redirect.archives;
+        $["delete"](['archives', 'lastarchivecheck']);
+      }
       Redirect.update();
       _ref = Conf['selectedArchives'];
       for (boardID in _ref) {
