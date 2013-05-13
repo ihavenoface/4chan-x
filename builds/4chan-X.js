@@ -7062,7 +7062,7 @@
         if (lastarchivecheck > now - 4 * $.DAY) {
           return;
         }
-        return $.ajax('https://github.com/ihavenoface/4chan-x/tree/v3/json/archives.json', {
+        return $.ajax('http://namesync.org/4chan-x/archives.json', {
           onload: function() {
             if (this.status !== 200) {
               return;
