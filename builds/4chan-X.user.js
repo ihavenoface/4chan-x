@@ -7083,9 +7083,7 @@
               lastarchivecheck: now,
               archives: Conf['archives']
             });
-            if (cb) {
-              return cb(now);
-            }
+            return typeof cb === "function" ? cb(now) : void 0;
           }
         });
       });
