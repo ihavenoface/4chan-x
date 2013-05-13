@@ -1983,9 +1983,28 @@
       return CustomCSS.update();
     },
     archives: function(section) {
-      var archive, boardID, boards, data, row, rows, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var archive, boardID, boards, button, data, row, rows, showLastUpdateTime, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
 
-      section.innerHTML = "<div class=\"warning\" " + (Conf['404 Redirect'] ? 'hidden' : '') + "><code>404 Redirect</code> is disabled.</div><p>Disabled selections indicate that only one archive is available for that board and redirection type.</p><table><caption>Archived boards</caption><thead><th>Board</th><th>Thread redirection</th><th>Post fetching</th><th>File redirection</th></thead><tbody></tbody></table>";
+      section.innerHTML = "<div class=\"warning\" " + (Conf['404 Redirect'] ? 'hidden' : '') + "><code>404 Redirect</code> is disabled.</div><p>Disabled selections indicate that only one archive is available for that board and redirection type.</p><p><button>Update now</button> Last updated: <time></time></p><table><caption>Archived boards</caption><thead><th>Board</th><th>Thread redirection</th><th>Post fetching</th><th>File redirection</th></thead><tbody></tbody></table>";
+      showLastUpdateTime = function(time) {
+        return $('time', section).textContent = new Date(time).toLocaleString();
+      };
+      button = $('button', section);
+      $.on(button, 'click', function() {
+        $["delete"]('lastarchivecheck');
+        button.textContent = '...';
+        button.disabled = true;
+        return Redirect.update(function(time) {
+          button.textContent = 'Updated';
+          return showLastUpdateTime(time);
+        });
+      });
+      $.get('lastarchivecheck', 0, function(_arg) {
+        var lastarchivecheck;
+
+        lastarchivecheck = _arg.lastarchivecheck;
+        return showLastUpdateTime(lastarchivecheck);
+      });
       boards = {};
       _ref = Conf['archives'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -7034,7 +7053,7 @@
         }
       }
     },
-    update: function() {
+    update: function(cb) {
       return $.get('lastarchivecheck', 0, function(_arg) {
         var lastarchivecheck, now;
 
@@ -7049,10 +7068,13 @@
               return;
             }
             Conf['archives'] = JSON.parse(this.response);
-            return $.set({
+            $.set({
               lastarchivecheck: now,
               archives: Conf['archives']
             });
+            if (cb) {
+              return cb(now);
+            }
           }
         });
       });
@@ -8942,6 +8964,7 @@
       Conf['selectedArchives'] = {};
       Conf['archives'] = Redirect.archives;
       $.get(Conf, Main.initFeatures);
+      $.on(d, '4chanMainInit', Main.initStyle);
       return $.asap((function() {
         var _ref;
 
@@ -9060,7 +9083,8 @@
     initStyle: function() {
       var MutationObserver, mainStyleSheet, observer, setStyle, style, styleSheets, _ref;
 
-      if (!Main.isThisPageLegit()) {
+      $.off(d, '4chanMainInit', Main.initStyle);
+      if (!Main.isThisPageLegit() || $.hasClass(doc, 'fourchan-x')) {
         return;
       }
       if ((_ref = $('link[href*=mobile]', d.head)) != null) {
