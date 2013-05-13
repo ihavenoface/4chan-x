@@ -8936,7 +8936,7 @@
 
   Main = {
     init: function(items) {
-      var db, flatten, _i, _len;
+      var db, flatten, pathname, _i, _len;
 
       flatten = function(parent, obj) {
         var key, val;
@@ -8962,17 +8962,6 @@
       Conf['selectedArchives'] = {};
       Conf['archives'] = Redirect.archives;
       $.get(Conf, Main.initFeatures);
-      $.on(d, '4chanMainInit', Main.initStyle);
-      return $.asap((function() {
-        var _ref;
-
-        return d.head && $('title', d.head) || ((_ref = d.readyState) === 'interactive' || _ref === 'complete');
-      }), Main.initStyle);
-    },
-    initFeatures: function(items) {
-      var initFeature, pathname;
-
-      Conf = items;
       pathname = location.pathname.split('/');
       g.BOARD = new Board(pathname[1]);
       g.VIEW = (function() {
@@ -8988,6 +8977,17 @@
       if (g.VIEW === 'thread') {
         g.THREADID = +pathname[3];
       }
+      $.on(d, '4chanMainInit', Main.initStyle);
+      return $.asap((function() {
+        var _ref;
+
+        return d.head && $('title', d.head) || ((_ref = d.readyState) === 'interactive' || _ref === 'complete');
+      }), Main.initStyle);
+    },
+    initFeatures: function(items) {
+      var initFeature;
+
+      Conf = items;
       switch (location.hostname) {
         case 'api.4chan.org':
           return;
@@ -8996,13 +8996,14 @@
           return;
         case 'images.4chan.org':
           $.ready(function() {
-            var URL;
+            var URL, pathname;
 
             if (Conf['404 Redirect'] && d.title === '4chan - 404 Not Found') {
               Redirect.init();
+              pathname = location.pathname.split('/');
               URL = Redirect.to('file', {
-                boardID: pathname[1],
-                filename: pathname[3]
+                boardID: g.BOARD.ID,
+                filename: pathname[pathname.length - 1]
               });
               if (URL) {
                 return location.href = URL;
