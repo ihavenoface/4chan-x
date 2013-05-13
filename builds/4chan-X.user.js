@@ -8219,7 +8219,7 @@
 
   Sauce = {
     init: function() {
-      var link, links, _i, _len, _ref;
+      var err, link, links, _i, _len, _ref;
 
       if (g.VIEW === 'catalog' || !Conf['Sauce']) {
         return;
@@ -8231,7 +8231,12 @@
         if (link[0] === '#') {
           continue;
         }
-        links.push(this.createSauceLink(link.trim()));
+        try {
+          links.push(this.createSauceLink(link.trim()));
+        } catch (_error) {
+          err = _error;
+          continue;
+        }
       }
       if (!links.length) {
         return;
