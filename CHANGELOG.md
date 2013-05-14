@@ -1,3 +1,6 @@
+- Readded `Mark own posts`.
+- Readded `Linkification`.
+- Minor fixes.
 - Added a button in the Archives settings to update the list now.
 - Added the option `Tab to Choose Files First`, disabled by default.
 
