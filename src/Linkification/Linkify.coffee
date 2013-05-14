@@ -24,39 +24,37 @@ Linkify =
       for node in @nodes.comment.childNodes
         continue unless node
 
-        if seeking
-          switch node.localName or node.nodeName
-            when '#text'
+        switch node.localName or node.nodeName
+          when '#text'
+            break
+          when 'wbr'
+            if seeking
+              container.nodes.push node
+            continue
+          when 's', 'span'
+            if node = node.firstChild
               break
-            when 'wbr'
-              container.nodes.push node
-              continue
-            when 's'
-              current += node.firstChild.data
-              container.nodes.push node
-              continue
-            else
-              continue
+            continue
+          else
+            continue
+
+        if seeking
           current += node.data
           if link.length > current.length
             container.nodes.push node
-            continue
           else
             if after = current[link.length...]
               node.data = node.data[...-after.length]
 
             container.nodes.push node
-            a = $.el 'a',
-              target: '_blank'
-              rel: 'nofollow noreferrer'
-              href: container.href
-
+            a = Linkify.anchor container.href
             $.add a, container.nodes
             nodes.push a
             nodes.push $.tn after if after
             $.replace container.entry, nodes
             break
           continue
+
         unless data = node.data
           continue
         unless result = Linkify[if protocol then 'protocol' else 'catchAll'].exec data
@@ -66,14 +64,11 @@ Linkify =
         if index
           nodes.push $.tn input[...index]
 
-        href = if result[2] then link else "http://#{link}"
+        href = if !protocol or result[2] then link else "http://#{link}"
 
         if link.length is result[0].length
-          a = $.el 'a',
-            target: '_blank'
-            rel: 'nofollow noreferrer'
-            href: href
-            textContent: link
+          a = Linkify.anchor href
+          a.textContent = link
           nodes.push a
           if data = input[index + link.length..]
             nodes.push $.tn data
@@ -92,3 +87,9 @@ Linkify =
           continue
 
     return
+
+  anchor: (href) ->
+    $.el 'a',
+      target: '_blank'
+      rel: 'nofollow noreferrer'
+      href: href

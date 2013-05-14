@@ -6938,34 +6938,33 @@
           if (!node) {
             continue;
           }
-          if (seeking) {
-            switch (node.localName || node.nodeName) {
-              case '#text':
+          switch (node.localName || node.nodeName) {
+            case '#text':
+              break;
+            case 'wbr':
+              if (seeking) {
+                container.nodes.push(node);
+              }
+              continue;
+            case 's':
+            case 'span':
+              if (node = node.firstChild) {
                 break;
-              case 'wbr':
-                container.nodes.push(node);
-                continue;
-              case 's':
-                current += node.firstChild.data;
-                container.nodes.push(node);
-                continue;
-              default:
-                continue;
-            }
+              }
+              continue;
+            default:
+              continue;
+          }
+          if (seeking) {
             current += node.data;
             if (link.length > current.length) {
               container.nodes.push(node);
-              continue;
             } else {
               if (after = current.slice(link.length)) {
                 node.data = node.data.slice(0, -after.length);
               }
               container.nodes.push(node);
-              a = $.el('a', {
-                target: '_blank',
-                rel: 'nofollow noreferrer',
-                href: container.href
-              });
+              a = Linkify.anchor(container.href);
               $.add(a, container.nodes);
               nodes.push(a);
               if (after) {
@@ -6986,14 +6985,10 @@
           if (index) {
             nodes.push($.tn(input.slice(0, index)));
           }
-          href = result[2] ? link : "http://" + link;
+          href = !protocol || result[2] ? link : "http://" + link;
           if (link.length === result[0].length) {
-            a = $.el('a', {
-              target: '_blank',
-              rel: 'nofollow noreferrer',
-              href: href,
-              textContent: link
-            });
+            a = Linkify.anchor(href);
+            a.textContent = link;
             nodes.push(a);
             if (data = input.slice(index + link.length)) {
               nodes.push($.tn(data));
@@ -7016,6 +7011,13 @@
           }
         }
       }
+    },
+    anchor: function(href) {
+      return $.el('a', {
+        target: '_blank',
+        rel: 'nofollow noreferrer',
+        href: href
+      });
     }
   };
 
