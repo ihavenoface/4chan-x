@@ -1,3 +1,5 @@
+### 3.4.1 - *2013-05-15*
+
 - Readded `Mark own posts`.
 - Readded `Linkification`.
 - Minor fixes.
