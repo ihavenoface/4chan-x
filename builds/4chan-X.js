@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.0 - 2013-05-14
+/* 4chan X - Version 3.4.0 - 2013-05-15
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -98,7 +98,7 @@
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
         'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.'],
-        'Linkification': [true, 'It links stuff.']
+        'Linkification': [true, 'Convert text links in to hyperlinks.']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -6905,7 +6905,7 @@
       });
     },
     node: function() {
-      var a, after, container, current, data, href, index, input, link, links, node, nodes, protocol, result, seeking, _i, _j, _len, _len1, _ref;
+      var a, after, container, current, data, href, index, input, link, links, node, nodes, prot, protocol, result, seeking, start, _, _i, _j, _len, _len1, _ref;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6970,12 +6970,13 @@
           if (!(result = Linkify[protocol ? 'protocol' : 'catchAll'].exec(data))) {
             continue;
           }
+          start = result[0], _ = result[1], prot = result[2];
           index = result.index, input = result.input;
           if (index) {
             nodes.push($.tn(input.slice(0, index)));
           }
-          href = !protocol || result[2] ? link : "http://" + link;
-          if (link.length === result[0].length) {
+          href = !protocol || prot ? link : "http://" + link;
+          if (link.length === start.length) {
             a = Linkify.anchor(href);
             a.textContent = link;
             nodes.push(a);
@@ -6985,9 +6986,9 @@
             $.replace(node, nodes);
             break;
           }
-          if (link.length > result[0].length) {
+          if (link.length > start.length) {
             if (index) {
-              node.data = data = result[0];
+              node.data = data = start;
             }
             container = {
               nodes: [node.cloneNode(true)],
@@ -9272,7 +9273,7 @@
               return;
             }
             version = this.response;
-            if (!/^\d\.\d+\.\d+$/.test(version.trim())) {
+            if (!/^\d\.\d+\.\d+$/.test(version = version.trim())) {
               return;
             }
             if (g.VERSION === version) {

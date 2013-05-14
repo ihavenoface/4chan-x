@@ -273,7 +273,7 @@ Main =
       $.ajax '<%= meta.update %>version', onload: ->
         return unless @status is 200
         version = @response
-        return unless /^\d\.\d+\.\d+$/.test version.trim()
+        return unless /^\d\.\d+\.\d+$/.test version = version.trim()
         if g.VERSION is version
           # Don't check for updates too frequently if there wasn't one in a 'long' time.
           $.set 'lastupdate', now

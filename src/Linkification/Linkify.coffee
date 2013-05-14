@@ -59,14 +59,14 @@ Linkify =
           continue
         unless result = Linkify[if protocol then 'protocol' else 'catchAll'].exec data
           continue
-
+        [start,_,prot] = result
         {index, input} = result
         if index
           nodes.push $.tn input[...index]
 
-        href = if !protocol or result[2] then link else "http://#{link}"
+        href = if !protocol or prot then link else "http://#{link}"
 
-        if link.length is result[0].length
+        if link.length is start.length
           a = Linkify.anchor href
           a.textContent = link
           nodes.push a
@@ -75,9 +75,9 @@ Linkify =
           $.replace node, nodes
           break
 
-        if link.length > result[0].length
+        if link.length > start.length
           if index
-            node.data = data = result[0]
+            node.data = data = start
           container =
             nodes:  [node.cloneNode true]
             entry:  node
