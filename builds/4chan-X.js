@@ -5125,13 +5125,13 @@
           err = 'No valid captcha.';
         }
       }
+      QR.cleanNotifications();
       if (err) {
         QR.cooldown.auto = false;
         QR.status();
         QR.error(err);
         return;
       }
-      QR.cleanNotifications();
       QR.cooldown.auto = QR.posts.length > 1;
       if (Conf['Auto-Hide QR'] && !QR.cooldown.auto) {
         QR.hide();
