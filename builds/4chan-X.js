@@ -8978,6 +8978,9 @@
       $.get(Conf, Main.initFeatures);
       pathname = location.pathname.split('/');
       g.BOARD = new Board(pathname[1]);
+      if (g.BOARD.ID === 'z') {
+        return;
+      }
       g.VIEW = (function() {
         switch (pathname[2]) {
           case 'res':
