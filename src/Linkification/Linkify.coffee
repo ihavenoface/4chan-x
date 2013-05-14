@@ -1,17 +1,24 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = ///(((?:ftp(?:://|s://)|http(?:://|s://)|ma(?:gnet://|ilto://)|irc://)[^\s/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmoqtuwxz])|b(?:iz?|[abdefghjmnorstvwz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghlmnpqrstuwy])|i(?:n(?:fo|t)|[delmoqrst])|j(?:o(?:bs)?|[em])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om|[cfgilpruz])|org|p(?:ro?|[aefghklmstw])|t(?:el|r(?:avel)?|[cdfgjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*///gi
-    @protocol = ///(?:ftp(?:://|s://)|http(?:://|s://)|ma(?:gnet://|ilto://)|irc://)[^\s/$.?\#].[^\s]*///gi
+    @catchAll = ///(((?:http(?:://|s://)|ftp(?:s://|://)|ma(?:gnet:|ilto:)|irc:(?://)?)[^\s/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmoqtuwxz])|b(?:iz?|[abdefghjmnorstvwz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghlmnpqrstuwy])|i(?:n(?:fo|t)|[delmoqrst])|j(?:o(?:bs)?|[em])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om|[cfgilpruz])|org|p(?:ro?|[aefghklmstw])|t(?:el|r(?:avel)?|[cdfgjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*///i
+    @protocol = ///(?:http(?:://|s://)|ftp(?:s://|://)|ma(?:gnet:|ilto:)|irc:(?://)?)[^\s/$.?\#].[^\s]*///i
+
+    @globalCatchAll = new RegExp @catchAll.source, 'g'
 
     Post::callbacks.push
       name: 'Linkification'
       cb:   @node
 
   node: ->
-    return if @isClone or @isHidden or @thread.isHidden or !links = @info.comment.match Linkify.catchAll
+    return if @isClone or @isHidden or @thread.isHidden or !links = @info.comment.match Linkify.globalCatchAll
 
     for link in links
+      if protocol = Linkify.protocol.exec link
+        if protocol.index
+          link = protocol[0]
+        else
+          protocol = false
       seeking = false
       nodes = []
       for node in @nodes.comment.childNodes
@@ -52,34 +59,36 @@ Linkify =
           continue
         unless data = node.data
           continue
-        prot = Linkify.protocol.exec data
-        unless result = prot or Linkify.catchAll.exec data
+        unless result = Linkify[if protocol then 'protocol' else 'catchAll'].exec data
           continue
-        if prot and prot.index
-          nodes.push $.tn data[...prot.index]
-          data = node.data = data[prot.index..]
 
-        if (index = data.indexOf link) >= 0
-          if index
-            nodes.push $.tn data[...index]
+        {index, input} = result
+        if index
+          nodes.push $.tn input[...index]
+
+        href = if result[2] then link else "http://#{link}"
+
+        if link.length is result[0].length
           a = $.el 'a',
             target: '_blank'
             rel: 'nofollow noreferrer'
-            href: link
+            href: href
             textContent: link
           nodes.push a
-          data = data[index + link.length..]
-          if data
+          if data = input[index + link.length..]
             nodes.push $.tn data
           $.replace node, nodes
           break
 
-        if link.indexOf(data) >= 0
+        if link.length > result[0].length
+          if index
+            node.data = data = result[0]
           container =
             nodes:  [node.cloneNode true]
             entry:  node
-            href:   link
+            href:   href
           current = data
           seeking = true
           continue
+
     return

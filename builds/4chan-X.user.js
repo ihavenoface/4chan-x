@@ -6907,21 +6907,29 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(((?:ftp(?::\/\/|s:\/\/)|http(?::\/\/|s:\/\/)|ma(?:gnet:\/\/|ilto:\/\/)|irc:\/\/)[^\s\/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmoqtuwxz])|b(?:iz?|[abdefghjmnorstvwz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghlmnpqrstuwy])|i(?:n(?:fo|t)|[delmoqrst])|j(?:o(?:bs)?|[em])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om|[cfgilpruz])|org|p(?:ro?|[aefghklmstw])|t(?:el|r(?:avel)?|[cdfgjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*/gi;
-      this.protocol = /(?:ftp(?::\/\/|s:\/\/)|http(?::\/\/|s:\/\/)|ma(?:gnet:\/\/|ilto:\/\/)|irc:\/\/)[^\s\/$.?\#].[^\s]*/gi;
+      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmoqtuwxz])|b(?:iz?|[abdefghjmnorstvwz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghlmnpqrstuwy])|i(?:n(?:fo|t)|[delmoqrst])|j(?:o(?:bs)?|[em])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om|[cfgilpruz])|org|p(?:ro?|[aefghklmstw])|t(?:el|r(?:avel)?|[cdfgjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))[^\s]*/i;
+      this.protocol = /(?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$.?\#].[^\s]*/i;
+      this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
         name: 'Linkification',
         cb: this.node
       });
     },
     node: function() {
-      var a, after, container, current, data, index, link, links, node, nodes, prot, result, seeking, _i, _j, _len, _len1, _ref;
+      var a, after, container, current, data, href, index, input, link, links, node, nodes, protocol, result, seeking, _i, _j, _len, _len1, _ref;
 
-      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.catchAll))) {
+      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
       }
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
+        if (protocol = Linkify.protocol.exec(link)) {
+          if (protocol.index) {
+            link = protocol[0];
+          } else {
+            protocol = false;
+          }
+        }
         seeking = false;
         nodes = [];
         _ref = this.nodes.comment.childNodes;
@@ -6971,37 +6979,36 @@
           if (!(data = node.data)) {
             continue;
           }
-          prot = Linkify.protocol.exec(data);
-          if (!(result = prot || Linkify.catchAll.exec(data))) {
+          if (!(result = Linkify[protocol ? 'protocol' : 'catchAll'].exec(data))) {
             continue;
           }
-          if (prot && prot.index) {
-            nodes.push($.tn(data.slice(0, prot.index)));
-            data = node.data = data.slice(prot.index);
+          index = result.index, input = result.input;
+          if (index) {
+            nodes.push($.tn(input.slice(0, index)));
           }
-          if ((index = data.indexOf(link)) >= 0) {
-            if (index) {
-              nodes.push($.tn(data.slice(0, index)));
-            }
+          href = result[2] ? link : "http://" + link;
+          if (link.length === result[0].length) {
             a = $.el('a', {
               target: '_blank',
               rel: 'nofollow noreferrer',
-              href: link,
+              href: href,
               textContent: link
             });
             nodes.push(a);
-            data = data.slice(index + link.length);
-            if (data) {
+            if (data = input.slice(index + link.length)) {
               nodes.push($.tn(data));
             }
             $.replace(node, nodes);
             break;
           }
-          if (link.indexOf(data) >= 0) {
+          if (link.length > result[0].length) {
+            if (index) {
+              node.data = data = result[0];
+            }
             container = {
               nodes: [node.cloneNode(true)],
               entry: node,
-              href: link
+              href: href
             };
             current = data;
             seeking = true;
