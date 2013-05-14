@@ -1201,14 +1201,21 @@
         a.className = 'current';
       }
       fullBoardList = $('#full-board-list', Header.bar);
-      fullBoardList.innerHTML = nav.innerHTML;
-      $.rm($('#navtopright', fullBoardList));
-      btn = $.el('span', {
-        className: 'hide-board-list-button brackets-wrap',
-        innerHTML: '<a href=javascript:;> - </a>'
-      });
-      $.on(btn, 'click', Header.toggleBoardList);
-      $.add(fullBoardList, btn);
+      if (nav === null) {
+        Main.logError({
+          message: "Header crash: nav is null",
+          error: new Error("" + (!!$.id('boardNavMobile')) + "\nd.readyState     = " + d.readyState + "\ndoc.className    = " + doc.className + "\nd.body.className = " + d.body.className)
+        });
+      } else {
+        fullBoardList.innerHTML = nav.innerHTML;
+        $.rm($('#navtopright', fullBoardList));
+        btn = $.el('span', {
+          className: 'hide-board-list-button brackets-wrap',
+          innerHTML: '<a href=javascript:;> - </a>'
+        });
+        $.on(btn, 'click', Header.toggleBoardList);
+        $.add(fullBoardList, btn);
+      }
       Header.setCustomNav(Conf['Custom Board Navigation']);
       Header.generateBoardList(Conf['boardnav']);
       $.sync('Custom Board Navigation', Header.setCustomNav);
