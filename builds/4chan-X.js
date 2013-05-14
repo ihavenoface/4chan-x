@@ -2570,6 +2570,10 @@
       }
       for (key in Config.filter) {
         this.filters[key] = [];
+        if (Conf[key] === void 0) {
+          $["delete"](key);
+          continue;
+        }
         _ref = Conf[key].split('\n');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           filter = _ref[_i];
