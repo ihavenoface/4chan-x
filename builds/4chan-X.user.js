@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.1 - 2013-05-15
+/* 4chan X - Version 3.4.1 - 2013-05-16
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6918,7 +6918,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|[^\s]*\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])\/)[^\s]*/i;
+      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|[a-z0-9]+\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])[:\/])[^\s]*/i;
       this.protocol = /(?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$.?\#].[^\s]*/i;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
@@ -6927,101 +6927,136 @@
       });
     },
     node: function() {
-      var a, after, container, current, data, href, index, input, link, links, node, nodes, prot, protocol, result, seeking, start, _, _i, _j, _len, _len1, _ref;
+      var child, link, links, next, prev, protocol, spoiler, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
       }
-      for (_i = 0, _len = links.length; _i < _len; _i++) {
-        link = links[_i];
+      _ref = $$('s', this.nodes.comment);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        spoiler = _ref[_i];
+        if ((_ref1 = (prev = spoiler.previousSibling)) != null ? _ref1.data : void 0) {
+          prev.data += spoiler.textContent;
+        }
+        if ((_ref2 = (next = spoiler.nextSibling)) != null ? _ref2.data : void 0) {
+          prev.data += next.data;
+          $.rm(next);
+        }
+        if (prev) {
+          $.rm(spoiler);
+          continue;
+        }
+        $.replace(spoiler, $.tn(spoiler.textContent));
+      }
+      for (_j = 0, _len1 = links.length; _j < _len1; _j++) {
+        link = links[_j];
         if (protocol = Linkify.protocol.exec(link)) {
           if (protocol.index) {
             link = protocol[0];
           } else {
-            protocol = false;
+            Linkify.prot = false;
           }
         }
-        seeking = false;
-        nodes = [];
-        _ref = this.nodes.comment.childNodes;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          node = _ref[_j];
-          if (!node) {
-            continue;
-          }
-          switch (node.localName || node.nodeName) {
-            case '#text':
-              break;
-            case 'wbr':
-              if (seeking) {
-                container.nodes.push(node);
-              }
-              continue;
-            case 's':
-            case 'span':
-              if (node = node.firstChild) {
-                break;
-              }
-              continue;
-            default:
-              continue;
-          }
-          if (seeking) {
-            current += node.data;
-            if (link.length > current.length) {
-              container.nodes.push(node);
-            } else {
-              if (after = current.slice(link.length)) {
-                node.data = node.data.slice(0, -after.length);
-              }
-              container.nodes.push(node);
-              a = Linkify.anchor(container.href);
-              $.add(a, container.nodes);
-              nodes.push(a);
-              if (after) {
-                nodes.push($.tn(after));
-              }
-              $.replace(container.entry, nodes);
-              break;
-            }
-            continue;
-          }
-          if (!(data = node.data)) {
-            continue;
-          }
-          if (!(result = Linkify[protocol ? 'protocol' : 'catchAll'].exec(data))) {
-            continue;
-          }
-          start = result[0], _ = result[1], prot = result[2];
-          index = result.index, input = result.input;
-          if (index) {
-            nodes.push($.tn(input.slice(0, index)));
-          }
-          href = !protocol || prot ? link : "http://" + link;
-          if (link.length === start.length) {
-            a = Linkify.anchor(href);
-            a.textContent = link;
-            nodes.push(a);
-            if (data = input.slice(index + link.length)) {
-              nodes.push($.tn(data));
-            }
-            $.replace(node, nodes);
+        Linkify.matchingProtocol = protocol;
+        Linkify.link = link;
+        Linkify.length = link.length;
+        Linkify.seeking = false;
+        Linkify.found = false;
+        Linkify.nodes = [];
+        Linkify.container = [];
+        _ref3 = this.nodes.comment.childNodes;
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          child = _ref3[_k];
+          Linkify.seek(child);
+          if (Linkify.found) {
             break;
           }
-          if (link.length > start.length) {
-            if (index) {
-              node.data = data = start;
-            }
-            container = {
-              nodes: [node.cloneNode(true)],
-              entry: node,
-              href: href
-            };
-            current = data;
-            seeking = true;
-            continue;
-          }
         }
+      }
+    },
+    seek: function(node) {
+      var a, after, child, data, href, index, input, result, start, _i, _len, _ref;
+
+      if (!node) {
+        return;
+      }
+      switch (node.localName || node.nodeName) {
+        case '#text':
+          break;
+        case 'wbr':
+          if (this.seeking) {
+            this.container.nodes.push(node);
+          }
+          return;
+        case 's':
+        case 'span':
+          if (!this.seeking) {
+            _ref = node.childNodes;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              child = _ref[_i];
+              this.seek(child);
+            }
+            return;
+          }
+          node = node.firstChild;
+          break;
+        default:
+          return;
+      }
+      if (this.seeking) {
+        this.current += node.data;
+        if (this.length > this.current.length) {
+          this.container.nodes.push(node);
+        } else {
+          this.found = true;
+          if (after = this.current.slice(this.length)) {
+            node.data = node.data.slice(0, -after.length);
+          }
+          this.container.nodes.push(node);
+          a = Linkify.anchor(this.container.href);
+          $.add(a, this.container.nodes);
+          this.nodes.push(a);
+          if (after) {
+            this.nodes.push($.tn(after));
+          }
+          $.replace(this.container.entry, this.nodes);
+        }
+        return;
+      }
+      if (!(data = node.data)) {
+        return;
+      }
+      if (!(result = this[this.matchingProtocol ? 'protocol' : 'catchAll'].exec(data))) {
+        return;
+      }
+      start = result[0];
+      index = result.index, input = result.input;
+      if (index) {
+        this.nodes.push($.tn(input.slice(0, index)));
+      }
+      href = this.matchingProtocol ? this.link : "http://" + this.link;
+      if (this.length === start.length) {
+        a = Linkify.anchor(href);
+        a.textContent = this.link;
+        this.nodes.push(a);
+        if (data = input.slice(index + this.length)) {
+          this.nodes.push($.tn(data));
+        }
+        $.replace(node, this.nodes);
+        this.found = true;
+        return;
+      }
+      if (this.length > start.length) {
+        if (index) {
+          node.data = start;
+        }
+        this.container = {
+          nodes: [node.cloneNode(true)],
+          entry: node,
+          href: href
+        };
+        this.current = start;
+        return this.seeking = true;
       }
     },
     anchor: function(href) {
