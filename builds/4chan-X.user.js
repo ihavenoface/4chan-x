@@ -6954,7 +6954,7 @@
           if (protocol.index) {
             link = protocol[0];
           } else {
-            Linkify.prot = false;
+            protocol = false;
           }
         }
         Linkify.matchingProtocol = protocol;
