@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X
-// @version      3.4.1
+// @version      3.4.2
 // @namespace    4chan-X
 // @description  Essentially it's 4chan X plus more bloat.
 // @license      MIT; https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.1 - 2013-05-16
+/* 4chan X - Version 3.4.2 - 2013-05-16
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -218,7 +218,7 @@
   doc = d.documentElement;
 
   g = {
-    VERSION: '3.4.1',
+    VERSION: '3.4.2',
     NAMESPACE: '4chan X.',
     boards: {},
     threads: {},
@@ -6907,7 +6907,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|(\w+\.){1,2}(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdeghijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))[^\s]*/i;
+      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|(\w+\.){1,2}(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))[^\s]*/i;
       this.protocol = /(?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$.?\#].[^\s]*/i;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
