@@ -6916,7 +6916,7 @@
       });
     },
     node: function() {
-      var child, link, links, next, prev, protocol, spoiler, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var child, link, links, next, prev, spoiler, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6938,14 +6938,9 @@
       }
       for (_j = 0, _len1 = links.length; _j < _len1; _j++) {
         link = links[_j];
-        if (protocol = Linkify.protocol.exec(link)) {
-          if (protocol.index) {
-            link = protocol[0];
-          } else {
-            protocol = false;
-          }
+        if (Linkify.matchingProtocol = Linkify.protocol.exec(link)) {
+          link = Linkify.matchingProtocol[0];
         }
-        Linkify.matchingProtocol = protocol;
         Linkify.link = link;
         Linkify.length = link.length;
         Linkify.seeking = false;

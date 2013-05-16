@@ -25,12 +25,8 @@ Linkify =
         continue
 
     for link in links
-      if protocol = Linkify.protocol.exec link
-        if protocol.index
-          link = protocol[0]
-        else
-          protocol = false
-      Linkify.matchingProtocol = protocol
+      if Linkify.matchingProtocol = Linkify.protocol.exec link
+        link = Linkify.matchingProtocol[0]
       Linkify.link      = link
       Linkify.length    = link.length
       Linkify.seeking   = false
