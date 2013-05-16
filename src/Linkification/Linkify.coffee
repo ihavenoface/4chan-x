@@ -23,7 +23,6 @@ Linkify =
       if prev
         $.rm spoiler
         continue
-      $.replace spoiler, $.tn spoiler.textContent
 
     for link in links
       if protocol = Linkify.protocol.exec link

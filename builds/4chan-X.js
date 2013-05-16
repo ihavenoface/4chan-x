@@ -6935,7 +6935,6 @@
           $.rm(spoiler);
           continue;
         }
-        $.replace(spoiler, $.tn(spoiler.textContent));
       }
       for (_j = 0, _len1 = links.length; _j < _len1; _j++) {
         link = links[_j];
