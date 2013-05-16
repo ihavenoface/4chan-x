@@ -7366,7 +7366,10 @@
         Fourchan.code.call(post);
       }
       if (g.BOARD.ID === 'sci') {
-        return Fourchan.math.call(post);
+        Fourchan.math.call(post);
+      }
+      if (Conf['Linkification']) {
+        return Linkify.node.call(post);
       }
     }
   };

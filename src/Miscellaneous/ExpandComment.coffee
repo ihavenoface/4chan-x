@@ -68,3 +68,5 @@ ExpandComment =
       Fourchan.code.call     post
     if g.BOARD.ID is 'sci'
       Fourchan.math.call     post
+    if Conf['Linkification']
+      Linkify.node.call      post
