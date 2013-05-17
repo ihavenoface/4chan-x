@@ -1201,12 +1201,7 @@
         a.className = 'current';
       }
       fullBoardList = $('#full-board-list', Header.bar);
-      if (nav === null) {
-        Main.logError({
-          message: "Header crash: nav is null",
-          error: new Error("" + (!!$.id('boardNavMobile')) + "\nd.readyState     = " + d.readyState + "\ndoc.className    = " + doc.className + "\nd.body.className = " + d.body.className)
-        });
-      } else {
+      if (nav) {
         fullBoardList.innerHTML = nav.innerHTML;
         $.rm($('#navtopright', fullBoardList));
         btn = $.el('span', {
