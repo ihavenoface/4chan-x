@@ -4206,7 +4206,7 @@
           })(),
           sage: board === 'q' ? 600 : 60,
           file: board === 'q' ? 300 : 30,
-          post: board === 'q' ? 60 : 30
+          post: board === 'q' ? 150 : 30
         };
         QR.cooldown.upSpd = 0;
         QR.cooldown.upSpdAccuracy = .5;

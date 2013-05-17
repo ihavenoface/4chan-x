@@ -1,3 +1,5 @@
+- More minor fixes.
+
 ### 3.4.2 - *2013-05-16*
 
 - Minor fixes for Linkification.
