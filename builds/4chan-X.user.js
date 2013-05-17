@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.2 - 2013-05-16
+/* 4chan X - Version 3.4.2 - 2013-05-17
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -9004,6 +9004,24 @@
     init: function(items) {
       var db, flatten, pathname, _i, _len;
 
+      pathname = location.pathname.split('/');
+      g.BOARD = new Board(pathname[1]);
+      if (g.BOARD.ID === 'z') {
+        return;
+      }
+      g.VIEW = (function() {
+        switch (pathname[2]) {
+          case 'res':
+            return 'thread';
+          case 'catalog':
+            return 'catalog';
+          default:
+            return 'index';
+        }
+      })();
+      if (g.VIEW === 'thread') {
+        g.THREADID = +pathname[3];
+      }
       flatten = function(parent, obj) {
         var key, val;
 
@@ -9028,24 +9046,6 @@
       Conf['selectedArchives'] = {};
       Conf['archives'] = Redirect.archives;
       $.get(Conf, Main.initFeatures);
-      pathname = location.pathname.split('/');
-      g.BOARD = new Board(pathname[1]);
-      if (g.BOARD.ID === 'z') {
-        return;
-      }
-      g.VIEW = (function() {
-        switch (pathname[2]) {
-          case 'res':
-            return 'thread';
-          case 'catalog':
-            return 'catalog';
-          default:
-            return 'index';
-        }
-      })();
-      if (g.VIEW === 'thread') {
-        g.THREADID = +pathname[3];
-      }
       $.on(d, '4chanMainInit', Main.initStyle);
       return $.asap((function() {
         var _ref;
