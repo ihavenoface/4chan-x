@@ -8936,9 +8936,12 @@
     };
 
     DataBoard.prototype.clean = function() {
-      var boardID, now;
+      var boardID, now, val, _base, _ref;
 
-      for (boardID in this.data.boards) {
+      _ref = this.data.boards;
+      for (boardID in _ref) {
+        val = _ref[boardID];
+        (_base = this.data.boards)[boardID] || (_base[boardID] = {});
         this.deleteIfEmpty({
           boardID: boardID
         });

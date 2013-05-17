@@ -56,7 +56,10 @@ class DataBoard
     val or defaultValue
 
   clean: ->
-    for boardID of @data.boards
+    for boardID, val of @data.boards
+      # XXX tmp fix for users that had the `null`
+      # value for a board with the Unread features:
+      @data.boards[boardID] or= {}
       @deleteIfEmpty {boardID}
 
     now = Date.now()
