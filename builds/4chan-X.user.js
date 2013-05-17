@@ -9050,7 +9050,7 @@
       return $.asap((function() {
         var _ref1;
 
-        return d.head && $('title', d.head) || ((_ref1 = d.readyState) === 'interactive' || _ref1 === 'complete');
+        return d.head && $('title', d.head) && $('link[rel="shortcut icon"]', d.head) || ((_ref1 = d.readyState) === 'interactive' || _ref1 === 'complete');
       }), Main.initStyle);
     },
     initFeatures: function(items) {
