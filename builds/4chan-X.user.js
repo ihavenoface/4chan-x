@@ -9002,11 +9002,11 @@
 
   Main = {
     init: function(items) {
-      var db, flatten, pathname, _i, _len;
+      var db, flatten, pathname, _i, _len, _ref;
 
       pathname = location.pathname.split('/');
       g.BOARD = new Board(pathname[1]);
-      if (g.BOARD.ID === 'z') {
+      if ((_ref = g.BOARD.ID) === 'z' || _ref === 'fk') {
         return;
       }
       g.VIEW = (function() {
@@ -9048,9 +9048,9 @@
       $.get(Conf, Main.initFeatures);
       $.on(d, '4chanMainInit', Main.initStyle);
       return $.asap((function() {
-        var _ref;
+        var _ref1;
 
-        return d.head && $('title', d.head) || ((_ref = d.readyState) === 'interactive' || _ref === 'complete');
+        return d.head && $('title', d.head) || ((_ref1 = d.readyState) === 'interactive' || _ref1 === 'complete');
       }), Main.initStyle);
     },
     initFeatures: function(items) {
