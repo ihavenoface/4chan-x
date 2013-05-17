@@ -7114,7 +7114,7 @@
         if (lastarchivecheck > now - 4 * $.DAY) {
           return;
         }
-        return $.ajax('http://namesync.org/4chan-x/archives.json', {
+        return $.ajax('https://namesync.org/4chan-x/archives.json', {
           onload: function() {
             if (this.status !== 200) {
               return;
@@ -9313,7 +9313,7 @@
         if (items.lastupdate > now - freq || items.lastchecked > now - $.DAY) {
           return;
         }
-        return $.ajax('http://namesync.org/4chan-x/version', {
+        return $.ajax('https://namesync.org/4chan-x/version', {
           onload: function() {
             var el, version;
 
