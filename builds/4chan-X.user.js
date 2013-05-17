@@ -8936,15 +8936,18 @@
     };
 
     DataBoard.prototype.clean = function() {
-      var boardID, now, val, _base, _ref;
+      var boardID, now, val, _ref;
 
       _ref = this.data.boards;
       for (boardID in _ref) {
         val = _ref[boardID];
-        (_base = this.data.boards)[boardID] || (_base[boardID] = {});
-        this.deleteIfEmpty({
-          boardID: boardID
-        });
+        if (typeof this.data.boards[boardID] !== 'object') {
+          delete this.data.boards[boardID];
+        } else {
+          this.deleteIfEmpty({
+            boardID: boardID
+          });
+        }
       }
       now = Date.now();
       if ((this.data.lastChecked || 0) < now - 2 * $.HOUR) {
