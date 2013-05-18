@@ -325,7 +325,7 @@
 
       if (req = reqs[url]) {
         if (req.readyState === 4) {
-          cb.call(req);
+          cb.call(req, req.evt);
         } else {
           req.callbacks.push(cb);
         }
@@ -343,6 +343,7 @@
             cb = _ref[_i];
             cb.call(this, e);
           }
+          req.evt = e;
           return delete this.callbacks;
         },
         onabort: rm,
