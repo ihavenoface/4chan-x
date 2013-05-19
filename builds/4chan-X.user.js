@@ -6914,8 +6914,8 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(((?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$\.?\#].)|(\w+\.){1,2}(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))[^\s]*/i;
-      this.protocol = /(?:http(?::\/\/|s:\/\/)|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$.?\#].[^\s]*/i;
+      this.catchAll = /((([a-z]+?:(\/\/|\?)[^\s\/$\.?\#].)|[-\.\w]+?\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s"',)]*/i;
+      this.protocol = /(?:https:\/\/|ftp(?:s:\/\/|:\/\/)|ma(?:gnet:|ilto:)|irc:(?:\/\/)?)[^\s\/$.?\#].[^\s]*/i;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
         name: 'Linkification',
@@ -7026,7 +7026,8 @@
       if (index) {
         this.nodes.push($.tn(input.slice(0, index)));
       }
-      href = this.matchingProtocol ? this.link : "http://" + this.link;
+      href = this.matchingProtocol || /^\w+:\/\//.test(this.link) ? this.link : "http://" + this.link;
+      href = href.replace(/\\/g, '\/');
       if (this.length === start.length) {
         a = Linkify.anchor(href);
         a.textContent = this.link;

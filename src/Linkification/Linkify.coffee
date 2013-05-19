@@ -1,8 +1,8 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = ///(((?:http(?:://|s://)|ftp(?:s://|://)|ma(?:gnet:|ilto:)|irc:(?://)?)[^\s/$\.?\#].)|(\w+\.){1,2}(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))[^\s]*///i
-    @protocol = ///(?:http(?:://|s://)|ftp(?:s://|://)|ma(?:gnet:|ilto:)|irc:(?://)?)[^\s/$.?\#].[^\s]*///i
+    @catchAll = ///((([a-z]+?:(//|\?)[^\s/$\.?\#].)|[-\.\w]+?\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s"',)]*///i
+    @protocol = ///(?:https://|ftp(?:s://|://)|ma(?:gnet:|ilto:)|irc:(?://)?)[^\s/$.?\#].[^\s]*///i
 
     @globalCatchAll = new RegExp @catchAll.source, 'g'
 
@@ -84,7 +84,8 @@ Linkify =
     if index
       @nodes.push $.tn input[...index]
 
-    href = if @matchingProtocol then @link else "http://#{@link}"
+    href = if @matchingProtocol or /^\w+:\/\//.test @link then @link else "http://#{@link}"
+    href = href.replace /\\/g, '\/'
 
     if @length is start.length
       a = Linkify.anchor href
