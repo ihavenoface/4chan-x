@@ -296,7 +296,7 @@
   };
 
   $.ajax = function(url, callbacks, opts) {
-    var cred, form, headers, key, r, sync, type, upCallbacks, val;
+    var cred, err, form, headers, key, r, sync, type, upCallbacks, val;
 
     if (opts == null) {
       opts = {};
@@ -311,7 +311,11 @@
     }
     $.extend(r, callbacks);
     $.extend(r.upload, upCallbacks);
-    r.withCredentials = cred;
+    try {
+      r.withCredentials = cred;
+    } catch (_error) {
+      err = _error;
+    }
     r.send(form);
     return r;
   };
