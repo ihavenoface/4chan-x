@@ -5864,7 +5864,7 @@
         open: function(post) {
           var node;
 
-          if (post.isDead) {
+          if (post.isDead || post.board.ID === 'q') {
             return false;
           }
           DeleteLink.post = post;
@@ -5940,7 +5940,7 @@
           return;
         }
         DeleteLink.cooldown.counting = post;
-        length = post.board.ID === 'q' ? 600 : 30;
+        length = 30;
         seconds = Math.ceil((length * $.SECOND - (Date.now() - post.info.date)) / $.SECOND);
         return DeleteLink.cooldown.count(post, seconds, length, node);
       },
