@@ -1,7 +1,7 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = ///((([a-z]+?:(?://)?[^\s/$\.\#].)|(\w+[\.-]?)+\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s]*///i
+    @catchAll = ///([a-z]+:(?://)?[^\s/$\.\#].|((\w+[\.-]?)+\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s]*///i
     @protocol = ///(?:http(?:://|s://)|ftp(?:://|s://)|ma(?:gnet:\??|ilto:)|irc:(?://)?|r(?:mtp://|tmp(?:t://|s://))|byond://)[^\s/$.?\#].[^\s]*///i
 
     @globalCatchAll = new RegExp @catchAll.source, 'g'
@@ -12,16 +12,6 @@ Linkify =
 
   node: ->
     return if @isClone or @isHidden or @thread.isHidden or !links = @info.comment.match Linkify.globalCatchAll
-
-    for spoiler in $$ 's', @nodes.comment
-      # Should be added to the loop after.
-      if (prev = spoiler.previousSibling)?.data
-        prev.data += spoiler.textContent
-      if (next = spoiler.nextSibling)?.data
-        prev.data += next.data
-        $.rm next
-      if prev
-        $.rm spoiler
 
     for link in links
       if /www\.4chan\.org/i.test link
@@ -52,16 +42,20 @@ Linkify =
         if @seeking
           @container.nodes.push node
         return
-      when 's', 'span'
-        unless @seeking
-          for child in node.childNodes
-            @seek child
-          return
+      when 's'
+        return unless node.childNodes.length is 1
         node = node.firstChild
+        inSpoiler = true
+      when 'span'
+        for child in node.childNodes
+          @seek child, true
+        return
       else
         return
     if @seeking
       @current += node.data
+      if inSpoiler
+        node = node.parentNode
       if @length > @current.length
         @container.nodes.push node
       else
@@ -81,15 +75,17 @@ Linkify =
     unless result = @[if @matchingProtocol then 'protocol' else 'catchAll'].exec data
       return
 
+    href = if @matchingProtocol or /^\w+:\/\//.test @link then @link else "http://#{@link}"
+    href = href.replace /\\/g, '\/'
     [start] = result
     {index, input} = result
     if index
       @nodes.push $.tn input[...index]
 
-    href = if @matchingProtocol or /^\w+:\/\//.test @link then @link else "http://#{@link}"
-    href = href.replace /\\/g, '\/'
+    if inSpoiler
+      node = node.parentNode
 
-    if @length is start.length
+    if @link is start
       a = Linkify.anchor href
       a.textContent = @link
       @nodes.push a
@@ -99,15 +95,16 @@ Linkify =
       @found = true
       return
 
-    if @length > start.length
-      if index
-        node.data = start
-      @container =
-        nodes: [node.cloneNode true]
-        entry: node
-        href:  href
-      @current = start
-      @seeking = true
+    return unless @link.indexOf(data) >= 0 or @length > start.length
+
+    if index
+      node.data = start
+    @container =
+      nodes: [node.cloneNode true]
+      entry: node
+      href:  href
+    @current = start
+    @seeking = true
 
   anchor: (href) ->
     $.el 'a',
