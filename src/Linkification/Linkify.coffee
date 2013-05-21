@@ -1,7 +1,7 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = ///([a-z]+:(?://)?[^\s/$\.\#].|([0-9a-zA-Z-\.]+\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s]*///i
+    @catchAll = ///([a-z]+:(?://)?[^\s/$\.\#><].|([0-9a-zA-Z-\.]+(@|\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))))[^\s]*///i
     @protocol = ///(?:http(?:://|s://)|ftp(?:://|s://)|ma(?:gnet:\??|ilto:)|irc:(?://)?|r(?:mtp://|tmp(?:t://|s://))|byond://)[^\s/$.?\#].[^\s]*///i
 
     @globalCatchAll = new RegExp @catchAll.source, 'g'
@@ -20,11 +20,19 @@ Linkify =
         link = link[...-1]
       if Linkify.matchingProtocol = Linkify.protocol.exec link
         link = Linkify.matchingProtocol[0]
-      Linkify.link      = link
-      Linkify.length    = link.length
-      Linkify.seeking   = false
-      Linkify.found     = false
-      Linkify.nodes     = []
+
+      href = if Linkify.matchingProtocol or /^\w+:\/\//.test @link
+        link
+      else if /@/.test link
+        "mailto:#{link}"
+      else
+        "http://#{link}"
+      Linkify.href     = href.replace /\\/g, '\/'
+      Linkify.link     = link
+      Linkify.length   = link.length
+      Linkify.seeking  = false
+      Linkify.found    = false
+      Linkify.nodes    = []
 
       for child in @nodes.comment.childNodes
         Linkify.seek child
@@ -60,34 +68,33 @@ Linkify =
     if @seeking
       @current += node.data
       if inSpoiler
-        node = node.parentNode
+        if Conf['Clean Links']
+          $.replace node.parentNode, node
+        else
+          node = node.parentNode
       if @length > @current.length
         @container.nodes.push node
       else
-        @found = true
         if after = @current[@length...]
           node.data = node.data[...-after.length]
         @container.nodes.push node
-        a = Linkify.anchor @container.href
+        a = Linkify.anchor @href
         $.add a, @container.nodes
         @nodes.push a
         @nodes.push $.tn after if after
         $.replace @container.entry, @nodes
+        @found = true
       return
 
     unless data = node.data
       return
 
-    href = if @matchingProtocol or /^\w+:\/\//.test @link then @link else "http://#{@link}"
-    href = href.replace /\\/g, '\/'
-
-    if inSpoiler
-      node = node.parentNode
-
     if (index = data.indexOf @link) >= 0
+      if inSpoiler
+        node = node.parentNode
       if index
         @nodes.push $.tn data[...index]
-      a = Linkify.anchor href
+      a = Linkify.anchor @href
       a.textContent = @link
       @nodes.push a
       if data = data[index + @length..]
@@ -101,8 +108,14 @@ Linkify =
 
     [start] = result
     {index, input} = result
-    unless @link.indexOf(start) >= 0
+    unless @link[...start.length] is start
       return
+
+    if inSpoiler
+      if Conf['Clean Links']
+        $.replace node.parentNode, node
+      else
+        node = node.parentNode
 
     if index
       @nodes.push $.tn input[...index]
@@ -110,7 +123,6 @@ Linkify =
     @container =
       nodes: [node.cloneNode true]
       entry: node
-      href:  href
     @current = start
     @seeking = true
 

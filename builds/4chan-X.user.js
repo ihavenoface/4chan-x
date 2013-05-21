@@ -98,7 +98,8 @@
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
         'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.'],
-        'Linkification': [true, 'Convert text links in to hyperlinks.']
+        'Linkification': [true, 'Convert text links in to hyperlinks.'],
+        'Clean Links': [false, 'Remove spoiler elements commonly used to post banned links.']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -6918,7 +6919,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /([a-z]+:(?:\/\/)?[^\s\/$\.\#].|(([0-9a-zA-Z-\.]+\.)+(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s]*/i;
+      this.catchAll = /([a-z]+:(?:\/\/)?[^\s\/$\.\#><].|([0-9a-zA-Z-\.]+(@|\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w]))))[^\s]*/i;
       this.protocol = /(?:http(?::\/\/|s:\/\/)|ftp(?::\/\/|s:\/\/)|ma(?:gnet:\??|ilto:)|irc:(?:\/\/)?|r(?:mtp:\/\/|tmp(?:t:\/\/|s:\/\/))|byond:\/\/)[^\s\/$.?\#].[^\s]*/i;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
@@ -6927,7 +6928,7 @@
       });
     },
     node: function() {
-      var child, link, links, _i, _j, _len, _len1, _ref;
+      var child, href, link, links, _i, _j, _len, _len1, _ref;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6943,6 +6944,8 @@
         if (Linkify.matchingProtocol = Linkify.protocol.exec(link)) {
           link = Linkify.matchingProtocol[0];
         }
+        href = Linkify.matchingProtocol || /^\w+:\/\//.test(this.link) ? link : /@/.test(link) ? "mailto:" + link : "http://" + link;
+        Linkify.href = href.replace(/\\/g, '\/');
         Linkify.link = link;
         Linkify.length = link.length;
         Linkify.seeking = false;
@@ -6959,7 +6962,7 @@
       }
     },
     seek: function(node) {
-      var a, after, child, data, href, inSpoiler, index, input, nodes, result, start, _i, _j, _len, _len1, _ref;
+      var a, after, child, data, inSpoiler, index, input, nodes, result, start, _i, _j, _len, _len1, _ref;
 
       if (!node) {
         return;
@@ -7001,39 +7004,41 @@
       if (this.seeking) {
         this.current += node.data;
         if (inSpoiler) {
-          node = node.parentNode;
+          if (Conf['Clean Links']) {
+            $.replace(node.parentNode, node);
+          } else {
+            node = node.parentNode;
+          }
         }
         if (this.length > this.current.length) {
           this.container.nodes.push(node);
         } else {
-          this.found = true;
           if (after = this.current.slice(this.length)) {
             node.data = node.data.slice(0, -after.length);
           }
           this.container.nodes.push(node);
-          a = Linkify.anchor(this.container.href);
+          a = Linkify.anchor(this.href);
           $.add(a, this.container.nodes);
           this.nodes.push(a);
           if (after) {
             this.nodes.push($.tn(after));
           }
           $.replace(this.container.entry, this.nodes);
+          this.found = true;
         }
         return;
       }
       if (!(data = node.data)) {
         return;
       }
-      href = this.matchingProtocol || /^\w+:\/\//.test(this.link) ? this.link : "http://" + this.link;
-      href = href.replace(/\\/g, '\/');
-      if (inSpoiler) {
-        node = node.parentNode;
-      }
       if ((index = data.indexOf(this.link)) >= 0) {
+        if (inSpoiler) {
+          node = node.parentNode;
+        }
         if (index) {
           this.nodes.push($.tn(data.slice(0, index)));
         }
-        a = Linkify.anchor(href);
+        a = Linkify.anchor(this.href);
         a.textContent = this.link;
         this.nodes.push(a);
         if (data = data.slice(index + this.length)) {
@@ -7048,8 +7053,15 @@
       }
       start = result[0];
       index = result.index, input = result.input;
-      if (!(this.link.indexOf(start) >= 0)) {
+      if (this.link.slice(0, start.length) !== start) {
         return;
+      }
+      if (inSpoiler) {
+        if (Conf['Clean Links']) {
+          $.replace(node.parentNode, node);
+        } else {
+          node = node.parentNode;
+        }
       }
       if (index) {
         this.nodes.push($.tn(input.slice(0, index)));
@@ -7057,8 +7069,7 @@
       }
       this.container = {
         nodes: [node.cloneNode(true)],
-        entry: node,
-        href: href
+        entry: node
       };
       this.current = start;
       return this.seeking = true;
