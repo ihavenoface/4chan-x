@@ -1,5 +1,7 @@
 ### 3.4.4 - *2013-05-22*
 
+- Even more minor fixes.
+
 ### 3.4.3 - *2013-05-19*
 
 - More minor fixes.
