@@ -111,7 +111,7 @@ Build =
       else
         ''
 
-    if file?.isDeleted
+    if data? and file?.isDeleted
       fileHtml = if isOP
         "<div class=file id=f#{data.no}><div class=fileInfo></div><span class=fileThumb>" +
           "<img src='#{staticPath}filedeleted.gif' alt='File deleted.' class=fileDeletedRes>" +
