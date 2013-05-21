@@ -6937,7 +6937,6 @@
         Linkify.seeking = false;
         Linkify.found = false;
         Linkify.nodes = [];
-        Linkify.container = [];
         _ref = this.nodes.comment.childNodes;
         for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
           child = _ref[_j];
@@ -6949,7 +6948,7 @@
       }
     },
     seek: function(node) {
-      var a, after, child, data, href, inSpoiler, index, input, result, start, _i, _len, _ref;
+      var a, after, child, data, href, inSpoiler, index, input, nodes, result, start, _i, _j, _len, _len1, _ref;
 
       if (!node) {
         return;
@@ -6963,17 +6962,26 @@
           }
           return;
         case 's':
-          if (node.childNodes.length !== 1) {
+          if ($$('s', node).length) {
             return;
           }
-          node = node.firstChild;
-          inSpoiler = true;
-          break;
+          if ((nodes = node.childNodes).length === 1) {
+            node = node.firstChild;
+            inSpoiler = true;
+            break;
+          }
+          if (node.textContent.length >= this.length) {
+            for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+              child = nodes[_i];
+              this.seek(child);
+            }
+          }
+          return;
         case 'span':
           _ref = node.childNodes;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            child = _ref[_i];
-            this.seek(child, true);
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            child = _ref[_j];
+            this.seek(child);
           }
           return;
         default:
@@ -7005,34 +7013,35 @@
       if (!(data = node.data)) {
         return;
       }
-      if (!(result = this[this.matchingProtocol ? 'protocol' : 'catchAll'].exec(data))) {
-        return;
-      }
       href = this.matchingProtocol || /^\w+:\/\//.test(this.link) ? this.link : "http://" + this.link;
       href = href.replace(/\\/g, '\/');
-      start = result[0];
-      index = result.index, input = result.input;
-      if (index) {
-        this.nodes.push($.tn(input.slice(0, index)));
-      }
       if (inSpoiler) {
         node = node.parentNode;
       }
-      if (this.link === start) {
+      if ((index = data.indexOf(this.link)) >= 0) {
+        if (index) {
+          this.nodes.push($.tn(data.slice(0, index)));
+        }
         a = Linkify.anchor(href);
         a.textContent = this.link;
         this.nodes.push(a);
-        if (data = input.slice(index + this.length)) {
+        if (data = data.slice(index + this.length)) {
           this.nodes.push($.tn(data));
         }
         $.replace(node, this.nodes);
         this.found = true;
         return;
       }
-      if (!(this.link.indexOf(data) >= 0 || this.length > start.length)) {
+      if (!(result = this[this.matchingProtocol ? 'protocol' : 'catchAll'].exec(data))) {
+        return;
+      }
+      start = result[0];
+      index = result.index, input = result.input;
+      if (!(this.link.indexOf(start) >= 0)) {
         return;
       }
       if (index) {
+        this.nodes.push($.tn(input.slice(0, index)));
         node.data = start;
       }
       this.container = {

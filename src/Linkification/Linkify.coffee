@@ -25,7 +25,6 @@ Linkify =
       Linkify.seeking   = false
       Linkify.found     = false
       Linkify.nodes     = []
-      Linkify.container = []
 
       for child in @nodes.comment.childNodes
         Linkify.seek child
@@ -43,12 +42,18 @@ Linkify =
           @container.nodes.push node
         return
       when 's'
-        return unless node.childNodes.length is 1
-        node = node.firstChild
-        inSpoiler = true
+        return if $$('s', node).length
+        if (nodes = node.childNodes).length is 1
+          node = node.firstChild
+          inSpoiler = true
+          break
+        if node.textContent.length >= @length
+          for child in nodes
+            @seek child
+        return
       when 'span'
         for child in node.childNodes
-          @seek child, true
+          @seek child
         return
       else
         return
@@ -72,32 +77,35 @@ Linkify =
 
     unless data = node.data
       return
-    unless result = @[if @matchingProtocol then 'protocol' else 'catchAll'].exec data
-      return
 
     href = if @matchingProtocol or /^\w+:\/\//.test @link then @link else "http://#{@link}"
     href = href.replace /\\/g, '\/'
-    [start] = result
-    {index, input} = result
-    if index
-      @nodes.push $.tn input[...index]
 
     if inSpoiler
       node = node.parentNode
 
-    if @link is start
+    if (index = data.indexOf @link) >= 0
+      if index
+        @nodes.push $.tn data[...index]
       a = Linkify.anchor href
       a.textContent = @link
       @nodes.push a
-      if data = input[index + @length..]
+      if data = data[index + @length..]
         @nodes.push $.tn data
       $.replace node, @nodes
       @found = true
       return
 
-    return unless @link.indexOf(data) >= 0 or @length > start.length
+    unless result = @[if @matchingProtocol then 'protocol' else 'catchAll'].exec data
+      return
+
+    [start] = result
+    {index, input} = result
+    unless @link.indexOf(start) >= 0
+      return
 
     if index
+      @nodes.push $.tn input[...index]
       node.data = start
     @container =
       nodes: [node.cloneNode true]
