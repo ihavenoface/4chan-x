@@ -159,7 +159,7 @@ Config =
   usercss: ''
   hotkeys:
     # Header, QR & Options
-    'Toggle board list':  ['Ctrl+b', 'Toggle the full board list.']
+    'Toggle board list':  ['Ctrl+b',  'Toggle the full board list.']
     'Open empty QR':      ['q',       'Open QR without post number inserted.']
     'Open QR':            ['Shift+q', 'Open QR with post number inserted.']
     'Open settings':      ['Alt+o',   'Open Settings.']
@@ -169,6 +169,7 @@ Config =
     'Eqn tags':           ['Alt+e',   'Insert eqn tags.']
     'Math tags':          ['Alt+m',   'Insert math tags.']
     'Submit QR':          ['Alt+s',   'Submit post.']
+    'Toggle Sage':        ['Alt+n',   'Insert or remove sage from email field.']
     # Thread related
     'Watch':              ['w',       'Watch thread.']
     'Update':             ['r',       'Update the thread.']

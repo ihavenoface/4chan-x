@@ -908,6 +908,14 @@ QR =
     # Use it to extend the QR's functionalities, or for XTRM RICE.
     $.event 'QRDialogCreation', null, dialog
 
+  toggleSage: ->
+    sage = 'sage'
+    email = $ '[data-name=email]', QR.el
+    email.value = if email.value is sage
+      false
+    else
+      sage
+
   preSubmitHooks: []
   submit: (e) ->
     e?.preventDefault()

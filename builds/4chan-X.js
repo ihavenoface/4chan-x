@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.4 - 2013-05-22
+/* 4chan X - Version 3.4.4 - 2013-05-23
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -177,6 +177,7 @@
       'Eqn tags': ['Alt+e', 'Insert eqn tags.'],
       'Math tags': ['Alt+m', 'Insert math tags.'],
       'Submit QR': ['Alt+s', 'Submit post.'],
+      'Toggle Sage': ['Alt+n', 'Insert or remove sage from email field.'],
       'Watch': ['w', 'Watch thread.'],
       'Update': ['r', 'Update the thread.'],
       'Expand image': ['Shift+e', 'Expand selected image.'],
@@ -5075,6 +5076,13 @@
       $.add(d.body, dialog);
       return $.event('QRDialogCreation', null, dialog);
     },
+    toggleSage: function() {
+      var email, sage;
+
+      sage = 'sage';
+      email = $('[data-name=email]', QR.el);
+      return email.value = email.value === sage ? false : sage;
+    },
     preSubmitHooks: [],
     submit: function(e) {
       var callbacks, challenge, err, filetag, hook, opts, post, postData, response, textOnly, thread, threadID, _i, _len, _ref, _ref1, _ref2;
@@ -7828,6 +7836,9 @@
           if (QR.nodes && !QR.status()) {
             QR.submit();
           }
+          break;
+        case Conf['Toggle Sage']:
+          QR.toggleSage();
           break;
         case Conf['Watch']:
           ThreadWatcher.toggle(thread);

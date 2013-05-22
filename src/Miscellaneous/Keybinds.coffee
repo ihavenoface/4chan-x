@@ -52,6 +52,8 @@ Keybinds =
         Keybinds.tags 'math', target
       when Conf['Submit QR']
         QR.submit() if QR.nodes and !QR.status()
+      when Conf['Toggle Sage']
+        QR.toggleSage()
       # Thread related
       when Conf['Watch']
         ThreadWatcher.toggle thread
