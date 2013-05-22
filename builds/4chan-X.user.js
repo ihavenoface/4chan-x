@@ -5093,7 +5093,7 @@
 
       sage = 'sage';
       email = $('[data-name=email]', QR.el);
-      return email.value = email.value === sage ? false : sage;
+      return email.value = email.value === sage ? '' : sage;
     },
     preSubmitHooks: [],
     submit: function(e) {

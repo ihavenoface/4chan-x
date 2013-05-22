@@ -909,10 +909,10 @@ QR =
     $.event 'QRDialogCreation', null, dialog
 
   toggleSage: ->
-    sage = 'sage'
+    sage  = 'sage'
     email = $ '[data-name=email]', QR.el
     email.value = if email.value is sage
-      false
+      ''
     else
       sage
 
