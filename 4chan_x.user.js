@@ -6291,12 +6291,12 @@
     archiver: {
       'Foolz': {
         base: '//archive.foolz.us',
-        boards: ['a', 'co', 'gd', 'jp', 'm', 'mlp', 'q', 'sp', 'tg', 'tv', 'v', 'vg', 'vp', 'vr', 'wsg', 'dev', 'foolz'],
+        boards: ['a', 'co', 'gd', 'jp', 'm', 'q', 'sp', 'tg', 'tv', 'vp', 'vr', 'wsg'],
         type: 'foolfuuka'
       },
       'NSFWFoolz': {
         base: '//nsfw.foolz.us',
-        boards: ['u', 'kuku'],
+        boards: ['u'],
         type: 'foolfuuka'
       },
       'TheDarkCave': {
@@ -6306,7 +6306,7 @@
       },
       'Warosu': {
         base: '//fuuka.warosu.org',
-        boards: ['cgl', 'ck', 'fa', 'jp', 'lit', 'q', 's4s', 'tg', 'vr'],
+        boards: ['3', 'cgl', 'ck', 'fa', 'ic', 'jp', 'lit', 'q', 's4s', 'tg', 'vr'],
         type: 'fuuka'
       },
       'RebeccaBlackTech': {
@@ -6321,7 +6321,7 @@
       },
       'Heinessen': {
         base: 'http://archive.heinessen.com',
-        boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy', 'x'],
+        boards: ['an', 'fit', 'k', 'mlp', 'r9k', 'toy'],
         type: 'fuuka'
       },
       'Cliché': {
@@ -6331,13 +6331,27 @@
       },
       'NyaFuu': {
         base: '//archive.nyafuu.org',
-        boards: ['c', 'w'],
+        boards: ['c', 'w', 'wg'],
         type: 'fuuka'
       },
       '4plebs': {
         base: 'http://archive.4plebs.org',
         boards: ['hr', 'tg', 'tv', 'x'],
         type: 'foolfuuka'
+      },
+      'FoolzAShit': {
+        base: '//archive.foolzashit.com',
+        boards: ['adv', 'asp', 'cm', 'e', 'i', 'lgbt', 'n', 'o', 'p', 'pol', 's', 's4s', 't', 'trv', 'y'],
+        type: 'foolfuuka'
+      },
+      'LoveIsOver': {
+        base: '//loveisover.me',
+        boards: ['d', 'h', 'v'],
+        type: 'foolfuuka'
+      },
+      'Pensivenonsen': {
+        base: 'http://nth.pensivenonsen.se',
+        boards: ['vg']
       }
     },
     select: function(board) {
