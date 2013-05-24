@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.4 - 2013-05-23
+/* 4chan X - Version 3.4.4 - 2013-05-24
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -2352,9 +2352,9 @@
           case '[/b]':
             return '</b>';
           case '[spoiler]':
-            return '<span class=spoiler>';
+            return '<s>';
           case '[/spoiler]':
-            return '</span>';
+            return '</s>';
           case '[code]':
             return '<pre class=prettyprint>';
           case '[/code]':
