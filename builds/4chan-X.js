@@ -93,7 +93,7 @@
         'Unread Line': [true, 'Show a line to distinguish read posts from unread ones.'],
         'Scroll to Last Read Post': [true, 'Scroll back to the last read post when reopening a thread.'],
         'Thread Excerpt': [true, 'Show an excerpt of the thread in the tab title.'],
-        'Thread Stats': [true, 'Display reply and image count.'],
+        'Thread Stats': [true, 'Display reply, image and page count.'],
         'Thread Watcher': [true, 'Bookmark threads.'],
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
@@ -6163,9 +6163,11 @@
       if (g.VIEW !== 'thread' || !Conf['Thread Stats']) {
         return;
       }
-      this.dialog = UI.dialog('thread-stats', 'bottom: 0; left: 0;', "<div class=move><span id=post-count>0</span> / <span id=file-count>0</span></div>");
+      this.dialog = UI.dialog('thread-stats', 'bottom: 0; left: 0;', "<div class=\"move\" title=\"Post count / File count / Page count\"><span id=\"post-count\">...</span> / <span id=\"file-count\">...</span> / <span id=\"page-count\">...</span></div>");
       this.postCountEl = $('#post-count', this.dialog);
       this.fileCountEl = $('#file-count', this.dialog);
+      this.pageCountEl = $('#page-count', this.dialog);
+      this.lastModified = '0';
       return Thread.prototype.callbacks.push({
         name: 'Thread Stats',
         cb: this.node
@@ -6185,6 +6187,7 @@
         }
       }
       ThreadStats.thread = this;
+      ThreadStats.fetchPage();
       ThreadStats.update(postCount, fileCount);
       $.on(d, 'ThreadUpdate', ThreadStats.onUpdate);
       return $.add(d.body, ThreadStats.dialog);
@@ -6206,6 +6209,40 @@
       fileCountEl.textContent = fileCount;
       (thread.postLimit && !thread.isSticky ? $.addClass : $.rmClass)(postCountEl, 'warning');
       return (thread.fileLimit && !thread.isSticky ? $.addClass : $.rmClass)(fileCountEl, 'warning');
+    },
+    fetchPage: function() {
+      if (ThreadStats.thread.isDead) {
+        return;
+      }
+      setTimeout(ThreadStats.fetchPage, 2 * $.MINUTE);
+      return $.ajax("//api.4chan.org/" + ThreadStats.thread.board + "/threads.json", {
+        onload: ThreadStats.onThreadsLoad
+      }, {
+        headers: {
+          'If-Modified-Since': ThreadStats.lastModified
+        }
+      });
+    },
+    onThreadsLoad: function() {
+      var page, pages, thread, _i, _j, _len, _len1, _ref;
+
+      ThreadStats.lastModified = this.getResponseHeader('Last-Modified');
+      if (this.status !== 200) {
+        return;
+      }
+      pages = JSON.parse(this.response);
+      for (_i = 0, _len = pages.length; _i < _len; _i++) {
+        page = pages[_i];
+        _ref = page.threads;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          thread = _ref[_j];
+          if (thread.no === ThreadStats.thread.ID) {
+            ThreadStats.pageCountEl.textContent = page.page;
+            (page.page === pages.length - 1 ? $.addClass : $.rmClass)(ThreadStats.pageCountEl, 'warning');
+            return;
+          }
+        }
+      }
     }
   };
 

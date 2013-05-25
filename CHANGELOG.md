@@ -1,3 +1,5 @@
+- The Thread Stats counters now include the number of the page where the thread is.
+
 ### 3.4.4 - *2013-05-22*
 
 - Even more minor fixes.
