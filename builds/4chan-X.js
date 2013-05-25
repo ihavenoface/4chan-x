@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.4 - 2013-05-24
+/* 4chan X - Version 3.4.4 - 2013-05-25
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6922,7 +6922,7 @@
       });
     },
     node: function() {
-      var child, href, link, links, _i, _j, _len, _len1, _ref;
+      var child, href, link, links, subdomain, _i, _j, _len, _len1, _ref, _ref1;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6939,17 +6939,19 @@
           link = Linkify.matchingProtocol[0];
         } else if (/\.{2}|-{2}/.test(link)) {
           continue;
+        } else {
+          subdomain = (_ref = link.match(/^\w*\./)) != null ? _ref[0].slice(0, -1) : void 0;
         }
-        href = !/^www/.test(link) && Linkify.matchingProtocol || /^\w+:\/\//.test(link) ? link : /@/.test(link) ? "mailto:" + link : "http://" + link;
+        href = !/^www/.test(link) && Linkify.matchingProtocol || /^\w*:\/\//.test(link) ? link : /@/.test(link) ? "mailto:" + link : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + link : "http://" + link;
         Linkify.href = href.replace(/\\/g, '\/');
         Linkify.link = link;
         Linkify.length = link.length;
         Linkify.seeking = false;
         Linkify.found = false;
         Linkify.nodes = [];
-        _ref = this.nodes.comment.childNodes;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          child = _ref[_j];
+        _ref1 = this.nodes.comment.childNodes;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          child = _ref1[_j];
           Linkify.seek(child);
           if (Linkify.found) {
             break;

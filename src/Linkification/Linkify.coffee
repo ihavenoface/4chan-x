@@ -22,11 +22,15 @@ Linkify =
         link = Linkify.matchingProtocol[0]
       else if /\.{2}|-{2}/.test link
         continue
+      else
+        subdomain = link.match(/^\w*\./)?[0][...-1]
 
-      href = if !/^www/.test(link) and Linkify.matchingProtocol or /^\w+:\/\//.test link
+      href = if !/^www/.test(link) and Linkify.matchingProtocol or /^\w*:\/\//.test link
         link
       else if /@/.test link
         "mailto:#{link}"
+      else if subdomain in ['ftp', 'ftps' ,'irc']
+        "#{subdomain}://#{link}"
       else
         "http://#{link}"
       Linkify.href     = href.replace /\\/g, '\/'
