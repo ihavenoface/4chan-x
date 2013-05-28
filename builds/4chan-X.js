@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.5 - 2013-05-27
+/* 4chan X - Version 3.4.5 - 2013-05-28
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -676,25 +676,22 @@
       return Polyfill.visibility();
     },
     visibility: function() {
-      var event, prefix, property;
-
-      if ('visibilityState' in document) {
+      if (!('webkitHidden' in document)) {
         return;
       }
-      if ('webkitVisibilityState' in document) {
-        prefix = 'webkit';
-      } else if ('mozVisibilityState' in document) {
-        prefix = 'moz';
-      } else {
-        return;
-      }
-      property = prefix + 'VisibilityState';
-      event = prefix + 'visibilitychange';
-      d.visibilityState = d[property];
-      d.hidden = d.visibilityState === 'hidden';
-      return $.on(d, event, function() {
-        d.visibilityState = d[property];
-        d.hidden = d.visibilityState === 'hidden';
+      Object.defineProperties(HTMLDocument.prototype, {
+        visibilityState: {
+          get: function() {
+            return this.webkitVisibilityState;
+          }
+        },
+        hidden: {
+          get: function() {
+            return this.webkitHidden;
+          }
+        }
+      });
+      return $.on(d, 'webkitvisibilitychange', function() {
         return $.event('visibilitychange');
       });
     }
