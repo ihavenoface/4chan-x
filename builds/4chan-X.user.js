@@ -6955,7 +6955,7 @@
       });
     },
     node: function() {
-      var child, href, link, links, subdomain, _i, _j, _len, _len1, _ref, _ref1;
+      var child, close, href, link, links, open, subdomain, _i, _j, _len, _len1, _ref, _ref1;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6965,8 +6965,14 @@
         if (/www\.4chan\.org/i.test(link)) {
           continue;
         }
-        if (/["',;)\]?\.]$/.test(link)) {
-          link = link.slice(0, -1);
+        if (/\)$/.test(link) && (close = link.match(/\)/g))) {
+          open = link.match(/\(/g) || '';
+          if (close.length > open.length) {
+            link = link.slice(0, -close.length - open.length);
+          }
+        }
+        if (close = link.match(/["',;\]\?\.]+$/)) {
+          link = link.slice(0, close.index);
         }
         if (Linkify.matchingProtocol = Linkify.protocol.exec(link)) {
           link = Linkify.matchingProtocol[0];

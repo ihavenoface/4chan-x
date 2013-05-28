@@ -16,8 +16,12 @@ Linkify =
     for link in links
       if /www\.4chan\.org/i.test link
         continue
-      if /["',;)\]?\.]$/.test link
-        link = link[...-1]
+      if /\)$/.test(link) and close = link.match /\)/g
+        open = link.match(/\(/g) or ''
+        if close.length > open.length
+          link = link[...-close.length - open.length]
+      if close = link.match /["',;\]\?\.]+$/
+        link = link[...close.index]
       if Linkify.matchingProtocol = Linkify.protocol.exec link
         link = Linkify.matchingProtocol[0]
       else if /\.{2}|-{2}/.test link
