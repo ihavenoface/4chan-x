@@ -8029,7 +8029,7 @@
       }
     },
     hl: function(delta, thread) {
-      var headRect, next, postEl, rect, replies, reply, root, topMargin, _i, _len;
+      var axe, headRect, next, postEl, rect, replies, reply, root, topMargin, _i, _len;
 
       if (Conf['Bottom header']) {
         topMargin = 0;
@@ -8042,7 +8042,8 @@
         rect = postEl.getBoundingClientRect();
         if (rect.bottom >= topMargin && rect.top <= doc.clientHeight) {
           root = postEl.parentNode;
-          next = $.x('child::div[contains(@class,"post reply")]', delta === +1 ? root.nextElementSibling : root.previousElementSibling);
+          axe = delta === +1 ? 'following' : 'preceding';
+          next = $.x("" + axe + "-sibling::div[contains(@class,'replyContainer')][1]/child::div[contains(@class,'reply')]", root);
           if (!next) {
             this.focus(postEl);
             return;
