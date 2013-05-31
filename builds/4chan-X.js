@@ -6481,7 +6481,7 @@
       return $.after(root, [$.tn(' '), icon]);
     },
     parse: function(postObjects) {
-      var ID, OP, count, deletedFiles, deletedPosts, files, index, node, nodes, num, post, postObject, posts, scroll, _i, _len, _ref;
+      var ID, OP, count, deletedFiles, deletedPosts, files, index, length, node, nodes, num, post, postObject, posts, scroll, sendEvent, threadID, _i, _len, _ref;
 
       OP = postObjects[0];
       Build.spoilerRange[ThreadUpdater.thread.board] = OP.custom_spoiler;
@@ -6525,52 +6525,52 @@
           deletedFiles.push(post);
         }
       }
+      sendEvent = function() {
+        return $.event('ThreadUpdate', {
+          404: false,
+          thread: ThreadUpdater.thread,
+          newPosts: posts,
+          deletedPosts: deletedPosts,
+          deletedFiles: deletedFiles,
+          postCount: OP.replies + 1,
+          fileCount: OP.images + (!!ThreadUpdater.thread.OP.file && !ThreadUpdater.thread.OP.file.isDead)
+        });
+      };
       if (!count) {
         ThreadUpdater.set('status', null, null);
         ThreadUpdater.outdateCount++;
-      } else {
-        ThreadUpdater.set('status', "+" + count, 'new');
-        ThreadUpdater.outdateCount = 0;
-        if (Conf['Beep'] && d.hidden && Unread.posts && !Unread.posts.length) {
-          if (!ThreadUpdater.audio) {
-            ThreadUpdater.audio = $.el('audio', {
-              src: ThreadUpdater.beep
-            });
-          }
-          ThreadUpdater.audio.play();
-        }
-        ThreadUpdater.lastPost = posts[count - 1].ID;
-        Main.callbackNodes(Post, posts);
-        scroll = Conf['Auto Scroll'] && ThreadUpdater.scrollBG() && ThreadUpdater.root.getBoundingClientRect().bottom - doc.clientHeight < 25;
-        $.add(ThreadUpdater.root, nodes);
-        if (scroll) {
-          if (Conf['Bottom Scroll']) {
-            doc.scrollTop = d.body.clientHeight;
-          } else {
-            Header.scrollToPost(nodes[0]);
-          }
-        }
-        $.queueTask(function() {
-          var length, threadID;
-
-          threadID = ThreadUpdater.thread.ID;
-          length = $$('.thread > .postContainer', ThreadUpdater.root).length;
-          if (Conf['Enable 4chan\'s Extension']) {
-            return $.globalEval("Parser.parseThread(" + threadID + ", " + (-count) + ")");
-          } else {
-            return Fourchan.parseThread(threadID, length - count, length);
-          }
-        });
+        sendEvent();
+        return;
       }
-      return $.event('ThreadUpdate', {
-        404: false,
-        thread: ThreadUpdater.thread,
-        newPosts: posts,
-        deletedPosts: deletedPosts,
-        deletedFiles: deletedFiles,
-        postCount: OP.replies + 1,
-        fileCount: OP.images + (!!ThreadUpdater.thread.OP.file && !ThreadUpdater.thread.OP.file.isDead)
-      });
+      ThreadUpdater.set('status', "+" + count, 'new');
+      ThreadUpdater.outdateCount = 0;
+      if (Conf['Beep'] && d.hidden && Unread.posts && !Unread.posts.length) {
+        if (!ThreadUpdater.audio) {
+          ThreadUpdater.audio = $.el('audio', {
+            src: ThreadUpdater.beep
+          });
+        }
+        ThreadUpdater.audio.play();
+      }
+      ThreadUpdater.lastPost = posts[count - 1].ID;
+      Main.callbackNodes(Post, posts);
+      scroll = Conf['Auto Scroll'] && ThreadUpdater.scrollBG() && ThreadUpdater.root.getBoundingClientRect().bottom - doc.clientHeight < 25;
+      $.add(ThreadUpdater.root, nodes);
+      sendEvent();
+      if (scroll) {
+        if (Conf['Bottom Scroll']) {
+          doc.scrollTop = d.body.clientHeight;
+        } else {
+          Header.scrollToPost(nodes[0]);
+        }
+      }
+      threadID = ThreadUpdater.thread.ID;
+      length = $$('.thread > .postContainer', ThreadUpdater.root).length;
+      if (Conf['Enable 4chan\'s Extension']) {
+        return $.globalEval("Parser.parseThread(" + threadID + ", " + (-count) + ")");
+      } else {
+        return Fourchan.parseThread(threadID, length - count, length);
+      }
     }
   };
 
