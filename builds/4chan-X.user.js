@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.5 - 2013-05-31
+/* 4chan X - Version 3.4.5 - 2013-06-01
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6957,51 +6957,42 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /([a-z]*:(?:\/\/|\?)[^\s\/$\.\\\#><].|(\w[\w-\.]*(@[\w-\.]*)?\.(?:a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])(?![\d\w])))[^\s><]*/i;
-      this.protocol = /((?:http(?::\/\/|s:\/\/)|ftp(?::\/\/|s:\/\/)|ma(?:gnet:\??|ilto:)|irc:(?:\/\/)?|r(?:mtp:\/\/|tmp(?:t:\/\/|s:\/\/))|byond:\/\/)[^\s\/$.?\#].|www\.)[^\s><]*/i;
-      this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
+      this.catchAll = /(?:(?:([a-z]+):)?(?:(?:\?xt=urn[^\s]*)|(?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{2}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:\/[^\s]*)?)/i;
+      this.tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i;
+      this.globalCatchAll = new RegExp(this.catchAll.source + '\\b', 'g');
       return Post.prototype.callbacks.push({
         name: 'Linkification',
         cb: this.node
       });
     },
     node: function() {
-      var child, close, href, link, links, open, subdomain, _i, _j, _len, _len1, _ref, _ref1;
+      var child, domain, href, link, links, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
       }
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
-        if (/www\.4chan\.org/i.test(link)) {
+        _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], domain = _ref[2], tld = _ref[3];
+        if (/\.{2}|-{2}/.test(domain)) {
           continue;
         }
-        if (/\)$/.test(link) && (close = link.match(/\)/g))) {
-          open = link.match(/\(/g) || '';
-          if (close.length > open.length) {
-            link = link.slice(0, -close.length - open.length);
+        if (!protocol) {
+          if (((_ref1 = tld != null ? tld.match(Linkify.tld) : void 0) != null ? _ref1[0] : void 0) !== tld) {
+            continue;
           }
+          subdomain = (_ref2 = domain.match(/^\w*\./)) != null ? _ref2[0].slice(0, -1) : void 0;
         }
-        if (close = link.match(/["',;\]\?\.]+$/)) {
-          link = link.slice(0, close.index);
-        }
-        if (Linkify.matchingProtocol = Linkify.protocol.exec(link)) {
-          link = Linkify.matchingProtocol[0];
-        } else if (/\.{2}|-{2}/.test(link)) {
-          continue;
-        } else {
-          subdomain = (_ref = link.match(/^\w*\./)) != null ? _ref[0].slice(0, -1) : void 0;
-        }
-        href = !/^www/.test(link) && Linkify.matchingProtocol || /^\w*:\/\//.test(link) ? link : /@/.test(link) ? "mailto:" + link : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + link : "http://" + link;
-        Linkify.href = href.replace(/\\/g, '\/');
+        href = protocol ? link : /@/.test(domain) ? "mailto:" + link : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + link : "http://" + link;
+        Linkify.href = href;
         Linkify.link = link;
         Linkify.length = link.length;
         Linkify.seeking = false;
         Linkify.found = false;
         Linkify.nodes = [];
-        _ref1 = this.nodes.comment.childNodes;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          child = _ref1[_j];
+        _ref3 = this.nodes.comment.childNodes;
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          child = _ref3[_j];
           Linkify.seek(child);
           if (Linkify.found) {
             break;
@@ -7066,20 +7057,20 @@
         }
         if (this.length > this.current.length) {
           this.container.nodes.push(node);
-        } else {
-          if (after = this.current.slice(this.length)) {
-            node.data = node.data.slice(0, -after.length);
-          }
-          this.container.nodes.push(node);
-          a = Linkify.anchor(this.href);
-          $.add(a, this.container.nodes);
-          this.nodes.push(a);
-          if (after) {
-            this.nodes.push($.tn(after));
-          }
-          $.replace(this.container.entry, this.nodes);
-          this.found = true;
+          return;
         }
+        if (after = this.current.slice(this.length)) {
+          node.data = node.data.slice(0, -after.length);
+        }
+        this.container.nodes.push(node);
+        a = Linkify.anchor(this.href);
+        $.add(a, this.container.nodes);
+        this.nodes.push(a);
+        if (after) {
+          this.nodes.push($.tn(after));
+        }
+        $.replace(this.container.entry, this.nodes);
+        this.found = true;
         return;
       }
       if (!(data = node.data)) {
@@ -7102,7 +7093,7 @@
         this.found = true;
         return;
       }
-      if (!(result = this[this.matchingProtocol ? 'protocol' : 'catchAll'].exec(data))) {
+      if (!(result = this.catchAll.exec(data))) {
         return;
       }
       start = result[0];
