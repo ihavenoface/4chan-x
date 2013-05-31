@@ -190,6 +190,7 @@ Config =
     # Reply Navigation
     'Next reply':         ['j',       'Select next reply.']
     'Previous reply':     ['k',       'Select previous reply.']
+    'Deselect reply':     ['Shift+d', 'Deselect reply.']
     'Hide':               ['x',       'Hide thread.']
   updater:
     checkbox:

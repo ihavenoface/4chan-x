@@ -194,6 +194,7 @@
       'Open thread tab': ['Shift+o', 'Open thread in new tab.'],
       'Next reply': ['j', 'Select next reply.'],
       'Previous reply': ['k', 'Select previous reply.'],
+      'Deselect reply': ['Shift+d', 'Deselect reply.'],
       'Hide': ['x', 'Hide thread.']
     },
     updater: {
@@ -7946,6 +7947,9 @@
         case Conf['Previous reply']:
           Keybinds.hl(-1, threadRoot);
           break;
+        case Conf['Deselect reply']:
+          Keybinds.hl(0, threadRoot);
+          break;
         case Conf['Hide']:
           if (g.VIEW === 'index') {
             ThreadHiding.toggle(thread);
@@ -8047,6 +8051,12 @@
     hl: function(delta, thread) {
       var axe, headRect, next, postEl, rect, replies, reply, root, topMargin, _i, _len;
 
+      if (!delta) {
+        if (postEl = $('.reply.highlight', thread)) {
+          $.rmClass(postEl, 'highlight');
+        }
+        return;
+      }
       if (Conf['Bottom header']) {
         topMargin = 0;
       } else {
