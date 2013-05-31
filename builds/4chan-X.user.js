@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.5 - 2013-05-28
+/* 4chan X - Version 3.4.5 - 2013-05-31
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6756,7 +6756,7 @@
       return Unread.scroll();
     },
     scroll: function() {
-      var hash, onload, post, posts, prevID, root;
+      var checkPosition, hash, onload, post, posts, prevID, root;
 
       if ((hash = location.hash.match(/\d+/)) && hash[0] in Unread.thread.posts) {
         return;
@@ -6774,15 +6774,25 @@
           }
         }
         onload = function() {
-          return root.scrollIntoView(false);
+          if (checkPosition(root)) {
+            return root.scrollIntoView(false);
+          }
         };
       } else {
         posts = Object.keys(Unread.thread.posts);
-        post = Unread.thread.posts[posts[posts.length - 1]];
+        root = Unread.thread.posts[posts[posts.length - 1]].nodes.root;
         onload = function() {
-          return Header.scrollToPost(post.nodes.root);
+          if (checkPosition(root)) {
+            return Header.scrollToPost(root);
+          }
         };
       }
+      checkPosition = function(target) {
+        var height, top, _ref;
+
+        _ref = target.getBoundingClientRect(), top = _ref.top, height = _ref.height;
+        return top + height - doc.clientHeight > 0;
+      };
       return $.on(window, 'load', onload);
     },
     sync: function() {
@@ -6802,11 +6812,11 @@
       Unread.setLine();
       return Unread.update();
     },
-    addPosts: function(newPosts) {
+    addPosts: function(posts) {
       var ID, data, post, _i, _len, _ref;
 
-      for (_i = 0, _len = newPosts.length; _i < _len; _i++) {
-        post = newPosts[_i];
+      for (_i = 0, _len = posts.length; _i < _len; _i++) {
+        post = posts[_i];
         ID = post.ID;
         if (ID <= Unread.lastReadPost || post.isHidden) {
           continue;
@@ -6825,7 +6835,7 @@
         Unread.addPostQuotingYou(post);
       }
       if (Conf['Unread Line']) {
-        Unread.setLine((_ref = Unread.posts[0], __indexOf.call(newPosts, _ref) >= 0));
+        Unread.setLine((_ref = Unread.posts[0], __indexOf.call(posts, _ref) >= 0));
       }
       Unread.read();
       return Unread.update();
