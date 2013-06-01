@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.5 - 2013-06-01
+/* 4chan X - Version 3.4.5 - 2013-06-02
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -6957,7 +6957,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(?:(?:([a-z]+)(?::|(?:%[0-9a-fA-F]+){2}))?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/|%[0-9a-fA-F]+)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{3}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]+)[^\s<>]*)?)/i;
+      this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/|(?:%[0-9a-fA-F]+){2})?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{3}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i;
       this.tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i;
       this.globalCatchAll = new RegExp(this.catchAll.source + '\\b', 'g');
       return Post.prototype.callbacks.push({
@@ -6974,16 +6974,15 @@
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
         _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], domain = _ref[2], tld = _ref[3];
-        if (/\.{2}|-{2}/.test(link)) {
+        if (/\.{2}|-{2}/.test(URI = decodeURIComponent(link))) {
           continue;
         }
         if (!protocol) {
           if (((_ref1 = tld != null ? tld.match(Linkify.tld) : void 0) != null ? _ref1[0] : void 0) !== tld) {
             continue;
           }
-          subdomain = domain != null ? (_ref2 = domain.match(/^\w*\./)) != null ? _ref2[0].slice(0, -1) : void 0 : void 0;
+          subdomain = (_ref2 = URI.match(/^\w*\./)) != null ? _ref2[0].slice(0, -1) : void 0;
         }
-        URI = decodeURIComponent(link);
         href = protocol ? URI : /@/.test(URI) ? "mailto:" + URI : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + URI : "http://" + URI;
         Linkify.href = href;
         Linkify.link = link;
