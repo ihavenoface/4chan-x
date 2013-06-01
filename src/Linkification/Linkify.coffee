@@ -1,7 +1,7 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = /(?:(?:([a-z]+):)?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{2}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:[\/#][^\s<>]*)?)/i
+    @catchAll = /(?:(?:([a-z]+)(?::|(?:%[0-9a-fA-F]+){2}))?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/|%[0-9a-fA-F]+)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{3}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]+)[^\s<>]*)?)/i
 
     @tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i
 
@@ -16,7 +16,7 @@ Linkify =
 
     for link in links
       [link, protocol, domain, tld] = link.match Linkify.catchAll
-      if /\.{2}|-{2}/.test domain # https://code.google.com/p/chromium/issues/detail?id=146162
+      if /\.{2}|-{2}/.test link # https://code.google.com/p/chromium/issues/detail?id=146162
         continue # V8 doesn't like complex regex it seems.
 
       if !protocol
@@ -24,14 +24,16 @@ Linkify =
           continue
         subdomain = domain?.match(/^\w*\./)?[0][...-1]
 
+      URI = decodeURIComponent link
+
       href = if protocol
-        link
-      else if /@/.test link
-        "mailto:#{link}"
+        URI
+      else if /@/.test URI
+        "mailto:#{URI}"
       else if subdomain in ['ftp', 'ftps' ,'irc']
-        "#{subdomain}://#{link}"
+        "#{subdomain}://#{URI}"
       else
-        "http://#{link}"
+        "http://#{URI}"
 
       Linkify.href     = href
       Linkify.link     = link
@@ -119,15 +121,15 @@ Linkify =
     unless @link[...start.length] is start
       return
 
+    if index
+      @nodes.push $.tn input[...index]
+      node.data = start
+
     if inSpoiler
       if Conf['Clean Links']
         $.replace node.parentNode, node
       else
         node = node.parentNode
-
-    if index
-      @nodes.push $.tn input[...index]
-      node.data = start
     @container =
       nodes: [node.cloneNode true]
       entry: node
@@ -137,5 +139,5 @@ Linkify =
   anchor: (href) ->
     $.el 'a',
       target: '_blank'
-      rel: 'nofollow noreferrer'
+      rel: 'noreferrer'
       href: href

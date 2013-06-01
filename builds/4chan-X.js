@@ -6961,7 +6961,7 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(?:(?:([a-z]+):)?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{2}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:[\/#][^\s<>]*)?)/i;
+      this.catchAll = /(?:(?:([a-z]+)(?::|(?:%[0-9a-fA-F]+){2}))?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/|%[0-9a-fA-F]+)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{3}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]+)[^\s<>]*)?)/i;
       this.tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i;
       this.globalCatchAll = new RegExp(this.catchAll.source + '\\b', 'g');
       return Post.prototype.callbacks.push({
@@ -6970,7 +6970,7 @@
       });
     },
     node: function() {
-      var child, domain, href, link, links, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var URI, child, domain, href, link, links, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
@@ -6978,7 +6978,7 @@
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
         _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], domain = _ref[2], tld = _ref[3];
-        if (/\.{2}|-{2}/.test(domain)) {
+        if (/\.{2}|-{2}/.test(link)) {
           continue;
         }
         if (!protocol) {
@@ -6987,7 +6987,8 @@
           }
           subdomain = domain != null ? (_ref2 = domain.match(/^\w*\./)) != null ? _ref2[0].slice(0, -1) : void 0 : void 0;
         }
-        href = protocol ? link : /@/.test(link) ? "mailto:" + link : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + link : "http://" + link;
+        URI = decodeURIComponent(link);
+        href = protocol ? URI : /@/.test(URI) ? "mailto:" + URI : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + URI : "http://" + URI;
         Linkify.href = href;
         Linkify.link = link;
         Linkify.length = link.length;
@@ -7105,16 +7106,16 @@
       if (this.link.slice(0, start.length) !== start) {
         return;
       }
+      if (index) {
+        this.nodes.push($.tn(input.slice(0, index)));
+        node.data = start;
+      }
       if (inSpoiler) {
         if (Conf['Clean Links']) {
           $.replace(node.parentNode, node);
         } else {
           node = node.parentNode;
         }
-      }
-      if (index) {
-        this.nodes.push($.tn(input.slice(0, index)));
-        node.data = start;
       }
       this.container = {
         nodes: [node.cloneNode(true)],
@@ -7126,7 +7127,7 @@
     anchor: function(href) {
       return $.el('a', {
         target: '_blank',
-        rel: 'nofollow noreferrer',
+        rel: 'noreferrer',
         href: href
       });
     }
