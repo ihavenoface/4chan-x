@@ -8229,7 +8229,7 @@
         href: 'javascript:;'
       });
       $.on(btn, 'click', PSAHiding.toggle);
-      $.get(hiddenPSA, 0, function(_arg) {
+      $.get('hiddenPSA', 0, function(_arg) {
         var hiddenPSA;
 
         hiddenPSA = _arg.hiddenPSA;
