@@ -8200,7 +8200,7 @@
       return $.on(d, '4chanXInitFinished', this.setup);
     },
     setup: function() {
-      var btn, entry, items, psa;
+      var btn, entry, psa;
 
       $.off(d, '4chanXInitFinished', PSAHiding.setup);
       if (!(psa = $.id('globalMessage'))) {
@@ -8229,21 +8229,10 @@
         href: 'javascript:;'
       });
       $.on(btn, 'click', PSAHiding.toggle);
-      items = {
-        hiddenPSA: 0,
-        hiddenPSAs: null
-      };
-      $.get(items, function(_arg) {
-        var hiddenPSA, hiddenPSAs, _ref;
+      $.get(hiddenPSA, 0, function(_arg) {
+        var hiddenPSA;
 
-        hiddenPSA = _arg.hiddenPSA, hiddenPSAs = _arg.hiddenPSAs;
-        if (hiddenPSAs) {
-          $["delete"]('hiddenPSAs');
-          if (_ref = psa.textContent.replace(/\W+/g, '').toLowerCase(), __indexOf.call(hiddenPSAs, _ref) >= 0) {
-            hiddenPSA = +$.id('globalMessage').dataset.utc;
-            $.set('hiddenPSA', hiddenPSA);
-          }
-        }
+        hiddenPSA = _arg.hiddenPSA;
         PSAHiding.sync(hiddenPSA);
         $.before(psa, btn);
         return $.rmClass(doc, 'hide-announcement');
