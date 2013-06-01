@@ -1,7 +1,7 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = /(?:(?:([a-z]+):)?(?:(?:\?xt=urn[^\s]*)|(?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{2}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:\/[^\s]*)?)/i
+    @catchAll = /(?:(?:([a-z]+):)?(?:(?:\?xt=urn[^\s<>]*)|(?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{2}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:[\/#][^\s<>]*)?)/i
 
     @tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i
 
@@ -22,11 +22,11 @@ Linkify =
       if !protocol
         unless (tld?.match Linkify.tld)?[0] is tld
           continue
-        subdomain = domain.match(/^\w*\./)?[0][...-1]
+        subdomain = domain?.match(/^\w*\./)?[0][...-1]
 
       href = if protocol
         link
-      else if /@/.test domain
+      else if /@/.test link
         "mailto:#{link}"
       else if subdomain in ['ftp', 'ftps' ,'irc']
         "#{subdomain}://#{link}"
@@ -114,8 +114,8 @@ Linkify =
     unless result = @catchAll.exec data
       return
 
-    [start] = result
     {index, input} = result
+    start = input[index..]
     unless @link[...start.length] is start
       return
 
