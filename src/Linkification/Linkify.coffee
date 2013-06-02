@@ -1,11 +1,11 @@
 Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkification']
-    @catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/\/|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?!w{3}\.4chan\.org)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i
+    @catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i
 
     @tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i
 
-    @globalCatchAll = new RegExp @catchAll.source + '\\b', 'g'
+    @globalCatchAll = new RegExp @catchAll.source, 'g'
 
     Post::callbacks.push
       name: 'Linkification'
@@ -16,10 +16,17 @@ Linkify =
 
     for link in links
       [link, protocol, domain, tld] = link.match Linkify.catchAll
-      if /\.{2}|-{2}/.test decodeURIComponent domain + tld
+      if /\.{2}|-{2}|w{3}\.4chan\.org/.test decodeURIComponent domain + tld
         # https://code.google.com/p/chromium/issues/detail?id=146162
         # V8 doesn't like complex regex it seems.
         continue
+
+      if /\)$/.test(link) and close = link.match /\)/g
+        open = link.match(/\(/g) or ''
+        if close.length > open.length
+          link = link[...-close.length - open.length]
+      if close = link.match /["',;\]\?\.]+$/
+        link = link[...close.index]
 
       URI = decodeURIComponent link
 
