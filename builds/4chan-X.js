@@ -6961,8 +6961,8 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i;
-      this.tld = /a(?:e(?:ro)?|s(?:ia)?|r(?:pa)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnruvxyz])|e(?:du|[cegrstu])|g(?:ov|[abdefghilmnpqrstuwy])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:il|o(?:bi)?|u(?:seum)?|[acdeghklnprstvwxyz])|n(?:a(?:me)?|et?|om?|[cfgilpruz])|org|p(?:ro?|[aefghkmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|d[ejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[easuw]|s[abcdegijklmnortuvyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i;
+      this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(?:\.([a-z\u00a1-\uffff]{2,}))))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i;
+      this.tld = /a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw]/i;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
         name: 'Linkification',
@@ -6970,34 +6970,40 @@
       });
     },
     node: function() {
-      var URI, child, close, domain, href, link, links, open, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+      var URI, child, close, domain, err, hasSlash, href, isEmail, link, links, open, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
       }
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
-        _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], domain = _ref[2], tld = _ref[3];
-        if (/\.{2}|-{2}|w{3}\.4chan\.org/.test(decodeURIComponent(domain + tld))) {
+        _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], isEmail = _ref[2], domain = _ref[3], tld = _ref[4];
+        if (/\.{2}|-{2}|w{3}\.4chan\.org/.test(domain + tld)) {
           continue;
         }
+        link = Linkify.trim(link);
         if (/\)$/.test(link) && (close = link.match(/\)/g))) {
           open = link.match(/\(/g) || '';
           if (close.length > open.length) {
-            link = link.slice(0, -close.length - open.length);
+            link = Linkify.trim(link.slice(0, -close.length - open.length));
           }
         }
-        if (close = link.match(/["',;\]\?\.]+$/)) {
-          link = link.slice(0, close.index);
+        if (isEmail && (hasSlash = link.match(/^\S*(?=\/)/))) {
+          link = hasSlash[0];
         }
-        URI = decodeURIComponent(link);
-        if (!protocol) {
-          if (((_ref1 = tld != null ? tld.match(Linkify.tld) : void 0) != null ? _ref1[0] : void 0) !== tld) {
-            continue;
-          }
-          subdomain = (_ref2 = URI.match(/^\w*\./)) != null ? _ref2[0].slice(0, -1) : void 0;
+        try {
+          URI = decodeURIComponent(link);
+        } catch (_error) {
+          err = _error;
+          continue;
         }
-        href = protocol ? URI : /@/.test(URI) ? "mailto:" + URI : subdomain === 'ftp' || subdomain === 'ftps' || subdomain === 'irc' ? "" + subdomain + "://" + URI : "http://" + URI;
+        if (((_ref1 = tld != null ? tld.match(Linkify.tld) : void 0) != null ? _ref1[0] : void 0) !== tld) {
+          continue;
+        }
+        if (!protocol && !isEmail) {
+          subdomain = (_ref2 = URI.match(/^[a-z]+(?=\.)/)) != null ? _ref2[0] : void 0;
+        }
+        href = protocol ? URI : isEmail ? "mailto:" + URI : /^ftps?|irc$/.test(subdomain) ? "" + subdomain + "://" + URI : "http://" + URI;
         Linkify.href = href;
         Linkify.link = link;
         Linkify.length = link.length;
@@ -7139,6 +7145,15 @@
         rel: 'noreferrer',
         href: href
       });
+    },
+    trim: function(link) {
+      var close;
+
+      if (close = link.match(/["',;\]?.]+$/)) {
+        return link.slice(0, close.index);
+      } else {
+        return link;
+      }
     }
   };
 
