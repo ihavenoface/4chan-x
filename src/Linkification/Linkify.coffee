@@ -29,7 +29,7 @@ Linkify =
         if close.length > open.length
           link = Linkify.trim link[...-close.length - open.length]
 
-      if isEmail and hasSlash = link.match /^\S*(?=\/)/
+      if !protocol and isEmail and hasSlash = link.match /^\S*(?=\/)/
         link = hasSlash[0]
 
       try
@@ -42,14 +42,12 @@ Linkify =
       if !protocol and !isEmail
         subdomain = URI.match(/^[a-z]+(?=\.)/)?[0]
 
-      href = if protocol is 'magnet'
-        [URI, true]
-      else if protocol
-        [URI]
+      href = if protocol
+        [URI, protocol is 'magnet']
       else if isEmail
         ["mailto:#{URI}", true]
       else if /^ftps?|irc$/.test subdomain
-        ["#{subdomain}://#{URI}"]
+        ["#{subdomain}://#{URI}", subdomain is 'irc']
       else
         ["http://#{URI}"]
 
@@ -131,16 +129,17 @@ Linkify =
       @found = true
       return
 
-    unless result = @catchAll.exec data
-      return
+    return unless next = node.nextSibling
+    if next.localName is 'wbr'
+      next = next.nextSibling
+    return unless nextData = next.textContent.split(' ')[0]
+    start = data.split(/>|\ /)
+    start = start[start.length - 1]
+    guess = start + nextData
+    return unless start and @link[...guess.length] is guess
 
-    {index, input} = result
-    start = input[index..]
-    unless @link[...start.length] is start
-      return
-
-    if index
-      @nodes.push $.tn input[...index]
+    if index = data[...-start.length].length
+      @nodes.push $.tn data[...index]
       node.data = start
 
     if inSpoiler

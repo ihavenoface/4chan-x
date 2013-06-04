@@ -6987,7 +6987,7 @@
             link = Linkify.trim(link.slice(0, -close.length - open.length));
           }
         }
-        if (isEmail && (hasSlash = link.match(/^\S*(?=\/)/))) {
+        if (!protocol && isEmail && (hasSlash = link.match(/^\S*(?=\/)/))) {
           link = hasSlash[0];
         }
         try {
@@ -7002,7 +7002,7 @@
         if (!protocol && !isEmail) {
           subdomain = (_ref1 = URI.match(/^[a-z]+(?=\.)/)) != null ? _ref1[0] : void 0;
         }
-        href = protocol === 'magnet' ? [URI, true] : protocol ? [URI] : isEmail ? ["mailto:" + URI, true] : /^ftps?|irc$/.test(subdomain) ? ["" + subdomain + "://" + URI] : ["http://" + URI];
+        href = protocol ? [URI, protocol === 'magnet'] : isEmail ? ["mailto:" + URI, true] : /^ftps?|irc$/.test(subdomain) ? ["" + subdomain + "://" + URI, subdomain === 'irc'] : ["http://" + URI];
         Linkify.href = href;
         Linkify.link = link;
         Linkify.length = link.length;
@@ -7020,7 +7020,7 @@
       }
     },
     seek: function(node) {
-      var a, after, child, data, inSpoiler, index, input, nodes, result, start, _i, _j, _len, _len1, _ref;
+      var a, after, child, data, guess, inSpoiler, index, next, nextData, nodes, start, _i, _j, _len, _len1, _ref;
 
       if (!node) {
         return;
@@ -7112,16 +7112,23 @@
         this.found = true;
         return;
       }
-      if (!(result = this.catchAll.exec(data))) {
+      if (!(next = node.nextSibling)) {
         return;
       }
-      index = result.index, input = result.input;
-      start = input.slice(index);
-      if (this.link.slice(0, start.length) !== start) {
+      if (next.localName === 'wbr') {
+        next = next.nextSibling;
+      }
+      if (!(nextData = next.textContent.split(' ')[0])) {
         return;
       }
-      if (index) {
-        this.nodes.push($.tn(input.slice(0, index)));
+      start = data.split(/>|\ /);
+      start = start[start.length - 1];
+      guess = start + nextData;
+      if (!(start && this.link.slice(0, guess.length) === guess)) {
+        return;
+      }
+      if (index = data.slice(0, -start.length).length) {
+        this.nodes.push($.tn(data.slice(0, index)));
         node.data = start;
       }
       if (inSpoiler) {
