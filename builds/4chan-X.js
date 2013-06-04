@@ -4825,7 +4825,7 @@
         }), this.ready.bind(this));
       },
       ready: function() {
-        var MutationObserver, imgContainer, input, observer, setLifetime,
+        var imgContainer, input, observer, setLifetime,
           _this = this;
 
         setLifetime = function(e) {
@@ -4850,7 +4850,7 @@
           img: imgContainer.firstChild,
           input: input
         };
-        if (MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.OMutationObserver) {
+        if (MutationObserver) {
           observer = new MutationObserver(this.load.bind(this));
           observer.observe(this.nodes.challenge, {
             childList: true
@@ -9263,7 +9263,7 @@
       return $.ready(Main.initReady);
     },
     initStyle: function() {
-      var MutationObserver, mainStyleSheet, observer, setStyle, style, styleSheets, _ref;
+      var mainStyleSheet, observer, setStyle, style, styleSheets, _ref;
 
       $.off(d, '4chanMainInit', Main.initStyle);
       if (!Main.isThisPageLegit() || $.hasClass(doc, 'fourchan-x')) {
@@ -9299,7 +9299,7 @@
       if (!mainStyleSheet) {
         return;
       }
-      if (MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.OMutationObserver) {
+      if (MutationObserver) {
         observer = new MutationObserver(setStyle);
         return observer.observe(mainStyleSheet, {
           attributes: true,
