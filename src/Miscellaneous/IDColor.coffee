@@ -8,7 +8,7 @@ IDColor =
       cb:   @node
 
   node: ->
-    return if @isClone or @isHidden or @thread.isHidden or !span = @nodes.uniqueID
+    return if @isClone or @thread.isHidden or !span = @nodes.uniqueID
     {uniqueID} = @info
     rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
     span.firstElementChild.style.cssText = """
