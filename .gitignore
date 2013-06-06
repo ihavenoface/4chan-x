@@ -1,4 +1,4 @@
-builds/crx*
+builds/
 node_modules/
 tmp-crx/
 tmp-userjs/

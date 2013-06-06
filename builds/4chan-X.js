@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.7 - 2013-06-05
+/* 4chan X - Version 3.4.7 - 2013-06-07
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -1372,9 +1372,9 @@
       return $('input[name=boardnav]', settings).focus();
     },
     hashScroll: function() {
-      var post;
+      var hash, post;
 
-      if (!(post = $.id(this.location.hash.slice(1)))) {
+      if (!((hash = this.location.hash.slice(1)) && (post = $.id(hash)))) {
         return;
       }
       if ((Get.postFromRoot(post)).isHidden) {
@@ -6961,8 +6961,8 @@
       if (g.VIEW === 'catalog' || !Conf['Linkification']) {
         return;
       }
-      this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?(?:(?:[\/#]|%[0-9a-fA-F]{2})([^\s<>]*))?)/i;
-      this.tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghkmnstw])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdegijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/;
+      this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i;
+      this.tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
       return Post.prototype.callbacks.push({
         name: 'Linkification',
@@ -6970,19 +6970,24 @@
       });
     },
     node: function() {
-      var URI, child, close, domain, err, hasSlash, href, isEmail, link, links, open, protocol, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var URI, child, close, domain, err, hasSlash, href, isEmail, link, links, open, pastDot, protocol, resource, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2;
 
       if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
         return;
       }
       for (_i = 0, _len = links.length; _i < _len; _i++) {
         link = links[_i];
-        _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], isEmail = _ref[2], domain = _ref[3], tld = _ref[4];
+        _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], isEmail = _ref[2], domain = _ref[3], tld = _ref[4], resource = _ref[5];
         if (/\.{2}|-{2}|w{3}\.4chan\.org/.test(domain + tld)) {
           continue;
         }
-        if (tld && !protocol && !Linkify.tld.test(tld.slice(1))) {
-          continue;
+        if (tld && !resource) {
+          if (!Linkify.tld.test(pastDot = tld.slice(1))) {
+            continue;
+          }
+          if (this.board.ID === 'g' && /^p[ly]|sh$/.test(pastDot)) {
+            continue;
+          }
         }
         link = Linkify.trim(link);
         if (/\)$/.test(link) && (close = link.match(/\)/g))) {
@@ -7122,16 +7127,22 @@
       if (next.localName === 'wbr') {
         next = next.nextSibling;
       }
-      if (!(nextData = next.textContent.split(' ')[0])) {
+      if (next.localName === 'a' || !(nextData = next.textContent)) {
         return;
       }
-      start = data.split(/>|\ /);
-      start = start[start.length - 1];
+      index = 0;
+      while (index !== data.length) {
+        start = data.slice(index++);
+        if (this.link.slice(0, start.length) === start) {
+          index--;
+          break;
+        }
+      }
       guess = start + nextData;
-      if (!(start && this.link.slice(0, guess.length) === guess)) {
+      if (!(start && this.link.slice(0, guess.length) === guess || guess.indexOf(this.link) >= 0)) {
         return;
       }
-      if (index = data.slice(0, -start.length).length) {
+      if (index) {
         this.nodes.push($.tn(data.slice(0, index)));
         node.data = start;
       }
