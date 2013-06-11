@@ -13,13 +13,13 @@
 // @grant        GM_deleteValue
 // @grant        GM_openInTab
 // @run-at       document-start
-// @updateURL    https://github.com/ihavenoface/4chan-x/tree/v3/builds/4chan-X.meta.js
-// @downloadURL  https://github.com/ihavenoface/4chan-x/tree/v3/builds/4chan-X.user.js
+// @updateURL    https://ihavenoface.me/stable-v3/4chan-X.meta.js
+// @downloadURL  https://ihavenoface.me/stable-v3/4chan-X.user.js
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
 /* 4chan X - Version 3.4.7 - 2013-06-12
- * http://ihavenoface.github.io/4chan-x/
+ * https://ihavenoface.me/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
  *
@@ -1546,7 +1546,7 @@
         return;
       }
       $.event('CloseMenu');
-      html = "<div id=\"fourchanx-settings\" class=\"dialog\"><nav><div class=\"sections-list\"></div><div class=\"credits\"><a href=\"https://github.com/ihavenoface/4chan-x/tree/v3/\" target=\"_blank\">4chan X</a> |\n  <a href=\"https://github.com/ihavenoface/4chan-x/blob/v3/CHANGELOG.md\" target=\"_blank\">" + g.VERSION + "</a> |\n  <a href=\"https://github.com/ihavenoface/4chan-x/blob/v3/CONTRIBUTING.md#reporting-bugs-and-suggestions\" target=\"_blank\">Issues</a> |\n  <a href=\"javascript:;\" class=\"close\" title=\"Close\">×</a></div></nav><hr><div class=\"section-container\"><section></section></div></div>";
+      html = "<div id=\"fourchanx-settings\" class=\"dialog\"><nav><div class=\"sections-list\"></div><div class=\"credits\"><a href=\"https://ihavenoface.me/\" target=\"_blank\">4chan X</a> |\n  <a href=\"https://github.com/ihavenoface/4chan-x/blob/v3/CHANGELOG.md\" target=\"_blank\">" + g.VERSION + "</a> |\n  <a href=\"https://github.com/ihavenoface/4chan-x/blob/v3/CONTRIBUTING.md#reporting-bugs-and-suggestions\" target=\"_blank\">Issues</a> |\n  <a href=\"javascript:;\" class=\"close\" title=\"Close\">×</a></div></nav><hr><div class=\"section-container\"><section></section></div></div>";
       Settings.dialog = overlay = $.el('div', {
         id: 'overlay',
         innerHTML: html
@@ -9784,7 +9784,7 @@
       el = $.el('span');
       el.style.flex = 'test';
       if (el.style.flex === 'test') {
-        el.innerHTML = "Firefox is not correctly set up and some 4chan X features will be displayed incorrectly.<br>\nFollow the instructions of the <a href='https://github.com/ihavenoface/4chan-x/tree/v3/' target=_blank>install guide</a> to fix it.";
+        el.innerHTML = "Firefox is not correctly set up and some 4chan X features will be displayed incorrectly.<br>\nFollow the instructions of the <a href='https://ihavenoface.me/' target=_blank>install guide</a> to fix it.";
         new Notification('warning', el, 30);
       }
       $.event('4chanXInitFinished');
@@ -9870,7 +9870,7 @@
             }
             $.set('lastchecked', now);
             el = $.el('span', {
-              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=http://ihavenoface.github.io/4chan-x/ target=_blank>here</a>."
+              innerHTML: "Update: 4chan X v" + version + " is out, get it <a href=https://ihavenoface.me/ target=_blank>here</a>."
             });
             return new Notification('info', el, 120);
           }

@@ -272,7 +272,7 @@ Main =
     $.get items, (items) ->
       if items.lastupdate > now - freq or items.lastchecked > now - $.DAY
         return
-      $.ajax '<%= meta.update %>version', onload: ->
+      $.ajax '<%= meta.page %>version', onload: ->
         return unless @status is 200
         version = @response
         return unless /^\d\.\d+\.\d+$/.test version = version.trim()
@@ -282,7 +282,7 @@ Main =
           return
         $.set 'lastchecked', now
         el = $.el 'span',
-          innerHTML: "Update: <%= meta.name %> v#{version} is out, get it <a href=<%= meta.info %> target=_blank>here</a>."
+          innerHTML: "Update: <%= meta.name %> v#{version} is out, get it <a href=<%= meta.page %> target=_blank>here</a>."
         new Notification 'info', el, 120
 
   handleErrors: (errors) ->
