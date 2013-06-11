@@ -2670,14 +2670,14 @@
           this.onready = function() {
             return _this.ready();
           };
-          return $.on($.id('recaptcha_widget_div'), 'DOMNodeInserted', this.onready);
+          return $.on($.id('captchaContainer'), 'DOMNodeInserted', this.onready);
         }
       },
       ready: function() {
         var _this = this;
 
         if (this.challenge = $.id('recaptcha_challenge_field_holder')) {
-          $.off($.id('recaptcha_widget_div'), 'DOMNodeInserted', this.onready);
+          $.off($.id('captchaContainer'), 'DOMNodeInserted', this.onready);
           delete this.onready;
         } else {
           return;

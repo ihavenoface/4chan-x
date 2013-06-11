@@ -1,4 +1,6 @@
 master
+- Mayhem
+  Fix QR.
 - noface
   Added desktop notifications for posts linking yours. This needs to be granted in the Updater.
 
