@@ -51,8 +51,11 @@ Config =
       'Auto Watch':                   [true,  'Automatically watch threads you start.']
       'Auto Watch Reply':             [false, 'Automatically watch threads you reply to.']
       'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
-      'Linkification':                [true,  'Convert text links in to hyperlinks.']
-      'Clean Links':                  [false, 'Remove spoiler elements commonly used to post banned links.']
+    'Linkification':
+      'Linkify':                      [true,  'Convert text links in to hyperlinks.']
+      'Clean Links':                  [true,  'Remove spoiler elements commonly used to post banned links.']
+      'Embedding':                    [true,  'Embed supported content.']
+      'Link Titles':                  [true,  'Fetch and replace titles of embeddable content.']
     'Posting':
       'Quick Reply':                  [true,  'All-in-one form to reply, create threads, automate dumping and more.']
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting.']

@@ -120,7 +120,7 @@ Main =
     initFeature 'Index Navigation',         Nav
     initFeature 'Keybinds',                 Keybinds
     initFeature 'Color user IDs',           IDColor
-    initFeature 'Linkification',            Linkify
+    initFeature 'Linkify',                  Linkify
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback
@@ -158,7 +158,7 @@ Main =
       $.addClass doc, style
     setStyle()
     return unless mainStyleSheet
-    if MutationObserver
+    if window.MutationObserver
       observer = new MutationObserver setStyle
       observer.observe mainStyleSheet,
         attributes: true

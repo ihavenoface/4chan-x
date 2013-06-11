@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.7 - 2013-06-07
+/* 4chan X - Version 3.4.7 - 2013-06-11
  * http://ihavenoface.github.io/4chan-x/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -97,9 +97,13 @@
         'Thread Watcher': [true, 'Bookmark threads.'],
         'Auto Watch': [true, 'Automatically watch threads you start.'],
         'Auto Watch Reply': [false, 'Automatically watch threads you reply to.'],
-        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.'],
-        'Linkification': [true, 'Convert text links in to hyperlinks.'],
-        'Clean Links': [false, 'Remove spoiler elements commonly used to post banned links.']
+        'Color user IDs': [true, 'Assign unique colors to user IDs on boards that use them.']
+      },
+      'Linkification': {
+        'Linkify': [true, 'Convert text links in to hyperlinks.'],
+        'Clean Links': [true, 'Remove spoiler elements commonly used to post banned links.'],
+        'Embedding': [true, 'Embed supported content.'],
+        'Link Titles': [true, 'Fetch and replace titles of embeddable content.']
       },
       'Posting': {
         'Quick Reply': [true, 'All-in-one form to reply, create threads, automate dumping and more.'],
@@ -4842,7 +4846,7 @@
           img: imgContainer.firstChild,
           input: input
         };
-        if (MutationObserver) {
+        if (window.MutationObserver) {
           observer = new MutationObserver(this.load.bind(this));
           observer.observe(this.nodes.challenge, {
             childList: true
@@ -6206,6 +6210,8 @@
     },
     fetchPage: function() {
       if (ThreadStats.thread.isDead) {
+        ThreadStats.pageCountEl.textContent = 'Dead';
+        $.addClass(ThreadStats.pageCountEl, 'warning');
         return;
       }
       setTimeout(ThreadStats.fetchPage, 2 * $.MINUTE);
@@ -6954,30 +6960,50 @@
 
   Linkify = {
     init: function() {
-      if (g.VIEW === 'catalog' || !Conf['Linkification']) {
+      if (g.VIEW === 'catalog' || !Conf['Linkify']) {
         return;
       }
       this.catchAll = /(?:(?:([a-z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i;
       this.tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/;
       this.globalCatchAll = new RegExp(this.catchAll.source, 'g');
+      if (Conf['Link Titles']) {
+        $.get('cachedTitles', {}, function(item) {
+          var key, service, _ref;
+
+          Linkify.cachedTitles = item.cachedTitles;
+          _ref = Linkify.embeds;
+          for (key in _ref) {
+            service = _ref[key];
+            if (service.title) {
+              if (!Linkify.cachedTitles[service.name]) {
+                Linkify.cachedTitles[service.name] = {};
+              }
+              Linkify.embeds[key].cachedTitles = Linkify.cachedTitles[service.name];
+            }
+          }
+        });
+      }
       return Post.prototype.callbacks.push({
-        name: 'Linkification',
+        name: 'Linkify',
         cb: this.node
       });
     },
     node: function() {
-      var URI, child, close, domain, err, hasSlash, href, isEmail, link, links, open, pastDot, protocol, resource, subdomain, tld, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var URI, a, child, close, domain, err, fullDomain, garbage, href, isEmail, link, links, next, open, pastDot, protocol, resource, result, service, subdomain, tld, toggle, uid, valid, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3, _ref4;
 
-      if (this.isClone || this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
+      if (this.isClone) {
         return;
       }
-      for (_i = 0, _len = links.length; _i < _len; _i++) {
-        link = links[_i];
+      if (this.isHidden || this.thread.isHidden || !(links = this.info.comment.match(Linkify.globalCatchAll))) {
+        return;
+      }
+      for (uid = _i = 0, _len = links.length; _i < _len; uid = ++_i) {
+        link = links[uid];
         _ref = link.match(Linkify.catchAll), link = _ref[0], protocol = _ref[1], isEmail = _ref[2], domain = _ref[3], tld = _ref[4], resource = _ref[5];
         if (/\.{2}|-{2}|w{3}\.4chan\.org/.test(domain + tld)) {
           continue;
         }
-        if (tld && !resource) {
+        if (tld && !isEmail && !resource) {
           if (!Linkify.tld.test(pastDot = tld.slice(1))) {
             continue;
           }
@@ -6985,15 +7011,15 @@
             continue;
           }
         }
+        if (!protocol && isEmail && resource) {
+          link = link.slice(0, -resource.length);
+        }
         link = Linkify.trim(link);
         if (/\)$/.test(link) && (close = link.match(/\)/g))) {
           open = link.match(/\(/g) || '';
           if (close.length > open.length) {
             link = Linkify.trim(link.slice(0, -close.length - open.length));
           }
-        }
-        if (!protocol && isEmail && (hasSlash = link.match(/^\S*(?=\/)/))) {
-          link = hasSlash[0];
         }
         try {
           URI = decodeURIComponent(link);
@@ -7017,14 +7043,59 @@
         _ref2 = this.nodes.comment.childNodes;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
           child = _ref2[_j];
-          Linkify.seek(child);
+          Linkify.seek(child, uid);
           if (Linkify.found) {
             break;
           }
         }
+        a = $("a[data-uid='" + uid + "']", this.nodes.comment);
+        if (!tld || !resource || !(a != null ? a.localName : void 0)) {
+          continue;
+        }
+        fullDomain = (domain + tld).toLowerCase();
+        _ref3 = Linkify.embeds;
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          service = _ref3[_k];
+          if (valid = service.domains.test(fullDomain)) {
+            break;
+          }
+        }
+        if (!valid || !(result = service.regex.exec(fullDomain + decodeURI(resource)))) {
+          continue;
+        }
+        if (Conf['Embedding']) {
+          toggle = $.el('a', {
+            textContent: 'Embed',
+            href: a.href
+          });
+          $.on(toggle, 'click', function(e) {
+            return Linkify.toggle(e);
+          });
+          garbage = /^(?:(?:\u0020+)?[\[\(]embed[\)\]](?:\u0020+)?)+/i;
+          if (garbage.test((_ref4 = (next = a.nextSibling)) != null ? _ref4.data : void 0)) {
+            next.data = next.data.replace(garbage, '');
+          }
+          $.after(a, [$.tn('\u0020['), toggle, $.tn(']')]);
+          a.embedding = {
+            uid: uid,
+            info: {
+              link: link,
+              protocol: protocol,
+              domain: domain,
+              tld: tld,
+              resource: resource,
+              result: result
+            },
+            toggle: toggle,
+            service: service
+          };
+        }
+        if (Conf['Link Titles'] && service.title) {
+          Linkify.title(a, result, service);
+        }
       }
     },
-    seek: function(node) {
+    seek: function(node, uid) {
       var a, after, child, data, guess, inSpoiler, index, next, nextData, nodes, start, _i, _j, _len, _len1, _ref;
 
       if (!node) {
@@ -7050,7 +7121,7 @@
           if (node.textContent.length >= this.length) {
             for (_i = 0, _len = nodes.length; _i < _len; _i++) {
               child = nodes[_i];
-              this.seek(child);
+              this.seek(child, uid);
               if (this.found) {
                 break;
               }
@@ -7061,7 +7132,7 @@
           _ref = node.childNodes;
           for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
             child = _ref[_j];
-            this.seek(child);
+            this.seek(child, uid);
             if (this.found) {
               break;
             }
@@ -7087,7 +7158,7 @@
           node.data = node.data.slice(0, -after.length);
         }
         this.container.nodes.push(node);
-        a = Linkify.anchor(this.href);
+        a = Linkify.anchor(this.href, uid);
         $.add(a, this.container.nodes);
         this.nodes.push(a);
         if (after) {
@@ -7095,7 +7166,7 @@
         }
         $.replace(this.container.entry, this.nodes);
         this.found = true;
-        return;
+        return uid;
       }
       if (!(data = node.data)) {
         return;
@@ -7107,7 +7178,7 @@
         if (index) {
           this.nodes.push($.tn(data.slice(0, index)));
         }
-        a = Linkify.anchor(this.href);
+        a = Linkify.anchor(this.href, uid);
         a.textContent = this.link;
         this.nodes.push(a);
         if (data = data.slice(index + this.length)) {
@@ -7115,7 +7186,7 @@
         }
         $.replace(node, this.nodes);
         this.found = true;
-        return;
+        return uid;
       }
       if (!(next = node.nextSibling)) {
         return;
@@ -7123,7 +7194,7 @@
       if (next.localName === 'wbr') {
         next = next.nextSibling;
       }
-      if (next.localName === 'a' || !(nextData = next.textContent)) {
+      if (!next || next.localName === 'a' || !(nextData = next.textContent)) {
         return;
       }
       index = 0;
@@ -7156,29 +7227,338 @@
       this.current = start;
       return this.seeking = true;
     },
-    anchor: function(href) {
-      var URI, thisTab;
+    anchor: function(href, uid) {
+      var URI, a, thisTab;
 
       URI = href[0], thisTab = href[1];
-      return $.el('a', {
+      a = $.el('a', {
         target: thisTab ? '' : '_blank',
         rel: 'noreferrer',
         href: URI
       });
+      a.setAttribute('data-uid', "" + uid);
+      return a;
     },
     trim: function(link) {
       var close;
 
-      if (close = link.match(/["',;\]?.]+$/)) {
+      if (close = link.match(/["',;:\]?.]+$/)) {
         return link.slice(0, close.index);
       } else {
         return link;
       }
-    }
+    },
+    toggle: function(e) {
+      var a, embed, media, result, target, which;
+
+      e.preventDefault();
+      which = e.which, target = e.target;
+      if (which !== 1) {
+        return;
+      }
+      if (target.textContent === 'Embed') {
+        a = target.previousElementSibling;
+        embed = a.embedding;
+        result = embed.info.result;
+        return embed.service.embedURL.call({
+          result: result,
+          target: target,
+          href: target.href
+        });
+      }
+      if (target.textContent === 'Unembed') {
+        media = target.nextSibling.nextSibling;
+        if (media.className === 'media-embed') {
+          $.rm(media);
+        }
+        return target.textContent = 'Embed';
+      }
+    },
+    title: function(a, result, service) {
+      var name, res, title, url;
+
+      res = result[1];
+      if (title = service.cachedTitles[res]) {
+        return Linkify.cb.title.call({
+          a: a,
+          service: service,
+          title: title
+        });
+      }
+      name = service.name;
+      url = service.titleURL.call({
+        a: a,
+        result: result
+      });
+      return $.cache(url, function() {
+        var el, toggle, _i, _len, _ref, _ref1;
+
+        if (((_ref = this.status) === 200 || _ref === 304) && (title = service.title.call(JSON.parse(this.response)))) {
+          Linkify.cachedTitles[name][res] = title;
+          $.set('cachedTitles', Linkify.cachedTitles);
+          return Linkify.cb.title.call({
+            a: a,
+            service: service,
+            title: title
+          });
+        } else {
+          toggle = a.embedding.toggle;
+          _ref1 = [toggle.previousSibling, toggle.nextSibling, toggle];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            el = _ref1[_i];
+            $.rm(el);
+          }
+        }
+      });
+    },
+    cb: {
+      title: function() {
+        this.a.textContent = this.title;
+        if (this.service.icon) {
+          return this.a.style.cssText = "background: transparent url('data:image/png;base64," + this.service.icon + "') left bottom 1px no-repeat; padding-left: 18px;";
+        }
+      },
+      embed: function() {
+        var div;
+
+        div = $.el('div', {
+          className: 'media-embed'
+        });
+        if (this.style) {
+          $.extend(this.el.style, Linkify.embeds[this.style].style);
+        }
+        $.add(div, this.el);
+        $.after(this.target.nextSibling, div);
+        return this.target.textContent = 'Unembed';
+      }
+    },
+    embeds: [
+      {
+        name: 'YouTube',
+        style: {
+          border: 'none',
+          width: '640px',
+          height: '360px'
+        },
+        icon: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAMAAABcOc2zAAAA2FBMVEX////IEgvIEgzFEgvGEQvFEQvFEgrGEgvFEQrGEQrBEQvBEgvBEQrbnZvJMy3CEQvCEgvCEgrCEQq9EQu9EQrRY1+8EQq3EQq4EQq4EAq3EAu4EQuyEAqzEAmzEAqyEAnTmpitEAqsDwmtEAmsEAqsjYyOMC2tDwqsEAmtDwmmDwqmDwmnDwpvFBCYDginDwmhDgmiDgmhDwmhDwiIU1F0CgeiDwmiDgidDgicDgmcDghcCAWBDAidDgmXDgmYDQmYDQiXDgiYDgmXDQiUDQiUDgiTDQiUDQmlDXXhAAAAAXRSTlOArV5bRgAAAIZJREFUCB0FwbFxwzAQAMG7/wdJaUaRxyWoAwUuwP03ImUeJiQBeFcBnAAAVIAzdKRHjAjvOjC82rkcq0fdEPjwbZlkVAkC78djOG3VQAX+vi7IXk1HCDxdz6Z1E5nw3BxbT2pxxkheerUzx+KPTlQ7zLqIZW/72rJFLds9t91ftccAcGbnHzmrJ8ML23cLAAAAAElFTkSuQmCC',
+        domains: /^(?:youtu(?:\.be|be\.com)|www\.youtu(?:\.be|be\.com)|m\.youtube\.com)$/,
+        regex: /(?:v[=\/]|#p\/[a-z]\/.+\/|youtu\.be\/)([a-z0-9_-]+)(?:.*[#&\?]t=([0-9hms]+))?/i,
+        title: function() {
+          return this.entry.title.$t;
+        },
+        titleURL: function() {
+          return "https://gdata.youtube.com/feeds/api/videos/" + this.result[1] + "?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode";
+        },
+        embedURL: function() {
+          var el, name, time, _, _ref;
+
+          _ref = this.result, _ = _ref[0], name = _ref[1], time = _ref[2];
+          time = time ? "#t=" + time : '';
+          el = $.el('iframe', {
+            src: "https://youtube.com/embed/" + name + "?rel=1&autohide=1" + time
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '0',
+            target: this.target
+          });
+        },
+        results: true
+      }, {
+        name: 'SoundCloud',
+        icon: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAMAAABcOc2zAAAAulBMVEX/lTH/kC7/kS//kS7/kC/+iyz/iyz/iiz+iiz/iiv/iyv+gij/gyj+gyj949L+69782L//gyf+eyT+eiT5o2/95tf707r++fX////84tH/eyT/eyP/eiT+ch//ch/+ciD7pXr949f7zrj4qHz/cR/+cR//aRr+aBr8zLf+7OP+aBv/YBb+Xxb+28v+VhL9yLL8wqv+VxH+Tg3+Tw3/Tg3+Rgn+Rwn+Rwr+Rgr/Rwr+QAb+QQb+QQf/QQeNThm+AAAAbUlEQVQIHV3BQQ6CQBAAwe5hFgU08ej/P+jBeBJ3xGg4WMU/tUKgi/TApqUdo4erlaOARejaAvMAVrhBZ3suftzZ1PwcjWnyyM9jGSNaO7O7RcsB2V0l0zrNceEreg5SrQYoKype2bQE7FAwvgF8TBzvXF7GTAAAAABJRU5ErkJggg==',
+        domains: /^(?:s(?:nd\.sc|oundcloud\.com)|www\.s(?:nd\.sc|oundcloud\.com)|m\.soundcloud\.com)$/,
+        regex: /\/([^#\&\?]*)/i,
+        title: function() {
+          return this.title;
+        },
+        titleURL: function() {
+          return "https://soundcloud.com/oembed?&format=json&url=" + this.a.href;
+        },
+        embedURL: function() {
+          var target, url;
+
+          url = "https://soundcloud.com/oembed?show_artwork=false&maxwidth=500px&show_comments=false&format=json&iframe=true&url=" + this.href;
+          target = this.target;
+          $.cache(url, function() {
+            var el, _ref;
+
+            if ((_ref = this.status) === 200 || _ref === 304) {
+              el = $.el('div', {
+                innerHTML: JSON.parse(this.response).html
+              });
+              return Linkify.cb.embed.call({
+                el: el,
+                target: target
+              });
+            }
+          });
+        }
+      }, {
+        name: 'Vocaroo',
+        style: {
+          border: 'none',
+          width: '150px',
+          height: '45px'
+        },
+        domains: /^vocaroo\.com$/,
+        regex: /\/i\/([^#\&\?\/]*)/i,
+        embedURL: function() {
+          var el;
+
+          el = $.el('iframe', {
+            src: "http://vocaroo.com/player.swf?autoplay=0&playMediaID=" + this.result[1]
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '2',
+            target: this.target
+          });
+        }
+      }, {
+        name: 'Vimeo',
+        style: {
+          border: 'none',
+          width: '640px',
+          height: '360px'
+        },
+        icon: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAMAAABcOc2zAAABFFBMVEUNrdYOrdYRrtcds9kUr9cRr9c4u95Cv98XsNgdstlax+Sg3u5iyuQZsdgZstmQ2+32/P7///9gyeM8vt+z5vPu+PuX1+iAyd72+/q33+oSrdUaqM6kvcbg5+rw9feVytoHnsY6l7J4orDm7O7Y5OggsNUJocsqi6nA09nf6+9Zp70MoMcHkbcCeJu+2uL//vw5udkMrNZDweH//Pv9/v6009wLjK8JptB3wNX18/RmzOU4u9y+5/LP3OEphaIJpc5Bp8Te5urk9vrk9fnc3+JKlqwIocoOlbrB3OXe4OJblKcElrwKqdJqs8jv7e3R19tPjaMFjbQMrNQMkLRPhZdUe4sgdZAJkbcTm8AXo8gPrdYQrtZ3sFJoAAAAhElEQVQIWz3JoQ5BUQCA4f+3c3fdnc2miTaFTRMoTPAGilcUNIoqKaS7eQrFDRgjnEv9vgAgH6ChLwhApt4pVG8EaKk+274JCQof5B21KoRAV+M1qlZRCEQ1QU8hUDK2fxloOUwAx7k0PY10n4Bczkx0Rw2Z08NM5QfbpQtd8wc2q/rhC5SoGNjPs3zpAAAAAElFTkSuQmCC',
+        domains: /^vimeo\.com$/,
+        regex: /\/([^#\&\?]*)/i,
+        title: function() {
+          return this.title;
+        },
+        titleURL: function() {
+          return "https://vimeo.com/api/oembed.json?url=" + this.a.href;
+        },
+        embedURL: function() {
+          var el;
+
+          el = $.el('iframe', {
+            src: "https://player.vimeo.com/video/" + this.result[1]
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '3',
+            target: this.target
+          });
+        }
+      }, {
+        name: 'Pastebin',
+        style: {
+          border: 'none',
+          width: '640px'
+        },
+        domains: /^pastebin\.com$/,
+        regex: /\/(?!u\/)([^#\&\?\/]*)/i,
+        embedURL: function() {
+          var el;
+
+          el = $.el('iframe', {
+            src: "http://pastebin.com/embed_iframe.php?i=" + this.result[1]
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '4',
+            target: this.target
+          });
+        }
+      }, {
+        name: 'Gist',
+        style: {
+          border: 'none',
+          width: '640px',
+          height: '360px'
+        },
+        icon: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA8FBMVEUAAAAQEBASEhITExMUEhIAAAAUERETExMUERETEREODg4AAAANDQ0UEhIUExMAAAAEBAQNDQ0SEhIAAAAAAAAAAAAODg4PDw8UExMUExMPDw8QEBAUExMUFBQUExMUFBQAAAAUExMTExMQEBATExMWExMBAQERDw8RDAwRDQ0UExMTExMPDw8AAAABAQECAgIHBwcCAgIREREUFBQRBQUNDQ0PDg4PDw8TExMUExMREREPDw8AAAAUExMUEhIUFBQUExMUExMAAAAAAAATERETERETExMODg4PDw8UERETExMXFRUVFBQPDQ8CAgIQEBDkw8rYAAAAS3RSTlMAPpfZ8gOixqTBNoHc2Pd0NziYDAoBNEDe+SEf+OH28ALxT0zanPz7OzrnmjD57fZA6y2ZLFzBIo/uHhAN9a+W/O0ZGIV2xRIRsWkFyBMHAAAApklEQVQYGQXBBUICAAAEsJGCCgooJojd3d15xv9/4wYKxVK5XCoWAJVqkiRJtQKVoSRJkmSoglrqwyOjjUZzbLyeGq2krTNBZ1I7aakmXYCppGo6M7MAc/OZ1kwPgF6a+lkYAAwW01dKlgCWkxWr32vrG8DmVrJt52d373e/xcFhkhxxnJPTs3O6f0kuoH55dY2b2+QOuH94fOI5eQF4fXvn4/ML/gHiYxySqXmtTgAAAABJRU5ErkJggg==',
+        domains: /^gist\.github\.com$/,
+        regex: /\/\w+\/(\d+)/i,
+        title: function() {
+          var file, response;
+
+          response = this.files;
+          for (file in response) {
+            if (response.hasOwnProperty(file)) {
+              return file;
+            }
+          }
+        },
+        titleURL: function() {
+          return "https://api.github.com/gists/" + this.result[1];
+        },
+        embedURL: function() {
+          var el;
+
+          el = $.el('iframe', {
+            src: "http://www.purplegene.com/script?url=https://gist.github.com/" + this.result[1] + ".js"
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '5',
+            target: this.target
+          });
+        }
+      }, {
+        name: 'InstallGentoo',
+        style: {
+          border: 'none',
+          width: '640px',
+          height: '360px'
+        },
+        domains: /^paste\.installgentoo\.com$/,
+        regex: /\/view\/(?:raw\/)?([^#\&\?\/]*)/i,
+        embedURL: function() {
+          var el;
+
+          el = $.el('iframe', {
+            src: "http://paste.installgentoo.com/view/embed/" + this.result[1]
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '6',
+            target: this.target
+          });
+        }
+      }, {
+        name: 'Imgur',
+        style: {
+          border: 'none',
+          cursor: 'pointer'
+        },
+        domains: /^(i\.)?imgur\.com$/,
+        regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]*)(?:\.(?:a?png|jpg|gif))?/i,
+        embedURL: function() {
+          var el, target;
+
+          el = $.el('img', {
+            src: "http://i.imgur.com/" + this.result[1] + ".png",
+            className: 'image-embed'
+          });
+          if (!Linkify.style) {
+            Linkify.style = $.addStyle(null);
+            Linkify.embeds[7].resize();
+            $.on(window, 'resize', Linkify.embeds[7].resize);
+          }
+          target = this.target;
+          $.on(el, 'click', function() {
+            $.rm(el.parentNode);
+            return target.textContent = 'Embed';
+          });
+          return Linkify.cb.embed.call({
+            el: el,
+            style: '7',
+            target: target
+          });
+        },
+        resize: function() {
+          return Linkify.style.textContent = ".media-embed .image-embed { max-height: " + (parseInt(innerHeight * .8)) + "px; max-width: " + (parseInt(innerWidth * .8)) + "px; }";
+        }
+      }
+    ]
   };
 
   Redirect = {
-    archives: [{"uid":0,"name":"Foolz","domain":"archive.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["a","co","gd","jp","m","q","sp","tg","tv","vp","vr","wsg"],"files":["a","gd","jp","m","q","tg","vp","vr","wsg"]},{"uid":1,"name":"NSFW Foolz","domain":"nsfw.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["u"],"files":["u"]},{"uid":2,"name":"The Dark Cave","domain":"archive.thedarkcave.org","http":true,"https":true,"software":"foolfuuka","boards":["c","int","out","po"],"files":["c","po"]},{"uid":3,"name":"4plebs","domain":"archive.4plebs.org","http":true,"https":false,"software":"foolfuuka","boards":["hr","tg","tv","x"],"files":["hr","tg","tv","x"]},{"uid":4,"name":"Nyafuu","domain":"archive.nyafuu.org","http":true,"https":true,"software":"foolfuuka","boards":["c","w","wg"],"files":["c","w","wg"]},{"uid":5,"name":"Love is Over","domain":"loveisover.me","http":true,"https":true,"software":"foolfuuka","boards":["d","h","v"],"files":["d","h","v"]},{"uid":6,"name":"nth-chan","domain":"nth.pensivenonsen.se","http":true,"https":false,"software":"foolfuuka","boards":["vg"],"files":["vg"]},{"uid":11,"name":"Foolz a Shit","domain":"archive.foolzashit.com","http":true,"https":true,"software":"foolfuuka","boards":["adv","asp","cm","e","i","lgbt","n","o","p","pol","s","s4s","t","trv","y"],"files":["adv","asp","cm","e","i","lgbt","n","o","p","s","s4s","t","trv","y"]},{"uid":7,"name":"Install Gentoo","domain":"archive.installgentoo.net","http":true,"https":true,"software":"fuuka","boards":["diy","g","sci"],"files":[]},{"uid":8,"name":"Rebecca Black Tech","domain":"rbt.asia","http":true,"https":true,"software":"fuuka","boards":["cgl","g","mu","w"],"files":["cgl","g","mu","w"]},{"uid":9,"name":"Heinessen","domain":"archive.heinessen.com","http":true,"https":false,"software":"fuuka","boards":["an","fit","k","mlp","r9k","toy"],"files":["an","fit","k","r9k","toy"]},{"uid":10,"name":"warosu","domain":"fuuka.warosu.org","http":true,"https":true,"software":"fuuka","boards":["3","cgl","ck","fa","ic","jp","lit","q","s4s","tg","vr"],"files":["3","cgl","ck","fa","ic","jp","lit","q","s4s","vr"]}],
+    archives: [{"uid":0,"name":"Foolz","domain":"archive.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["a","co","gd","jp","m","q","sp","tg","tv","vp","vr","wsg"],"files":["a","gd","jp","m","q","tg","vp","vr","wsg"]},{"uid":1,"name":"NSFW Foolz","domain":"nsfw.foolz.us","http":true,"https":true,"software":"foolfuuka","boards":["u"],"files":["u"]},{"uid":2,"name":"The Dark Cave","domain":"archive.thedarkcave.org","http":true,"https":true,"software":"foolfuuka","boards":["c","int","out","po"],"files":["c","po"]},{"uid":3,"name":"4plebs","domain":"archive.4plebs.org","http":true,"https":false,"software":"foolfuuka","boards":["hr","tg","tv","x"],"files":["hr","tg","tv","x"]},{"uid":4,"name":"Nyafuu","domain":"archive.nyafuu.org","http":true,"https":true,"software":"foolfuuka","boards":["c","w","wg"],"files":["c","w","wg"]},{"uid":5,"name":"Love is Over","domain":"loveisover.me","http":true,"https":true,"software":"foolfuuka","boards":["d","h","v"],"files":["d","h","v"]},{"uid":6,"name":"nth-chan","domain":"nth.pensivenonsen.se","http":true,"https":false,"software":"foolfuuka","boards":["vg"],"files":["vg"]},{"uid":11,"name":"Foolz a Shit","domain":"archive.foolzashit.com","http":true,"https":true,"software":"foolfuuka","boards":["adv","asp","cm","e","i","lgbt","n","o","p","pol","s","s4s","t","trv","y"],"files":["adv","asp","cm","e","i","lgbt","n","o","p","s","s4s","t","trv","y"]},{"uid":7,"name":"Install Gentoo","domain":"archive.installgentoo.net","http":true,"https":true,"software":"fuuka","boards":["diy","g","sci"],"files":[]},{"uid":8,"name":"Rebecca Black Tech","domain":"rbt.asia","http":true,"https":true,"software":"fuuka","boards":["cgl","g","mu","w"],"files":["cgl","g","mu","w"]},{"uid":9,"name":"Heinessen","domain":"archive.heinessen.com","http":true,"https":false,"software":"fuuka","boards":["an","fit","k","mlp","r9k","toy"],"files":["an","fit","k","r9k","toy"]},{"uid":10,"name":"warosu","domain":"fuuka.warosu.org","http":true,"https":true,"software":"fuuka","boards":["3","cgl","ck","fa","ic","jp","lit","q","tg","vr"],"files":["3","cgl","ck","fa","ic","jp","lit","q","vr"]}],
     thread: {},
     post: {},
     file: {},
@@ -7481,7 +7861,7 @@
       if (g.BOARD.ID === 'sci') {
         Fourchan.math.call(post);
       }
-      if (Conf['Linkification']) {
+      if (Conf['Linkify']) {
         return Linkify.node.call(post);
       }
     }
@@ -7743,7 +8123,7 @@
       }
       board = g.BOARD.ID;
       if (board === 'g') {
-        $.globalEval("window.addEventListener('prettyprint', function(e) {\n  var pre = e.detail;\n  pre.innerHTML = prettyPrintOne(pre.innerHTML.replace(/\\s/g, '&nbsp;'));\n}, false);");
+        $.globalEval("window.addEventListener('prettyprint', function(e) {\n  var pre = e.detail;\n  pre.innerHTML = prettyPrintOne(pre.innerHTML);\n}, false);");
         Post.prototype.callbacks.push({
           name: 'Parse /g/ code',
           cb: this.code
@@ -8391,22 +8771,23 @@
 
   Report = {
     init: function() {
-      if (!/report/.test(location.search)) {
+      if (!(/report/.test(location.search) && d.cookie.indexOf('pass_enabled=1') === -1)) {
         return;
       }
-      return $.ready(this.ready);
+      return $.asap((function() {
+        return $.id('recaptcha_response_field');
+      }), Report.ready);
     },
     ready: function() {
-      var field, form;
+      var field;
 
-      form = $('form');
       field = $.id('recaptcha_response_field');
       $.on(field, 'keydown', function(e) {
         if (e.keyCode === 8 && !field.value) {
           return $.globalEval('Recaptcha.reload("t")');
         }
       });
-      return $.on(form, 'submit', function(e) {
+      return $.on($('form'), 'submit', function(e) {
         var response;
 
         e.preventDefault();
@@ -8414,7 +8795,7 @@
         if (!/\s/.test(response)) {
           field.value = "" + response + " " + response;
         }
-        return form.submit();
+        return this.submit();
       });
     }
   };
@@ -9021,9 +9402,9 @@
       var boardID, postID, threadID, val, _base, _base1, _base2;
 
       boardID = _arg.boardID, threadID = _arg.threadID, postID = _arg.postID, val = _arg.val;
-      if (postID) {
+      if (postID !== void 0) {
         ((_base = ((_base1 = this.data.boards)[boardID] || (_base1[boardID] = {})))[threadID] || (_base[threadID] = {}))[postID] = val;
-      } else if (threadID) {
+      } else if (threadID !== void 0) {
         ((_base2 = this.data.boards)[boardID] || (_base2[boardID] = {}))[threadID] = val;
       } else {
         this.data.boards[boardID] = val;
@@ -9196,7 +9577,7 @@
                 filename: pathname[pathname.length - 1]
               });
               if (URL) {
-                return location.href = URL;
+                return location.replace(URL);
               }
             }
           });
@@ -9265,7 +9646,7 @@
       initFeature('Index Navigation', Nav);
       initFeature('Keybinds', Keybinds);
       initFeature('Color user IDs', IDColor);
-      initFeature('Linkification', Linkify);
+      initFeature('Linkify', Linkify);
       $.on(d, 'AddCallback', Main.addCallback);
       return $.ready(Main.initReady);
     },
@@ -9306,7 +9687,7 @@
       if (!mainStyleSheet) {
         return;
       }
-      if (MutationObserver) {
+      if (window.MutationObserver) {
         observer = new MutationObserver(setStyle);
         return observer.observe(mainStyleSheet, {
           attributes: true,
@@ -9326,7 +9707,7 @@
             threadID: g.THREADID,
             postID: +location.hash.match(/\d+/)
           });
-          location.href = href || ("/" + g.BOARD + "/");
+          location.replace(href || ("/" + g.BOARD + "/"));
         }
         return;
       }
