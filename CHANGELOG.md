@@ -1,4 +1,10 @@
+- Readded `Embedding`.
+- Readded `Link Titles`.
+- Minor fixes.
+
 ### 3.4.7 - *2013-06-02*
+
+- Minor fixes.
 
 ### 3.4.6 - *2013-06-02*
 
