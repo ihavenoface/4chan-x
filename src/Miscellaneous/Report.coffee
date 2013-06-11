@@ -1,9 +1,7 @@
 Report =
   init: ->
     return unless /report/.test location.search
-    setTimeout ->
-      $.ready Report.ready
-    , 1000
+    $.ready @ready
   ready: ->
     form  = $ 'form'
     field = $.id 'recaptcha_response_field'
