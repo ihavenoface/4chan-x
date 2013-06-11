@@ -385,5 +385,17 @@ Linkify =
       resize: ->
         Linkify.style.textContent =
           ".media-embed .image-embed { max-height: #{parseInt innerHeight * .8}px; max-width: #{parseInt innerWidth * .8}px; }"
+    }, {
+      name: 'LiveLeak'
+      style:
+        border: 'none'
+        width:  '640px'
+        height: '360px'
+      domains: /^(www\.)?liveleak.com$/
+      regex: /(?:liveleak\.com\/view.+i=)([0-9a-z_]*)/i
+      embedURL: ->
+        el = $.el 'iframe',
+          src: "http://www.liveleak.com/e/#{@result[1]}"
+        Linkify.cb.embed.call {el, style: '8', target: @target}
     }
   ]
