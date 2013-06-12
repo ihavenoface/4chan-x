@@ -377,6 +377,9 @@ a[href="javascript:;"] {
 #fourchanx-settings legend {
   font-weight: 700;
 }
+#fourchanx-settings .refresh {
+  margin-left: 10px;
+}
 #fourchanx-settings textarea {
   font-family: monospace;
   min-width: 100%;

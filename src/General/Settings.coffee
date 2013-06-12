@@ -502,7 +502,6 @@ Settings =
     $.cb.value.call @
 
   refresh: (section) ->
-    section.innerHTML = """
-      <h2>Reloading. Please wait.</h2>
-    """
+    section.innerHTML =
+      '<legend class=refresh>Reloading. Please wait.</legend>'
     d.location.reload()
