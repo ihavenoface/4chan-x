@@ -11,6 +11,7 @@
  * Seiba - chrome quick reply focusing
  * herpaderpderp - recaptcha fixes
  * WakiMiko - recaptcha tab order http://userscripts.org/scripts/show/82657
+ * milkytiptoe - testing
  *
  * All the people who've taken the time to write bug reports.
  *
