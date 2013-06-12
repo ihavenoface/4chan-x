@@ -912,11 +912,8 @@ QR =
 
   toggleSage: ->
     sage  = 'sage'
-    email = $ '[data-name=email]', QR.el
-    email.value = if email.value is sage
-      ''
-    else
-      sage
+    email = QR.nodes.email
+    email.value = email.value isnt sage and sage or ''
 
   preSubmitHooks: []
   submit: (e) ->

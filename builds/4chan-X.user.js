@@ -5097,8 +5097,8 @@
       var email, sage;
 
       sage = 'sage';
-      email = $('[data-name=email]', QR.el);
-      return email.value = email.value === sage ? '' : sage;
+      email = QR.nodes.email;
+      return email.value = email.value !== sage && sage || '';
     },
     preSubmitHooks: [],
     submit: function(e) {
