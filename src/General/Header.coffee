@@ -112,9 +112,11 @@ Header =
     $.rmAll list
     return unless text
     as = $$('#full-board-list a', Header.bar)[0...-2] # ignore the Settings and Home links
-    nodes = text.match(/[\w@]+(-(all|title|replace|full|index|catalog|text:"[^"]+"))*|[^\w@]+/g).map (t) ->
+    nodes = text.match(/[\w@]+(-(all|title|replace|full|index|catalog|text:"[^"]+"))*|break|[^\w@]+/g).map (t) ->
       if /^[^\w@]/.test t
         return $.tn t
+      if /^break/.test t
+        return $.el 'br'
       if /^toggle-all/.test t
         a = $.el 'a',
           className: 'show-board-list-button'
