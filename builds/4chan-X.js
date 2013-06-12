@@ -5082,11 +5082,10 @@
       return $.event('QRDialogCreation', null, dialog);
     },
     toggleSage: function() {
-      var email, sage;
+      var email;
 
-      sage = 'sage';
       email = QR.nodes.email;
-      return email.value = email.value !== sage && sage || '';
+      return email.value = !/sage/i.test(email.value) && 'sage' || '';
     },
     preSubmitHooks: [],
     submit: function(e) {

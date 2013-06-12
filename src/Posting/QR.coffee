@@ -911,9 +911,8 @@ QR =
     $.event 'QRDialogCreation', null, dialog
 
   toggleSage: ->
-    sage  = 'sage'
-    email = QR.nodes.email
-    email.value = email.value isnt sage and sage or ''
+    {email} = QR.nodes
+    email.value = !/sage/i.test(email.value) and 'sage' or ''
 
   preSubmitHooks: []
   submit: (e) ->
