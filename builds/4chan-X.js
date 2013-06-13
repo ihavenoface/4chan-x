@@ -18,7 +18,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAgMAAAAOFJJnAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAFNJREFUGFeNzikOwEAMQ1ET3y9kiO8X8k9Z0GqWltToSY4US38ySvLYYFoKtaBQprVg6EAtaAAMbVCgdcBQJz43hrubCJ3n+8Rrj5JyH7Clqh3vXHZqP8ExX7CZAAAAAElFTkSuQmCC
 // ==/UserScript==
 
-/* 4chan X - Version 3.4.8 - 2013-06-13
+/* 4chan X - Version 3.4.8 - 2013-06-14
  * https://ihavenoface.me/
  *
  * Copyrights and License: https://github.com/ihavenoface/4chan-x/blob/v3/LICENSE
@@ -7375,7 +7375,7 @@
         name: 'SoundCloud',
         icon: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAMAAABcOc2zAAAAulBMVEX/lTH/kC7/kS//kS7/kC/+iyz/iyz/iiz+iiz/iiv/iyv+gij/gyj+gyj949L+69782L//gyf+eyT+eiT5o2/95tf707r++fX////84tH/eyT/eyP/eiT+ch//ch/+ciD7pXr949f7zrj4qHz/cR/+cR//aRr+aBr8zLf+7OP+aBv/YBb+Xxb+28v+VhL9yLL8wqv+VxH+Tg3+Tw3/Tg3+Rgn+Rwn+Rwr+Rgr/Rwr+QAb+QQb+QQf/QQeNThm+AAAAbUlEQVQIHV3BQQ6CQBAAwe5hFgU08ej/P+jBeBJ3xGg4WMU/tUKgi/TApqUdo4erlaOARejaAvMAVrhBZ3suftzZ1PwcjWnyyM9jGSNaO7O7RcsB2V0l0zrNceEreg5SrQYoKype2bQE7FAwvgF8TBzvXF7GTAAAAABJRU5ErkJggg==',
         domains: /^(?:s(?:nd\.sc|oundcloud\.com)|www\.s(?:nd\.sc|oundcloud\.com)|m\.soundcloud\.com)$/,
-        regex: /\/([^#\&\?]*)/i,
+        regex: /\.(?:sc|com)\/([^#\&\?]+)/i,
         title: function() {
           return this.title;
         },
@@ -7409,7 +7409,7 @@
           height: '45px'
         },
         domains: /^vocaroo\.com$/,
-        regex: /\/i\/([^#\&\?\/]*)/i,
+        regex: /vocaroo\.com\/i\/([a-zA-Z0-9]+)/i,
         embedURL: function() {
           var el;
 
@@ -7457,7 +7457,7 @@
           width: '640px'
         },
         domains: /^pastebin\.com$/,
-        regex: /\/(?!u\/)([^#\&\?\/]*)/i,
+        regex: /pastebin\.com\/(?!u\/)([a-zA-Z0-9]+)/i,
         embedURL: function() {
           var el;
 
@@ -7513,7 +7513,7 @@
           height: '360px'
         },
         domains: /^paste\.installgentoo\.com$/,
-        regex: /\/view\/(?:raw\/)?([^#\&\?\/]*)/i,
+        regex: /\/view\/(?:raw\/)?([a-zA-Z0-9]+)/i,
         embedURL: function() {
           var el;
 
@@ -7533,7 +7533,7 @@
           cursor: 'pointer'
         },
         domains: /^(i\.)?imgur\.com$/,
-        regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]*)(?:\.(?:a?png|jpg|gif))?/i,
+        regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]+)(?:\.(?:a?png|jpg|gif))?/i,
         embedURL: function() {
           var el, target;
 
@@ -7568,7 +7568,7 @@
           height: '360px'
         },
         domains: /^(www\.)?liveleak.com$/,
-        regex: /(?:liveleak\.com\/view.+i=)([0-9a-z_]*)/i,
+        regex: /(?:liveleak\.com\/view.+i=)([a-z]{3}_\d+)/i,
         embedURL: function() {
           var el;
 

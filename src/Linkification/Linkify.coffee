@@ -281,7 +281,7 @@ Linkify =
       name: 'SoundCloud'
       icon: '<%= grunt.file.read("img/embeds/SoundCloud.png", {encoding: "base64"}) %>'
       domains: /^(?:s(?:nd\.sc|oundcloud\.com)|www\.s(?:nd\.sc|oundcloud\.com)|m\.soundcloud\.com)$/
-      regex: /\/([^#\&\?]*)/i
+      regex: /\.(?:sc|com)\/([^#\&\?]+)/i
       title: -> @title
       titleURL: -> "https://soundcloud.com/oembed?&format=json&url=#{@a.href}"
       embedURL: ->
@@ -300,7 +300,7 @@ Linkify =
         width:  '150px'
         height: '45px'
       domains: /^vocaroo\.com$/
-      regex: /\/i\/([^#\&\?\/]*)/i
+      regex: /vocaroo\.com\/i\/([a-zA-Z0-9]+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://vocaroo.com/player.swf?autoplay=0&playMediaID=#{@result[1]}"
@@ -326,7 +326,7 @@ Linkify =
         border: 'none'
         width:  '640px'
       domains: /^pastebin\.com$/
-      regex: /\/(?!u\/)([^#\&\?\/]*)/i
+      regex: /pastebin\.com\/(?!u\/)([a-zA-Z0-9]+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://pastebin.com/embed_iframe.php?i=#{@result[1]}"
@@ -355,7 +355,7 @@ Linkify =
         width:  '640px'
         height: '360px'
       domains: /^paste\.installgentoo\.com$/
-      regex: /\/view\/(?:raw\/)?([^#\&\?\/]*)/i
+      regex: /\/view\/(?:raw\/)?([a-zA-Z0-9]+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://paste.installgentoo.com/view/embed/#{@result[1]}"
@@ -366,7 +366,7 @@ Linkify =
         border: 'none'
         cursor: 'pointer'
       domains: /^(i\.)?imgur\.com$/
-      regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]*)(?:\.(?:a?png|jpg|gif))?/i
+      regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]+)(?:\.(?:a?png|jpg|gif))?/i
       embedURL: ->
         el = $.el 'img',
           # imgur/browser doesn't care about filetype so we
@@ -392,7 +392,7 @@ Linkify =
         width:  '640px'
         height: '360px'
       domains: /^(www\.)?liveleak.com$/
-      regex: /(?:liveleak\.com\/view.+i=)([0-9a-z_]*)/i
+      regex: /(?:liveleak\.com\/view.+i=)([a-z]{3}_\d+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://www.liveleak.com/e/#{@result[1]}"
