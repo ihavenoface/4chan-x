@@ -15,7 +15,7 @@
 // @run-at       document-start
 // @updateURL    https://ihavenoface.me/stable-v3/4chan-X.meta.js
 // @downloadURL  https://ihavenoface.me/stable-v3/4chan-X.user.js
-// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAgMAAAAqbBEUAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAHFJREFUKFOt0LENACEIBdBv4Qju4wgWanEj3D6OcIVMKaitYHEU/jwTCQj8W75kiVCSBvdQ5/AvfVHBin11BgdRq3ysBgfwBDRrj3MCIA+oAQaku/Q1cNctrAmyDl577tOThYt/Y1RBM4DgOHzM0HFTAyLukH/cmRnqAAAAAElFTkSuQmCC
+// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAgMAAAAOFJJnAAAACVBMVEUAAGcAAABmzDNZt9VtAAAAAXRSTlMAQObYZgAAAFNJREFUGFeNzikOwEAMQ1ET3y9kiO8X8k9Z0GqWltToSY4US38ySvLYYFoKtaBQprVg6EAtaAAMbVCgdcBQJz43hrubCJ3n+8Rrj5JyH7Clqh3vXHZqP8ExX7CZAAAAAElFTkSuQmCC
 // ==/UserScript==
 
 /* 4chan X - Version 3.4.8 - 2013-06-13

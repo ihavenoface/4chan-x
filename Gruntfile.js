@@ -81,7 +81,7 @@ module.exports = function(grunt) {
     },
     copy: {
       crx: {
-        src: 'img/*.png',
+        src: 'img/icon*.png',
         dest: 'builds/crx/',
         expand: true,
         flatten: true
