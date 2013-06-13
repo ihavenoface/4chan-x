@@ -210,96 +210,49 @@ $.bytesToString = (size) ->
   "#{size} #{['B', 'KB', 'MB', 'GB'][unit]}"
 $.syncing = {}
 $.sync = do ->
-<% if (type === 'crx') { %>
-  chrome.storage.onChanged.addListener (changes) ->
-    for key of changes
-      if cb = $.syncing[key]
-        cb changes[key].newValue
-    return
-  (key, cb) -> $.syncing[key] = cb
-<% } else { %>
   $.on window, 'storage', (e) ->
     if cb = $.syncing[e.key]
       cb JSON.parse e.newValue
   (key, cb) -> $.syncing[g.NAMESPACE + key] = cb
-<% } %>
 $.item = (key, val) ->
   item = {}
   item[key] = val
   item
 <% if (type === 'crx') { %>
-$.localKeys = [
-  # filters
-  'name',
-  'uniqueID',
-  'tripcode',
-  'capcode',
-  'email',
-  'subject',
-  'comment',
-  'flag',
-  'filename',
-  'dimensions',
-  'filesize',
-  'MD5',
-  # custom css
-  'usercss'
-]
-# https://developer.chrome.com/extensions/storage.html
 $.delete = (keys) ->
-  chrome.storage.sync.remove keys
+  unless keys instanceof Array
+    keys = [keys]
+  for key in keys
+    key = g.NAMESPACE + key
+    localStorage.removeItem key
+  return
 $.get = (key, val, cb) ->
   if typeof cb is 'function'
     items = $.item key, val
   else
     items = key
     cb = val
-
-  localItems = null
-  syncItems  = null
-  for key, val of items
-    if key in $.localKeys
-      (localItems or= {})[key] = val
-    else
-      (syncItems  or= {})[key] = val
-
-  count = 0
-  done  = (item) ->
-    {lastError} = chrome.runtime
-    if lastError
-      c.error lastError, lastError.message or 'No message.'
-    $.extend items, item
-    cb items unless --count
-
-  if localItems
-    count++
-    chrome.storage.local.get localItems, done
-  if syncItems
-    count++
-    chrome.storage.sync.get  syncItems,  done
+  $.queueTask ->
+    for key of items
+      if val = localStorage.getItem g.NAMESPACE + key
+        items[key] = JSON.parse val
+    cb items
 $.set = do ->
-  items = {}
-  localItems = {}
-
-  set = $.debounce $.SECOND, ->
-    for key in $.localKeys
-      if key of items
-        (localItems or= {})[key] = items[key]
-        delete items[key]
-    try
-      chrome.storage.local.set localItems
-      chrome.storage.sync.set items
-      items = {}
-      localItems = {}
-    catch err
-      c.error err.stack
-
-  (key, val) ->
-    if typeof key is 'string'
-      items[key] = val
-    else
-      $.extend items, key
-    set()
+  set = (key, val) ->
+    tmp = key
+    key = g.NAMESPACE + key
+    val = JSON.stringify val
+    if tmp of $.syncing
+      # for `storage` events
+      localStorage.setItem key, val
+    localStorage.setItem key, val
+  (keys, val) ->
+    if typeof keys is 'string'
+      set keys, val
+      return
+    for key, val of keys
+      set key, val
+    return
 <% } else if (type === 'userjs') { %>
 do ->
   # http://www.opera.com/docs/userjs/specs/#scriptstorage
