@@ -28,7 +28,7 @@ Linkify =
       return
     return if @isHidden or @thread.isHidden or !links = @info.comment.match Linkify.globalCatchAll
 
-    for link, uid in links
+    for link in links
       [link, protocol, isEmail, domain, tld, resource] = link.match Linkify.catchAll
       if /\.{2}|-{2}|w{3}\.4chan\.org/.test domain + tld
         # https://code.google.com/p/chromium/issues/detail?id=146162
@@ -76,10 +76,12 @@ Linkify =
       Linkify.nodes   = []
 
       for child in @nodes.comment.childNodes
-        Linkify.seek child, uid
-        break if Linkify.found
-      a = $ "a[data-uid='#{uid}']", @nodes.comment
-      continue if !tld or !resource or !a?.localName
+        a = Linkify.seek child
+        break if a is 'false' or Linkify.found
+      if a is 'false' and Linkify.container?.entry
+        $.before Linkify.container.entry, Linkify.nodes
+        continue
+      continue if !a? or !tld or !resource
       fullDomain = (domain + tld).toLowerCase()
       for service in Linkify.embeds
         break if valid = service.domains.test fullDomain
@@ -95,7 +97,6 @@ Linkify =
           next.data = next.data.replace garbage, ''
         $.after a, [$.tn '\u0020['; toggle, $.tn ']']
         a.embedding =
-          uid:     uid
           info:    {link, protocol, domain, tld, resource, result}
           toggle:  toggle
           service: service
@@ -103,8 +104,9 @@ Linkify =
         Linkify.title a, result, service
     return
 
-  seek: (node, uid) ->
-    return unless node
+  seek: (node) ->
+    return if !node or node.sought
+    node.sought = true
 
     switch node.localName or node.nodeName
       when '#text'
@@ -114,21 +116,22 @@ Linkify =
           @container.nodes.push node
         return
       when 's'
-        return if $$('s', node).length
+        if $$('s', node).length
+          return 'false'
         if (nodes = node.childNodes).length is 1
           inSpoiler = node
           node = node.firstChild
           break
         if node.textContent.length >= @length
           for child in nodes
-            @seek child, uid
+            a = @seek child
             break if @found
-        return
+        return a
       when 'span'
         for child in node.childNodes
-          @seek child, uid
+          a = @seek child
           break if @found
-        return
+        return a
       else
         return
     if @seeking
@@ -144,13 +147,13 @@ Linkify =
       if after = @current[@length...]
         node.data = node.data[...-after.length]
       @container.nodes.push node
-      a = Linkify.anchor @href, uid
+      a = Linkify.anchor @href
       $.add a, @container.nodes
       @nodes.push a
       @nodes.push $.tn after if after
       $.replace @container.entry, @nodes
       @found = true
-      return uid
+      return a
 
     unless data = node.data
       return
@@ -160,14 +163,14 @@ Linkify =
         node = inSpoiler
       if index
         @nodes.push $.tn data[...index]
-      a = Linkify.anchor @href, uid
+      a = Linkify.anchor @href
       a.textContent = @link
       @nodes.push a
       if data = data[index + @length..]
         @nodes.push $.tn data
       $.replace node, @nodes
       @found = true
-      return uid
+      return a
 
     return unless next = (inSpoiler or node).nextSibling
     if next.localName is 'wbr'
@@ -196,15 +199,14 @@ Linkify =
       entry: node
     @current = start
     @seeking = true
+    return
 
-  anchor: (href, uid) ->
+  anchor: (href) ->
     [URI, thisTab] = href
     a = $.el 'a',
       target: if thisTab then '' else '_blank'
       rel:    'noreferrer'
       href:   URI
-    a.setAttribute 'data-uid', "#{uid}"
-    a
 
   trim: (link) ->
     if close = link.match /["',;:\]?.]+$/
