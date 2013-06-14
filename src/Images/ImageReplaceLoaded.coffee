@@ -20,7 +20,6 @@ ImageReplaceLoaded =
     if Conf['Image Expansion']
       $.on thumb, 'click', ->
         $.asap (-> file.fullImage), ->
-          c.log @
           ImageReplaceLoaded.replace.call {isReply, thumb, src: file.fullImage.src}
 
   replace: ->
