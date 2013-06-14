@@ -108,6 +108,7 @@ Main =
     initFeature 'Image Expansion (Menu)',   ImageExpand.menu
     initFeature 'Reveal Spoilers',          RevealSpoilers
     initFeature 'Replace Image',            ImageReplace
+    initFeature 'Replace Loaded Image',     ImageReplaceLoaded
     initFeature 'Image Hover',              ImageHover
     initFeature 'Comment Expansion',        ExpandComment
     initFeature 'Thread Expansion',         ExpandThread

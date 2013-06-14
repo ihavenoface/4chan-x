@@ -21,8 +21,9 @@ Config =
       'Reply Hiding':                 [true,  'Add buttons to hide single replies.']
       'Stubs':                        [true,  'Show stubs of hidden threads / replies.']
     'Images':
-      'Replace JPG':                  [false, 'Replace thumbnail of JPGs with its actual image.']
-      'Replace PNG':                  [false, 'Replace thumbnail of PNGs with its actual image.']
+      'Replace Loaded Images':        [false, 'Replace image thumbnails that have been loaded through Image Hover or Image Expansion.']
+      'Replace JPG':                  [false, 'Replace thumbnails of JPGs with its actual image.']
+      'Replace PNG':                  [false, 'Replace thumbnails of PNGs with its actual image.']
       'Replace GIF':                  [false, 'Animate GIF thumbnails.']
       'Image Expansion':              [true,  'Expand images inline.']
       'Image Hover':                  [false, 'Show a floating expanded image on hover.']
