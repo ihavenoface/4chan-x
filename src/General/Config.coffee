@@ -41,6 +41,7 @@ Config =
       'Archive Link':                 [true,  'Add an archive link to the menu.']
     'Monitoring':
       'Thread Updater':               [true,  'Fetch and insert new replies. Has more options in its own dialog.']
+      'Sync Thread Updater':          [true,  'Sync value of Thread Updater across tabs.']
       'Unread Count':                 [true,  'Show the unread posts count in the tab title.']
       'Hide Unread Count at (0)':     [false, 'Hide the unread posts count when it reaches 0.']
       'Unread Tab Icon':              [true,  'Show a different favicon when there are unread posts.']
