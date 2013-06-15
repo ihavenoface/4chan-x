@@ -15,6 +15,8 @@ ThreadUpdater =
     @status = $ '#update-status', @dialog
     @isUpdating = Conf['Auto Update']
 
+    $.sync 'Interval', ThreadUpdater.cb.sync
+
     Thread::callbacks.push
       name: 'Thread Updater'
       cb:   @node
@@ -38,6 +40,7 @@ ThreadUpdater =
           $.on  input, 'change', ThreadUpdater.cb.autoUpdate
           $.event 'change', null, input
         when 'Interval'
+          ThreadUpdater.syncInput = input
           $.on input, 'change', ThreadUpdater.cb.interval
           ThreadUpdater.cb.interval.call input
         when 'Update'
@@ -84,6 +87,9 @@ ThreadUpdater =
         ThreadUpdater.timeoutID = setTimeout ThreadUpdater.timeout, 1000
       else
         clearTimeout ThreadUpdater.timeoutID
+    sync: (e) ->
+      ThreadUpdater.syncInput.value = e
+      ThreadUpdater.cb.interval.call ThreadUpdater.syncInput
     interval: (e) ->
       val = unless val = parseInt @value
         Config.updater.Interval
