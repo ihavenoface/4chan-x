@@ -2,7 +2,7 @@ Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkify'] and !Conf['Embedding'] and !Conf['Link Titles']
 
-    @catchAll = /(?:(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i
+    @catchAll = /(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
 
     @tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/i
 
@@ -38,7 +38,7 @@ Linkify =
       if tld and !isEmail and !resource
         if !Linkify.tld.test pastDot = tld[1..]
           continue
-        if @board.ID is 'g' and /^p[ly]|sh$/.test pastDot
+        if @board.ID is 'g' and /^p[ly]|sh$/i.test pastDot
           continue
 
       if !protocol and isEmail and resource
@@ -58,7 +58,7 @@ Linkify =
         continue
 
       if !protocol and !isEmail
-        subdomain = URI.match(/^[a-z]+(?=\.)/)?[0]
+        subdomain = URI.match(/^[a-z]+(?=\.)/i)?[0]
 
       href = if protocol
         [URI, protocol is 'magnet']
@@ -70,11 +70,13 @@ Linkify =
         ["http://#{URI}"]
 
       if domain and tld
-        fullDomain = (domain + tld).toLowerCase()
-      for service in Linkify.embeds
-        break if valid = service.domains.test fullDomain
-      if !Conf['Linkify']
-        if !valid or Conf['Link Titles'] and !service.title
+        for service in Linkify.embeds
+          break if valid = service.domains.test (domain + tld).toLowerCase()
+      result = service.regex.exec URI
+      if !Conf['Linkify'] # this still needs cleanup
+        if (!valid or Conf['Link Titles']) and !service.title
+          continue
+        if (Conf['Embedding'] or Conf['Link Titles']) and !result?[1]
           continue
 
       Linkify.seeking    = false
@@ -88,7 +90,6 @@ Linkify =
       else
         continue
 
-      result = service.regex.exec fullDomain + decodeURI resource
       if Conf['Embedding'] and result
         toggle = $.el 'a',
           textContent: 'Embed'
@@ -99,6 +100,7 @@ Linkify =
         if garbage.test (next = a.nextSibling)?.data
           next.data = next.data.replace garbage, ''
         $.after a, [$.tn '\u0020['; toggle, $.tn ']']
+        # dont bind that junk on the anchor, store it soemwhere else
         a.embedding =
           info:    {link, protocol, domain, tld, resource, result}
           toggle:  toggle
@@ -240,14 +242,18 @@ Linkify =
         $.set 'cachedTitles', Linkify.cachedTitles
         Linkify.cb.title.call {a, service, title}
       else
-        return unless toggle = a.embedding.toggle
-        for el in [toggle.previousSibling, toggle.nextSibling, toggle]
-          $.rm el
-        return
+        if Conf['Embedding'] and toggle = a.embedding.toggle
+          for el in [toggle.previousSibling, toggle.nextSibling, toggle]
+            $.rm el
+        if !Conf['Linkify']
+          nodes = [] # oh my
+          for node in a.childNodes
+            nodes.push node
+          $.replace a, nodes
   cb:
     title: ->
       @a.textContent = @title
-      if @service.icon
+      if @service.icon # move this to css
         @a.style.cssText = "background: transparent url('data:image/png;base64,#{@service.icon}') left bottom 1px no-repeat; padding-left: 18px;"
 
     embed: ->
@@ -367,7 +373,7 @@ Linkify =
         border: 'none'
         cursor: 'pointer'
       domains: /^(i\.)?imgur\.com$/
-      regex: /imgur\.com(?!\/a)\/([a-zA-Z0-9]+)(?:\.(?:a?png|jpg|gif))?/i
+      regex: /imgur\.com\/(?!a\/)([a-zA-Z0-9]+)(?:\.(?:a?png|jpg|gif))?/i
       embedURL: ->
         el = $.el 'img',
           # imgur/browser doesn't care about filetype so we
