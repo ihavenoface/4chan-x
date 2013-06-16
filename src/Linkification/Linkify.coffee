@@ -1,6 +1,6 @@
 Linkify =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Linkify']
+    return if g.VIEW is 'catalog' or !Conf['Linkify'] and !Conf['Embedding'] and !Conf['Link Titles']
 
     @catchAll = /(?:(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\b\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|(?:\b)([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/i
 
@@ -12,10 +12,11 @@ Linkify =
       $.get 'cachedTitles', {}, (item) ->
         Linkify.cachedTitles = item.cachedTitles
         for key, service of Linkify.embeds
+          {name} = service
           if service.title
-            unless Linkify.cachedTitles[service.name]
-              Linkify.cachedTitles[service.name] = {}
-            Linkify.embeds[key].cachedTitles = Linkify.cachedTitles[service.name]
+            unless Linkify.cachedTitles[name]
+              Linkify.cachedTitles[name] = {}
+            Linkify.embeds[key].cachedTitles = Linkify.cachedTitles[name]
         return
 
     Post::callbacks.push
@@ -68,25 +69,27 @@ Linkify =
       else
         ["http://#{URI}"]
 
-      Linkify.href    = href
-      Linkify.link    = link
-      Linkify.length  = link.length
-      Linkify.seeking = false
-      Linkify.found   = false
-      Linkify.nodes   = []
-
-      for child in @nodes.comment.childNodes
-        a = Linkify.seek child
-        break if a is 'false' or Linkify.found
-      if a is 'false' and Linkify.container?.entry
-        $.before Linkify.container.entry, Linkify.nodes
-        continue
-      continue if !a? or !tld or !resource
-      fullDomain = (domain + tld).toLowerCase()
+      if domain and tld
+        fullDomain = (domain + tld).toLowerCase()
       for service in Linkify.embeds
         break if valid = service.domains.test fullDomain
-      continue if !valid or !result = service.regex.exec fullDomain + decodeURI resource
-      if Conf['Embedding']
+      if !Conf['Linkify']
+        if !valid or Conf['Link Titles'] and !service.title
+          continue
+
+      Linkify.seeking    = false
+      Linkify.seek.nodes = []
+
+      for child in @nodes.comment.childNodes
+        break if info = Linkify.seek child, link, href
+      if typeof info is 'object'
+        {a, node} = info
+        $.replace node, Linkify.seek.nodes
+      else
+        continue
+
+      result = service.regex.exec fullDomain + decodeURI resource
+      if Conf['Embedding'] and result
         toggle = $.el 'a',
           textContent: 'Embed'
           href: a.href
@@ -100,11 +103,11 @@ Linkify =
           info:    {link, protocol, domain, tld, resource, result}
           toggle:  toggle
           service: service
-      if Conf['Link Titles'] and service.title
+      if Conf['Link Titles'] and result and service.title
         Linkify.title a, result, service
     return
 
-  seek: (node) ->
+  seek: (node, link, href) ->
     return if !node or node.sought
     node.sought = true
 
@@ -117,21 +120,19 @@ Linkify =
         return
       when 's'
         if $$('s', node).length
-          return 'false'
+          return true
         if (nodes = node.childNodes).length is 1
           inSpoiler = node
           node = node.firstChild
           break
         if node.textContent.length >= @length
           for child in nodes
-            a = @seek child
-            break if @found
-        return a
+            break if info = @seek child, link, href
+        return info
       when 'span'
         for child in node.childNodes
-          a = @seek child
-          break if @found
-        return a
+          break if info = @seek child, link, href
+        return info
       else
         return
     if @seeking
@@ -141,36 +142,34 @@ Linkify =
           $.replace inSpoiler, node
         else
           node = inSpoiler
-      if @length > @current.length
+      if link.length > @current.length
         @container.nodes.push node
         return
-      if after = @current[@length...]
+      if after = @current[link.length...]
         node.data = node.data[...-after.length]
       @container.nodes.push node
-      a = Linkify.anchor @href
+      a = Linkify.anchor href
       $.add a, @container.nodes
-      @nodes.push a
-      @nodes.push $.tn after if after
-      $.replace @container.entry, @nodes
-      @found = true
-      return a
+      {nodes} = @seek
+      nodes.push a
+      nodes.push $.tn after if after
+      return {a, node: @container.entry}
 
     unless data = node.data
       return
 
-    if (index = data.indexOf @link) >= 0
+    if (index = data.indexOf link) >= 0
+      {nodes} = @seek
       if inSpoiler
         node = inSpoiler
       if index
-        @nodes.push $.tn data[...index]
-      a = Linkify.anchor @href
-      a.textContent = @link
-      @nodes.push a
-      if data = data[index + @length..]
-        @nodes.push $.tn data
-      $.replace node, @nodes
-      @found = true
-      return a
+        nodes.push $.tn data[...index]
+      a = Linkify.anchor href
+      a.textContent = link
+      nodes.push a
+      if data = data[index + link.length..]
+        nodes.push $.tn data
+      return {a, node}
 
     return unless next = (inSpoiler or node).nextSibling
     if next.localName is 'wbr'
@@ -179,14 +178,15 @@ Linkify =
     index = 0
     while index isnt data.length
       start = data[index++..]
-      if @link[...start.length] is start
+      if link[...start.length] is start
         index--
         break
     guess = start + nextData
-    return unless start and @link[...guess.length] is guess or guess.indexOf(@link) >=0
+    return unless start and link[...guess.length] is guess or guess.indexOf(link) >=0
 
     if index
-      @nodes.push $.tn data[...index]
+      {nodes} = @seek
+      nodes.push $.tn data[...index]
       node.data = start
 
     if inSpoiler
@@ -240,11 +240,10 @@ Linkify =
         $.set 'cachedTitles', Linkify.cachedTitles
         Linkify.cb.title.call {a, service, title}
       else
-        toggle = a.embedding.toggle
+        return unless toggle = a.embedding.toggle
         for el in [toggle.previousSibling, toggle.nextSibling, toggle]
           $.rm el
         return
-
   cb:
     title: ->
       @a.textContent = @title
