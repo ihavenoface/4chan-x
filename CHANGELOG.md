@@ -1,3 +1,5 @@
+### 3.4.9 - *2013-06-17*
+
 - On Chrome:
   Moved storage from chrome storage (this includes sync across devices) to local storage.
 - Settings under Linkifcation are now modular.
