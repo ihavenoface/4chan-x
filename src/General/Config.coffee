@@ -53,6 +53,7 @@ Config =
       'Auto Watch':                   [true,  'Automatically watch threads you start.']
       'Auto Watch Reply':             [false, 'Automatically watch threads you reply to.']
       'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
+      'Clean user IDs':               [true,  'Remove wrapping \'(ID: )\'.']
     'Linkification':
       'Linkify':                      [true,  'Convert text links in to hyperlinks.']
       'Clean Links':                  [true,  'Remove spoiler elements commonly used to post banned links.']

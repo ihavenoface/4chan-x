@@ -16,8 +16,9 @@ IDColor =
       color: #{if rgb[3] then 'black' else 'white'};
     """
     $.addClass span, 'painted'
-    $.rm text if text = span.firstChild
-    $.rm text if text = span.lastChild
+    if Conf['Clean user IDs']
+      $.rm text if text = span.firstChild
+      $.rm text if text = span.lastChild
 
   compute: (uniqueID) ->
     rgb = []
