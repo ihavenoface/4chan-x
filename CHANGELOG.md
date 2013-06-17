@@ -1,3 +1,11 @@
+- On Chrome:
+  Moved storage from chrome storage (this includes sync across devices) to local storage.
+- Settings under Linkifcation are now modular.
+- Added manual break in Custom Navigation.
+- **New option**: `Sync Thread Updater`.
+- **New option**: `Replace Loaded Images`.
+- Minor fixes.
+
 ### 3.4.8 - *2013-06-12*
 
 - Readded `Embedding`.
