@@ -34,6 +34,7 @@ Config =
       'Clean Links':                  [true,  'Remove spoiler elements commonly used to post banned links.']
       'Embedding':                    [true,  'Embed supported content.']
       'Link Titles':                  [true,  'Fetch and replace titles of embeddable content.']
+      'Cover Preview':                [true,  'Show preview of links on hover.']
     'Menu':
       'Menu':                         [true,  'Add a drop-down menu to posts.']
       'Report Link':                  [true,  'Add a report link to the menu.']

@@ -2,7 +2,7 @@ Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkify'] and !Conf['Embedding'] and !Conf['Link Titles']
 
-    @catchAll = /\b(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
+    @catchAll = /\b(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.([a-zA-Z\u00a1-\uffff0-9]{2,}))))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
 
     @tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/i
 
@@ -30,15 +30,15 @@ Linkify =
     return if @isHidden or @thread.isHidden or !links = @info.comment.match Linkify.globalCatchAll
 
     for link in links
-      [link, protocol, isEmail, domain, tld, resource] = link.match Linkify.catchAll
+      [link, protocol, isEmail, domain, tld, tldPastDot, resource] = link.match Linkify.catchAll
       if /\.{2}|-{2}|w{3}\.4chan\.org/.test domain + tld
         # https://code.google.com/p/chromium/issues/detail?id=146162
         # V8 doesn't like complex regex it seems.
         continue
       if tld and !isEmail and !resource
-        if !Linkify.tld.test pastDot = tld[1..]
+        if !Linkify.tld.test tldPastDot
           continue
-        if @board.ID is 'g' and /^p[ly]|sh$/i.test pastDot
+        if @board.ID is 'g' and /^p[ly]|sh$/i.test tldPastDot
           continue
 
       if !protocol and isEmail and resource
@@ -61,10 +61,11 @@ Linkify =
       for service in Linkify.embeds
         if valid = service.domains.test (domain + tld or '').toLowerCase()
           break
-      result       = service.regex.exec URI
-      canEmbed     = !!(Conf['Embedding']   and result and valid and resource)
-      canLinkTitle = !!(Conf['Link Titles'] and result and service.title)
-      if !(canEmbed or canLinkTitle) and !Conf['Linkify']
+      result       = valid and service.regex.exec(URI) or valid
+      canEmbed     = !!(Conf['Embedding']     and result[1] and resource)
+      canLinkTitle = !!(Conf['Link Titles']   and result[1] and service.title)
+      canPreview   = !!(Conf['Cover Preview'] and result[1] and service.preview)
+      if !(canEmbed or canLinkTitle or canPreview) and !Conf['Linkify']
         continue
 
       if protocol
@@ -111,6 +112,8 @@ Linkify =
           service: service
       if canLinkTitle
         Linkify.title a, result, service
+      if canPreview
+        Linkify.preview a, result, service
     return
 
   seek: (node, link) ->
@@ -250,6 +253,22 @@ Linkify =
           for node in a.childNodes
             nodes.push node
           $.replace a, nodes
+  preview: (a, result, service) ->
+    {preview} = service
+    $.on a, 'mouseover', (e) ->
+      return if a.embedding?.toggle.textContent is 'Unembed'
+      el = $.el 'img',
+        id: 'ihover'
+        src: preview.call {result}
+      post = Get.postFromNode a
+      el.setAttribute 'data-fullid', post.fullID
+      $.add d.body, el
+      UI.hover
+        root: a
+        el: el
+        latestEvent: e
+        endEvents: 'mouseout click'
+        asapTest: -> el.height
   cb:
     title: ->
       @a.textContent = @title
@@ -277,6 +296,7 @@ Linkify =
       regex: /(?:v[=\/]|#p\/[a-z]\/.+\/|youtu\.be\/)([a-z0-9_-]+)(?:.*[#&\?]t=([0-9hms]+))?/i
       title: -> @entry.title.$t
       titleURL: -> "https://gdata.youtube.com/feeds/api/videos/#{@result[1]}?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode"
+      preview:  -> "https://img.youtube.com/vi/#{@result[1]}/0.jpg"
       embedURL: ->
         [_, name, time] = @result
         time = if time then "#t=#{time}" else ''
@@ -328,7 +348,6 @@ Linkify =
         time = if time then "#t=#{time}" else ''
         el = $.el 'iframe',
           src: "https://player.vimeo.com/video/#{name}#{time}"
-        c.log el.src
         Linkify.cb.embed.call {el, style: '3', target: @target}
     }, {
       name: 'Pastebin'
@@ -414,7 +433,7 @@ Linkify =
         width:  '640px'
         height: '360px'
       domains: /^(www\.)?twitch\.tv$/
-      regex: /twitch\.tv\/(\w+)(?:\/)(?:b\/)?(\d+)/i
+      regex: /twitch\.tv\/(\w+)\/(?:b\/)?(\d+)/i
       embedURL: ->
         [_, channel, archive] = @result
         el = $.el 'object',
@@ -424,5 +443,17 @@ Linkify =
             <param name='flashvars' value='channel=#{channel}&start_volume=25&auto_play=false&archive_id=#{archive}' />
           """
         Linkify.cb.embed.call {el, style: '9',target: @target}
+    }, {
+      name: 'Vine'
+      style: 
+        border: 'none'
+        width:  '500px'
+        height: '500px'
+      domains: /^(www\.)?vine\.co$/
+      regex: /vine\.co\/(v\/[a-z0-9]+)/i
+      embedURL: ->
+        el = $.el 'iframe',
+          src: "https://vine.co/#{@result[1]}/card"
+        Linkify.cb.embed.call {el, style: '10', target: @target}
     }
   ]
