@@ -354,6 +354,7 @@ Linkify =
       style:
         border: 'none'
         width:  '640px'
+        height: '500px'
       domains: /^pastebin\.com$/
       regex: /pastebin\.com\/(?!u\/)([a-zA-Z0-9]+)/i
       embedURL: ->
@@ -365,7 +366,7 @@ Linkify =
       style:
         border: 'none'
         width:  '640px'
-        height: '360px'
+        height: '500px'
       icon: '<%= grunt.file.read("img/embeds/Gist.png", {encoding: "base64"}) %>'
       domains: /^gist\.github\.com$/
       regex: /\/\w+\/(\d+)/i
