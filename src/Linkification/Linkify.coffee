@@ -401,11 +401,28 @@ Linkify =
         border: 'none'
         width:  '640px'
         height: '360px'
-      domains: /^(www\.)?liveleak.com$/
-      regex: /(?:liveleak\.com\/view.+i=)([a-z]{3}_\d+)/i
+      domains: /^(www\.)?liveleak\.com$/
+      regex: /liveleak\.com\/view.+i=([a-z]{3}_\d+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://www.liveleak.com/e/#{@result[1]}"
         Linkify.cb.embed.call {el, style: '8', target: @target}
+    }, {
+      name: 'TwitchTV'
+      style:
+        border: 'none'
+        width:  '640px'
+        height: '360px'
+      domains: /^(www\.)?twitch\.tv$/
+      regex: /twitch\.tv\/(\w+)(?:\/)(?:b\/)?(\d+)/i
+      embedURL: ->
+        [_, channel, archive] = @result
+        el = $.el 'object',
+          data: 'http://www.twitch.tv/widgets/archive_embed_player.swf'
+          innerHTML: """
+            <param name='allowFullScreen' value='true' />
+            <param name='flashvars' value='channel=#{channel}&start_volume=25&auto_play=false&archive_id=#{archive}' />
+          """
+        Linkify.cb.embed.call {el, style: '9',target: @target}
     }
   ]
