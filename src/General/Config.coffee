@@ -29,6 +29,11 @@ Config =
       'Image Hover':                  [false, 'Show a floating expanded image on hover.']
       'Sauce':                        [true,  'Add sauce links to images.']
       'Reveal Spoilers':              [false, 'Reveal spoiler thumbnails.']
+    'Linkification':
+      'Linkify':                      [true,  'Convert text links in to hyperlinks.']
+      'Clean Links':                  [true,  'Remove spoiler elements commonly used to post banned links.']
+      'Embedding':                    [true,  'Embed supported content.']
+      'Link Titles':                  [true,  'Fetch and replace titles of embeddable content.']
     'Menu':
       'Menu':                         [true,  'Add a drop-down menu to posts.']
       'Report Link':                  [true,  'Add a report link to the menu.']
@@ -41,7 +46,7 @@ Config =
       'Archive Link':                 [true,  'Add an archive link to the menu.']
     'Monitoring':
       'Thread Updater':               [true,  'Fetch and insert new replies. Has more options in its own dialog.']
-      'Sync Thread Updater':          [true,  'Sync value of Thread Updater across tabs.']
+      'Sync Thread Updater':          [true,  'Sync refresh rate of Thread Updater across tabs.']
       'Unread Count':                 [true,  'Show the unread posts count in the tab title.']
       'Hide Unread Count at (0)':     [false, 'Hide the unread posts count when it reaches 0.']
       'Unread Tab Icon':              [true,  'Show a different favicon when there are unread posts.']
@@ -54,11 +59,6 @@ Config =
       'Auto Watch Reply':             [false, 'Automatically watch threads you reply to.']
       'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
       'Clean user IDs':               [true,  'Remove wrapping \'(ID: )\'.']
-    'Linkification':
-      'Linkify':                      [true,  'Convert text links in to hyperlinks.']
-      'Clean Links':                  [true,  'Remove spoiler elements commonly used to post banned links.']
-      'Embedding':                    [true,  'Embed supported content.']
-      'Link Titles':                  [true,  'Fetch and replace titles of embeddable content.']
     'Posting':
       'Quick Reply':                  [true,  'All-in-one form to reply, create threads, automate dumping and more.']
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting.']

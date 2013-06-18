@@ -2,7 +2,7 @@ Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkify'] and !Conf['Embedding'] and !Conf['Link Titles']
 
-    @catchAll = /(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
+    @catchAll = /\b(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.[a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
 
     @tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/i
 
@@ -45,52 +45,56 @@ Linkify =
         link = link[...-resource.length]
 
       link = Linkify.trim link
-      if /\)$/.test(link) and close = link.match /\)/g
-        open = link.match(/\(/g) or ''
+      if /[\)\]]$/.test(link) and close = link.match /[\)\]]/g
+        open = link.match(/[\(\]]/g) or ''
         if close.length > open.length
           link = Linkify.trim link[...-close.length - open.length]
-
       try
         URI = decodeURIComponent link
+        <% if (type !== 'userscript') { %>
         if protocol is 'magnet'
           URI = link
+        <% } %>
       catch err
         continue
 
-      if !protocol and !isEmail
-        subdomain = URI.match(/^[a-z]+(?=\.)/i)?[0]
+      for service in Linkify.embeds
+        if valid = service.domains.test (domain + tld or '').toLowerCase()
+          break
+      result       = service.regex.exec URI
+      canEmbed     = !!(Conf['Embedding']   and result and valid and resource)
+      canLinkTitle = !!(Conf['Link Titles'] and result and service.title)
+      if !(canEmbed or canLinkTitle) and !Conf['Linkify']
+        continue
 
-      href = if protocol
-        [URI, protocol is 'magnet']
+      if protocol
+        thisTab = protocol is 'magnet'
       else if isEmail
-        ["mailto:#{URI}", true]
-      else if /^ftps?|irc$/.test subdomain
-        ["#{subdomain}://#{URI}", subdomain is 'irc']
+        URI = "mailto:#{URI}"
+        thisTab = true
+      else if /^ftps?|irc$/.test subdomain = URI.match(/^[a-z]+(?=\.)/i)?[0]
+        URI = "#{subdomain}://#{URI}"
+        thisTab = subdomain is 'irc'
       else
-        ["http://#{URI}"]
+        URI = "http://#{URI}"
 
-      if domain and tld
-        for service in Linkify.embeds
-          break if valid = service.domains.test (domain + tld).toLowerCase()
-      result = service.regex.exec URI
-      if !Conf['Linkify'] # this still needs cleanup
-        if (!valid or Conf['Link Titles']) and !service.title
-          continue
-        if (Conf['Embedding'] or Conf['Link Titles']) and !result?[1]
-          continue
-
-      Linkify.seeking    = false
-      Linkify.seek.nodes = []
+      Linkify.seek.a = $.el 'a',
+        target: if thisTab then '' else '_blank'
+        rel:    'noreferrer'
+        href:   URI
+      Linkify.seek.seeking = false
+      Linkify.seek.nodes   = []
 
       for child in @nodes.comment.childNodes
-        break if info = Linkify.seek child, link, href
+        break if info = Linkify.seek child, link
       if typeof info is 'object'
-        {a, node} = info
+        {node} = info
         $.replace node, Linkify.seek.nodes
+        {a} = Linkify.seek
       else
         continue
 
-      if Conf['Embedding'] and result
+      if canEmbed
         toggle = $.el 'a',
           textContent: 'Embed'
           href: a.href
@@ -105,20 +109,21 @@ Linkify =
           info:    {link, protocol, domain, tld, resource, result}
           toggle:  toggle
           service: service
-      if Conf['Link Titles'] and result and service.title
+      if canLinkTitle
         Linkify.title a, result, service
     return
 
-  seek: (node, link, href) ->
+  seek: (node, link) ->
     return if !node or node.sought
     node.sought = true
+    {seeking}   = @seek
 
     switch node.localName or node.nodeName
       when '#text'
         break
       when 'wbr'
-        if @seeking
-          @container.nodes.push node
+        if seeking
+          @seek.container.nodes.push node
         return
       when 's'
         if $$('s', node).length
@@ -127,56 +132,58 @@ Linkify =
           inSpoiler = node
           node = node.firstChild
           break
-        if node.textContent.length >= @length
+        if node.textContent.length >= link.length
           for child in nodes
-            break if info = @seek child, link, href
+            break if info = @seek child, link
         return info
       when 'span'
         for child in node.childNodes
-          break if info = @seek child, link, href
+          break if info = @seek child, link
         return info
       else
         return
-    if @seeking
-      @current += node.data
+    if seeking
+      @seek.current += node.data
+      if link.length > @seek.current.length
+        if inSpoiler
+          if Conf['Clean Links']
+            $.replace inSpoiler, node
+          else
+            node = inSpoiler
+        @seek.container.nodes.push node
+        return
+      if after = @seek.current[link.length...]
+        node.data = node.data[...-after.length]
       if inSpoiler
         if Conf['Clean Links']
           $.replace inSpoiler, node
         else
           node = inSpoiler
-      if link.length > @current.length
-        @container.nodes.push node
-        return
-      if after = @current[link.length...]
-        node.data = node.data[...-after.length]
-      @container.nodes.push node
-      a = Linkify.anchor href
-      $.add a, @container.nodes
-      {nodes} = @seek
+      @seek.container.nodes.push node
+      {a, nodes} = @seek
+      $.add a, @seek.container.nodes
       nodes.push a
       nodes.push $.tn after if after
-      return {a, node: @container.entry}
+      return node: @seek.container.entry
 
     unless data = node.data
       return
 
     if (index = data.indexOf link) >= 0
-      {nodes} = @seek
-      if inSpoiler
-        node = inSpoiler
+      {a, nodes} = @seek
       if index
         nodes.push $.tn data[...index]
-      a = Linkify.anchor href
-      a.textContent = link
+      $.add a, $.tn decodeURI link
       nodes.push a
       if data = data[index + link.length..]
         nodes.push $.tn data
-      return {a, node}
+      return {node}
 
     return unless next = (inSpoiler or node).nextSibling
     if next.localName is 'wbr'
       next = next.nextSibling
     return if !next or next.localName is 'a' or !nextData = next.textContent
+    return if (next.localName is 's') and nextData.length >= link.length
     index = 0
     while index isnt data.length
       start = data[index++..]
@@ -196,22 +203,15 @@ Linkify =
         $.replace inSpoiler, node
       else
         node = inSpoiler
-    @container =
+    @seek.container =
       nodes: [node.cloneNode true]
       entry: node
-    @current = start
-    @seeking = true
+    @seek.current = start
+    @seek.seeking = true
     return
 
-  anchor: (href) ->
-    [URI, thisTab] = href
-    a = $.el 'a',
-      target: if thisTab then '' else '_blank'
-      rel:    'noreferrer'
-      href:   URI
-
   trim: (link) ->
-    if close = link.match /["',;:\]?.]+$/
+    if close = link.match /["',;:\?.]+$/
       link[...close.index]
     else
       link
@@ -281,7 +281,7 @@ Linkify =
         [_, name, time] = @result
         time = if time then "#t=#{time}" else ''
         el = $.el 'iframe',
-          src: "https://youtube.com/embed/#{name}?rel=1&autohide=1#{time}"
+          src: "https://youtube.com/embed/#{name}#{time}?rel=1&autohide=1"
         Linkify.cb.embed.call {el, style: '0', target: @target}
       results: true
     }, {
@@ -320,12 +320,15 @@ Linkify =
         height: '360px'
       icon: '<%= grunt.file.read("img/embeds/Vimeo.png", {encoding: "base64"}) %>'
       domains: /^vimeo\.com$/
-      regex: /\/([^#\&\?]*)/i
+      regex: /vimeo\.com\/(?:m\/)?(\d+)(?:.*[#&\?]t=([0-9hms]+))?/i
       title: -> @title
       titleURL: -> "https://vimeo.com/api/oembed.json?url=#{@a.href}"
       embedURL: ->
+        [_, name, time] = @result
+        time = if time then "#t=#{time}" else ''
         el = $.el 'iframe',
-          src: "https://player.vimeo.com/video/#{@result[1]}"
+          src: "https://player.vimeo.com/video/#{name}#{time}"
+        c.log el.src
         Linkify.cb.embed.call {el, style: '3', target: @target}
     }, {
       name: 'Pastebin'
