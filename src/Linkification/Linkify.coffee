@@ -2,7 +2,7 @@ Linkify =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Linkify'] and !Conf['Embedding'] and !Conf['Link Titles']
 
-    @catchAll = /\b(?:([a-zA-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.([a-zA-Z\u00a1-\uffff0-9]{2,}))))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?/
+    @catchAll = /(?:([a-z]+|[A-Z]+)(?::|%[0-9a-fA-F]{2}))?(?:(?:(?:\?|%[0-9a-fA-F]{2})xt(?:=|%[0-9a-fA-F]{2})urn(?::|%[0-9a-fA-F]{2})[^\s<>]*)|(?:\/{2}|(?:%[0-9a-fA-F]{2}){2})?(?:\S+(?::\S*)?(@))?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]){1,3})|([a-zA-Z\u00a1-\uffff0-9][a-zA-Z\u00a1-\uffff0-9\-\.]+)(\.([a-zA-Z\u00a1-\uffff0-9]{2,})))(?::\d{2,5})?((?:[\/#]|%[0-9a-fA-F]{2})[^\s<>]*)?)/
 
     @tld = /^(?:a(?:e(?:ro)?|r(?:pa)?|s(?:ia)?|[cdfgilmnoqtuwxz])|b(?:iz?|[abdefghjmnorstvwyz])|c(?:at?|o(?:(?:op|m))?|[cdfghiklmnrsuvxyz])|i(?:n(?:(?:fo|t))?|[delmoqrst])|j(?:o(?:bs)?|[emp])|m(?:o(?:bi)?|u(?:seum)?|il|[acdeghklmnpqrstvwxyz])|n(?:a(?:me)?|et?|[cfgilopruz])|o(?:rg|m)|p(?:ost|ro?|[aefghklmnstwy])|t(?:el|r(?:avel)?|[cdfghjklmnoptvwz])|xxx|e(?:du|[ceghrstu])|g(?:ov|[abdefghilmnpqrstuwy])|d[dejkmoz]|f[ijkmor]|h[kmnrtu]|k[eghimnprwyz]|l[abcikrstuvy]|qa|r[eosuw]|s[abcdeghijklmnorstuvxyz]|u[agksyz]|v[aceginu]|w[fs]|y[etu]|z[amw])$/i
 
@@ -41,8 +41,10 @@ Linkify =
         if @board.ID is 'g' and /^p[ly]|sh$/i.test tldPastDot
           continue
 
-      if !protocol and isEmail and resource
-        link = link[...-resource.length]
+      if !protocol 
+        link = link.match(/\b.*/)?[0] or link
+        if isEmail and resource
+          link = link[...-resource.length]
 
       link = Linkify.trim link
       if /[\)\]]$/.test(link) and close = link.match /[\)\]]/g
@@ -73,7 +75,7 @@ Linkify =
       else if isEmail
         URI = "mailto:#{URI}"
         thisTab = true
-      else if /^ftps?|irc$/.test subdomain = URI.match(/^[a-z]+(?=\.)/i)?[0]
+      else if /^ftps?|irc$/i.test subdomain = URI.match(/^[a-z]+(?=\.)/i)?[0]
         URI = "#{subdomain}://#{URI}"
         thisTab = subdomain is 'irc'
       else
@@ -135,7 +137,7 @@ Linkify =
           inSpoiler = node
           node = node.firstChild
           break
-        if node.textContent.length >= link.length
+        if @seek.seeking or node.textContent.length >= link.length
           for child in nodes
             break if info = @seek child, link
         return info
@@ -194,7 +196,7 @@ Linkify =
         index--
         break
     guess = start + nextData
-    return unless start and link[...guess.length] is guess or guess.indexOf(link) >=0
+    return unless start and link[...guess.length] is guess or guess.indexOf(link) >= 0
 
     if index
       {nodes} = @seek
