@@ -94,6 +94,9 @@ QR =
       QR.hide()
     else
       QR.unhide()
+  toggleSage: ->
+    {email} = QR.nodes
+    email.value = !/sage/i.test(email.value) and 'sage' or ''
 
   error: (err) ->
     QR.open()
@@ -876,10 +879,6 @@ QR =
     # Create a custom event when the QR dialog is first initialized.
     # Use it to extend the QR's functionalities, or for XTRM RICE.
     $.event 'QRDialogCreation', null, dialog
-
-  toggleSage: ->
-    {email} = QR.nodes
-    email.value = !/sage/i.test(email.value) and 'sage' or ''
 
   preSubmitHooks: []
   submit: (e) ->

@@ -299,7 +299,7 @@ UI = do ->
     $.on root, 'mousemove', o.hover
     <% if (type === 'userscript') { %>
     # Workaround for https://github.com/MayhemYDG/4chan-x/issues/377
-    o.workaround = -> o.hoverend() unless doc.contains root
+    o.workaround = (e) -> o.hoverend() unless root.contains e.target
     $.on doc,  'mousemove', o.workaround
     <% } %>
   hover = (e) ->

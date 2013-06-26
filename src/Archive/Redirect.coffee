@@ -5,16 +5,6 @@ Redirect =
   file:   {}
 
   init: ->
-    try
-      Conf['archives'].length
-    catch err
-      # XXX I get obscure reports of:
-      #   "Redirect" initialization crashed. TypeError: Cannot read property 'length' of undefined
-      # comming from here.
-      Conf['archives'] = Redirect.archives
-      $.delete ['archives', 'lastarchivecheck']
-    Redirect.update()
-
     for boardID, data of Conf['selectedArchives']
       for type, uid of data
         for archive in Conf['archives']
@@ -39,7 +29,7 @@ Redirect =
     $.get 'lastarchivecheck', 0, ({lastarchivecheck}) ->
       now = Date.now()
       # Update the list of archives every 4 days.
-      # The list is also update when 4chan X gets updated.
+      # The list is also updated when 4chan X gets updated.
       return if lastarchivecheck > now - 4 * $.DAY
       $.ajax '<%= meta.page %>archives.json', onload: ->
         return unless @status is 200

@@ -33,10 +33,6 @@ Main =
     $.get Conf, Main.initFeatures
 
     $.on d, '4chanMainInit', Main.initStyle
-    # <title> comes after the stylesheets on the index/thread pages, but before on the catalog.
-    # <link favicon> comes after the stylesheets on the catalog, but before on the index/thread pages.
-    $.asap (-> d.head and $('title', d.head) and $('link[rel="shortcut icon"]', d.head) or d.readyState isnt 'loading'),
-      Main.initStyle
 
   initFeatures: (items) ->
     Conf = items
@@ -198,6 +194,7 @@ Main =
       Main.callbackNodes Post, posts
 
     if $.hasClass d.body, 'fourchan_x'
+      Main.v2Detected = true
       alert '4chan X v2 detected: Disable it or v3 will break.'
 
     try
@@ -318,7 +315,7 @@ Main =
     unless 'thisPageIsLegit' of Main
       Main.thisPageIsLegit = location.hostname is 'boards.4chan.org' and
         !$('link[href*="favicon-status.ico"]', d.head) and
-        d.title not in ['4chan - Temporarily Offline', '4chan - Error']
+        d.title not in ['4chan - Temporarily Offline', '4chan - Error', '504 Gateway Time-out']
     Main.thisPageIsLegit
 
   css: """

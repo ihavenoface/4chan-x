@@ -368,15 +368,15 @@ a[href="javascript:;"] {
 .section-archives select {
   width: 90%;
 }
+.section-keybinds .field {
+  font-family: monospace;
+}
 #fourchanx-settings fieldset {
   border: 1px solid;
   border-radius: 3px;
 }
 #fourchanx-settings legend {
   font-weight: 700;
-}
-#fourchanx-settings .refresh {
-  margin-left: 10px;
 }
 #fourchanx-settings textarea {
   font-family: monospace;
@@ -661,7 +661,6 @@ a.hide-announcement {
   position: relative;
   -webkit-user-select: none;
   -moz-user-select: none;
-  -o-user-select: none;
   user-select: none;
 }
 #dump-list {
