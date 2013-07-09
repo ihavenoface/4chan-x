@@ -1082,12 +1082,12 @@ QR =
     if threadID is postID # new thread
       URL = "/#{g.BOARD}/res/#{threadID}"
     else if g.VIEW is 'index' and !QR.cooldown.auto and Conf['Open Post in New Tab'] # replying from the index
-      URL = "/#{g.BOARD}/res/#{threadID}#p#{postID}"
+      "/#{g.BOARD}/res/#{threadID}#p#{postID}"
     if URL
       if Conf['Open Post in New Tab']
-        $.open "/#{g.BOARD}/res/#{threadID}"
+        $.open URL
       else
-        window.location = "/#{g.BOARD}/res/#{threadID}"
+        window.location = URL
 
     QR.status()
 
