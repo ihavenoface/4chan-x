@@ -117,7 +117,7 @@ module.exports = function(grunt) {
       },
       push: {
         options: shellOptions,
-        command: 'git push origin --tags -f && git push origin <%= pkg.version %>:<%= pkg.version %>'
+        command: 'git push origin --tags -f && git push origin <%= pkg.meta.mainBranch %>:<%= pkg.meta.mainBranch %>'
       }
     },
     watch: {
