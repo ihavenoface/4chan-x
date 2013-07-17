@@ -216,10 +216,6 @@ $.sync = do ->
     if cb = $.syncing[e.key]
       cb JSON.parse e.newValue
   (key, cb) -> $.syncing[g.NAMESPACE + key] = cb
-$.item = (key, val) ->
-  item = {}
-  item[key] = val
-  item
 <% if (type === 'crx') { %>
 $.delete = (keys) ->
   unless keys instanceof Array
@@ -240,6 +236,21 @@ $.get = (key, val, cb) ->
         items[key] = JSON.parse val
     cb items
 $.set = do ->
+  set = (key, val) ->
+    tmp = key
+    key = g.NAMESPACE + key
+    val = JSON.stringify val
+    if tmp of $.syncing
+      # for `storage` events
+      localStorage.setItem key, val
+    localStorage.setItem key, val
+  (keys, val) ->
+    if typeof keys is 'string'
+      set keys, val
+      return
+    for key, val of keys
+      set key, val
+    return
 <% } else { %>
 # http://wiki.greasespot.net/Main_Page
 $.sync = do ->

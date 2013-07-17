@@ -1,3 +1,6 @@
+- Drop Opera <15 support.
+- Fix flag filtering on /sp/ and /int/.
+
 ### 3.4.10 - *2013-06-18*
 
 - Minor fixes.
