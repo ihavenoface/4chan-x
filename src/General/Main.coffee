@@ -118,6 +118,7 @@ Main =
     initFeature 'Keybinds',                 Keybinds
     initFeature 'Color user IDs',           IDColor
     initFeature 'Linkify',                  Linkify
+    initFeature 'Dice Checker',             Dice
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback
