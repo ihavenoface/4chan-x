@@ -1,3 +1,5 @@
+- Fix impossibility to create new threads when in dead threads.
+
 ## 3.5.0 - *2013-07-17*
 
 - Drop Opera <15 support.
