@@ -103,7 +103,7 @@ module.exports = (grunt) ->
         ].join ' && '
       push:
         options: shellOptions
-        command: 'git push origin --tags -f && git push origin <%= pkg.meta.mainBranch %>:<%= pkg.meta.mainBranch %>'
+        command: 'git push origin --tags -f && git push origin <%= pkg.meta.mainBranch %>:<%= pkg.meta.maøinBranch %>'
     watch:
       all:
         options:
@@ -139,16 +139,7 @@ module.exports = (grunt) ->
       tmpcrx: 'tmp-crx'
       tmpuserscript: 'tmp-userscript'
 
-  grunt.loadNpmTasks 'grunt-bump'
-  grunt.loadNpmTasks 'grunt-concurrent'
-  grunt.loadNpmTasks 'grunt-contrib-clean'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-compress'
-  grunt.loadNpmTasks 'grunt-contrib-concat'
-  grunt.loadNpmTasks 'grunt-contrib-copy'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-shell'
-  grunt.loadNpmTasks 'grunt-crx'
+  require('matchdep').filterDev('grunt-*').forEach grunt.loadNpmTasks
 
   grunt.registerTask 'default', ['build']
 
