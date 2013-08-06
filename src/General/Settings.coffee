@@ -399,6 +399,12 @@ Settings =
     <%= grunt.file.read('html/General/Settings-section-Archives.html').replace(/>\s+</g, '><').trim() %>
     """
 
+    name = 'archivesLocation'
+    input = $ "[name=#{name}]", section
+    $.get name, Conf[name], ({archivesLocation}) ->
+      input.value = archivesLocation
+    $.on input, 'change', $.cb.value
+
     showLastUpdateTime = (time) ->
       $('time', section).textContent = new Date(time).toLocaleString()
 

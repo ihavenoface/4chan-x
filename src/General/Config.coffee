@@ -164,6 +164,7 @@ Config =
   fileInfo: '%l (%p%s, %r)'
   favicon: 'ferongr'
   usercss: ''
+  archivesLocation: '<%= meta.page %>archives.json'
   hotkeys:
     # Header, QR & Options
     'Toggle board list':  ['Ctrl+b',  'Toggle the full board list.']
