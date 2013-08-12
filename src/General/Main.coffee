@@ -214,7 +214,6 @@ Main =
     <% } %>
 
     $.event '4chanXInitFinished'
-    Main.checkUpdate()
 
   callbackNodes: (klass, nodes) ->
     # get the nodes' length only once
@@ -247,31 +246,6 @@ Main =
         return
     obj.callback.isAddon = true
     Klass::callbacks.push obj.callback
-
-  checkUpdate: ->
-    return unless Conf['Check for Updates'] and Main.isThisPageLegit()
-    # Check for updates after 7 days since the last update.
-    # After that, check for updates every day if we still haven't updated.
-    now  = Date.now()
-    freq = 7 * $.DAY
-    items =
-      lastupdate:  0
-      lastchecked: 0
-    $.get items, (items) ->
-      if items.lastupdate > now - freq or items.lastchecked > now - $.DAY
-        return
-      $.ajax '<%= meta.page %>version', onload: ->
-        return unless @status is 200
-        version = @response
-        return unless /^\d\.\d+\.\d+$/.test version = version.trim()
-        if g.VERSION is version
-          # Don't check for updates too frequently if there wasn't one in a 'long' time.
-          $.set 'lastupdate', now
-          return
-        $.set 'lastchecked', now
-        el = $.el 'span',
-          innerHTML: "Update: <%= meta.name %> v#{version} is out, get it <a href=<%= meta.page %> target=_blank>here</a>."
-        new Notification 'info', el, 120
 
   handleErrors: (errors) ->
     unless errors instanceof Array

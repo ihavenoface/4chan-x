@@ -1,3 +1,5 @@
+- Removed the `Check for Updates` setting:
+ - Your browser/userscript manager should handle updates itself automatically.
 - **New feature**: `Show Dice Roll`
  - Shows dice that were entered into the email field on /tg/.
 - Fix impossibility to create new threads when in dead threads.
