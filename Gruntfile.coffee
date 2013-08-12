@@ -94,7 +94,7 @@ module.exports = (grunt) ->
         ].join ' && '
       push:
         options: shellOptions
-        command: 'git push origin --tags -f && git push origin <%= pkg.meta.mainBranch %>:<%= pkg.meta.maøinBranch %>'
+        command: 'git push origin --tags -f && git push origin <%= pkg.meta.mainBranch %>:<%= pkg.meta.mainBranch %>'
     watch:
       all:
         options:
