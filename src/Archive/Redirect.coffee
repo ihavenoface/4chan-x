@@ -29,9 +29,9 @@ Redirect =
   update: (cb) ->
     $.get 'lastarchivecheck', 0, ({lastarchivecheck}) ->
       now = Date.now()
-      # Update the list of archives every 4 days.
+      # Update the list of archives every 2 days.
       # The list is also updated when 4chan X gets updated.
-      return if lastarchivecheck > now - 4 * $.DAY
+      return if lastarchivecheck > now - 2 * $.DAY
       $.ajax Conf['archivesLocation'], onload: ->
         return unless @status is 200
         Conf['archives'] = JSON.parse @response
