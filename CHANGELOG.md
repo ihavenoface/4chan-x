@@ -1,3 +1,4 @@
+- **New option**: `Update (archives) from`
 - **Thread Watcher** improvements:
  - It is now possible to open all watched threads via the `Open all threads` button in the Thread Watcher's menu.
  - Added the `Current Board` setting to switch between showing watched threads from the current board or all boards, disabled by default.
