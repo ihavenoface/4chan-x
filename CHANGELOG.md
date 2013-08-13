@@ -1,3 +1,5 @@
+- Minor fixes.
+
 ### 3.5.1 - *2013-08-12*
 
 - **New option**: `Update (archives) from`
