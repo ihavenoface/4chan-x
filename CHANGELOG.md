@@ -1,3 +1,5 @@
+- The QR now allows you to edit the filename on the fly.
+
 ### 3.5.2 - *2013-08-13*
 
 - Minor fixes.
