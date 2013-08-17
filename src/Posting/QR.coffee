@@ -115,7 +115,7 @@ QR =
       # Focus the captcha input on captcha error.
       QR.captcha.nodes.input.focus()
     alert el.textContent if d.hidden
-    QR.notifications.push new Notification 'warning', el
+    QR.notifications.push new Notice 'warning', el
   notifications: []
   cleanNotifications: ->
     for notification in QR.notifications
@@ -1067,7 +1067,7 @@ QR =
 
     h1 = $ 'h1', resDoc
     QR.cleanNotifications()
-    QR.notifications.push new Notification 'success', h1.textContent, 5
+    QR.notifications.push new Notice 'success', h1.textContent, 5
 
     QR.persona.set post
 
@@ -1117,5 +1117,5 @@ QR =
       delete QR.req
       QR.posts[0].unlock()
       QR.cooldown.auto = false
-      QR.notifications.push new Notification 'info', 'QR upload aborted.', 5
+      QR.notifications.push new Notice 'info', 'QR upload aborted.', 5
     QR.status()
