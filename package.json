@@ -27,7 +27,7 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-watch": "~0.5.0",
     "grunt-shell": "~0.3.1",
-    "grunt-crx": "~0.2.4",
+    "grunt-crx": "~0.3.1",
     "load-grunt-tasks": "~0.1.0"
   },
   "repository": {
