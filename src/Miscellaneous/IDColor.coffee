@@ -10,25 +10,24 @@ IDColor =
   node: ->
     return if @isClone or @thread.isHidden or !span = @nodes.uniqueID
     {uniqueID} = @info
-    rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
+    return unless rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
     span.firstElementChild.style.cssText = """
       background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]});
       color: #{if rgb[3] then 'black' else 'white'};
     """
     $.addClass span, 'painted'
     if Conf['Clean user IDs']
-      $.rm text if text = span.firstChild
-      $.rm text if text = span.lastChild
+      $.rm text if (text = span.firstChild).data is '(ID: '
+      $.rm text if (text = span.lastChild).data  is ')'
 
   compute: (uniqueID) ->
-    rgb = []
     hash = @hash uniqueID
-
-    rgb[0] = (hash >> 24) & 0xFF
-    rgb[1] = (hash >> 16) & 0xFF
-    rgb[2] = (hash >> 8)  & 0xFF
-    rgb[3] = ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125
-
+    rgb = [
+      (hash >> 24) & 0xFF
+      (hash >> 16) & 0xFF
+      (hash >> 8)  & 0xFF
+    ]
+    rgb.push ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125
     @ids[uniqueID] = rgb
     rgb
 
