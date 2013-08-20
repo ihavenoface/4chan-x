@@ -72,5 +72,5 @@ ExpandComment =
       Fourchan.code.call     post
     if g.BOARD.ID is 'sci'
       Fourchan.math.call     post
-    if Conf['Linkify'] or Conf['Embedding'] or Conf['Link Titles']
+    if Conf['Linkify']
       Linkify.node.call      post
