@@ -42,7 +42,7 @@ Main =
         # Track resolution of this bug.
         Main.logError
           message: 'Chrome Storage API bug'
-          error: new Error chrome.runtime.lastError.message or 'no lastError.message'
+          error: new Error '~'
       <% } %>
       Main.initFeatures()
 
@@ -108,6 +108,7 @@ Main =
     initFeature 'Mark Cross-thread Quotes', QuoteCT
     initFeature 'Mark own Posts',           YourPosts
     initFeature 'Anonymize',                Anonymize
+    initFeature 'Color User IDs',           IDColor
     initFeature 'Time Formatting',          Time
     initFeature 'Relative Post Dates',      RelativeDates
     initFeature 'File Info Formatting',     FileInfo
@@ -129,7 +130,6 @@ Main =
     initFeature 'Thread Watcher (Menu)',    ThreadWatcher.menu
     initFeature 'Index Navigation',         Nav
     initFeature 'Keybinds',                 Keybinds
-    initFeature 'Color user IDs',           IDColor
     initFeature 'Show Dice Roll',           Dice
     initFeature 'Linkify',                  Linkify
     # c.timeEnd 'All initializations'
@@ -221,7 +221,7 @@ Main =
     len = nodes.length
     for callback in klass::callbacks
       # c.profile callback.name
-      for i in [0...len]
+      for i in [0...len] by 1
         node = nodes[i]
         try
           callback.cb.call node

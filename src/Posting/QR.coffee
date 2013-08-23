@@ -1122,8 +1122,8 @@ QR =
 
     QR.cooldown.set {req, post, isReply}
 
-    if threadID is postID # new thread
-      URL = "/#{g.BOARD}/res/#{threadID}"
+    URL = if threadID is postID # new thread
+      "/#{g.BOARD}/res/#{threadID}"
     else if g.VIEW is 'index' and !QR.cooldown.auto and Conf['Open Post in New Tab'] # replying from the index
       "/#{g.BOARD}/res/#{threadID}#p#{postID}"
     if URL

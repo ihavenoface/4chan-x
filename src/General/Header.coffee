@@ -114,7 +114,7 @@ Header =
     list = $ '#custom-board-list', Header.bar
     $.rmAll list
     return unless text
-    as = $$('#full-board-list a', Header.bar)[0...-1] # ignore the Settings and Home links
+    as = $$ '#full-board-list a[title]', Header.bar
     nodes = text.match(/[\w@]+(-(all|title|replace|full|index|catalog|text:"[^"]+"))*|break|[^\w@]+/g).map (t) ->
       if /^[^\w@]/.test t
         return $.tn t
@@ -264,7 +264,6 @@ Header =
     nodes = [shortcuts.childNodes...]
     nodes.splice index, 0, shortcut
     $.add shortcuts, nodes
-
 
   menuToggle: (e) ->
     Header.menu.toggle e, @, g

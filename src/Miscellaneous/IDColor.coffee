@@ -1,38 +1,41 @@
 IDColor =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Color user IDs']
+    return if g.VIEW is 'catalog' or !Conf['Color User IDs']
     @ids = {}
 
     Post::callbacks.push
-      name: 'Color user IDs'
+      name: 'Color User IDs'
       cb:   @node
 
   node: ->
-    return if @isClone or @thread.isHidden or !span = @nodes.uniqueID
-    {uniqueID} = @info
-    return unless rgb = IDColor.ids[uniqueID] or IDColor.compute uniqueID
-    span.firstElementChild.style.cssText = """
-      background-color: rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]});
-      color: #{if rgb[3] then 'black' else 'white'};
-    """
+    return if @isClone or !(uid = @info.uniqueID)
+    rgb = IDColor.compute uid
+    span = @nodes.uniqueID
+    {style} = span.firstElementChild
+    style.color = rgb[3]
+    style.backgroundColor = "rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]})"
     $.addClass span, 'painted'
-    if Conf['Clean user IDs']
-      $.rm text if (text = span.firstChild).data is '(ID: '
-      $.rm text if (text = span.lastChild).data  is ')'
+    if ['Clean User IDs']
+      $.rm span.firstChild
+      $.rm span.lastChild
 
   compute: (uniqueID) ->
+    if uniqueID of IDColor.ids
+      return IDColor.ids[uniqueID]
     hash = @hash uniqueID
     rgb = [
       (hash >> 24) & 0xFF
       (hash >> 16) & 0xFF
       (hash >> 8)  & 0xFF
     ]
-    rgb.push ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) > 125
+    rgb.push if (rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114) > 170
+      'black'
+    else
+      'white'
     @ids[uniqueID] = rgb
-    rgb
 
   hash: (uniqueID) ->
     msg = 0
-    for i in [0...uniqueID.length]
-      msg = ((msg << 5) - msg) + uniqueID.charCodeAt i
+    for i in [0...uniqueID.length] by 1
+      msg = (msg << 5) - msg + uniqueID.charCodeAt i
     msg

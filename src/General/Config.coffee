@@ -31,7 +31,7 @@ Config =
       'Sauce':                        [true,  'Add sauce links to images.']
       'Reveal Spoilers':              [false, 'Reveal spoiler thumbnails.']
     'Linkification':
-      'Linkify':                      [true,  'Convert text links in to hyperlinks.']
+      'Linkify':                      [true,  'Convert text links into hyperlinks.']
       'Clean Links':                  [true,  'Remove spoiler and code tags commonly used to bypass blocked links.']
     'Menu':
       'Menu':                         [true,  'Add a drop-down menu to posts.']
@@ -54,8 +54,8 @@ Config =
       'Thread Excerpt':               [true,  'Show an excerpt of the thread in the tab title.']
       'Thread Stats':                 [true,  'Display reply, image, and page count.']
       'Thread Watcher':               [true,  'Bookmark threads.']
-      'Color user IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
-      'Clean user IDs':               [true,  'Remove wrapping \'(ID: )\'.']
+      'Color User IDs':               [true,  'Assign unique colors to user IDs on boards that use them.']
+      'Clean User IDs':               [true,  'Remove wrapping \'(ID: )\'.']
     'Posting':
       'Quick Reply':                  [true,  'All-in-one form to reply, create threads, automate dumping and more.']
       'Persistent QR':                [false, 'The Quick reply won\'t disappear after posting.']
