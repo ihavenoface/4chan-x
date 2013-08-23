@@ -19,7 +19,7 @@ ExpandThread =
     text = [status]
     text.push "#{posts} post#{if posts > 1 then 's' else ''}"
     text.push "and #{files} image repl#{if files > 1 then 'ies' else 'y'}" if +files
-    text.push if status is '-' then 'shown' else 'omitted'
+    text.push if status is '-' then 'shown. Click to hide' else 'omitted. Click to view'
     text.join(' ') + '.'
 
   cbToggle: ->
