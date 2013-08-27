@@ -58,7 +58,7 @@ ThreadUpdater =
     online: ->
       if ThreadUpdater.online = navigator.onLine
         ThreadUpdater.outdateCount = 0
-        ThreadUpdater.set 'timer', ThreadUpdater.getInterval()
+        ThreadUpdater.setInterval()
         ThreadUpdater.update() if ThreadUpdater.isUpdating
         ThreadUpdater.set 'status', null, null
       else
@@ -74,7 +74,7 @@ ThreadUpdater =
       # Reset the counter when we focus this tab.
       ThreadUpdater.outdateCount = 0
       if ThreadUpdater.seconds > ThreadUpdater.interval
-        ThreadUpdater.set 'timer', ThreadUpdater.getInterval()
+        ThreadUpdater.setInterval()
     scrollBG: ->
       ThreadUpdater.scrollBG = if Conf['Scroll BG']
         -> true
@@ -83,7 +83,7 @@ ThreadUpdater =
     autoUpdate: (e) ->
       ThreadUpdater.isUpdating = @checked if e
       if ThreadUpdater.isUpdating and ThreadUpdater.online
-        ThreadUpdater.timeoutID = setTimeout ThreadUpdater.timeout, 1000
+        ThreadUpdater.timeout()
       else
         clearTimeout ThreadUpdater.timeoutID
     sync: (e) ->
@@ -99,25 +99,31 @@ ThreadUpdater =
         val
       ThreadUpdater.interval = @value = val
       $.cb.value.call @ if e
-    load: ->
+    load: (e) ->
       {req} = ThreadUpdater
+      if e.type isnt 'loadend' # timeout or abort
+        req.onloadend = null
+        delete ThreadUpdater.req
+        if e.type is 'timeout'
+          ThreadUpdater.set 'status', 'Retrying', null
+          ThreadUpdater.update()
+        return
       switch req.status
         when 200
           g.DEAD = false
           ThreadUpdater.parse JSON.parse(req.response).posts
-          ThreadUpdater.set 'timer', ThreadUpdater.getInterval()
+          ThreadUpdater.setInterval()
         when 404
           g.DEAD = true
           ThreadUpdater.set 'timer', null
           ThreadUpdater.set 'status', '404', 'warning'
-          clearTimeout ThreadUpdater.timeoutID
           ThreadUpdater.thread.kill()
           $.event 'ThreadUpdate',
             404: true
             thread: ThreadUpdater.thread
         else
           ThreadUpdater.outdateCount++
-          ThreadUpdater.set 'timer', ThreadUpdater.getInterval()
+          ThreadUpdater.setInterval()
           [text, klass] = if req.status is 304
             [null, null]
           else
@@ -125,9 +131,12 @@ ThreadUpdater =
           ThreadUpdater.set 'status', text, klass
       delete ThreadUpdater.req
 
-  getInterval: ->
+  setInterval: ->
     # hurr durr
     ThreadUpdater.seconds = ThreadUpdater.interval
+    ThreadUpdater.set 'timer', ThreadUpdater.seconds
+    clearTimeout ThreadUpdater.timeoutID
+    ThreadUpdater.timeout()
 
   set: (name, text, klass) ->
     el = ThreadUpdater[name]
@@ -141,24 +150,21 @@ ThreadUpdater =
 
   timeout: ->
     ThreadUpdater.timeoutID = setTimeout ThreadUpdater.timeout, 1000
-    unless n = --ThreadUpdater.seconds
-      ThreadUpdater.update()
-    else if n <= -60
-      ThreadUpdater.set 'status', 'Retrying', null
-      ThreadUpdater.update()
-    else if n > 0
-      ThreadUpdater.set 'timer', n
+    ThreadUpdater.set 'timer', --ThreadUpdater.seconds
+    ThreadUpdater.update() if ThreadUpdater.seconds <= 0
 
   update: ->
     return unless ThreadUpdater.online
-    ThreadUpdater.seconds = 0
+    clearTimeout ThreadUpdater.timeoutID
     ThreadUpdater.set 'timer', '...'
-    if ThreadUpdater.req
-      # abort() triggers onloadend, we don't want that.
-      ThreadUpdater.req.onloadend = null
-      ThreadUpdater.req.abort()
+    ThreadUpdater.req.abort() if ThreadUpdater.req
     url = "//api.4chan.org/#{ThreadUpdater.thread.board}/res/#{ThreadUpdater.thread}.json"
-    ThreadUpdater.req = $.ajax url, onloadend: ThreadUpdater.cb.load,
+    ThreadUpdater.req = $.ajax url,
+      onabort:   ThreadUpdater.cb.load
+      onloadend: ThreadUpdater.cb.load
+      ontimeout: ThreadUpdater.cb.load
+      timeout:   $.MINUTE
+    ,
       whenModified: true
 
   updateThreadStatus: (title, OP) ->
