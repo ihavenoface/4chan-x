@@ -23,7 +23,6 @@ ThreadUpdater =
     ThreadUpdater.thread       = @
     ThreadUpdater.root         = @OP.nodes.root.parentNode
     ThreadUpdater.lastPost     = +ThreadUpdater.root.lastElementChild.id.match(/\d+/)[0]
-    ThreadUpdater.outdateCount = 0
 
     for input in $$ 'input', ThreadUpdater.dialog
       if input.type is 'checkbox'
@@ -35,7 +34,6 @@ ThreadUpdater =
         when 'Auto Update This'
           $.off input, 'change', $.cb.checked
           $.on  input, 'change', ThreadUpdater.cb.autoUpdate
-          $.event 'change', null, input
         when 'Interval'
           if Conf['Sync Thread Updater']
             ThreadUpdater.cb.sync.input = input
@@ -56,15 +54,14 @@ ThreadUpdater =
 
   cb:
     online: ->
-      if ThreadUpdater.online = navigator.onLine
+      if navigator.onLine
         ThreadUpdater.outdateCount = 0
         ThreadUpdater.setInterval()
-        ThreadUpdater.update() if ThreadUpdater.isUpdating
         ThreadUpdater.set 'status', null, null
       else
         ThreadUpdater.set 'timer', null
         ThreadUpdater.set 'status', 'Offline', 'warning'
-      ThreadUpdater.cb.autoUpdate()
+      ThreadUpdater.count true
     post: (e) ->
       return unless ThreadUpdater.isUpdating and e.detail.threadID is ThreadUpdater.thread.ID
       ThreadUpdater.outdateCount = 0
@@ -73,19 +70,14 @@ ThreadUpdater =
       return if d.hidden
       # Reset the counter when we focus this tab.
       ThreadUpdater.outdateCount = 0
-      if ThreadUpdater.seconds > ThreadUpdater.interval
-        ThreadUpdater.setInterval()
+      ThreadUpdater.seconds = Math.min ThreadUpdater.seconds, ThreadUpdater.interval
     scrollBG: ->
       ThreadUpdater.scrollBG = if Conf['Scroll BG']
         -> true
       else
         -> not d.hidden
     autoUpdate: (e) ->
-      ThreadUpdater.isUpdating = @checked if e
-      if ThreadUpdater.isUpdating and ThreadUpdater.online
-        ThreadUpdater.timeout()
-      else
-        clearTimeout ThreadUpdater.timeoutID
+      ThreadUpdater.count ThreadUpdater.isUpdating = @checked
     sync: (e) ->
       {input} = ThreadUpdater.cb.sync
       input.value = e
@@ -101,9 +93,9 @@ ThreadUpdater =
       $.cb.value.call @ if e
     load: (e) ->
       {req} = ThreadUpdater
+      delete ThreadUpdater.req
       if e.type isnt 'loadend' # timeout or abort
         req.onloadend = null
-        delete ThreadUpdater.req
         if e.type is 'timeout'
           ThreadUpdater.set 'status', 'Retrying', null
           ThreadUpdater.update()
@@ -129,14 +121,12 @@ ThreadUpdater =
           else
             ["#{req.statusText} (#{req.status})", 'warning']
           ThreadUpdater.set 'status', text, klass
-      delete ThreadUpdater.req
 
   setInterval: ->
     # hurr durr
     ThreadUpdater.seconds = ThreadUpdater.interval
     ThreadUpdater.set 'timer', ThreadUpdater.seconds
-    clearTimeout ThreadUpdater.timeoutID
-    ThreadUpdater.timeout()
+    ThreadUpdater.count true
 
   set: (name, text, klass) ->
     el = ThreadUpdater[name]
@@ -148,14 +138,19 @@ ThreadUpdater =
       el.textContent = text
     el.className = klass if klass isnt undefined
 
+  count: (start) ->
+    clearTimeout ThreadUpdater.timeoutID
+    ThreadUpdater.timeout() if start and ThreadUpdater.isUpdating and navigator.onLine
+
   timeout: ->
     ThreadUpdater.timeoutID = setTimeout ThreadUpdater.timeout, 1000
-    ThreadUpdater.set 'timer', --ThreadUpdater.seconds
-    ThreadUpdater.update() if ThreadUpdater.seconds <= 0
+    sec = ThreadUpdater.seconds--
+    ThreadUpdater.set 'timer', sec
+    ThreadUpdater.update() if sec <= 0
 
   update: ->
-    return unless ThreadUpdater.online
-    clearTimeout ThreadUpdater.timeoutID
+    return unless navigator.onLine
+    ThreadUpdater.count()
     ThreadUpdater.set 'timer', '...'
     ThreadUpdater.req.abort() if ThreadUpdater.req
     url = "//api.4chan.org/#{ThreadUpdater.thread.board}/res/#{ThreadUpdater.thread}.json"
