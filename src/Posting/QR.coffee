@@ -525,8 +525,9 @@ QR =
     lock: (lock=true) ->
       @isLocked = lock
       return unless @ is QR.selected
-      for name in ['thread', 'name', 'email', 'sub', 'com', 'fileButton', 'filename', 'spoiler']
-        QR.nodes[name].disabled = lock
+      for name in ['thread', 'name', 'email', 'sub', 'com', 'fileButton', 'filename', 'spoiler', 'flag']
+        continue unless node = QR.nodes[name]
+        node.disabled = lock
       @nodes.rm.style.visibility = if lock then 'hidden' else ''
       (if lock then $.off else $.on) QR.nodes.filename.previousElementSibling, 'click', QR.openFileInput
       @nodes.spoiler.disabled = lock
@@ -548,8 +549,9 @@ QR =
       $.event 'QRPostSelection', @
     load: ->
       # Load this post's values.
-      for name in ['thread', 'name', 'email', 'sub', 'com', 'filename']
-        QR.nodes[name].value = @[name] or null
+      for name in ['thread', 'name', 'email', 'sub', 'com', 'filename', 'flag']
+        continue unless node = QR.nodes[name]
+        node.value = @[name] or node.dataset.default or null
       @showFileData()
       QR.characterCount()
     save: (input) ->
@@ -557,7 +559,7 @@ QR =
         @spoiler = input.checked
         return
       {name}  = input.dataset
-      @[name] = input.value
+      @[name] = input.value or input.dataset.default or null
       switch name
         when 'thread'
           QR.status()
@@ -581,8 +583,9 @@ QR =
       return unless @ is QR.selected
       # Do this in case people use extensions
       # that do not trigger the `input` event.
-      for name in ['thread', 'name', 'email', 'sub', 'com', 'filename', 'spoiler']
-        @save QR.nodes[name]
+      for name in ['thread', 'name', 'email', 'sub', 'com', 'filename', 'spoiler', 'flag']
+        continue unless node = QR.nodes[name]
+        @save node
       return
     setFile: (@file) ->
       @filename = file.name
@@ -859,7 +862,13 @@ QR =
           <option value=5>Loop</option>
           <option value=4 selected>Other</option>
         """
+      nodes.flashTag.dataset.default = '4'
       $.add nodes.form, nodes.flashTag
+    if flagSelector = $ '.flagSelector'
+      nodes.flag = flagSelector.cloneNode true
+      nodes.flag.dataset.name    = 'flag'
+      nodes.flag.dataset.default = '0'
+      $.add nodes.form, nodes.flag
 
     # Make a list of threads.
     for thread of g.BOARD.threads
@@ -885,9 +894,11 @@ QR =
     $.on nodes.spoiler,    'change', -> QR.selected.nodes.spoiler.click()
     $.on nodes.fileInput,  'change', QR.handleFiles
     # save selected post's data
-    for name in ['name', 'email', 'sub', 'com', 'filename']
-      $.on nodes[name], 'input',  -> QR.selected.save @
-    $.on nodes.thread,  'change', -> QR.selected.save @
+    save = -> QR.selected.save @
+    for name in ['thread', 'name', 'email', 'sub', 'com', 'filename', 'flag']
+      continue unless node = nodes[name]
+      event = if node.nodeName is 'SELECT' then 'change' else 'input'
+      $.on nodes[name], event, save
 
     <% if (type === 'userscript') { %>
     if Conf['Remember QR Size']
@@ -968,7 +979,7 @@ QR =
 
     post.lock()
 
-    postData =
+    formData =
       resto:    threadID
       name:     post.name
       email:    post.email
@@ -977,6 +988,7 @@ QR =
       upfile:   post.file
       filetag:  filetag
       spoiler:  post.spoiler
+      flag:     post.flag
       textonly: textOnly
       mode:     'regist'
       pwd:      QR.persona.pwd
@@ -1000,7 +1012,7 @@ QR =
           [<a href="https://github.com/MayhemYDG/4chan-x/wiki/FAQ#what-does-connection-error-you-may-have-been-banned-mean" target=_blank>FAQ</a>]
           """
     extra =
-      form: $.formData postData
+      form: $.formData formData
       upCallbacks:
         onload: ->
           # Upload done, waiting for server response.
