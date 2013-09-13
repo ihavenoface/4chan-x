@@ -96,6 +96,7 @@ Linkify =
       href: link
       className: 'linkified'
       target: '_blank'
+      rel: 'noreferer'
 
   surround: (anchor, range, boundaries) ->
     {startOffset, endOffset, startNode, endNode} = boundaries
