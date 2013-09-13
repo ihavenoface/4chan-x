@@ -1,3 +1,4 @@
+- Added support for the flag selector on /pol/.
 - New desktop notification:
  - The QR will now warn you when you are running low on cached captchas while auto-posting.
 
