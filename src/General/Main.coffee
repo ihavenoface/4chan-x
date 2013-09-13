@@ -120,6 +120,7 @@ Main =
     initFeature 'Keybinds',                 Keybinds
     initFeature 'Show Dice Roll',           Dice
     initFeature 'Linkify',                  Linkify
+    initFeature 'Embedding',                Embedding
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback
