@@ -202,6 +202,8 @@ ThreadUpdater =
     index = [] # existing posts
     files = [] # existing files
     count = 0  # new posts count
+
+    inedible = ThreadUpdater.interval <= Config.updater.Interval
     # Build the index, create posts.
     for postObject in postObjects
       num = postObject.no
@@ -212,7 +214,9 @@ ThreadUpdater =
       count++
       node = Build.postFromObject postObject, ThreadUpdater.thread.board.ID
       nodes.push node
-      posts.push new Post node, ThreadUpdater.thread, ThreadUpdater.thread.board
+      post = new Post node, ThreadUpdater.thread, ThreadUpdater.thread.board
+      post.inedible = inedible
+      posts.push post
 
     deletedPosts = []
     deletedFiles = []
@@ -221,6 +225,9 @@ ThreadUpdater =
       # XXX tmp fix for 4chan's racing condition
       # giving us false-positive dead posts.
       # continue if post.isDead
+      if post.inedible
+        delete post.inedible
+        continue
       ID = +ID
       if post.isDead and ID in index
         post.resurrect()
