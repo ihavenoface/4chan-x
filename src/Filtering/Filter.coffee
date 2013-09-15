@@ -246,9 +246,9 @@ Filter =
             "\\#{c}"
 
       re = if type in ['uniqueID', 'MD5']
-        "/#{re}/"
+        "/#{re}/;op:yes"
       else
-        "/^#{re}$/"
+        "/^#{re}$/;op:yes"
 
       # Add a new line before the regexp unless the text is empty.
       $.get type, Conf[type], (item) ->
