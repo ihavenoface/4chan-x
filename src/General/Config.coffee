@@ -8,6 +8,7 @@ Config =
       'Keybinds':                     [true,  'Bind actions to keyboard shortcuts.']
       'Time Formatting':              [true,  'Localize and format timestamps.']
       'Relative Post Dates':          [false, 'Display dates like "3 minutes ago". Tooltip shows the timestamp.']
+      'Relative Post Title':          [false, 'Show Relative Post Date only when hovering over dates.']
       'File Info Formatting':         [true,  'Reformat the file information.']
       'Comment Expansion':            [true,  'Add buttons to expand too long comments.']
       'Thread Expansion':             [true,  'Add buttons to expand threads.']

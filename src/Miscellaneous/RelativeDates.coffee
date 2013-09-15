@@ -19,6 +19,11 @@ RelativeDates =
     # Since "Time Formatting" runs its `node` before us, the title tooltip will
     # pick up the user-formatted time instead of 4chan time when enabled.
     dateEl = @nodes.date
+    if Conf['Relative Post Title']
+      that = @
+      $.on dateEl, 'mouseover', ->
+        RelativeDates.setUpdate that
+      return
     dateEl.title = dateEl.textContent
 
     RelativeDates.setUpdate @
@@ -98,7 +103,12 @@ RelativeDates =
       diff = now - date
       relative = RelativeDates.relative diff, now, date
       for singlePost in [post].concat post.clones
-        singlePost.nodes.date.firstChild.textContent = relative
+        {date} = singlePost.nodes
+        if Conf['Relative Post Title']
+          date.title = relative
+        else
+          date.firstChild.textContent = relative
+      return if Conf['Relative Post Title']
       setOwnTimeout diff
 
     markStale = -> RelativeDates.stale.push update
