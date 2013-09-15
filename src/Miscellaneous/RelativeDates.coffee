@@ -15,15 +15,15 @@ RelativeDates =
   node: ->
     return if @isClone
 
+    dateEl = @nodes.date
+    if Conf['Relative Date Title']
+      $.on dateEl, 'mouseover', =>
+        RelativeDates.setUpdate @, true
+      return
+
     # Show original absolute time as tooltip so users can still know exact times
     # Since "Time Formatting" runs its `node` before us, the title tooltip will
     # pick up the user-formatted time instead of 4chan time when enabled.
-    dateEl = @nodes.date
-    if Conf['Relative Post Title']
-      that = @
-      $.on dateEl, 'mouseover', ->
-        RelativeDates.setUpdate that
-      return
     dateEl.title = dateEl.textContent
 
     RelativeDates.setUpdate @
@@ -86,7 +86,7 @@ RelativeDates =
   # Create function `update()`, closed over post, that, when called
   # from `flush()`, updates the elements, and re-calls `setOwnTimeout()` to
   # re-add `update()` to the stale list later.
-  setUpdate: (post) ->
+  setUpdate: (post, hover) ->
     setOwnTimeout = (diff) ->
       delay = if diff < $.MINUTE
         $.SECOND - (diff + $.SECOND / 2) % $.SECOND
@@ -104,11 +104,11 @@ RelativeDates =
       relative = RelativeDates.relative diff, now, date
       for singlePost in [post].concat post.clones
         {date} = singlePost.nodes
-        if Conf['Relative Post Title']
+        if hover
           date.title = relative
         else
           date.firstChild.textContent = relative
-      return if Conf['Relative Post Title']
+      return if hover
       setOwnTimeout diff
 
     markStale = -> RelativeDates.stale.push update
