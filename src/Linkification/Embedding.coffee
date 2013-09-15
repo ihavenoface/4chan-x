@@ -14,13 +14,20 @@ Embedding =
       cb:   @node
 
   node: ->
-    if @isClone
-      # here be handling for inline
-      return
-
     return unless (links = $$ '.linkified', @nodes.comment).length
 
     for link in links
+      next = link.nextElementSibling
+      if @isClone and next?.nodeName is 'A'
+        [_, closed, open] = next.textContent.match /^(?:(Embed)|(Unembed))$/
+        # why?
+        if open
+          $.rm next.nextElementSibling
+        if open or closed
+          $.rm next.nextSibling
+          $.rm next.previousSibling
+          $.rm next
+
       for service in Embedding.embeds
         if valid = service.domains.test link.hostname
           break
