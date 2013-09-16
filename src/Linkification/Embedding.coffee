@@ -18,8 +18,8 @@ Embedding =
 
     for link in links
       next = link.nextElementSibling
-      if @isClone and next?.nodeName is 'A'
-        [_, closed, open] = next.textContent.match /^(?:(Embed)|(Unembed))$/
+      if @isClone and next?.nodeName is 'A' and match = next.textContent.match /^(?:(Embed)|(Unembed))$/
+        [_, closed, open] = match
         # why?
         if open
           $.rm next.nextElementSibling

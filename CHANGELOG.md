@@ -1,3 +1,5 @@
+- Minor bugfix.
+
 ## 3.7.0 - *2013-09-16*
 
 - When `Persistent QR` is enabled the `Close` keybind will now only hide the QR.
