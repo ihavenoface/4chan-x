@@ -1,3 +1,8 @@
+- When `Persistent QR` is enabled the `Close` keybind will now only hide the QR.
+- **New option**: `Relative Post Title`
+- `;op:yes` will be added automatically when using the drop-down menu to filter content.
+- Embedding now works on inlined posts.
+
 ## 3.6.0 - *2013-09-14*
 
 - Added support for the flag selector on /pol/.
