@@ -1,3 +1,5 @@
+## 3.7.0 - *2013-09-16*
+
 - When `Persistent QR` is enabled the `Close` keybind will now only hide the QR.
 - **New option**: `Relative Post Title`
 - `;op:yes` will be added automatically when using the drop-down menu to filter content.
