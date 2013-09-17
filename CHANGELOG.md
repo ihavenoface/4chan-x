@@ -1,3 +1,5 @@
+- Updated post and deletion cooldown timers to match 4chan changes: they are now twice longer.
+
 ### 3.7.1 - *2013-09-17*
 
 - Minor bugfix.
