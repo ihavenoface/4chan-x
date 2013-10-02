@@ -9,7 +9,7 @@ Embedding =
           Embedding.embeds[key].cachedTitles = cachedTitles[service.name] or= {}
         Embedding.cachedTitles = cachedTitles
 
-    Post::callbacks.push
+    Post.callbacks.push
       name: 'Embedding'
       cb:   @node
 

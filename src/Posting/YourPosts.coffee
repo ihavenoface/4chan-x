@@ -2,7 +2,7 @@ YourPosts =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Mark own Posts'] or !Conf['Quick Reply']
 
-    Post::callbacks.push
+    Post.callbacks.push
       name: 'Mark own Posts'
       cb:   @node
 

@@ -15,7 +15,7 @@ ThreadUpdater =
     @status = $ '#update-status', @dialog
     @isUpdating = Conf['Auto Update']
 
-    Thread::callbacks.push
+    Thread.callbacks.push
       name: 'Thread Updater'
       cb:   @node
 

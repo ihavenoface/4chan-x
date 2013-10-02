@@ -8,7 +8,7 @@ ImageReplace =
 
     return unless Object.keys(@active).length
 
-    Post::callbacks.push
+    Post.callbacks.push
       name: 'Replace Image'
       cb:   @node
   node: ->

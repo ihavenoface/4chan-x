@@ -2,7 +2,7 @@ ImageReplaceLoaded =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Replace Loaded Images']
 
-    Post::callbacks.push
+    Post.callbacks.push
       name: 'Replace Loaded Image'
       cb:   @node
 
