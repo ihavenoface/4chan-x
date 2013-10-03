@@ -1,3 +1,5 @@
+### 3.7.4 - *2013-10-03*
+
 - Minor Chrome 30 fix.
 - Tiny posting cooldown adjustment:
  - You can post an image reply immediately after a non-image reply.
