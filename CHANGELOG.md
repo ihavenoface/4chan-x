@@ -1,4 +1,5 @@
-Tiny posting cooldown adjustment:
+- Minor Chrome 30 fix.
+- Tiny posting cooldown adjustment:
  - You can post an image reply immediately after a non-image reply.
 
 ### 3.7.3 - *2013-09-19*
