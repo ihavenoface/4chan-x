@@ -1113,6 +1113,7 @@ QR =
       threadID
       postID
     }
+    $.event 'QRPostSuccessful_', {threadID, postID}
 
     # Enable auto-posting if we have stuff left to post, disable it otherwise.
     postsCount = QR.posts.length - 1
