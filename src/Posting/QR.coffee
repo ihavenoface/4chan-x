@@ -97,9 +97,9 @@ QR =
     QR.nodes.autohide.checked = false
   toggleHide: ->
     if @checked
-      QR.unhide()
-    else
       QR.hide()
+    else
+      QR.unhide()
   toggleSage: ->
     {email} = QR.nodes
     email.value = !/sage/i.test(email.value) and 'sage' or ''

@@ -38,7 +38,7 @@ Keybinds =
             $('.close', notification).click()
         else if QR.nodes
           if Conf['Persistent QR']
-            QR.toggleHide.call QR.nodes.autohide
+            QR.nodes.autohide.click()
           else
             QR.close()
       when Conf['Spoiler tags']
