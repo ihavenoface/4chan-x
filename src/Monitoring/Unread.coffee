@@ -93,8 +93,7 @@ Unread =
       Unread.openNotification post
     return
   openNotification: (post) ->
-    return if !Header.areNotificationsEnabled or post.notified
-    post.notified = true
+    return unless Header.areNotificationsEnabled
     name = if Conf['Anonymize']
       'Anonymous'
     else
