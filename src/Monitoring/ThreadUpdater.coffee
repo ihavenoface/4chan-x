@@ -224,9 +224,9 @@ ThreadUpdater =
     for ID, post of ThreadUpdater.thread.posts
       # XXX tmp fix for 4chan's racing condition
       # giving us false-positive dead posts.
-      # continue if post.isDead
       if post.inedible
         delete post.inedible
+        delete post.isDead
         continue
       ID = +ID
       if post.isDead and ID in index
