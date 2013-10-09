@@ -196,6 +196,7 @@ ThreadUpdater =
     ThreadUpdater.updateThreadStatus 'Closed', OP
     ThreadUpdater.thread.postLimit = !!OP.bumplimit
     ThreadUpdater.thread.fileLimit = !!OP.imagelimit
+    ThreadUpdater.thread.inedible  = if ThreadUpdater.interval <= Config.updater.Interval then 2 else 0
 
     nodes = [] # post container elements
     posts = [] # post objects
@@ -203,7 +204,6 @@ ThreadUpdater =
     files = [] # existing files
     count = 0  # new posts count
 
-    inedible = ThreadUpdater.interval <= Config.updater.Interval
     # Build the index, create posts.
     for postObject in postObjects
       num = postObject.no
@@ -215,7 +215,7 @@ ThreadUpdater =
       node = Build.postFromObject postObject, ThreadUpdater.thread.board.ID
       nodes.push node
       post = new Post node, ThreadUpdater.thread, ThreadUpdater.thread.board
-      post.inedible = inedible
+      post.inedible = ThreadUpdater.thread.inedible
       posts.push post
 
     deletedPosts = []
@@ -224,10 +224,11 @@ ThreadUpdater =
     for ID, post of ThreadUpdater.thread.posts
       # XXX tmp fix for 4chan's racing condition
       # giving us false-positive dead posts.
-      if post.inedible
-        delete post.inedible
+      if post.inedible--
         delete post.isDead
         continue
+      else
+        delete post.inedible
       ID = +ID
       if post.isDead and ID in index
         post.resurrect()
