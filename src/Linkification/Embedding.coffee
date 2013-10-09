@@ -141,7 +141,12 @@ Embedding =
         Embedding.cb.preview.call {a: @a, e: @e, src}
       embedURL: ->
         [_, name, time] = @result
-        time = if time then "#t=#{time}" else ''
+        time = if time
+          match = /((\d+)h)?((\d+)m)?(\d+)?/.exec time
+          time = parseInt(match[2] or 0) * 3600 + parseInt(match[4] or 0) * 60 + parseInt match[5] or 0
+          "&start=#{time}"
+        else
+          ''
         el = $.el 'iframe',
           src: "https://youtube.com/embed/#{name}?rel=1&autohide=1#{time}"
         Embedding.cb.embed.call {el, style: '0', target: @target}
