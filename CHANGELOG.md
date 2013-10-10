@@ -1,3 +1,5 @@
+- Minor fixes.
+
 ### 3.7.4 - *2013-10-03*
 
 - Minor Chrome 30 fix.
