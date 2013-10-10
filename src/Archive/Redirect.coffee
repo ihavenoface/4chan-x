@@ -83,6 +83,10 @@ Redirect =
       'image'
     else
       type
+    {convert} = archive
+    if convert[type]
+      [from, to] = convert[type].split ':'
+      value = value.replace ///#{from}///g, to
     value = encodeURIComponent value
     path  = if archive.software is 'foolfuuka'
       "#{boardID}/search/#{type}/#{value}"

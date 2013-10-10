@@ -5,6 +5,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["a", "co", "gd", "jp", "m", "q", "sp", "tg", "tv", "v", "vg", "vp", "vr", "wsg"],
   "files": ["a", "gd", "jp", "m", "q", "tg", "vg", "vp", "vr", "wsg"]
 }, {
@@ -14,6 +15,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["u"],
   "files": ["u"]
 }, {
@@ -23,6 +25,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["c", "int", "out", "po"],
   "files": ["c", "po"]
 }, {
@@ -32,6 +35,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["hr", "tg", "tv", "x"],
   "files": ["hr", "tg", "tv", "x"]
 }, {
@@ -41,6 +45,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["c", "w", "wg"],
   "files": ["c", "w", "wg"]
 }, {
@@ -50,6 +55,7 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
+  "convert": {"image": "/:_"},
   "boards": ["b", "con", "e", "h", "hc", "p", "s", "soc", "u"],
   "files": ["b", "con", "e", "h", "hc", "p", "s", "soc", "u"]
 }, {
@@ -59,6 +65,7 @@
   "http": false,
   "https": true,
   "software": "fuuka",
+  "convert": {},
   "boards": ["diy", "g", "sci"],
   "files": []
 }, {
@@ -68,6 +75,7 @@
   "http": true,
   "https": true,
   "software": "fuuka",
+  "convert": {},
   "boards": ["cgl", "con", "g", "mu", "w"],
   "files": ["cgl", "con", "g", "mu", "w"]
 }, {
@@ -77,6 +85,7 @@
   "http": true,
   "https": false,
   "software": "fuuka",
+  "convert": {},
   "boards": ["an", "fit", "k", "mlp", "r9k", "toy"],
   "files": ["an", "fit", "k", "r9k", "toy"]
 }, {
@@ -86,6 +95,7 @@
   "http": true,
   "https": true,
   "software": "fuuka",
+  "convert": {},
   "boards": ["3", "cgl", "ck", "fa", "ic", "jp", "lit", "q", "tg", "vr"],
   "files": ["3", "cgl", "ck", "fa", "ic", "jp", "lit", "q", "tg", "vr"]
 }, {
@@ -96,6 +106,7 @@
   "https": true,
   "withCredentials": true,
   "software": "foolfuuka",
+  "convert": {},
   "boards": ["a", "co", "d", "gd", "h", "jp", "m", "mlp", "q", "sp", "tg", "tv", "u", "v", "vg", "vp", "vr", "wsg"],
   "files": ["a", "d", "gd", "h", "jp", "m", "q", "tg", "u", "vg", "vp", "vr", "wsg"]
 }]
