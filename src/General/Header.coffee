@@ -97,7 +97,6 @@ Header =
       a.className = 'current'
     fullBoardList = $ '#full-board-list', Header.bar
     fullBoardList.innerHTML = nav.innerHTML
-    $.rm $ '#navtopright', fullBoardList
     btn = $.el 'span',
       className: 'hide-board-list-button brackets-wrap'
       innerHTML: '<a href=javascript:;> - </a>'
@@ -114,7 +113,7 @@ Header =
     list = $ '#custom-board-list', Header.bar
     $.rmAll list
     return unless text
-    as = $$ '#full-board-list a[title]', Header.bar
+    as = $$ '#full-board-list a[title], #navtopright a[target^=_]', Header.bar
     nodes = text.match(/[\w@]+(-(all|title|replace|full|index|catalog|text:"[^"]+"))*|break|[^\w@]+/g).map (t) ->
       if /^[^\w@]/.test t
         return $.tn t
