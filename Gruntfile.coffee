@@ -34,6 +34,7 @@ module.exports = (grunt) ->
           'src/General/Thread.coffee'
           'src/General/Post.coffee'
           'src/General/Clone.coffee'
+          'src/General/Embed.coffee'
           'src/General/DataBoard.coffee'
           'src/General/Main.coffee'
         ]

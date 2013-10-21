@@ -928,16 +928,49 @@ a.hide-announcement {
   margin: 0;
 }
 
-/* colorerd uid */
-
+/* IDColor */
 .painted .hand {
   padding: 0 5px;
   border-radius: 6px;
   font-size: 0.8em;
 }
 
-/* postContainer */
-
+/* Your Posts */
 .your-post > .reply {
   border-left: 1px solid rgba(221,0,0,.5) !important;
 }
+
+/* Embedding */
+#embedding {
+  padding: 0 4px 0 4px;
+  z-index: 11;
+  position: fixed;
+}
+#embedding.empty {
+  display: none;
+}
+#embedding > div:first-child {
+  display: flex;
+}
+#embedding .move div:first-child {
+  flex: 1;
+}
+
+/* Link Titles */
+.linkified.title {
+  background: transparent left bottom 1px no-repeat;
+  padding-left: 18px;
+}
+.linkified.youtube {
+  background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/YouTube.png", {encoding: "base64"}) %>');
+}
+.linkified.soundcloud {
+  background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/SoundCloud.png", {encoding: "base64"}) %>');
+}
+.linkified.vimeo {
+  background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/Vimeo.png", {encoding: "base64"}) %>');
+}
+.linkified.gist {
+  background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/Gist.png", {encoding: "base64"}) %>');
+}
+

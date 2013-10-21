@@ -121,6 +121,8 @@ Main =
     initFeature 'Show Dice Roll',           Dice
     initFeature 'Linkify',                  Linkify
     initFeature 'Embedding',                Embedding
+    initFeature 'Link Titles',              LinkTitles
+    initFeature 'Cover Preview',            CoverPreview
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback

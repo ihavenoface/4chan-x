@@ -35,6 +35,7 @@ Config =
       'Linkify':                      [true,  'Convert text links into hyperlinks.']
       'Clean Links':                  [true,  'Remove spoiler and code tags commonly used to bypass blocked links.']
       'Embedding':                    [true,  'Embed supported content.']
+      'Floating Embeds':              [true,  'Embedded content will scroll with page.']
       'Link Titles':                  [true,  'Fetch and replace links with titles of embeddable content.']
       'Cover Preview':                [true,  'Show preview of links on hover.']
     'Menu':
@@ -175,7 +176,7 @@ Config =
     'Open empty QR':      ['q',       'Open QR without post number inserted.']
     'Open QR':            ['Shift+q', 'Open QR with post number inserted.']
     'Open settings':      ['Alt+o',   'Open Settings.']
-    'Close':              ['Esc',     'Close Settings, Notifications or QR.']
+    'Close':              ['Esc',     'Close Settings, Notifications, Floating Embeds or QR.']
     'Spoiler tags':       ['Ctrl+s',  'Insert spoiler tags.']
     'Code tags':          ['Alt+c',   'Insert code tags.']
     'Eqn tags':           ['Alt+e',   'Insert eqn tags.']
