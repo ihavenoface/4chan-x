@@ -99,7 +99,7 @@ Embedding =
         else
           ''
         el = $.el 'iframe',
-          src: "https://youtube.com/embed/#{name}?rel=1&autohide=1#{time}"
+          src: "https://youtube.com/embed/#{name}?rel=1&autohide=1&iv_load_policy=3#{time}"
         Embedding.cb.toggle @, el
     ,
       name: 'SoundCloud'
