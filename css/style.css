@@ -942,7 +942,7 @@ a.hide-announcement {
 
 /* Embedding */
 #embedding {
-  padding: 0 4px 0 4px;
+  padding: 1px 4px 1px 4px;
   z-index: 11;
   position: fixed;
 }
@@ -954,6 +954,10 @@ a.hide-announcement {
 }
 #embedding .move div:first-child {
   flex: 1;
+}
+#embedding .jump {
+  margin: -1px 4px;
+  text-decoration: none;
 }
 
 /* Link Titles */

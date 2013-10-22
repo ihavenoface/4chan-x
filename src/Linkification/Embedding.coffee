@@ -51,9 +51,11 @@ Embedding =
   toggleFloat: (e, embed) ->
     return unless div = Embedding.media.firstChild
     if el = embed?.el
-      $.rmClass Embedding.dialog, 'empty'
+      {href} = $ '[title="Highlight this post"]', embed.post.nodes.info
+      $('.jump', Embedding.dialog).href = href
       $.replace div, el
       Embedding.lastEmbed = embed
+      $.rmClass Embedding.dialog, 'empty'
       return
     delete Embedding.lastEmbed
     $.addClass Embedding.dialog, 'empty'
