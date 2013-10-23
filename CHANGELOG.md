@@ -1,3 +1,5 @@
+## 3.8.0 - *2013-10-23*
+
 - **New feature**: `Floating Embeds`
  - Embedded content can now be dragged like the Thread Watcher / Stats.
  - Embedded content won't be bound to each post anymore.
