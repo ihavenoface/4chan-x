@@ -1,4 +1,8 @@
-Added a keybind to open the catalog search form on index pages.
+- **New feature**: `Floating Embeds`
+ - Embedded content can now be dragged like the Thread Watcher / Stats.
+ - Embedded content won't be bound to each post anymore.
+ ![floating](img/changelog/3.8.0/0.gif)
+- Added a keybind to open the catalog search form on index pages.
 
 ### 3.7.5 - *2013-10-10*
 
@@ -41,7 +45,7 @@ Updated post and deletion cooldown timers to match 4chan changes: they are now t
 
 - **New feature**: `Desktop Notifications`
  - Enabled by default, but you will have to grant your browser permissions to display them or disable them altogether:<br>
-  ![authorize or disable](img/changelog/3.9.0/0.png)
+  ![authorize or disable](img/changelog/3.6.0/0.png)
  - Clicking on a notification will bring up the relevant tab. (Does not work on Firefox unfortunately, [see bug 874050](https://bugzilla.mozilla.org/show_bug.cgi?id=874050).)
  - Notifications will appear when someone quotes you, clicking such notification will also scroll the thread to the relevant post.
  - Notifications will appear for posting errors instead of alert popups.
@@ -50,7 +54,7 @@ Updated post and deletion cooldown timers to match 4chan changes: they are now t
 ### 3.5.3 - *2013-08-16*
 
 - The QR now allows you to edit the filename on the fly:<br>
-![filename editing](img/changelog/3.8.0/0.gif)
+![filename editing](img/changelog/3.5.3/0.gif)
 
 ### 3.5.2 - *2013-08-13*
 
