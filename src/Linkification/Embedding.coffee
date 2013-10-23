@@ -16,7 +16,7 @@ Embedding =
 
   node: ->
     anchors = $$ '.linkified', @nodes.comment
-    return unless anchors.length
+    return if !anchors.length or @isClone and !@origin.embeds
 
     for anchor in anchors
       for service in Embedding.services
