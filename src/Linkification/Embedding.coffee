@@ -32,7 +32,9 @@ Embedding =
   ready: ->
     $.off d, '4chanXInitFinished', Embedding.ready
     $.addClass Embedding.dialog, 'empty'
-    $.on $('.close', Embedding.dialog), 'click', Embedding.toggleFloat
+    $.on $('.close', Embedding.dialog), 'click',     Embedding.toggleFloat
+    $.on $('.move',  Embedding.dialog), 'mousedown', Embedding.dragEmbed
+    $.on d,                             'mouseup',   Embedding.dragEmbed
     $.add d.body, Embedding.dialog
 
   toggle: (embed, e) ->
@@ -60,6 +62,10 @@ Embedding =
     delete Embedding.lastEmbed
     $.addClass Embedding.dialog, 'empty'
     $.replace div, $.el 'div'
+
+  dragEmbed: (e) ->
+    {style} = Embedding.media
+    style.visibility = if e.type is 'mousedown' then 'hidden' else ''
 
   cb:
     toggle: (embed, el) ->
