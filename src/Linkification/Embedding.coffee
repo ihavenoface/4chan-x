@@ -34,7 +34,6 @@ Embedding =
     $.addClass Embedding.dialog, 'empty'
     $.on $('.close', Embedding.dialog), 'click',     Embedding.toggleFloat
     $.on $('.move',  Embedding.dialog), 'mousedown', Embedding.dragEmbed
-    $.on d,                             'mouseup',   Embedding.dragEmbed
     $.add d.body, Embedding.dialog
 
   toggle: (embed, e) ->
@@ -64,8 +63,16 @@ Embedding =
     $.replace div, $.el 'div'
 
   dragEmbed: (e) ->
+    # only webkit can handle a blocking div
     {style} = Embedding.media
-    style.visibility = if e.type is 'mousedown' then 'hidden' else ''
+    if Embedding.dragEmbed.mouseup
+      $.off d, 'mouseup', Embedding.dragEmbed
+      Embedding.dragEmbed.mouseup = false
+      style.visibility = ''
+      return
+    $.on d, 'mouseup', Embedding.dragEmbed
+    Embedding.dragEmbed.mouseup = true
+    style.visibility = 'hidden'
 
   cb:
     toggle: (embed, el) ->
@@ -164,7 +171,7 @@ Embedding =
         border: 'none'
         width:  '640px'
         height: '500px'
-      regex: /gist\.github\.com\/\w+\/(\d+)/i
+      regex: /gist\.github\.com\/\w+\/(\w+)/i
       title: ->
        response = @files
        return file for file of response when response.hasOwnProperty file
