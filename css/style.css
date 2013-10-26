@@ -952,7 +952,7 @@ a.hide-announcement {
 #embedding > div:first-child {
   display: flex;
 }
-#embedding .move div:first-child {
+#embedding .move {
   flex: 1;
 }
 #embedding .jump {
