@@ -1,3 +1,5 @@
+### 3.8.1 - *2013-10-28*
+
 - Improved dragging of embeds.
 - Minor fixes.
 
