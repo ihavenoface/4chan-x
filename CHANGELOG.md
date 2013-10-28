@@ -1,3 +1,6 @@
+- Improved dragging of embeds.
+- Minor fixes.
+
 ## 3.8.0 - *2013-10-23*
 
 - **New feature**: `Floating Embeds`
