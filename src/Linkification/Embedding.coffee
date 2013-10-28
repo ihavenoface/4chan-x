@@ -76,7 +76,7 @@ Embedding =
 
   jumpToPost: ->
     return unless {post} = Embedding.lastEmbed
-    post.nodes.root.scrollIntoView()
+    $.id("p#{post.ID}").scrollIntoView()
     if !$.hasClass(Header.bar, 'autohide') and !Conf['Bottom header']
       headRect = Header.toggle.getBoundingClientRect()
       y = headRect.top + headRect.height

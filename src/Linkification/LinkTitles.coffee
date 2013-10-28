@@ -28,7 +28,11 @@ LinkTitles =
       return LinkTitles.cb.changeTitle anchor, title, name
     url = service.titleURL.call {anchor, result}
     $.cache url, ->
-      title = service.title.call JSON.parse @response
+      try
+        response = JSON.parse @response
+      catch
+        return
+      title = service.title.call response
       if @status in [200, 304] and title
         LinkTitles.cachedTitles[name][res] = title
         $.set 'cachedTitles', LinkTitles.cachedTitles
