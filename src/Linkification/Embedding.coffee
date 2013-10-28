@@ -216,9 +216,10 @@ Embedding =
           Embedding.services[7].resize()
           $.on window, 'resize', Embedding.services[7].resize
         {toggle} = @
-        $.on el, 'click', ->
-          $.rm el.parentNode
-          toggle.textContent = 'Embed'
+        unless Conf['Floating Embeds']
+          $.on el, 'click', ->
+            $.rm el.parentNode
+            toggle.textContent = 'Embed'
         Embedding.cb.toggle @, el
       resize: ->
         Embedding.style.textContent =
