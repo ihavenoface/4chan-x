@@ -62,9 +62,7 @@ Settings =
     return if Settings.dialog
     $.event 'CloseMenu'
 
-    html = """
-    <%= grunt.file.read('html/General/Settings.html').replace(/>\s+</g, '><').trim() %>
-    """
+    html = <%= importHTML('General/Settings') %>
 
     Settings.dialog = overlay = $.el 'div',
       id: 'overlay'
@@ -114,9 +112,7 @@ Settings =
     section.scrollTop = 0
 
   main: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Main.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Main') %>
     $.on $('.export', section), 'click',  Settings.export
     $.on $('.import', section), 'click',  Settings.import
     $.on $('input',   section), 'change', Settings.onImport
@@ -143,7 +139,7 @@ Settings =
       return
 
     div = $.el 'div',
-      innerHTML: "<button></button><span class=description>: Clear manually-hidden threads and posts on all boards. Refresh the page to apply."
+      innerHTML: "<button></button><span class=description>: Clear manually-hidden threads and posts on all boards. Reload the page to apply."
     button = $ 'button', div
     hiddenNum = 0
     $.get 'hiddenThreads', boards: {}, (item) ->
@@ -206,7 +202,7 @@ Settings =
       try
         data = JSON.parse e.target.result
         Settings.loadSettings data
-        if confirm 'Import successful. Refresh now?'
+        if confirm 'Import successful. Reload now?'
           window.location.reload()
       catch err
         output.textContent = 'Import failed due to an error.'
@@ -291,9 +287,7 @@ Settings =
     data
 
   filter: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Filter.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Filter') %>
     select = $ 'select', section
     $.on select, 'change', Settings.selectFilter
     Settings.selectFilter.call select
@@ -310,32 +304,24 @@ Settings =
       $.on ta, 'change', $.cb.value
       $.add div, ta
       return
-    div.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Filter-guide.html').replace(/>\s+</g, '><').trim() %>
-    """
+    div.innerHTML = <%= importHTML('General/Settings-section-Filter-guide') %>
 
   qr: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-QR.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-QR') %>
     ta = $ 'textarea', section
     $.get 'QR.personas', Conf['QR.personas'], (item) ->
       ta.value = item['QR.personas']
     $.on ta, 'change', $.cb.value
 
   sauce: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Sauce.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Sauce') %>
     ta = $ 'textarea', section
     $.get 'sauces', Conf['sauces'], (item) ->
       ta.value = item['sauces']
     $.on ta, 'change', $.cb.value
 
   rice: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Rice.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Rice') %>
     items = {}
     inputs = {}
     for name in ['boardnav', 'time', 'backlink', 'fileInfo', 'favicon', 'usercss']
@@ -396,9 +382,7 @@ Settings =
     CustomCSS.update()
 
   archives: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Archives.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Archives') %>
 
     name = 'archivesLocation'
     input = $ "[name=#{name}]", section
@@ -477,9 +461,7 @@ Settings =
       $.set 'selectedArchives', selectedArchives
 
   keybinds: (section) ->
-    section.innerHTML = """
-    <%= grunt.file.read('html/General/Settings-section-Keybinds.html').replace(/>\s+</g, '><').trim() %>
-    """
+    section.innerHTML = <%= importHTML('General/Settings-section-Keybinds') %>
     tbody  = $ 'tbody', section
     items  = {}
     inputs = {}

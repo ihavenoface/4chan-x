@@ -10,7 +10,6 @@ Config =
       'Relative Post Dates':          [false, 'Display dates like "3 minutes ago". Tooltip shows the timestamp.']
       'Relative Date Title':          [false, 'Show Relative Post Date only when hovering over dates.']
       'File Info Formatting':         [true,  'Reformat the file information.']
-      'Comment Expansion':            [true,  'Add buttons to expand too long comments.']
       'Thread Expansion':             [true,  'Add buttons to expand threads.']
       'Index Navigation':             [false, 'Add buttons to navigate between threads.']
       'Reply Navigation':             [false, 'Add buttons to navigate to top / bottom of thread.']
@@ -151,6 +150,9 @@ Config =
     #//archive.installgentoo.net/%board/image/%MD5;text:View same on installgentoo /%board/
   """
   'Custom CSS': false
+  Index:
+    'Index Mode': 'paged'
+    'Index Sort': 'bump'
   Header:
     'Header auto-hide':        false
     'Bottom header':           false
@@ -183,9 +185,9 @@ Config =
     'Math tags':          ['Alt+m',   'Insert math tags.']
     'Submit QR':          ['Alt+s',   'Submit post.']
     'Toggle Sage':        ['Alt+n',   'Insert or remove sage from email field.']
-    # Thread related
+    # Index/Thread related
+    'Update':             ['r',       'Refresh the index/thread.']
     'Watch':              ['w',       'Watch thread.']
-    'Update':             ['r',       'Update the thread.']
     # Images
     'Expand image':       ['Shift+e', 'Expand selected image.']
     'Expand images':      ['e',       'Expand all images.']

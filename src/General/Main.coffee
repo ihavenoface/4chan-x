@@ -69,6 +69,7 @@ Main =
     initFeature 'Polyfill',                 Polyfill
     initFeature 'Header',                   Header
     initFeature 'Settings',                 Settings
+    initFeature 'Index Generator',          Index
     initFeature 'Announcement Hiding',      PSAHiding
     initFeature 'Fourchan thingies',        Fourchan
     initFeature 'Custom CSS',               CustomCSS
@@ -107,7 +108,6 @@ Main =
     initFeature 'Replace Image',            ImageReplace
     initFeature 'Replace Loaded Image',     ImageReplaceLoaded
     initFeature 'Image Hover',              ImageHover
-    initFeature 'Comment Expansion',        ExpandComment
     initFeature 'Thread Expansion',         ExpandThread
     initFeature 'Thread Excerpt',           ThreadExcerpt
     initFeature 'Favicon',                  Favicon
@@ -174,26 +174,21 @@ Main =
     # Something might have gone wrong!
     Main.initStyle()
 
-    if board = $ '.board'
-      threads = []
-      posts   = []
-
-      for threadRoot in $$ '.board > .thread', board
-        thread = new Thread +threadRoot.id[1..], g.BOARD
-        threads.push thread
-        for postRoot in $$ '.thread > .postContainer', threadRoot
-          try
-            posts.push new Post postRoot, thread, g.BOARD
-          catch err
-            # Skip posts that we failed to parse.
-            unless errors
-              errors = []
-            errors.push
-              message: "Parsing of Post No.#{postRoot.id.match(/\d+/)} failed. Post will be skipped."
-              error: err
+    if g.VIEW is 'thread' and threadRoot = $ '.thread'
+      thread = new Thread +threadRoot.id[1..], g.BOARD
+      posts  = []
+      for postRoot in $$ '.thread > .postContainer', threadRoot
+        try
+          posts.push new Post postRoot, thread, g.BOARD
+        catch err
+          # Skip posts that we failed to parse.
+          errors = [] unless errors
+          errors.push
+            message: "Parsing of Post No.#{postRoot.id.match /\d+/} failed. Post will be skipped."
+            error: err
       Main.handleErrors errors if errors
 
-      Main.callbackNodes Thread, threads
+      Main.callbackNodes Thread, [thread]
       Main.callbackNodes Post, posts
 
     if $.hasClass d.body, 'fourchan_x'
@@ -212,7 +207,7 @@ Main =
     try
       localStorage.getItem '4chan-settings'
     catch err
-      new Notice 'warning', 'Cookies need to be enabled on 4chan for <%= meta.name %> to properly function.', 30
+      new Notice 'warning', 'Cookies need to be enabled on 4chan for <%= meta.name %> to operate properly.', 30
 
     $.event '4chanXInitFinished'
 

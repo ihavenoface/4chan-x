@@ -35,7 +35,7 @@ Embedding =
     $.on $('.close', Embedding.dialog), 'click',     Embedding.toggleFloat
     $.on $('.move',  Embedding.dialog), 'mousedown', Embedding.dragEmbed
     $.on $('.jump',  Embedding.dialog), 'click', ->
-      Header.scrollToPost Embedding.lastEmbed.post.nodes.root
+      Header.scrollTo Embedding.lastEmbed.post.nodes.root
     $.add d.body, Embedding.dialog
 
   toggle: (embed, e) ->
