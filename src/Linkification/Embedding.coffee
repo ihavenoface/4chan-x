@@ -34,7 +34,8 @@ Embedding =
     $.addClass Embedding.dialog, 'empty'
     $.on $('.close', Embedding.dialog), 'click',     Embedding.toggleFloat
     $.on $('.move',  Embedding.dialog), 'mousedown', Embedding.dragEmbed
-    $.on $('.jump',  Embedding.dialog), 'click',     Embedding.jumpToPost
+    $.on $('.jump',  Embedding.dialog), 'click', ->
+      Header.scrollToPost Embedding.lastEmbed.post.nodes.root
     $.add d.body, Embedding.dialog
 
   toggle: (embed, e) ->
@@ -73,14 +74,6 @@ Embedding =
     $.on d, 'mouseup', Embedding.dragEmbed
     Embedding.dragEmbed.mouseup = true
     style.visibility = 'hidden'
-
-  jumpToPost: ->
-    return unless {post} = Embedding.lastEmbed
-    $.id("p#{post.ID}").scrollIntoView()
-    if !$.hasClass(Header.bar, 'autohide') and !Conf['Bottom header']
-      headRect = Header.toggle.getBoundingClientRect()
-      y = headRect.top + headRect.height
-      window.scrollBy 0, -y
 
   cb:
     toggle: (embed, el) ->
