@@ -168,7 +168,7 @@ Embedding =
         border: 'none'
         width:  '640px'
         height: '500px'
-      regex: /pastebin\.com\/(?!u\/)([a-zA-Z0-9]+)/i
+      regex: /pastebin\.com\/(?!u\/)(?:raw.php\?i=)?([a-zA-Z0-9]+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://pastebin.com/embed_iframe.php?i=#{@result[1]}"
