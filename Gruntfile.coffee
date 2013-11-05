@@ -148,6 +148,7 @@ module.exports = (grunt) ->
     'concat:crx'
     'copy:crx'
     'clean:tmpcrx'
+    'crx:prod'
   ]
   grunt.registerTask 'build-userscript', [
     'set-build:userscript'
