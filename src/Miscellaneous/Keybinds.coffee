@@ -82,7 +82,7 @@ Keybinds =
       # Board Navigation
       when Conf['Front page']
         if g.VIEW is 'index'
-          Index.pageNav 0
+          Index.update()
         else
           window.location = "/#{g.BOARD}/"
       when Conf['Open front page']
