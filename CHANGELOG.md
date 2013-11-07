@@ -1,3 +1,5 @@
+## 3.10.0 - *2013-11-07*
+
 ## 3.9.0 - *2013-11-06*
 
 - The index refreshing notification will now only appear on initial page load with slow connections.

@@ -83,6 +83,7 @@ Redirect =
       'image'
     else
       type
+    c.log type
     {convert} = archive
     if convert[type]
       [from, to] = convert[type].split ':'
