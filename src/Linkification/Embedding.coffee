@@ -250,10 +250,24 @@ Embedding =
         border: 'none'
         width:  '500px'
         height: '500px'
-      domains: /^(www\.)?vine\.co$/
       regex: /vine\.co\/(v\/[a-z0-9]+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "https://vine.co/#{@result[1]}/card"
+        Embedding.cb.toggle @, el
+    ,
+      name: 'Dailymotion'
+      style:
+        border: 'none'
+        width:  '620px'
+        height: '352px'
+      regex: /(?:dailymotion\.com\/video|dai.ly)\/([a-z0-9]+)(?:.+start=([0-9]+))?/i
+      title: -> @title
+      titleURL: -> "https://api.dailymotion.com/video/#{@result[1]}"
+      embedURL: ->
+        [_, name, time] = @result
+        time = if time then time else ''
+        el = $.el 'iframe',
+          src: "https://www.dailymotion.com/embed/video/#{name}?logo=0#{time}"
         Embedding.cb.toggle @, el
   ]

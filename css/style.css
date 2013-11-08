@@ -986,4 +986,6 @@ a.hide-announcement {
 .linkified.gist {
   background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/Gist.png", {encoding: "base64"}) %>');
 }
-
+.linkified.dailymotion {
+  background-image: url('data:image/png;base64,<%= grunt.file.read("img/embeds/Dailymotion.png", {encoding: "base64"}) %>');
+}
