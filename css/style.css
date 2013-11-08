@@ -949,22 +949,27 @@ a.hide-announcement {
   border-left: 1px solid rgba(221,0,0,.5) !important;
 }
 
-/* Embedding */
-#embedding {
+/* Embedding & ReportLink */
+#embedding,
+#report {
   padding: 1px 4px 1px 4px;
   z-index: 11;
   position: fixed;
 }
-#embedding.empty {
+#embedding.empty,
+#report.empty {
   display: none;
 }
-#embedding > div:first-child {
+#embedding > div:first-child,
+#report > div:first-child {
   display: flex;
 }
-#embedding .move {
+#embedding .move,
+#report .move {
   flex: 1;
 }
-#embedding .jump {
+#embedding .jump,
+#report .jump {
   margin: -1px 4px;
   text-decoration: none;
 }

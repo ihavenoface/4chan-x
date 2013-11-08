@@ -42,13 +42,15 @@ Keybinds =
         else if (notifications = $$ '.notification').length
           for notification in notifications
             $('.close', notification).click()
-        else if Embedding.lastEmbed
-          Embedding.toggleFloat()
         else if QR.nodes
           if Conf['Persistent QR']
             QR.nodes.autohide.click()
           else
             QR.close()
+        else if ReportLink.lastEmbed
+          ReportLink.toggle()
+        else if Embedding.lastEmbed
+          Embedding.toggleFloat()
       when Conf['Spoiler tags']
         return if target.nodeName isnt 'TEXTAREA'
         Keybinds.tags 'spoiler', target
