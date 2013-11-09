@@ -752,6 +752,12 @@ a.hide-announcement {
   bottom: 0;
   z-index: 1;
 }
+[name='qr-proceed'] {
+  position: absolute;
+  right: 6px;
+  bottom: 28px;
+  z-index: 1;
+}
 #qr textarea {
   min-height: 160px;
   min-width: 100%;

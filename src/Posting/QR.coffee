@@ -832,6 +832,7 @@ QR =
       sub:        $ '[data-name=sub]',   dialog
       com:        $ '[data-name=com]',   dialog
       dumpList:   $ '#dump-list',        dialog
+      proceed:    $ '[name=qr-proceed]', dialog
       addPost:    $ '#add-post',         dialog
       charCount:  $ '#char-count',       dialog
       fileSubmit: $ '#file-n-submit',    dialog
@@ -845,6 +846,9 @@ QR =
 
     if Conf['Tab to Choose Files First']
       $.add nodes.fileSubmit, nodes.status
+
+    $.get 'qr-proceed', false, (item) ->
+      nodes.proceed.checked = item['qr-proceed']
 
     # Allow only this board's supported files.
     mimeTypes = $('ul.rules > li').textContent.trim().match(/: (.+)/)[1].toLowerCase().replace /\w+/g, (type) ->
@@ -897,6 +901,7 @@ QR =
     $.on nodes.autohide,   'change', QR.toggleHide
     $.on nodes.close,      'click',  QR.close
     $.on nodes.dumpButton, 'click',  -> nodes.el.classList.toggle 'dump'
+    $.on nodes.proceed,    'click',  $.cb.checked
     $.on nodes.addPost,    'click',  -> new QR.post true
     $.on nodes.form,       'submit', QR.submit
     $.on nodes.fileRM,     'click',  -> QR.selected.rmFile()
@@ -1047,6 +1052,7 @@ QR =
     delete QR.req
 
     post = QR.posts[0]
+    postsCount = QR.posts.length - 1
     post.unlock()
 
     resDoc  = req.response
@@ -1093,6 +1099,13 @@ QR =
         else
           true
         QR.cooldown.set delay: m[1]
+      else if err.textContent.match /duplicate\sfile/i
+        if QR.nodes.proceed.checked and postsCount
+          post.rm()
+          QR.cooldown.auto = true
+          QR.cooldown.set delay: 10
+        else
+          QR.cooldown.auto = false
       else # stop auto-posting
         QR.cooldown.auto = false
       QR.status()
@@ -1125,7 +1138,6 @@ QR =
     $.event 'QRPostSuccessful_', {threadID, postID}
 
     # Enable auto-posting if we have stuff left to post, disable it otherwise.
-    postsCount = QR.posts.length - 1
     QR.cooldown.auto = postsCount and isReply
     if QR.cooldown.auto and QR.captcha.isEnabled and (captchasCount = QR.captcha.captchas.length) < 3 and captchasCount < postsCount
       notif = new Notification 'Quick reply warning',
