@@ -1,13 +1,17 @@
 RelativeDates =
   INTERVAL: $.MINUTE / 2
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Relative Post Dates']
-
-    # Flush when page becomes visible again or when the thread updates.
-    $.on d, 'visibilitychange ThreadUpdate', @flush
-
-    # Start the timeout.
-    @flush()
+    switch g.VIEW
+      when 'index'
+        @flush()
+        $.on d, 'visibilitychange', @flush
+        return unless Conf['Relative Post Dates']
+      when 'thread'
+        return unless Conf['Relative Post Dates']
+        @flush()
+        $.on d, 'visibilitychange ThreadUpdate', @flush if g.VIEW is 'thread'
+      else
+        return
 
     Post.callbacks.push
       name: 'Relative Post Dates'
@@ -18,7 +22,9 @@ RelativeDates =
     dateEl = @nodes.date
     if Conf['Relative Date Title']
       $.on dateEl, 'mouseover', =>
-        RelativeDates.setUpdate @, true
+        RelativeDates.setUpdate
+          post: @
+          hover: true
       return
 
     # Show original absolute time as tooltip so users can still know exact times
@@ -26,7 +32,7 @@ RelativeDates =
     # pick up the user-formatted time instead of 4chan time when enabled.
     dateEl.title = dateEl.textContent
 
-    RelativeDates.setUpdate @
+    RelativeDates.setUpdate post: @
 
   # diff is milliseconds from now.
   relative: (diff, now, date) ->
@@ -86,7 +92,7 @@ RelativeDates =
   # Create function `update()`, closed over post, that, when called
   # from `flush()`, updates the elements, and re-calls `setOwnTimeout()` to
   # re-add `update()` to the stale list later.
-  setUpdate: (post, hover) ->
+  setUpdate: ({post, el, hover}) ->
     setOwnTimeout = (diff) ->
       delay = if diff < $.MINUTE
         $.SECOND - (diff + $.SECOND / 2) % $.SECOND
@@ -99,16 +105,21 @@ RelativeDates =
       setTimeout markStale, delay
 
     update = (now) ->
-      {date} = post.info
+      date = if post
+        post.info.date
+      else
+        new Date +el.dataset.utc
       diff = now - date
       relative = RelativeDates.relative diff, now, date
-      for singlePost in [post].concat post.clones
-        {date} = singlePost.nodes
-        if hover
-          date.title = relative
-        else
-          date.firstChild.textContent = relative
-      return if hover
+      if post
+        for singlePost in [post].concat post.clones
+          if hover
+            singlePost.nodes.date.title = relative
+          else
+            singlePost.nodes.date.firstChild.textContent = relative
+        return if hover
+      else
+        el.firstChild.textContent = RelativeDates.relative diff, now, date
       setOwnTimeout diff
 
     markStale = -> RelativeDates.stale.push update

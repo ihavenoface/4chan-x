@@ -50,13 +50,22 @@ Index =
       className: 'pagelist'
       hidden: true
       innerHTML: <%= importHTML('General/Index-pagelist') %>
+    @navLinks = $.el 'div',
+      className: 'navLinks'
+      innerHTML: <%= importHTML('General/Index-navlinks') %>
+    @searchInput = $ '#index-search', @navLinks
     @currentPage = @getCurrentPage()
     $.on window, 'popstate', @cb.popstate
     $.on @pagelist, 'click', @cb.pageNav
+    $.on @searchInput, 'input', @onSearchInput
+    $.on $('#index-search-clear', @navLinks), 'click', @clearSearch
     $.asap (-> $('.pagelist', doc) or d.readyState isnt 'loading'), ->
       $.replace $('.board'),    Index.root
       $.replace $('.pagelist'), Index.pagelist
       $.rmClass doc, 'index-loading'
+      for navLink in $$ '.navLinks'
+        $.rm navLink
+      $.after $.x('child::form/preceding-sibling::hr[1]'), Index.navLinks
 
   cb:
     mode: ->
@@ -184,6 +193,13 @@ Index =
       notice.el.lastElementChild.textContent = 'Index refreshed!'
       setTimeout notice.close, $.SECOND
 
+    timeEl = $ '#index-last-refresh', Index.navLinks
+    timeEl.dataset.utc = e.timeStamp
+    if timeEl.dataset.init
+      RelativeDates.setUpdate el: timeEl
+      delete timeEl.dataset.init
+    else
+      RelativeDates.flush()
     Index.scrollToIndex()
   parse: (pages) ->
     Index.parseThreadList pages
@@ -276,13 +292,14 @@ Index =
     offset = 0
     for threadRoot, i in Index.sortedNodes by 2 when Get.threadFromRoot(threadRoot).isSticky
       Index.sortedNodes.splice offset++ * 2, 0, Index.sortedNodes.splice(i, 2)...
-    return unless Conf['Filter']
-    # Put the highlighted thread & <hr> on top of the index
-    # while keeping the original order they appear in.
-    offset = 0
-    for threadRoot, i in Index.sortedNodes by 2 when Get.threadFromRoot(threadRoot).isOnTop
-      Index.sortedNodes.splice offset++ * 2, 0, Index.sortedNodes.splice(i, 2)...
-    return
+    if Conf['Filter']
+      # Put the highlighted thread & <hr> on top of the index
+      # while keeping the original order they appear in.
+      offset = 0
+      for threadRoot, i in Index.sortedNodes by 2 when Get.threadFromRoot(threadRoot).isOnTop
+        Index.sortedNodes.splice offset++ * 2, 0, Index.sortedNodes.splice(i, 2)...
+    if Index.isSearching
+      Index.sortedNodes = Index.querySearch(Index.searchInput.value) or Index.sortedNodes
   buildIndex: ->
     if Conf['Index Mode'] is 'paged'
       pageNum = Index.getCurrentPage()
@@ -294,3 +311,35 @@ Index =
     Index.buildReplies nodes
     $.event 'IndexBuild', nodes
     $.add Index.root, nodes
+
+  isSearching: false
+  clearSearch: ->
+    Index.searchInput.value = null
+    Index.onSearchInput()
+    Index.searchInput.focus()
+  onSearchInput: ->
+    if Index.isSearching = !!Index.searchInput.value.trim()
+      Index.searchInput.dataset.searching = 1
+    else
+      delete Index.searchInput.dataset.searching
+    Index.sort()
+    Index.buildIndex()
+  querySearch: (query) ->
+    return unless keywords = query.toLowerCase().match /\S+/g
+    Index.search keywords
+  search: (keywords) ->
+    found = []
+    for threadRoot, i in Index.sortedNodes by 2
+      if Index.searchMatch Get.threadFromRoot(threadRoot), keywords
+        found.push Index.sortedNodes[i], Index.sortedNodes[i + 1]
+    found
+  searchMatch: (thread, keywords) ->
+    {info, file} = thread.OP
+    text = []
+    for key in ['comment', 'subject', 'name', 'tripcode', 'email']
+      text.push info[key] if key of info
+    text.push file.name if file
+    text = text.join(' ').toLowerCase()
+    for keyword in keywords
+      return false if -1 is text.indexOf keyword
+    return true
