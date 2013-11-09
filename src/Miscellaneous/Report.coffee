@@ -1,5 +1,6 @@
 Report =
   init: ->
+    CustomCSS.addStyle()
     $.addStyle "<%= grunt.file.read('css/report.css').replace(/>\s+</g, '><').trim() %>"
     return unless /report/.test(location.search) and d.cookie.indexOf('pass_enabled=1') is -1
     $.asap (-> $.id 'recaptcha_response_field'), Report.ready
@@ -12,4 +13,3 @@ Report =
       response = field.value.trim()
       field.value = "#{response} #{response}" unless /\s/.test response
       @submit()
-
