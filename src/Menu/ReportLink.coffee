@@ -35,15 +35,14 @@ ReportLink =
     el  = $.el 'iframe', src: url
     $.extend el.style,
       width:  '610px'
-      height: '170px'
+      height: '117px'
       border: 'none'
     $('.move', ReportLink.dialog).textContent = "Report Post No.#{post.ID}"
     ReportLink.toggle false, el
   toggle: (e, el) ->
     return unless div = ReportLink.reportEmbed.firstChild
     if e
-      [isReported] = e.data?.split ' '
-      return if !e.type is 'click' or !isReported is 'reported'
+      return unless e.data and /^done-report/.test e.data
     if el
       ReportLink.lastEmbed = el
       $.replace div, el
