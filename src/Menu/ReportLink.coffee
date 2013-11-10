@@ -1,9 +1,8 @@
 ReportLink =
   init: ->
     return if g.VIEW is 'catalog' or !Conf['Menu'] or !Conf['Report Link']
-    @dialog = UI.dialog 'report', 'top: 50px; right: 0px;', """
-    <%= grunt.file.read('html/Menu/ReportLink.html').replace(/>\s+</g, '><').trim() %>
-    """
+    @dialog = UI.dialog 'report', 'top: 50px; right: 0px;',
+      <%= importHTML('Menu/ReportLink') %>
     @reportEmbed = $ '#report-embed', @dialog
 
     $.on d, '4chanXInitFinished', @ready

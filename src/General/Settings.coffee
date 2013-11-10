@@ -312,6 +312,38 @@ Settings =
     $.get 'QR.personas', Conf['QR.personas'], (item) ->
       ta.value = item['QR.personas']
     $.on ta, 'change', $.cb.value
+    @section = section
+    Settings.qr.getDefaults = (e) =>
+      @defaults = e.detail
+    $.on  window, 'cooldown:timers', Settings.qr.getDefaults
+    $.globalEval 'window.dispatchEvent(new CustomEvent("cooldown:timers", {detail: cooldowns}))'
+    $.off window, 'cooldown:timers', Settings.qr.getDefaults
+    $.get 'QR.cooldowns', {}, (item) =>
+      cooldowns = {}
+      for key, val of @defaults
+        @defaults[key] = parseInt val
+        cooldowns[key] = item['QR.cooldowns'][key] or = val
+      Conf['QR.cooldowns'] = cooldowns
+    $.asap (-> Conf['QR.cooldowns']), => Settings.qrExtend.call @
+
+  qrExtend: ->
+    container = $ '[name="QR.cooldowns"]', @section
+    for key, val of Conf['QR.cooldowns']
+      defaultVal = @defaults[key]
+      el = $.el 'div',
+        innerHTML: "<input type=number placeholder=#{defaultVal} min=#{defaultVal} name=#{key} value=#{if val > defaultVal then val else null}>: #{key}"
+      $.on el.firstChild, 'change', ->
+        val = parseInt @value
+        @value = val = if !val or val < @min
+          @min
+        else
+          val
+        conf = Conf['QR.cooldowns']
+        conf[@name] = val
+        $.set 'QR.cooldowns', conf
+        Conf['QR.cooldowns'] = conf
+      $.add container, el
+    return
 
   sauce: (section) ->
     section.innerHTML = <%= importHTML('General/Settings-section-Sauce') %>

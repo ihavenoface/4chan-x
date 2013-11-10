@@ -238,6 +238,8 @@ QR =
       $.on  window, 'cooldown:timers', setTimers
       $.globalEval 'window.dispatchEvent(new CustomEvent("cooldown:timers", {detail: cooldowns}))'
       $.off window, 'cooldown:timers', setTimers
+      QR.cooldown.get QR.cooldown.parseItem
+    parseItem: ->
       for type of QR.cooldown.types
         QR.cooldown.types[type] = +QR.cooldown.types[type]
       QR.cooldown.upSpd = 0
@@ -337,6 +339,11 @@ QR =
       QR.cooldown.seconds = seconds
       QR.status() if update
       QR.submit() if seconds is 0 and QR.cooldown.auto and !QR.req
+    get: (cb) ->
+      $.get 'QR.cooldowns', false, (item) ->
+        if item
+          QR.cooldown.types = item['QR.cooldowns']
+        cb()
 
   quote: (e) ->
     e?.preventDefault()

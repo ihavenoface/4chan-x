@@ -3,9 +3,8 @@ Embedding =
     return if g.VIEW is 'catalog' or !Conf['Embedding']
 
     if Conf['Floating Embeds']
-      @dialog = UI.dialog 'embedding', 'top: 50px; right: 0px;', """
-      <%= grunt.file.read('html/Linkification/Embed.html').replace(/>\s+</g, '><').trim() %>
-      """
+      @dialog = UI.dialog 'embedding', 'top: 50px; right: 0px;',
+        <%= importHTML('Linkification/Embed') %>
       @media = $ '#media-embed', @dialog
 
       $.on d, '4chanXInitFinished', @ready
