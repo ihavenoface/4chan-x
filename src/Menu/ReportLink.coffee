@@ -40,8 +40,8 @@ ReportLink =
     ReportLink.toggle false, el
   toggle: (e, el) ->
     return unless div = ReportLink.reportEmbed.firstChild
-    if e
-      return unless e.data and /^done-report/.test e.data
+    if e and !e.target.className is 'close' and !/^done-report/.test e.data
+      return
     if el
       ReportLink.lastEmbed = el
       $.replace div, el
