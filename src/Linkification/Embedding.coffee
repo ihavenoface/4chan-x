@@ -270,4 +270,15 @@ Embedding =
         el = $.el 'iframe',
           src: "https://www.dailymotion.com/embed/video/#{name}?logo=0#{time}"
         Embedding.cb.toggle @, el
+    ,
+      name: 'StrawPoll'
+      style:
+        border: 'none'
+        width:  '600px'
+        height: '406px'
+      regex: /strawpoll\.me\/(?:embed_\d+\/)?(\d+)/i
+      embedURL: ->
+        el = $.el 'iframe',
+          src: "http://strawpoll.me/embed_1/#{@result[1]}"
+        Embedding.cb.toggle @, el
   ]

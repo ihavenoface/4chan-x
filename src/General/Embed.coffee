@@ -33,3 +33,4 @@ class Embed
       # wat
       return unless media.className is 'media-embed'
     $.rm media
+    @isEmbedded = false
