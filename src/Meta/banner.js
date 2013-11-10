@@ -13,7 +13,7 @@
  * WakiMiko - recaptcha tab order http://userscripts.org/scripts/show/82657
  * milkytiptoe - testing
  *
- * All the people who've taken the time to write bug reports.
+ * All the people who've taken the time to write bug reports and provide feedback.
  *
  * Thank you.
  */
