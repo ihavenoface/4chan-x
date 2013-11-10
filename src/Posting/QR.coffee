@@ -234,14 +234,9 @@ QR =
   cooldown:
     init: ->
       return unless Conf['Cooldown']
-      setTimers = (e) => QR.cooldown.types = e.detail
-      $.on  window, 'cooldown:timers', setTimers
-      $.globalEval 'window.dispatchEvent(new CustomEvent("cooldown:timers", {detail: cooldowns}))'
-      $.off window, 'cooldown:timers', setTimers
-      QR.cooldown.get QR.cooldown.parseItem
-    parseItem: ->
-      for type of QR.cooldown.types
-        QR.cooldown.types[type] = +QR.cooldown.types[type]
+      QR.cooldown.getDefaults QR.cooldown.get, QR.cooldown.parseItem
+    parseItem: ({types}) ->
+      QR.cooldown.types = types
       QR.cooldown.upSpd = 0
       QR.cooldown.upSpdAccuracy = .5
       key = "cooldown.#{g.BOARD}"
@@ -339,11 +334,18 @@ QR =
       QR.cooldown.seconds = seconds
       QR.status() if update
       QR.submit() if seconds is 0 and QR.cooldown.auto and !QR.req
-    get: (cb) ->
-      $.get 'QR.cooldowns', false, (item) ->
-        if item
-          QR.cooldown.types = item['QR.cooldowns']
-        cb()
+    get: (cb, defaults) ->
+      $.get 'QR.cooldowns', {}, (item) ->
+        types = item['QR.cooldowns'][g.BOARD] ?= {}
+        for key, val of defaults
+          defaults[key] = +val
+          types[key] = +types[key] or = +val
+        cb {defaults, types}
+    getDefaults: (fcb, scb) ->
+      get = (e) => fcb scb, e.detail
+      $.on  window, 'cooldown:timers', get
+      $.globalEval 'window.dispatchEvent(new CustomEvent("cooldown:timers", {detail: cooldowns}))'
+      $.off window, 'cooldown:timers', get
 
   quote: (e) ->
     e?.preventDefault()

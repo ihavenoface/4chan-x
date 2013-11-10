@@ -312,36 +312,28 @@ Settings =
     $.get 'QR.personas', Conf['QR.personas'], (item) ->
       ta.value = item['QR.personas']
     $.on ta, 'change', $.cb.value
-    @section = section
-    Settings.qr.getDefaults = (e) =>
-      @defaults = e.detail
-    $.on  window, 'cooldown:timers', Settings.qr.getDefaults
-    $.globalEval 'window.dispatchEvent(new CustomEvent("cooldown:timers", {detail: cooldowns}))'
-    $.off window, 'cooldown:timers', Settings.qr.getDefaults
-    $.get 'QR.cooldowns', {}, (item) =>
-      cooldowns = {}
-      for key, val of @defaults
-        @defaults[key] = parseInt val
-        cooldowns[key] = item['QR.cooldowns'][key] or = val
-      Conf['QR.cooldowns'] = cooldowns
-    $.asap (-> Conf['QR.cooldowns']), => Settings.qrExtend.call @
+    unless Conf['Cooldown']
+      $.rm $('[name="QR.cooldowns"]', section).parentNode
+      return
+    Settings.cooldowns.section = section
+    QR.cooldown.getDefaults QR.cooldown.get, Settings.cooldowns
 
-  qrExtend: ->
-    container = $ '[name="QR.cooldowns"]', @section
-    for key, val of Conf['QR.cooldowns']
-      defaultVal = @defaults[key]
+  cooldowns: ({defaults, types}) ->
+    {section} = Settings.cooldowns.section
+    container = $ '[name="QR.cooldowns"]', section
+    for key, val of types
+      min = defaults[key]
       el = $.el 'div',
-        innerHTML: "<input type=number placeholder=#{defaultVal} min=#{defaultVal} name=#{key} value=#{if val > defaultVal then val else null}>: #{key}"
-      $.on el.firstChild, 'change', ->
-        val = parseInt @value
-        @value = val = if !val or val < @min
-          @min
-        else
-          val
-        conf = Conf['QR.cooldowns']
-        conf[@name] = val
-        $.set 'QR.cooldowns', conf
-        Conf['QR.cooldowns'] = conf
+        innerHTML: "<input type=number placeholder=#{min} min=#{min} name=#{key} value=#{if val > min then val else ''}>: #{key}"
+      $.on el.firstChild, 'blur, change', (e) ->
+        unless (val = parseInt @value) and val > @min
+          @value = ''
+          val = @min
+        types[@name] = val
+        $.get 'QR.cooldowns', {}, (item) ->
+          item = item['QR.cooldowns']
+          item[g.BOARD] = types
+          $.set 'QR.cooldowns', item
       $.add container, el
     return
 
