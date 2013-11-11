@@ -324,7 +324,7 @@ Settings =
     for key, val of types
       min = defaults[key]
       el = $.el 'div',
-        innerHTML: "<input type=number placeholder=#{min} min=#{min} name=#{key} value=#{if val > min then val else ''}>: #{key}"
+        innerHTML: "<input class=field type=number placeholder=#{min} min=#{min} name=#{key} value=#{if val > min then val else ''}>: #{key}"
       $.on el.firstChild, 'blur, change', (e) ->
         unless (val = parseInt @value) and val > @min
           @value = ''

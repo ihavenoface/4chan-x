@@ -317,6 +317,9 @@ a[href="javascript:;"] {
 .section-qr textarea {
   height: 200px;
 }
+.section-qr fieldset:nth-child(2) div {
+  margin-top: 4px;
+}
 .section-sauce textarea {
   height: 350px;
 }
