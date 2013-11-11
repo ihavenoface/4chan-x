@@ -319,16 +319,19 @@ Settings =
     QR.cooldown.getDefaults QR.cooldown.get, Settings.cooldowns
 
   cooldowns: ({defaults, types}) ->
-    {section} = Settings.cooldowns.section
+    {section} = Settings.cooldowns
     container = $ '[name="QR.cooldowns"]', section
     for key, val of types
       min = defaults[key]
       el = $.el 'div',
         innerHTML: "<input class=field type=number placeholder=#{min} min=#{min} name=#{key} value=#{if val > min then val else ''}>: #{key}"
-      $.on el.firstChild, 'blur, change', (e) ->
-        unless (val = parseInt @value) and val > @min
+      $.on el.firstChild, 'blur change', (e) ->
+        min = parseInt @min
+        val = parseInt @value
+        if !val or val < min
           @value = ''
-          val = @min
+          val = min
+        return if types[@name] is val
         types[@name] = val
         $.get 'QR.cooldowns', {}, (item) ->
           item = item['QR.cooldowns']
