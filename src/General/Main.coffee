@@ -192,7 +192,6 @@ Main =
       Main.callbackNodes Post, posts
 
     if $.hasClass d.body, 'fourchan_x'
-      Main.v2Detected = true
       alert '4chan X v2 detected: Disable it or v3 will break.'
 
     <% if (type === 'userscript') { %>
@@ -268,17 +267,12 @@ Main =
     new Notice 'error', [div, logs], 30
 
   parseError: (data) ->
-    Main.logError data
+    c.error data.message, data.error.stack
     message = $.el 'div',
       textContent: data.message
     error = $.el 'div',
       textContent: data.error
     [message, error]
-
-  errors: []
-  logError: (data) ->
-    c.error data.message, data.error.stack
-    Main.errors.push data
 
   isThisPageLegit: ->
     # 404 error page or similar.
