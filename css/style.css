@@ -150,6 +150,18 @@ a[href="javascript:;"] {
   -webkit-transform: translateY(100%);
   transform: translateY(100%);
 }
+#header {
+  -webkit-transition: -webkit-transform 0.2s;
+  transition: transform 0.2s;
+}
+.down #header {
+  -webkit-transform: translateY(-50px);
+  transform: translateY(-50px);
+}
+.down #header.bottom {
+  -webkit-transform: translateY(+50px);
+  transform: translateY(+50px);
+}
 #toggle-header-bar {
   left: 0;
   right: 0;
