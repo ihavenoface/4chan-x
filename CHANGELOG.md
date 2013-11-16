@@ -16,6 +16,9 @@
  </ul>
  - The elapsed time since the last index refresh is now indicated at the top of the index.
  - New setting: `Show replies`, enabled by default. Disable it to only show OPs in the index.
+- Added ability to configure posting cooldowns. Setting is in the QR tab.
+- Added inline reporting via menu.
+- Added embedding for Dailymotion and strawpoll.me.
 
 ## 3.9.0 - *2013-11-06*
 
