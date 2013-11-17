@@ -141,6 +141,10 @@ a[href="javascript:;"] {
   box-shadow: none;
   transition: all .8s .6s cubic-bezier(.55, .055, .675, .19);
 }
+#header-bar.scroll:not(:hover) {
+  transition: -webkit-transform .2s !important;
+  transition: transform .2s !important;
+}
 #header.top #header-bar.autohide:not(:hover) {
   margin-bottom: -1em;
   -webkit-transform: translateY(-100%);
@@ -149,18 +153,6 @@ a[href="javascript:;"] {
 #header.bottom #header-bar.autohide:not(:hover) {
   -webkit-transform: translateY(100%);
   transform: translateY(100%);
-}
-#header {
-  -webkit-transition: -webkit-transform 0.2s;
-  transition: transform 0.2s;
-}
-.down #header {
-  -webkit-transform: translateY(-50px);
-  transform: translateY(-50px);
-}
-.down #header.bottom {
-  -webkit-transform: translateY(+50px);
-  transform: translateY(+50px);
 }
 #toggle-header-bar {
   left: 0;

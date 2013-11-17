@@ -54,14 +54,14 @@ Header =
     $.on @customNavToggler,    'change', @toggleCustomNav
     $.on editCustomNav,        'click',  @editCustomNav
 
-    @setBarVisibility       Conf['Header auto-hide']
-    @toggleHideBarOnScroll  Conf['Header auto-hide on scroll']
-    @setBarPosition         Conf['Bottom header']
-    @setTopBoardList        Conf['Top Board List']
-    @setBotBoardList        Conf['Bottom Board List']
+    @setBarVisibility   Conf['Header auto-hide']
+    @setHideBarOnScroll Conf['Header auto-hide on scroll']
+    @setBarPosition     Conf['Bottom header']
+    @setTopBoardList    Conf['Top Board List']
+    @setBotBoardList    Conf['Bottom Board List']
 
     $.sync 'Header auto-hide',           @setBarVisibility
-    $.sync 'Header auto-hide on scroll', @hideBarOnScroll
+    $.sync 'Header auto-hide on scroll', @setHideBarOnScroll
     $.sync 'Bottom header',              @setBarPosition
     $.sync 'Top Board List',             @setTopBoardList
     $.sync 'Bottom Board List',          @setBotBoardList
@@ -186,28 +186,27 @@ Header =
       'The header bar will remain visible.'
     new Notice 'info', message, 2
 
-  toggleHideBarOnScroll: (hide) ->
-    if typeof hide is 'object'
-      hide = hide.target.checked
+  setHideBarOnScroll: (hide) ->
     Header.scrollHeaderToggler.checked = hide
+    (if hide then $.on else $.off) window, 'scroll', Header.hideBarOnScroll
+  toggleHideBarOnScroll: (e) ->
+    hide = @checked
+    Conf['Header auto-hide on scroll'] = hide
     $.set 'Header auto-hide on scroll', hide
-    $.event 'CloseMenu'
+    Header.setHideBarOnScroll hide
     if hide
-      $.on window, 'scroll', Header.hideBarOnScroll
-      return
-    $.off window, 'scroll', Header.hideBarOnScroll
-    $.rmClass doc, 'down'
-    $.rmClass doc, 'up'
+      $.rmClass Header.bar, 'scroll'
+    unless Conf['Header auto-hide']
+      $.rmClass Header.bar, 'autohide'
   hideBarOnScroll: ->
-    Header.scrollDirection ?= 0
     offsetY = window.pageYOffset
-    if offsetY > Header.scrollDirection
-      $.addClass doc, 'down'
-      $.rmClass  doc, 'up'
+    if offsetY > (Header.previousOffset or 0)
+      $.addClass Header.bar, 'autohide'
+      $.addClass Header.bar, 'scroll'
     else
-      $.addClass doc, 'up'
-      $.rmClass  doc, 'down'
-    Header.scrollDirection = offsetY
+      $.rmClass Header.bar, 'autohide'
+      $.rmClass Header.bar, 'scroll'
+    Header.previousOffset = offsetY
 
   setBarPosition: (bottom) ->
     Header.barPositionToggler.checked = bottom
