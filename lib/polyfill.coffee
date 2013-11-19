@@ -6,7 +6,7 @@ Polyfill =
     <% } %>
     @toBlob()
   notificationPermission: ->
-    return if !window.Notification or 'permission' of Notification
+    return if !window.Notification or 'permission' of Notification or !window.webkitNotifications
     Object.defineProperty Notification, 'permission',
       get: ->
         switch webkitNotifications.checkPermission()
