@@ -188,16 +188,16 @@ Header =
 
   setHideBarOnScroll: (hide) ->
     Header.scrollHeaderToggler.checked = hide
-    (if hide then $.on else $.off) window, 'scroll', Header.hideBarOnScroll
+    if hide
+      $.on window, 'scroll', Header.hideBarOnScroll
+      return
+    $.off window, 'scroll', Header.hideBarOnScroll
+    $.rmClass Header.bar, 'scroll'
+    $.rmClass Header.bar, 'autohide' unless Conf['Header auto-hide']
   toggleHideBarOnScroll: (e) ->
     hide = @checked
-    Conf['Header auto-hide on scroll'] = hide
     $.set 'Header auto-hide on scroll', hide
     Header.setHideBarOnScroll hide
-    if hide
-      $.rmClass Header.bar, 'scroll'
-    unless Conf['Header auto-hide']
-      $.rmClass Header.bar, 'autohide'
   hideBarOnScroll: ->
     offsetY = window.pageYOffset
     if offsetY > (Header.previousOffset or 0)
