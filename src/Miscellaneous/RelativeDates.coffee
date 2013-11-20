@@ -18,12 +18,11 @@ RelativeDates =
       name: 'Relative Post Dates'
       cb:   @node
   node: ->
-    return if @isClone
-
     dateEl = @nodes.date
     if Conf['Relative Date Title']
       $.on dateEl, 'mouseover', => RelativeDates.hover @
       return
+    return if @isClone
 
     # Show original absolute time as tooltip so users can still know exact times
     # Since "Time Formatting" runs its `node` before us, the title tooltip will
