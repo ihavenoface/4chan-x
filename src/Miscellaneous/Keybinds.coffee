@@ -143,6 +143,8 @@ Keybinds =
       else
         if 48 <= kc <= 57 or 65 <= kc <= 90 # 0-9, A-Z
           String.fromCharCode(kc).toLowerCase()
+        else if 112 <= kc <= 123 or 127 <= kc <= 130 # F1-F12, F16-F19
+          "F#{kc - 111}"
         else
           null
     if key
