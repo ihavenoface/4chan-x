@@ -222,7 +222,7 @@ Embedding =
         border: 'none'
         width:  '640px'
         height: '360px'
-      regex: /liveleak\.com\/view.+i=([a-z]{3}_\d+)/i
+      regex: /liveleak\.com\/view.+i=([a-z0-9]{3}_\d+)/i
       embedURL: ->
         el = $.el 'iframe',
           src: "http://www.liveleak.com/e/#{@result[1]}"
