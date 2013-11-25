@@ -1,3 +1,5 @@
+### 3.10.2 - *2013-11-25*
+
 - Minor cooldown fix:
  - You cannot post an image reply immediately after a non-image reply anymore.
 
