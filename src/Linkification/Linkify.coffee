@@ -27,11 +27,11 @@ Linkify =
         |                                 #   or
         magnet:\?(dn|x[lts]|as|kt|mt|tr)= # magnet protocol with its parameters
       )
-      (                                    # One:
+      (                                    # One or more:
         [^\s()<>]+                         # Run of non-space, non-()<>
         |                                  #   or
         \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
-      )                                    # http://www.regular-expressions.info/catastrophic.html
+      )+
       (                                    # End with:
         \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
         |                                  #   or
