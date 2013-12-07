@@ -1,5 +1,7 @@
 Markdown =
   format: (text) ->
+    return unless text
+
     tag_patterns =
       bi: /(\*\*\*|___)(?=\S)([^\r\n]*?\S)\1/g
       b: /(\*\*|__)(?=\S)([^\r\n]*?\S)\1/g
@@ -8,10 +10,7 @@ Markdown =
       ds: /(\|\||__)(?=\S)([^\r\n]*?\S)\1/g
 
     for tag, pattern of tag_patterns
-      text = if text
-        text.replace pattern, Markdown.unicode_convert
-      else
-        '\u0020'
+      text = text.replace pattern, Markdown.unicode_convert
     text
 
   unicode_convert: (str, tag, inner) ->
