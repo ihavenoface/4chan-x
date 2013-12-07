@@ -39,3 +39,6 @@ URL-matching regular expression by John Gruber (http://df4.us/fv9)
 
 seaweedchan/4chan-x (https://github.com/seaweedchan/4chan-x)
   license: https://github.com/seaweedchan/4chan-x/blob/master/LICENSE
+
+Punycode.js by Mathias Bynens
+  license: https://github.com/bestiejs/punycode.js/blob/master/LICENSE-MIT.txt
