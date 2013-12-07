@@ -1004,7 +1004,7 @@ QR =
       name:     post.name
       email:    post.email
       sub:      post.sub
-      com:      post.com
+      com:      Markdown.format post.com
       upfile:   post.file
       filetag:  filetag
       spoiler:  post.spoiler
