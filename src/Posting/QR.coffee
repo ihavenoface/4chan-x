@@ -997,6 +997,8 @@ QR =
       # Unfocus the focused element if it is one within the QR and we're not auto-posting.
       d.activeElement.blur()
 
+    com = if Conf['Markdown'] then Markdown.format post.com else post.com
+
     post.lock()
 
     formData =
@@ -1004,7 +1006,7 @@ QR =
       name:     post.name
       email:    post.email
       sub:      post.sub
-      com:      post.com
+      com:      com
       upfile:   post.file
       filetag:  filetag
       spoiler:  post.spoiler
