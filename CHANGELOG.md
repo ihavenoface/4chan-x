@@ -1,3 +1,5 @@
+- Minor bug fixes.
+
 ### 3.10.3 - *2013-12-07*
 
 - Fix 4chan X breaking in threads following a 4chan markup change.
