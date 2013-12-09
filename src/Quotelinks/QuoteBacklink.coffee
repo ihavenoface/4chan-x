@@ -11,7 +11,7 @@ QuoteBacklink =
   # This is is so that fetched posts can get their backlinks,
   # and that as much backlinks are appended in the background as possible.
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Quote Backlinks']
+    return if !Conf['Quote Backlinks']
 
     format = Conf['backlink'].replace /%id/g, "' + id + '"
     @funk  = Function 'id', "return '#{format}'"
@@ -24,10 +24,17 @@ QuoteBacklink =
       cb:   @secondNode
   firstNode: ->
     return if @isClone or !@quotes.length
+    text = QuoteBacklink.funk @ID
     a = $.el 'a',
       href: "/#{@board}/res/#{@thread}#p#{@}"
-      className: if @isHidden then 'filtered backlink' else 'backlink'
-      textContent: QuoteBacklink.funk @ID
+      className: 'backlink'
+      textContent: text
+    if @isHidden
+      $.addClass a, 'filtered'
+    if @isDead
+      $.addClass a, 'deadlink'
+    if Conf['Quote Markers']
+      QuoteMarkers.parseQuotelink @board, @thread, @, a, false, text
     for quote in @quotes
       containers = [QuoteBacklink.getContainer quote]
       if (post = g.posts[quote]) and post.nodes.backlinkContainer

@@ -47,6 +47,7 @@ UI = do ->
       menu = @makeMenu()
       currentMenu       = menu
       lastToggledButton = button
+      $.addClass button, 'open'
 
       for entry in @entries
         @insertEntry entry, menu, data
@@ -99,6 +100,7 @@ UI = do ->
 
     close: =>
       $.rm currentMenu
+      $.rmClass lastToggledButton, 'open'
       currentMenu       = null
       lastToggledButton = null
       $.off d, 'click CloseMenu', @close
@@ -139,6 +141,9 @@ UI = do ->
       e.preventDefault()
       e.stopPropagation()
 
+    onFocus: (e) =>
+      e.stopPropagation()
+      @focus e.target
     focus: (entry) ->
       while focused = $.x 'parent::*/child::*[contains(@class,"focused")]', entry
         $.rmClass focused, 'focused'
@@ -174,10 +179,7 @@ UI = do ->
     parseEntry: (entry) ->
       {el, subEntries} = entry
       $.addClass el, 'entry'
-      $.on el, 'focus mouseover', ((e) ->
-        e.stopPropagation()
-        @focus el
-      ).bind @
+      $.on el, 'focus mouseover', @onFocus
       el.style.order = entry.order or 100
       return unless subEntries
       $.addClass el, 'has-submenu'
@@ -191,7 +193,7 @@ UI = do ->
     # prevent text selection
     e.preventDefault()
     if isTouching = e.type is 'touchstart'
-      e = e.changedTouches[e.changedTouches.length - 1]
+      [..., e] = e.changedTouches
     # distance from pointer to el edge is constant; calculate it here.
     el = $.x 'ancestor::div[contains(@class,"dialog")][1]', @
     rect = el.getBoundingClientRect()

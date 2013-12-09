@@ -1,6 +1,6 @@
 Linkify =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Linkify']
+    return if !Conf['Linkify']
 
     # gruber revised + magnet support
     # http://df4.us/fv9
@@ -106,10 +106,6 @@ Linkify =
       range.surroundContents anchor
       true
     catch
-      <% if (type === 'crx') { %>
-      # Chrome bug: crbug.com/275848
-      return true if anchor.parentNode
-      <% } %>
       # Attempt to handle cases such as:
       # [spoiler]www.[/spoiler]example.com #
       # www.example[spoiler].com[/spoiler] #

@@ -47,6 +47,8 @@ $.ajax = do ->
     if whenModified
       r.setRequestHeader 'If-Modified-Since', lastModified[url] if url of lastModified
       $.on r, 'load', -> lastModified[url] = r.getResponseHeader 'Last-Modified'
+    if /\.json$/.test url
+      r.responseType = 'json'
     $.extend r, options
     $.extend r.upload, upCallbacks
     r.send form
@@ -91,23 +93,17 @@ $.addStyle = (css) ->
 $.x = (path, root=d.body) ->
   # XPathResult.ANY_UNORDERED_NODE_TYPE === 8
   d.evaluate(path, root, null, 8, null).singleNodeValue
-$.addClass = (el, className) ->
-  el.classList.add className
-$.rmClass = (el, className) ->
-  el.classList.remove className
+$.addClass = (el, className...) ->
+  el.classList.add className...
+$.rmClass = (el, className...) ->
+  el.classList.remove className...
 $.hasClass = (el, className) ->
   el.classList.contains className
-$.rm = do ->
-  if 'remove' of Element.prototype
-    (el) -> el.remove()
-  else
-    (el) -> el.parentNode?.removeChild el
+$.rm = (el) ->
+  el.remove()
 $.rmAll = (root) ->
-  # jsperf.com/emptify-element
-  for node in [root.childNodes...]
-    # HTMLSelectElement.remove !== Element.remove
-    root.removeChild node
-  return
+  # https://gist.github.com/MayhemYDG/8646194
+  root.textContent = null
 $.tn = (s) ->
   d.createTextNode s
 $.nodes = (nodes) ->
@@ -287,4 +283,7 @@ $.set = do ->
     for key, val of keys
       set key, val
     return
+$.clear = (cb) ->
+  $.delete GM_listValues().map (key) -> key.replace g.NAMESPACE, ''
+  cb?()
 <% } %>

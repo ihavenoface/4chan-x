@@ -6,6 +6,7 @@ class Post
     @ID     = +root.id[2..]
     @fullID = "#{@board}.#{@ID}"
 
+    @cleanup root if that.isOriginalMarkup
     post = $ '.post',     root
     info = $ '.postInfo', post
     @nodes =
@@ -141,6 +142,13 @@ class Post
     if @file.isImage = /(jpg|png|gif)$/i.test @file.name
       @file.dimensions = fileText.textContent.match(/\d+x\d+/)[0]
 
+  cleanup: (root) ->
+    for node in $$ '.mobile', root
+      $.rm node
+    for node in $$ '.desktop', root
+      $.rmClass node, 'desktop'
+    return
+
   kill: (file, now) ->
     now or= new Date()
     if file
@@ -169,8 +177,11 @@ class Post
     # Get quotelinks/backlinks to this post
     # and paint them (Dead).
     for quotelink in Get.allQuotelinksLinkingTo @ when not $.hasClass quotelink, 'deadlink'
-      $.add quotelink, $.tn '\u00A0(Dead)'
       $.addClass quotelink, 'deadlink'
+      continue unless Conf['Quote Markers']
+      post = Get.postFromNode quotelink
+      {board, thread} = if post.isClone then post.context else post
+      QuoteMarkers.parseQuotelink board, thread, post, quotelink, true
     return
   # XXX tmp fix for 4chan's racing condition
   # giving us false-positive dead posts.
@@ -189,10 +200,12 @@ class Post
     for clone in @clones
       clone.resurrect()
 
-    for quotelink in Get.allQuotelinksLinkingTo @
-      if $.hasClass quotelink, 'deadlink'
-        quotelink.textContent = quotelink.textContent.replace '\u00A0(Dead)', ''
-        $.rmClass quotelink, 'deadlink'
+    for quotelink in Get.allQuotelinksLinkingTo @ when $.hasClass quotelink, 'deadlink'
+      $.rmClass quotelink, 'deadlink'
+      continue unless Conf['Quote Markers']
+      post = Get.postFromNode quotelink
+      {board, thread} = if post.isClone then post.context else post
+      QuoteMarkers.parseQuotelink board, thread, post, quotelink, true
     return
 
   collect: ->

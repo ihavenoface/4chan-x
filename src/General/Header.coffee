@@ -25,8 +25,6 @@ Header =
       innerHTML: '<input type=checkbox name="Header auto-hide on scroll"> Auto-hide header on scroll'
     barPositionToggler = $.el 'label',
       innerHTML: '<input type=checkbox name="Bottom header"> Bottom header'
-    catalogToggler = $.el 'label',
-      innerHTML: '<input type=checkbox name="Header catalog links"> Use catalog board links'
     topBoardToggler = $.el 'label',
       innerHTML: '<input type=checkbox name="Top Board List"> Top original board list'
     botBoardToggler = $.el 'label',
@@ -40,7 +38,6 @@ Header =
     @headerToggler       = headerToggler.firstElementChild
     @scrollHeaderToggler = scrollHeaderToggler.firstElementChild
     @barPositionToggler  = barPositionToggler.firstElementChild
-    @catalogToggler      = catalogToggler.firstElementChild
     @topBoardToggler     = topBoardToggler.firstElementChild
     @botBoardToggler     = botBoardToggler.firstElementChild
     @customNavToggler    = customNavToggler.firstElementChild
@@ -48,7 +45,6 @@ Header =
     $.on @headerToggler,       'change', @toggleBarVisibility
     $.on @scrollHeaderToggler, 'change', @toggleHideBarOnScroll
     $.on @barPositionToggler,  'change', @toggleBarPosition
-    $.on @catalogToggler,      'change', @toggleCatalogLinks
     $.on @topBoardToggler,     'change', @toggleOriginalBoardList
     $.on @botBoardToggler,     'change', @toggleOriginalBoardList
     $.on @customNavToggler,    'change', @toggleCustomNav
@@ -74,7 +70,6 @@ Header =
         {el: headerToggler}
         {el: scrollHeaderToggler}
         {el: barPositionToggler}
-        {el: catalogToggler}
         {el: topBoardToggler}
         {el: botBoardToggler}
         {el: customNavToggler}
@@ -91,9 +86,6 @@ Header =
     $.ready ->
       if a = $ "a[href*='/#{g.BOARD}/']", $.id 'boardNavDesktopFoot'
         a.className = 'current'
-
-      Header.setCatalogLinks Conf['Header catalog links']
-      $.sync 'Header catalog links', Header.setCatalogLinks
 
     @enableDesktopNotifications()
 
@@ -120,7 +112,7 @@ Header =
     $.rmAll list
     return unless text
     as = $$ '#full-board-list a[title], #navtopright a[target^=_]', Header.bar
-    nodes = text.match(/[\w@]+(-(all|title|replace|full|index|catalog|text:"[^"]+"))*|break|[^\w@]+/g).map (t) ->
+    nodes = text.match(/[\w@]+(-(all|title|replace|full|archive|text:"[^"]+"))*|break|[^\w@]+/g).map (t) ->
       if /^[^\w@]/.test t
         return $.tn t
       if /^break/.test t
@@ -132,29 +124,30 @@ Header =
           href: 'javascript:;'
         $.on a, 'click', Header.toggleBoardList
         return a
-      board = if /^current/.test t
+      boardID = if /^current/.test t
         g.BOARD.ID
       else
         t.match(/^[^-]+/)[0]
       for a in as
-        if a.textContent is board
+        if a.textContent is boardID
           a = a.cloneNode true
 
           a.textContent = if /-title/.test(t) or /-replace/.test(t) and $.hasClass a, 'current'
             a.title
           else if /-full/.test t
-            "/#{board}/ - #{a.title}"
+            "/#{boardID}/ - #{a.title}"
           else if m = t.match /-text:"(.+)"/
             m[1]
           else
             a.textContent
 
-          if m = t.match /-(index|catalog)/
-            a.dataset.only = m[1]
-            a.href = "//boards.4chan.org/#{board}/"
-            a.href += 'catalog' if m[1] is 'catalog'
+          if /-archive/.test t
+            if href = Redirect.to 'board', {boardID}
+              a.href = href
+            else
+              return $.tn a.textContent
 
-          $.addClass a, 'navSmall' if board is '@'
+          $.addClass a, 'navSmall' if boardID is '@'
           return a
       $.tn t
     $.add list, nodes
@@ -194,18 +187,15 @@ Header =
     $.off window, 'scroll', Header.hideBarOnScroll
     $.rmClass Header.bar, 'scroll'
     $.rmClass Header.bar, 'autohide' unless Conf['Header auto-hide']
-  toggleHideBarOnScroll: (e) ->
-    hide = @checked
-    $.set 'Header auto-hide on scroll', hide
-    Header.setHideBarOnScroll hide
+  toggleHideBarOnScroll: ->
+    $.cb.checked.call @
+    Header.setHideBarOnScroll @checked
   hideBarOnScroll: ->
     offsetY = window.pageYOffset
     if offsetY > (Header.previousOffset or 0)
-      $.addClass Header.bar, 'autohide'
-      $.addClass Header.bar, 'scroll'
+      $.addClass Header.bar, 'autohide', 'scroll'
     else
-      $.rmClass Header.bar, 'autohide'
-      $.rmClass Header.bar, 'scroll'
+      $.rmClass Header.bar,  'autohide', 'scroll'
     Header.previousOffset = offsetY
 
   setBarPosition: (bottom) ->
@@ -222,21 +212,6 @@ Header =
   toggleBarPosition: ->
     $.cb.checked.call @
     Header.setBarPosition @checked
-
-  setCatalogLinks: (useCatalog) ->
-    Header.catalogToggler.checked = useCatalog
-    as = $$ [
-      '#board-list a'
-      '#boardNavDesktop a'
-      '#boardNavDesktopFoot a'
-    ].join ', '
-    path = if useCatalog then 'catalog' else ''
-    for a in as when a.hostname is 'boards.4chan.org' and not a.dataset.only
-      a.pathname = "/#{a.pathname.split('/')[1]}/#{path}"
-    return
-  toggleCatalogLinks: ->
-    $.cb.checked.call @
-    Header.setCatalogLinks @checked
 
   setTopBoardList: (show) ->
     Header.topBoardToggler.checked = show
@@ -280,9 +255,21 @@ Header =
   scrollTo: (root, down, needed) ->
     if down
       x = Header.getBottomOf root
+      if Conf['Header auto-hide on scroll'] and Conf['Bottom header']
+        {height} = Header.bar.getBoundingClientRect()
+        if x <= 0
+          x += height if !Header.isHidden()
+        else
+          x -= height if  Header.isHidden()
       window.scrollBy 0, -x unless needed and x >= 0
     else
       x = Header.getTopOf root
+      if Conf['Header auto-hide on scroll'] and !Conf['Bottom header']
+        {height} = Header.bar.getBoundingClientRect()
+        if x >= 0
+          x += height if !Header.isHidden()
+        else
+          x -= height if  Header.isHidden()
       window.scrollBy 0,  x unless needed and x >= 0
   scrollToIfNeeded: (root, down) ->
     Header.scrollTo root, down, true
@@ -299,6 +286,12 @@ Header =
       headRect = Header.toggle.getBoundingClientRect()
       bottom  -= clientHeight - headRect.bottom + headRect.height
     bottom
+  isHidden: ->
+    {top} = Header.bar.getBoundingClientRect()
+    if Conf['Bottom header']
+      top is doc.clientHeight
+    else
+      top < 0
 
   addShortcut: (el, index) ->
     shortcut = $.el 'span',

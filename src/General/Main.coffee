@@ -11,6 +11,9 @@ Main =
           'catalog'
         else
           'index'
+    if g.VIEW is 'catalog'
+      $.ready Index.addCatalogSwitch
+      return
     if g.VIEW is 'thread'
       g.THREADID = +pathname[3]
 
@@ -82,6 +85,7 @@ Main =
     initFeature 'Strike-through Quotes',    QuoteStrikeThrough
     initFeature 'Quick Reply',              QR
     initFeature 'Menu',                     Menu
+    initFeature 'Index Generator (Menu)',   Index.menu
     initFeature 'Report Link',              ReportLink
     initFeature 'Thread Hiding (Menu)',     ThreadHiding.menu
     initFeature 'Reply Hiding (Menu)',      PostHiding.menu
@@ -92,10 +96,8 @@ Main =
     initFeature 'Quote Inlining',           QuoteInline
     initFeature 'Quote Previewing',         QuotePreview
     initFeature 'Quote Backlinks',          QuoteBacklink
-    initFeature 'Mark Quotes of You',       QuoteYou
-    initFeature 'Mark OP Quotes',           QuoteOP
-    initFeature 'Mark Cross-thread Quotes', QuoteCT
     initFeature 'Mark own Posts',           YourPosts
+    initFeature 'Quote Markers',            QuoteMarkers
     initFeature 'Anonymize',                Anonymize
     initFeature 'Color User IDs',           IDColor
     initFeature 'Time Formatting',          Time
@@ -133,17 +135,8 @@ Main =
     return if !Main.isThisPageLegit() or $.hasClass doc, 'fourchan-x'
     # disable the mobile layout
     $('link[href*=mobile]', d.head)?.disabled = true
-    <% if (type === 'crx') { %>
-    $.addClass doc, 'blink'
-    <% } else { %>
-    $.addClass doc, 'gecko'
-    <% } %>
-    $.addClass doc, 'fourchan-x'
+    $.addClass doc, 'fourchan-x', '<% if (type === 'crx') { %>blink<% } else { %>gecko<% } %>'
     $.addStyle Main.css
-
-    if g.VIEW is 'catalog'
-      $.addClass doc, $.id('base-css').href.match(/catalog_(\w+)/)[1].replace('_new', '').replace /_+/g, '-'
-      return
 
     style          = 'yotsuba-b'
     mainStyleSheet = $ 'link[title=switch]', d.head
@@ -179,7 +172,7 @@ Main =
       posts  = []
       for postRoot in $$ '.thread > .postContainer', threadRoot
         try
-          posts.push new Post postRoot, thread, g.BOARD
+          posts.push new Post postRoot, thread, g.BOARD, {isOriginalMarkup: true}
         catch err
           # Skip posts that we failed to parse.
           errors = [] unless errors
@@ -195,6 +188,11 @@ Main =
       alert '4chan X v2 detected: Disable it or v3 will break.'
 
     <% if (type === 'userscript') { %>
+    test = $.el 'span'
+    test.classList.add 'a', 'b'
+    if test.className isnt 'a b'
+      new Notice 'warning', "Your version of Firefox is outdated (v<%= meta.min.firefox %> minimum) and <%= meta.name %> may not operate correctly.", 30
+
     GMver = GM_info.version.split '.'
     for v, i in "<%= meta.min.greasemonkey %>".split '.'
       break if v < GMver[i]
@@ -209,6 +207,17 @@ Main =
       new Notice 'warning', 'Cookies need to be enabled on 4chan for <%= meta.name %> to operate properly.', 30
 
     $.event '4chanXInitFinished'
+
+    $.get 'previousversion', null, ({previousversion}) ->
+      return if previousversion is g.VERSION
+      if previousversion
+        changelog = '<%= meta.repo %>blob/<%= meta.mainBranch %>/CHANGELOG.md'
+        el = $.el 'span',
+          innerHTML: "<%= meta.name %> has been updated to <a href='#{changelog}' target=_blank>version #{g.VERSION}</a>."
+        new Notice 'info', el, 15
+      else
+        Settings.open()
+      $.set 'previousversion', g.VERSION
 
   callbackNodes: (klass, nodes) ->
     # get the nodes' length only once

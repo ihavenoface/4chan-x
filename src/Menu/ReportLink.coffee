@@ -1,6 +1,6 @@
 ReportLink =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Menu'] or !Conf['Report Link']
+    return if !Conf['Menu'] or !Conf['Report Link']
     @dialog = UI.dialog 'report', 'top: 50px; right: 0px;',
       <%= importHTML('Menu/ReportLink') %>
     @reportEmbed = $ '#report-embed', @dialog

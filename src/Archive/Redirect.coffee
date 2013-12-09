@@ -1,20 +1,25 @@
 Redirect =
   archives: `<%= JSON.stringify(grunt.file.readJSON('json/archives.json')) %>`
-  data:
-    thread: {}
-    post:   {}
-    file:   {}
-
   init: ->
+    @selectArchives()
+    @update()
+
+  selectArchives: ->
+    Redirect.data =
+      thread: {}
+      post:   {}
+      file:   {}
     for boardID, data of Conf['selectedArchives']
       for type, uid of data
         for archive in Conf['archives']
-          continue if archive.uid isnt uid or type is 'post' and archive.software isnt 'foolfuuka'
+          continue if archive.uid isnt uid
+          break if type is 'post' and archive.software isnt 'foolfuuka'
           arr = if type is 'file'
             archive.files
           else
             archive.boards
           Redirect.data[type][boardID] = archive if boardID in arr
+          break
     for archive in Conf['archives']
       for boardID in archive.boards
         unless boardID of Redirect.data.thread
@@ -23,9 +28,7 @@ Redirect =
           Redirect.data.post[boardID] = archive
         unless boardID of Redirect.data.file or boardID not in archive.files
           Redirect.data.file[boardID] = archive
-
-    Redirect.update()
-
+    return
   update: (cb) ->
     $.get 'lastarchivecheck', 0, ({lastarchivecheck}) ->
       now = Date.now()
@@ -33,15 +36,16 @@ Redirect =
       # The list is also updated when 4chan X gets updated.
       return if lastarchivecheck > now - 2 * $.DAY
       $.ajax Conf['archivesLocation'], onload: ->
-        return unless @status is 200
-        Conf['archives'] = JSON.parse @response
-        $.set
-          lastarchivecheck: now
-          archives: Conf['archives']
-        cb? now
+        if @status is 200
+          Conf['archives'] = @response
+          Redirect.selectArchives()
+          $.set
+            lastarchivecheck: now
+            archives: Conf['archives']
+        cb?()
 
   to: (dest, data) ->
-    archive = (if dest is 'search' then Redirect.data.thread else Redirect.data[dest])[data.boardID]
+    archive = (if dest in ['search', 'board'] then Redirect.data.thread else Redirect.data[dest])[data.boardID]
     return '' unless archive
     Redirect[dest] archive, data
 
@@ -75,6 +79,9 @@ Redirect =
 
   file: (archive, {boardID, filename}) ->
     "#{Redirect.protocol archive}#{archive.domain}/#{boardID}/full_image/#{filename}"
+
+  board: (archive, {boardID}) ->
+    "#{Redirect.protocol archive}#{archive.domain}/#{boardID}/"
 
   search: (archive, {boardID, type, value}) ->
     type = if type is 'name'

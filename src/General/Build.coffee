@@ -1,4 +1,6 @@
 Build =
+  staticPath: '//s.4cdn.org/image/'
+  gifIcon: if window.devicePixelRatio >= 2 then '@2x.gif' else '.gif'
   spoilerRange: {}
   shortFilename: (filename, isReply) ->
     # FILENAME SHORTENING SCIENCE:
@@ -61,12 +63,12 @@ Build =
       file
     } = o
     isOP = postID is threadID
+    {staticPath, gifIcon} = Build
 
-    staticPath = '//s.4cdn.org/image/'
-    gifIcon = if window.devicePixelRatio >= 2
-      '@2x.gif'
+    tripcode = if tripcode
+      " <span class=postertrip>#{tripcode}</span>"
     else
-      '.gif'
+      ''
 
     if email
       emailStart = '<a href="mailto:' + email + '" class="useremail">'
@@ -75,66 +77,54 @@ Build =
       emailStart = ''
       emailEnd   = ''
 
-    subject = "<span class=subject>#{subject or ''}</span>"
-
-    userID =
-      if !capcode and uniqueID
-        " <span class='posteruid id_#{uniqueID}'>(ID: " +
-          "<span class=hand title='Highlight posts by this ID'>#{uniqueID}</span>)</span> "
-      else
-        ''
-
     switch capcode
       when 'admin', 'admin_highlight'
         capcodeClass = " capcodeAdmin"
         capcodeStart = " <strong class='capcode hand id_admin'" +
           "title='Highlight posts by the Administrator'>## Admin</strong>"
-        capcode      = " <img src='#{staticPath}adminicon#{gifIcon}' " +
-          "alt='This user is the 4chan Administrator.' " +
+        capcodeIcon  = " <img src='#{staticPath}adminicon#{gifIcon}' " +
           "title='This user is the 4chan Administrator.' class=identityIcon>"
       when 'mod'
         capcodeClass = " capcodeMod"
         capcodeStart = " <strong class='capcode hand id_mod' " +
           "title='Highlight posts by Moderators'>## Mod</strong>"
-        capcode      = " <img src='#{staticPath}modicon#{gifIcon}' " +
-          "alt='This user is a 4chan Moderator.' " +
+        capcodeIcon  = " <img src='#{staticPath}modicon#{gifIcon}' " +
           "title='This user is a 4chan Moderator.' class=identityIcon>"
       when 'developer'
         capcodeClass = " capcodeDeveloper"
         capcodeStart = " <strong class='capcode hand id_developer' " +
           "title='Highlight posts by Developers'>## Developer</strong>"
-        capcode      = " <img src='#{staticPath}developericon#{gifIcon}' " +
-          "alt='This user is a 4chan Developer.' " +
+        capcodeIcon  = " <img src='#{staticPath}developericon#{gifIcon}' " +
           "title='This user is a 4chan Developer.' class=identityIcon>"
       else
         capcodeClass = ''
         capcodeStart = ''
-        capcode      = ''
+        capcodeIcon  = ''
+
+    userID = if uniqueID and !capcode
+      " <span class='posteruid id_#{uniqueID}'>(ID: " +
+        "<span class=hand title='Highlight posts by this ID'>#{uniqueID}</span>)</span>"
+    else
+      ''
 
     flag = unless flagCode
       ''
     else if boardID is 'pol'
-      " <img src='#{staticPath}country/troll/#{flagCode.toLowerCase()}.gif' alt=#{flagCode} title='#{flagName}' class=countryFlag>"
+      " <img src='#{staticPath}country/troll/#{flagCode.toLowerCase()}.gif' title='#{flagName}' class=countryFlag>"
     else
       " <span title='#{flagName}' class='flag flag-#{flagCode.toLowerCase()}'></span>"
 
     if file?.isDeleted
       fileHTML = if isOP
         "<div class=file id=f#{postID}><span class=fileThumb>" +
-          "<img src='#{staticPath}filedeleted#{gifIcon}' alt='File deleted.' class=fileDeleted>" +
+          "<img src='#{staticPath}filedeleted#{gifIcon}' class=fileDeleted>" +
         "</span></div>"
       else
         "<div class=file id=f#{postID}><span class=fileThumb>" +
-          "<img src='#{staticPath}filedeleted-res#{gifIcon}' alt='File deleted.' class=fileDeletedRes>" +
+          "<img src='#{staticPath}filedeleted-res#{gifIcon}' class=fileDeletedRes>" +
         "</span></div>"
     else if file
-      ext = file.name[-3..]
-      if !file.twidth and !file.theight and ext is 'gif' # wtf ?
-        file.twidth  = file.width
-        file.theight = file.height
-
-      fileSize = $.bytesToString file.size
-
+      fileSize  = $.bytesToString file.size
       fileThumb = file.turl
       if file.isSpoiler
         fileSize = "Spoiler Image, #{fileSize}"
@@ -153,20 +143,17 @@ Build =
           "<img src='#{fileThumb}' alt='#{fileSize}' data-md5=#{file.MD5} style='height: #{file.theight}px; width: #{file.twidth}px;'>" +
         "</a>"
 
-      # Ha ha, filenames!
       # html -> text, translate WebKit's %22s into "s
       a = $.el 'a', innerHTML: file.name
       filename = a.textContent.replace /%22/g, '"'
-
       # shorten filename, get html
       a.textContent = Build.shortFilename filename
       shortFilename = a.innerHTML
-
       # get html
       a.textContent = filename
       filename      = a.innerHTML.replace /'/g, '&apos;'
 
-      fileDims = if ext is 'pdf' then 'PDF' else "#{file.width}x#{file.height}"
+      fileDims = if file.name[-3..] is 'pdf' then 'PDF' else "#{file.width}x#{file.height}"
       fileInfo = "<div class=fileText id=fT#{postID}#{if file.isSpoiler then " title='#{filename}'" else ''}>File: <a href='#{file.url}' target=_blank>#{file.timestamp}</a>" +
         "-(#{fileSize}, #{fileDims}#{
           if file.isSpoiler
@@ -179,17 +166,12 @@ Build =
     else
       fileHTML = ''
 
-    tripcode = if tripcode
-      " <span class=postertrip>#{tripcode}</span>"
-    else
-      ''
-
     sticky = if isSticky
-      " <img src=#{staticPath}sticky#{gifIcon} alt=Sticky title=Sticky class=stickyIcon>"
+      " <img src=#{staticPath}sticky#{gifIcon} title=Sticky class=stickyIcon>"
     else
       ''
     closed = if isClosed
-      " <img src=#{staticPath}closed#{gifIcon} alt=Closed title=Closed class=closedIcon>"
+      " <img src=#{staticPath}closed#{gifIcon} title=Closed class=closedIcon>"
     else
       ''
 
@@ -210,37 +192,21 @@ Build =
           ''
         }'>" +
 
-        "<div class='postInfoM mobile' id=pim#{postID}>" +
-          "<span class='nameBlock#{capcodeClass}'>" +
-              "<span class=name>#{name or ''}</span>" + tripcode +
-            capcodeStart + capcode + userID + flag + sticky + closed +
-            "<br>#{subject}" +
-          "</span><span class='dateTime postNum' data-utc=#{dateUTC}>#{date}" +
-            "<a href=#{"/#{boardID}/res/#{threadID}#p#{postID}"}>No.</a>" +
-            "<a href='#{
-              if g.VIEW is 'thread' and g.THREADID is +threadID
-                "javascript:quote(#{postID})"
-              else
-                "/#{boardID}/res/#{threadID}#q#{postID}"
-              }'>#{postID}</a>" +
-          '</span>' +
-        '</div>' +
-
         (if isOP then fileHTML else '') +
 
-        "<div class='postInfo desktop' id=pi#{postID}>" +
+        "<div class='postInfo' id=pi#{postID}>" +
           "<input type=checkbox name=#{postID} value=delete> " +
-          "#{subject} " +
+          "<span class=subject>#{subject or ''}</span> " +
           "<span class='nameBlock#{capcodeClass}'>" +
             emailStart +
               "<span class=name>#{name or ''}</span>" + tripcode +
-            capcodeStart + emailEnd + capcode + userID + flag +
+            capcodeStart + emailEnd + capcodeIcon + userID + flag +
           ' </span> ' +
           "<span class=dateTime data-utc=#{dateUTC}>#{date}</span> " +
-          "<span class='postNum desktop'>" +
+          "<span class='postNum'>" +
             "<a href=#{"/#{boardID}/res/#{threadID}#p#{postID}"} title='Highlight this post'>No.</a>" +
             "<a href='#{
-              if g.VIEW is 'thread' and g.THREADID is +threadID
+              if g.VIEW is 'thread' and g.THREADID is threadID
                 "javascript:quote(#{postID})"
               else
                 "/#{boardID}/res/#{threadID}#q#{postID}"
@@ -286,9 +252,73 @@ Build =
       [posts, files] = if Conf['Show Replies']
         [data.omitted_posts, data.omitted_images]
       else
-        # XXX data.images is not accurate.
-        [data.replies, data.omitted_images + data.last_replies.filter((data) -> !!data.ext).length]
+        [data.replies, data.images]
       nodes.push Build.summary board.ID, data.no, posts, files
 
     $.add root, nodes
+    root
+  catalogThread: (thread) ->
+    {staticPath, gifIcon} = Build
+    data = Index.liveThreadData[Index.liveThreadIDs.indexOf thread.ID]
+
+    postCount = data.replies + 1
+    fileCount = data.images  + !!data.ext
+    pageCount = Index.liveThreadIDs.indexOf(thread.ID) // Index.threadsNumPerPage
+
+    subject = if thread.OP.info.subject
+      "<div class='subject'>#{thread.OP.info.subject}</div>"
+    else
+      ''
+    comment = thread.OP.nodes.comment.innerHTML.replace /(<br>\s*){2,}/g, '<br>'
+
+    root = $.el 'div',
+      className: 'catalog-thread'
+      innerHTML: <%= importHTML('General/Thread-catalog-view') %>
+
+    root.dataset.fullID = thread.fullID
+    $.addClass root, 'pinned' if thread.isPinned
+    $.addClass root, thread.OP.highlights... if thread.OP.highlights
+
+    thumb = root.firstElementChild
+    if data.spoiler and !Conf['Reveal Spoilers']
+      src = "#{staticPath}spoiler"
+      if spoilerRange = Build.spoilerRange[thread.board]
+        # Randomize the spoiler image.
+        src += "-#{thread.board}" + Math.floor 1 + spoilerRange * Math.random()
+      src += '.png'
+      $.addClass thumb, 'spoiler-file'
+    else if data.filedeleted
+      src = "#{staticPath}filedeleted-res#{gifIcon}"
+      $.addClass thumb, 'deleted-file'
+    else if thread.OP.file
+      src = thread.OP.file.thumbURL
+      max = Math.max data.tn_w, data.tn_h
+      thumb.style.width  = data.tn_w * 150 / max + 'px'
+      thumb.style.height = data.tn_h * 150 / max + 'px'
+    else
+      src = "#{staticPath}nofile.png"
+      $.addClass thumb, 'no-file'
+    thumb.style.backgroundImage = "url(#{src})"
+
+    for quotelink in $$ '.quotelink', root.lastElementChild
+      $.replace quotelink, [quotelink.childNodes...]
+    for pp in $$ '.prettyprint', root.lastElementChild
+      $.replace pp, $.tn pp.textContent
+
+    if thread.isSticky
+      $.add $('.thread-icons', root), $.el 'img',
+        src: "#{staticPath}sticky#{gifIcon}"
+        className: 'stickyIcon'
+        title: 'Sticky'
+    if thread.isClosed
+      $.add $('.thread-icons', root), $.el 'img',
+        src: "#{staticPath}closed#{gifIcon}"
+        className: 'closedIcon'
+        title: 'Closed'
+
+    if data.bumplimit
+      $.addClass $('.post-count', root), 'warning'
+    if data.imagelimit
+      $.addClass $('.file-count', root), 'warning'
+
     root

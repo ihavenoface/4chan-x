@@ -29,6 +29,7 @@ module.exports = (grunt) ->
           # Features -->
           'src/Filtering/**/*'
           'src/Quotelinks/**/*'
+          'src/Posting/QR.coffee'
           'src/Posting/**/*'
           'src/Images/**/*'
           'src/Linkification/**/*'
@@ -39,6 +40,7 @@ module.exports = (grunt) ->
           # <--|
           'src/General/Board.coffee'
           'src/General/Thread.coffee'
+          'src/General/CatalogThread.coffee'
           'src/General/Post.coffee'
           'src/General/Clone.coffee'
           'src/General/Embed.coffee'

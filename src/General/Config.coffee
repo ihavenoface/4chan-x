@@ -28,6 +28,7 @@ Config =
       'Replace GIF':                  [false, 'Animate GIF thumbnails.']
       'Image Expansion':              [true,  'Expand images inline.']
       'Image Hover':                  [false, 'Show a floating expanded image on hover.']
+      'Image Hover in Catalog':       [false, 'Show a floating expanded image on hover in the catalog.']
       'Sauce':                        [true,  'Add sauce links to images.']
       'Reveal Spoilers':              [false, 'Reveal spoiler thumbnails.']
     'Linkification':
@@ -73,7 +74,6 @@ Config =
       'Markdown':                     [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
       'Hide Original Post Form':      [true,  'Hide the normal post form.']
       'Cooldown':                     [true,  'Indicate the remaining time before posting again.']
-      'Cooldown Prediction':          [true,  'Decrease the cooldown time by taking into account upload speed. Disable it if it\'s inaccurate for you.']
       'Mark own Posts':               [true,  'Mark posts you own.']
       <% if (type === 'crx') { %>
       'Tab to Choose Files First':    [false, 'Tab to the file input before the submit button.']
@@ -86,9 +86,7 @@ Config =
       'Quote Previewing':             [true,  'Show quoted post on hover.']
       'Quote Highlighting':           [true,  'Highlight the previewed post.']
       'Resurrect Quotes':             [true,  'Link dead quotes to the archives.']
-      'Mark Quotes of You':           [true,  'Add \'(You)\' to quotes linking to your posts.']
-      'Mark OP Quotes':               [true,  'Add \'(OP)\' to OP quotes.']
-      'Mark Cross-thread Quotes':     [true,  'Add \'(Cross-thread)\' to cross-threads quotes.']
+      'Quote Markers':                [true,  'Add "(You)", "(OP)", "(Cross-thread)", "(Dead)" markers to quote links.']
   imageExpansion:
     'Fit width':        [true,  '']
     'Fit height':       [false, '']
@@ -153,13 +151,16 @@ Config =
   'Custom CSS': false
   Index:
     'Index Mode': 'paged'
+    'Previous Index Mode': 'paged'
     'Index Sort': 'bump'
+    'Threads per Page': 0
     'Show Replies': true
+    'Anchor Hidden Threads': true
+    'Refreshed Navigation': false
   Header:
     'Header auto-hide':           false
     'Header auto-hide on scroll': false
     'Bottom header':              false
-    'Header catalog links':       false
     'Top Board List':             false
     'Bottom Board List':          false
     'Custom Board Navigation':    true

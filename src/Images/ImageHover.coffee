@@ -1,15 +1,24 @@
 ImageHover =
   init: ->
-    return if g.VIEW is 'catalog' or !Conf['Image Hover']
-
-    Post.callbacks.push
-      name: 'Image Hover'
-      cb:   @node
+    if Conf['Image Hover']
+      Post.callbacks.push
+        name: 'Image Hover'
+        cb:   @node
+    if Conf['Image Hover in Catalog']
+      CatalogThread.callbacks.push
+        name: 'Image Hover'
+        cb:   @catalogNode
   node: ->
     return unless @file?.isImage
     $.on @file.thumb, 'mouseover', ImageHover.mouseover
+  catalogNode: ->
+    return unless @thread.OP.file?.isImage
+    $.on @nodes.thumb, 'mouseover', ImageHover.mouseover
   mouseover: (e) ->
-    post = Get.postFromNode @
+    post = if $.hasClass @, 'thumb'
+      g.posts[@parentNode.dataset.fullID]
+    else
+      Get.postFromNode @
     el = $.el 'img',
       id: 'ihover'
       src: post.file.URL
@@ -38,10 +47,19 @@ ImageHover =
         return
 
     timeoutID = setTimeout (=> @src = post.file.URL + '?' + Date.now()), 3000
+    <% if (type === 'crx') { %>
+    $.ajax @src,
+      onloadend: ->
+        return if @status isnt 404
+        clearTimeout timeoutID
+        post.kill true
+    ,
+      type: 'head'
+    <% } else { %>
     # XXX CORS for i.4cdn.org WHEN?
     $.ajax "//a.4cdn.org/#{post.board}/res/#{post.thread}.json", onload: ->
       return if @status isnt 200
-      for postObj in JSON.parse(@response).posts
+      for postObj in @response.posts
         break if postObj.no is post.ID
       if postObj.no isnt post.ID
         clearTimeout timeoutID
@@ -49,3 +67,4 @@ ImageHover =
       else if postObj.filedeleted
         clearTimeout timeoutID
         post.kill true
+    <% } %>

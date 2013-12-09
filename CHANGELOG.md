@@ -1,3 +1,47 @@
+- Fixed captcha loading in the QR.
+- New setting: `Quote Markers`, enabled by default
+ - This merges `Mark Quotes of You`, `Mark OP Quotes` and `Mark Cross-thread Quotes` into one feature.
+ - Backlinks now also get these markers.
+ - Multiple markers are now more compact, for example `>>123 (You/OP)` instead of `>>123 (You) (OP)`.
+- New setting: `Image Hover in Catalog`
+ - Like `Image Hover`, but for the catalog only.
+
+- Added `Archive link` to the Custom Board Navigation Rice
+- Added a setting to configure the number of threads per page for the paged mode of the index.
+- Dropped support for the official catalog.
+
+- More index navigation improvements:
+ - Threads in catalog mode have the usual menu.
+ - When in catalog mode, the menu now also allows to pin/unpin threads.
+- Minor bug fixes.
+
+- More index navigation improvements:
+ - The index will now display how many threads are hidden.
+ - When in catalog mode, you can toggle between hidden/non-hidden threads.
+- Fixed a bug which prevented QR cooldowns from being pruned from storage.
+ - On Chrome, the storage could reach the quota and prevent 4chan X from saving data like QR name/mail or auto-watch for example.
+
+- More index navigation improvements:
+ - New index mode: `catalog`<br>
+  ![catalog mode](img/changelog/3.16.0/0.png)
+ - When in catalog mode, use `Shift+Click` to hide, and `Alt+Click` to pin threads.
+ - Existing features affect the catalog mode such as:
+ <ul>
+  <li> Filter (hiding, highlighting)
+  <li> Thread Hiding
+  <li> Linkify
+  <li> Auto-GIF
+  <li> Image Hover
+ </ul>
+ - Support for the official catalog will be removed in the future, once the catalog mode for the index is deemed satisfactory.
+- Added `Original filename` variable to Sauce panel.
+- Added a `Reset Settings` button in the settings.
+
+- More index navigation improvements:
+ - New setting: `Anchor Hidden Threads`, enabled by default. Hidden threads will be moved at the end of the index to fill the first pages.
+ - New setting: `Refreshed Navigation`, disabled by default. When enabled, navigating through pages will refresh the index.
+ - The last index refresh timer will now indicate the last time the index changed from 4chan's side, instead of the last time you refreshed the index.
+
 ### 3.10.4 - *2013-12-09*
 
 - Minor bug fixes.
