@@ -4261,7 +4261,7 @@
       }
       node = post.fileInfo;
       alt = post.img.alt;
-      filename = (_ref = $('span', node)) != null ? _ref.textContent : void 0;
+      filename = ((_ref = $('span', node)) != null ? _ref.title : void 0) || node.title;
       FileInfo.data = {
         link: post.img.parentNode.href,
         spoiler: /^Spoiler/.test(alt),

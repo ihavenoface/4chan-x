@@ -3454,7 +3454,7 @@ FileInfo =
     return if post.isInlined and not post.isCrosspost or not post.fileInfo
     node = post.fileInfo
     alt  = post.img.alt
-    filename = $('span', node)?.textContent
+    filename = $('span', node)?.title or node.title
     FileInfo.data =
       link:       post.img.parentNode.href
       spoiler:    /^Spoiler/.test alt
