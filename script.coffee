@@ -3454,7 +3454,10 @@ FileInfo =
     return if post.isInlined and not post.isCrosspost or not post.fileInfo
     node = post.fileInfo
     alt  = post.img.alt
-    filename = $('span', node)?.title or node.title
+    filename = if nameNode = $ 'span', node
+      nameNode.title or nameNode.textContent
+    else
+      node.title
     FileInfo.data =
       link:       post.img.parentNode.href
       spoiler:    /^Spoiler/.test alt
@@ -5761,7 +5764,7 @@ Main =
     return
 
   namespace: '4chan_x.'
-  version: '2.39.1'
+  version: '2.39.2'
   callbacks: []
   css: '
 /* dialog styling */
