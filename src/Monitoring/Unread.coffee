@@ -154,7 +154,7 @@ Unread =
     if $.x 'preceding-sibling::div[contains(@class,"replyContainer")]', post.nodes.root # not the first reply
       $.before post.nodes.root, Unread.hr
 
-  update: <% if (type === 'crx') { %>(dontrepeat) <% } %>->
+  update: ->
     count = Unread.posts.length
 
     if Conf['Unread Count']
