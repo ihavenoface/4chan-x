@@ -96,7 +96,6 @@ Main =
     initFeature 'Quote Inlining',           QuoteInline
     initFeature 'Quote Previewing',         QuotePreview
     initFeature 'Quote Backlinks',          QuoteBacklink
-    initFeature 'Mark own Posts',           YourPosts
     initFeature 'Quote Markers',            QuoteMarkers
     initFeature 'Anonymize',                Anonymize
     initFeature 'Color User IDs',           IDColor

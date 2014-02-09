@@ -1078,11 +1078,6 @@ a.remove {
   font-size: 0.8em;
 }
 
-/* Your Posts */
-.your-post > .reply {
-  border-left: 1px solid rgba(221,0,0,.5) !important;
-}
-
 /* Embedding & ReportLink */
 #embedding,
 #report {

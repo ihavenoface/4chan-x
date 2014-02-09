@@ -15,9 +15,6 @@ IDColor =
     style.color = rgb[3]
     style.backgroundColor = "rgb(#{rgb[0]},#{rgb[1]},#{rgb[2]})"
     $.addClass span, 'painted'
-    if ['Clean User IDs']
-      $.rm span.firstChild
-      $.rm span.lastChild
 
   compute: (uniqueID) ->
     if uniqueID of IDColor.ids
