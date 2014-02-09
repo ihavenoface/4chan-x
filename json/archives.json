@@ -106,8 +106,8 @@
   "https": true,
   "software": "foolfuuka",
   "convert": {},
-  "boards": ["soc"],
-  "files": ["soc"]
+  "boards": ["r", "soc"],
+  "files": ["r", "soc"]
 }, {
   "uid": 16,
   "name": "maware",
