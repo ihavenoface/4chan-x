@@ -377,8 +377,12 @@ Settings =
     section.innerHTML = <%= importHTML('General/Settings-section-Archives') %>
     name = 'archivesLocation'
     input = $ "[name=#{name}]", section
-    $.get name, Conf[name], ({archivesLocation}) ->
-      input.value = archivesLocation
+    $.get name, {}, ({archivesLocation}) ->
+      input.value = Conf['archivesLocation'] =
+        if !archivesLocation or archivesLocation is 'https://ihavenoface.me/archives.json'
+          '<%= meta.page %>archives.json'
+        else
+          archivesLocation
     $.on input, 'change', $.cb.value
     button = $ 'button', section
     $.on button, 'click', ->
