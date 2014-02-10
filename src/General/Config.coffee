@@ -73,7 +73,6 @@ Config =
       'Markdown':                     [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
       'Hide Original Post Form':      [true,  'Hide the normal post form.']
       'Cooldown':                     [true,  'Indicate the remaining time before posting again.']
-      'Mark own Posts':               [true,  'Mark posts you own.']
       <% if (type === 'crx') { %>
       'Tab to Choose Files First':    [false, 'Tab to the file input before the submit button.']
       <% } %>
