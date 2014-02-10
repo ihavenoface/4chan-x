@@ -1,4 +1,4 @@
-- `Index Mode` and `Index Sort` have been moved out of the header's menu into index page.
+- `Index Mode` and `Index Sort` have been moved out of the header's menu into the index page.
 - Minor captcha fixes.
 
 ## 3.11.0 - *2014-02-09*
