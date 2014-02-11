@@ -1,3 +1,4 @@
+- Added `Image Size` setting for the catalog.
 - `Index Mode` and `Index Sort` have been moved out of the header's menu into the index page.
 - Minor captcha fixes.
 
