@@ -1,5 +1,6 @@
 - Added keybindings for index modes, `Ctrl+{1,2,3}` by default.
 - Added `Image Size` setting for the catalog.
+- Added `Open threads in a new tab` setting for the catalog.
 - Added a keybind to cycle through index sort types, `Ctrl+x` by default.
 - `Index Mode` and `Index Sort` have been moved out of the header's menu into the index page.
 - Minor captcha fixes.
