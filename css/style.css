@@ -772,6 +772,7 @@ a.hide-announcement {
 }
 .persona .field {
   flex: 1;
+  width: 0;
 }
 .persona .field:hover,
 .persona .field:focus {
