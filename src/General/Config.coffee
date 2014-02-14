@@ -33,7 +33,6 @@ Config =
       'Reveal Spoilers':              [false, 'Reveal spoiler thumbnails.']
     'Linkification':
       'Linkify':                      [true,  'Convert text links into hyperlinks.']
-      'Clean Links':                  [true,  'Remove spoiler and code tags commonly used to bypass blocked links.']
       'Embedding':                    [true,  'Embed supported content.']
       'Floating Embeds':              [true,  'Embedded content will scroll with page.']
       'Link Titles':                  [true,  'Fetch and replace links with titles of embeddable content.']
