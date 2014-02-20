@@ -1,3 +1,5 @@
+## 3.12.0 - *2014-02-20*
+
 - Fix the QR breaking after a change with 4chan.
 - Added `Image Size` setting for the catalog.
 - Added `Open threads in a new tab` setting for the catalog.
