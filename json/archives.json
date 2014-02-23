@@ -59,16 +59,6 @@
   "boards": ["d", "i"],
   "files": ["d", "i"]
 }, {
-  "uid": 7,
-  "name": "Install Gentoo",
-  "domain": "archive.installgentoo.net",
-  "http": false,
-  "https": true,
-  "software": "fuuka",
-  "convert": {},
-  "boards": ["diy", "g", "sci"],
-  "files": []
-}, {
   "uid": 8,
   "name": "Rebecca Black Tech",
   "domain": "archive.rebeccablacktech.com",
