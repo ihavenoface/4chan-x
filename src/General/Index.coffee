@@ -485,12 +485,10 @@ Index =
       thread.collect()
     return
   buildThreads: ->
-    Index.nodes = []
-    threads     = []
-    posts       = []
-    for threadData in Index.liveThreadData
+    threads = []
+    posts   = []
+    for threadData, i in Index.liveThreadData
       threadRoot = Build.thread g.BOARD, threadData
-      Index.nodes.push threadRoot
       if thread = g.BOARD.threads[threadData.no]
         thread.setStatus 'Sticky', !!threadData.sticky
         thread.setStatus 'Closed', !!threadData.closed
@@ -574,7 +572,7 @@ Index =
       when 'filecount'
         sortedThreadIDs = [Index.liveThreadData...].sort((a, b) -> b.images - a.images).map (data) -> data.no
     Index.sortedThreads = sortedThreadIDs
-      .map (threadID) -> Get.threadFromRoot Index.nodes[Index.liveThreadIDs.indexOf threadID]
+      .map (threadID) -> g.BOARD.threads[threadID]
       .filter (thread) -> thread.isHidden is Index.showHiddenThreads
     if Index.isSearching
       Index.sortedThreads = Index.querySearch(Index.searchInput.value) or Index.sortedThreads
