@@ -5,14 +5,9 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
-<<<<<<< HEAD
   "convert": {},
-  "boards": ["a", "biz", "co", "gd", "jp", "m", "sp", "tg", "tv", "v", "vg", "vp", "vr", "wsg"],
-  "files": ["a", "biz", "gd", "jp", "m", "tg", "vg", "vp", "vr", "wsg"]
-=======
   "boards": ["a", "biz", "co", "diy", "gd", "jp", "m", "sci", "sp", "tg", "tv", "v", "vg", "vp", "vr", "wsg"],
   "files": ["a", "biz", "gd", "diy", "jp", "m", "sci", "tg", "vg", "vp", "vr", "wsg"]
->>>>>>> 88db2d5... Adding diy/sci to Foolz
 }, {
   "uid": 1,
   "name": "NSFW Foolz",
@@ -91,8 +86,8 @@
   "https": true,
   "software": "fuuka",
   "convert": {},
-  "boards": ["3", "biz", "cgl", "ck", "diy", "fa", "ic", "jp", "lit", "sci", "tg", "vr"],
-  "files": ["3", "biz", "cgl", "ck", "diy", "fa", "ic", "jp", "lit", "sci", "tg", "vr"]
+  "boards": ["3", "biz", "cgl", "ck", "diy", "fa", "g", "ic", "jp", "lit", "sci", "tg", "vr"],
+  "files": ["3", "biz", "cgl", "ck", "diy", "fa", "g", "ic", "jp", "lit", "sci", "tg", "vr"]
 }, {
   "uid": 15,
   "name": "fgts",
