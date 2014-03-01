@@ -1,3 +1,5 @@
+### 3.12.1 - *2014-03-01*
+
 - **New feature**: `Post images from url`.
 - Thread and post hiding changes:
  - The posts' menu now has a label entry listing the reasons why a post got hidden or highlighted.
