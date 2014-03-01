@@ -233,6 +233,68 @@ QR =
     QR.open()
     QR.handleFiles files
     $.addClass QR.nodes.el, 'dump'
+  handleBlob: (urlBlob, header, url) ->
+    name = url.substr url.lastIndexOf('/')+1, url.length
+    start = header.indexOf("Content-Type: ") + 14
+    endsc = header.substr(start, header.length).indexOf ';'
+    endnl = header.substr(start, header.length).indexOf('\n') - 1
+    end = endnl
+    if endsc isnt -1 and endsc < endnl
+      end = endsc
+    mime = header.substr start, end
+    blob = new Blob [urlBlob], {type: mime}
+    blob.name = url.substr url.lastIndexOf('/') + 1, url.length
+    name_start = header.indexOf('name="') + 6
+    if name_start - 6 isnt -1
+      name_end = header.substr(name_start, header.length).indexOf '"'
+      blob.name = header.substr name_start, name_end
+
+    return if blob.type is null
+      QR.error 'Unsupported file type.'
+    return unless blob.type in QR.mimeTypes
+      QR.error 'Unsupported file type.'
+    QR.handleFiles [blob]
+
+  handleUrl: ->
+    url = prompt 'Insert an url:'
+    return if url is null
+    <% if (type === 'crx') { %>
+    xhr = new XMLHttpRequest();
+    xhr.open 'GET', url, true
+    xhr.responseType = 'blob'
+    xhr.onload = (e) ->
+      if @readyState is @DONE && xhr.status is 200
+        QR.handleBlob @response, @getResponseHeader('Content-Type'), url
+        return
+      else
+        QR.error 'Can\'t load image.'
+        return
+    xhr.onerror = (e) ->
+      QR.error 'Can\'t load image.'
+      return
+    xhr.send()
+    return
+    <% } %>
+
+    <% if (type === 'userscript') { %>
+    GM_xmlhttpRequest {
+      method: "GET",
+      url: url,
+      overrideMimeType: 'text/plain; charset=x-user-defined',
+      onload: (xhr) ->
+        r = xhr.responseText
+        data = new Uint8Array r.length
+        i = 0
+        while i < r.length
+          data[i] = r.charCodeAt i
+          i++
+        QR.handleBlob data, xhr.responseHeaders, url
+        return
+        onerror: (xhr) ->
+          QR.error "Can't load image."
+    }
+    return
+    <% } %>
   handleFiles: (files) ->
     if @ isnt QR # file input
       files  = [@files...]
@@ -296,6 +358,7 @@ QR =
       close:      $ '.close',            dialog
       form:       $ 'form',              dialog
       dumpButton: $ '#dump-button',      dialog
+      urlButton:  $ '#url-button',       dialog
       name:       $ '[data-name=name]',  dialog
       email:      $ '[data-name=email]', dialog
       sub:        $ '[data-name=sub]',   dialog
@@ -355,6 +418,7 @@ QR =
     $.on nodes.autohide,   'change', QR.toggleHide
     $.on nodes.close,      'click',  QR.close
     $.on nodes.dumpButton, 'click',  -> nodes.el.classList.toggle 'dump'
+    $.on nodes.urlButton, 'click',  QR.handleUrl
     $.on nodes.proceed,    'click',  $.cb.checked
     $.on nodes.addPost,    'click',  -> new QR.post true
     $.on nodes.form,       'submit', QR.submit

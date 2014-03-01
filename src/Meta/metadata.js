@@ -16,6 +16,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_openInTab
+// @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // @updateURL    <%= meta.page %><%= meta.buildsPath %><%= name %>.meta.js
 // @downloadURL  <%= meta.page %><%= meta.buildsPath %><%= name %>.user.js

@@ -735,7 +735,7 @@ a.hide-announcement {
 #qr.autohide:not(.has-focus):not(:hover) > form {
   display: none;
 }
-#qr select, #dump-button, .remove, .captcha-img {
+#qr select, #dump-button, #url-button, .remove, .captcha-img {
   cursor: pointer;
 }
 #qr > div {
@@ -778,6 +778,7 @@ a.hide-announcement {
 .persona .field:focus {
   flex: 3;
 }
+
 #dump-button {
   background: linear-gradient(#EEE, #CCC);
   border: 1px solid #CCC;
