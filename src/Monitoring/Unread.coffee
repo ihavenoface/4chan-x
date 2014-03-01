@@ -159,17 +159,6 @@ Unread =
 
     if Conf['Unread Count']
       d.title = "#{if count or !Conf['Hide Unread Count at (0)'] then "(#{count}) " else ''}#{if g.DEAD then Unread.title.replace '-', '- 404 -' else Unread.title}"
-      <% if (type === 'crx') { %>
-      # XXX Chrome bug where it doesn't always update the tab title.
-      # crbug.com/124381
-      # Call it one second later,
-      # but don't display outdated unread count.
-      return if dontrepeat
-      setTimeout ->
-        d.title = ''
-        Unread.update true
-      , $.SECOND
-      <% } %>
 
     return unless Conf['Unread Tab Icon']
 
