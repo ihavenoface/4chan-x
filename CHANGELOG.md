@@ -1,3 +1,4 @@
+- **New feature**: `Post images from url`.
 - Thread and post hiding changes:
  - The posts' menu now has a label entry listing the reasons why a post got hidden or highlighted.
  - `Thread Hiding` and `Reply Hiding` settings are merged into one: `Post Hiding`.
