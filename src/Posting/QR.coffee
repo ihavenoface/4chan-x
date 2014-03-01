@@ -418,7 +418,7 @@ QR =
     $.on nodes.autohide,   'change', QR.toggleHide
     $.on nodes.close,      'click',  QR.close
     $.on nodes.dumpButton, 'click',  -> nodes.el.classList.toggle 'dump'
-    $.on nodes.urlButton, 'click',  QR.handleUrl
+    $.on nodes.urlButton,  'click',  QR.handleUrl
     $.on nodes.proceed,    'click',  $.cb.checked
     $.on nodes.addPost,    'click',  -> new QR.post true
     $.on nodes.form,       'submit', QR.submit
