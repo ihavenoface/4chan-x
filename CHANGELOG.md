@@ -1,3 +1,6 @@
+- Clicking on the border of the Header will not toggle `Header auto-hide` anymore.
+  You can still change the setting in the Header menu &rarr; Header.
+
 ### 3.12.1 - *2014-03-01*
 
 - **New feature**: `Post images from url`.
