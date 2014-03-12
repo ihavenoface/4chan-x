@@ -1,3 +1,4 @@
+- Bug fixes.
 - Clicking on the border of the Header will not toggle `Header auto-hide` anymore.
   You can still change the setting in the Header menu &rarr; Header.
 
