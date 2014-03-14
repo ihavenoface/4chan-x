@@ -36,8 +36,8 @@
   "https": true,
   "software": "foolfuuka",
   "convert": {},
-  "boards": ["adv", "hr", "o", "pol", "s4s", "tg", "tv", "x"],
-  "files": ["adv", "hr", "o", "pol", "s4s", "tg", "tv", "x"]
+  "boards": ["adv", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"],
+  "files": ["adv", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"]
 }, {
   "uid": 4,
   "name": "Nyafuu",
