@@ -30,7 +30,7 @@
   "files": ["c", "po"]
 }, {
   "uid": 3,
-  "name": "4plebs",
+  "name": "4plebs Archive",
   "domain": "archive.4plebs.org",
   "http": true,
   "https": true,
@@ -38,6 +38,15 @@
   "convert": {},
   "boards": ["adv", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"],
   "files": ["adv", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"]
+}, {
+  "uid": 18,
+  "name": "4plebs Flash Archive",
+  "domain": "flash.4plebs.org",
+  "http": true,
+  "https": true,
+  "software": "foolfuuka",
+  "boards": ["f"],
+  "files": ["f"]
 }, {
   "uid": 4,
   "name": "Nyafuu",
