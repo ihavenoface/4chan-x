@@ -1,3 +1,5 @@
+- Fix captcha not refreshing.
+
 ### 3.12.2 - *2014-03-23*
 
 - Bug fixes.
