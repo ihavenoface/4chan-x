@@ -1,3 +1,5 @@
+- Add support for .webm files.
+
 ### 3.12.4 - *2014-04-03*
 
 - Fix captcha submission:
