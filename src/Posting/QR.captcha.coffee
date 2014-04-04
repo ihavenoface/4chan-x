@@ -61,10 +61,6 @@ QR.captcha =
   getOne: ->
     challenge = @nodes.img.alt
     response  = @nodes.input.value.trim()
-    if response and !/\s/.test response
-      # one-word-captcha:
-      # If there's only one word, duplicate it.
-      response = "#{response} #{response}"
     {challenge, response}
   load: ->
     return unless @nodes.challenge.firstChild
