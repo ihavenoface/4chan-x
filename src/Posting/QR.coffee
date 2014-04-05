@@ -630,6 +630,7 @@ QR =
         QR.cooldown.auto = false
       QR.status()
       QR.error err
+      QR.captcha.setup() if QR.captcha.isEnabled and QR.cooldown.auto
       return
 
     h1 = $ 'h1', resDoc
@@ -659,6 +660,7 @@ QR =
 
     # Enable auto-posting if we have stuff left to post, disable it otherwise.
     QR.cooldown.auto = postsCount and isReply
+    QR.captcha.setup() if QR.captcha.isEnabled and QR.cooldown.auto
 
     unless Conf['Persistent QR'] or QR.cooldown.auto
       QR.close()
