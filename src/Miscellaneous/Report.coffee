@@ -1,7 +1,8 @@
 Report =
   init: ->
     CustomCSS.init()
-    $.addStyle "<%= grunt.file.read('css/report.css').replace(/>\s+</g, '><').trim() %>"
+    unless window is window.top
+      $.addStyle "<%= grunt.file.read('css/report.css').replace(/>\s+</g, '><').trim() %>"
     return unless /report/.test(location.search) and d.cookie.indexOf('pass_enabled=1') is -1
     $.asap (-> $.id 'recaptcha_response_field'), Report.ready
   ready: ->
