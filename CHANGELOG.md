@@ -1,3 +1,5 @@
+- Fix webm upload.
+
 ### 3.13.1 - *2014-04-06*
 
 - Bug fixes.
