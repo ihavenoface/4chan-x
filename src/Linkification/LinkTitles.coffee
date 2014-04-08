@@ -24,7 +24,7 @@ LinkTitles =
     {anchor, result, service} = embed
     {name} = service
     res = result[1]
-    if title = service.cachedTitles[res]
+    if title = service.cachedTitles?[res]
       return LinkTitles.cb.changeTitle anchor, title, name
     url = service.titleURL.call {anchor, result}
     $.cache url, ->
