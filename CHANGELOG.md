@@ -1,3 +1,4 @@
+- Fix posting images drom url.
 - Dramatically decreased CPU usage by pausing webm files not in the viewport.
 
 ### 3.13.2 - *2014-04-06*
