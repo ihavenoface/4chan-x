@@ -265,7 +265,7 @@ QR =
 
     return if blob.type is null
       QR.error 'Unsupported file type.'
-    return unless blob.type in QR.mimeTypes
+    return unless blob.type in ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/x-shockwave-flash', '']
       QR.error 'Unsupported file type.'
     QR.handleFiles [blob]
 
