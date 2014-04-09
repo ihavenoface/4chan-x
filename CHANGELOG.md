@@ -1,6 +1,8 @@
+- Better handling of webm playback errors.
+
 ### 3.13.3 - *2014-04-08*
 
-- Fix posting images drom url.
+- Fix posting images from url.
 - Dramatically decreased CPU usage by pausing webm files not in the viewport.
 
 ### 3.13.2 - *2014-04-06*
