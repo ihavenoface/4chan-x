@@ -1077,6 +1077,7 @@ a.remove {
 
 /* Other */
 .linkified {
+  text-decoration: underline;
   word-break: break-all;
 }
 .painted .hand {
