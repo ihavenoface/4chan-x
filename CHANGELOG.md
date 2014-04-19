@@ -1,3 +1,5 @@
+### 3.13.6 - *2014-04-20*
+
 ### 3.13.5 - *2014-04-20*
 
 - Update 4chan namespaces support.
