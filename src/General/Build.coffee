@@ -176,8 +176,8 @@ Build =
     else
       ''
 
-    if isOP and g.VIEW is 'index'
-      replyLink = " &nbsp; <span>[<a href='/#{boardID}/thread/#{threadID}' class=replylink>Reply</a>]</span>"
+    replyLink = if isOP and g.VIEW is 'index'
+      " &nbsp; <span>[<a href='/#{boardID}/thread/#{threadID}' class=replylink>Reply</a>]</span>"
     else
       ''
 
