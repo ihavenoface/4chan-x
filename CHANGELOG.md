@@ -1,4 +1,11 @@
+- Some more bug fixes.
+
 ### 3.13.7 - *2014-04-20*
+
+- Even more bug fixes.
+
+### 3.20.7 - *2014-04-20*
+>>>>>>> 95af1a8... Changelog.
 
 - More bug fixes.
 
