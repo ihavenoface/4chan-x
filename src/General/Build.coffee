@@ -15,6 +15,11 @@ Build =
   thumbRotate: do ->
     n = 0
     -> n = (n + 1) % 2
+  path: (boardID, threadID, postID, fragment) ->
+    path  = "/#{boardID}/thread/#{threadID}"
+    path += "/#{g.SLUG}" if g.SLUG? and threadID is g.THREADID
+    path += "##{fragment or 'p'}#{postID}" if postID
+    path
   postFromObject: (data, boardID) ->
     o =
       # id
@@ -173,7 +178,7 @@ Build =
       ''
 
     replyLink = if isOP and g.VIEW is 'index'
-      " &nbsp; <span>[<a href='/#{boardID}/thread/#{threadID}' class=replylink>Reply</a>]</span>"
+      " &nbsp; <span>[<a href='#{Build.path boardID, threadID}' class=replylink>Reply</a>]</span>"
     else
       ''
 
@@ -201,12 +206,12 @@ Build =
           ' </span> ' +
           "<span class=dateTime data-utc=#{dateUTC}>#{date}</span> " +
           "<span class='postNum'>" +
-            "<a href=#{"/#{boardID}/thread/#{threadID}#p#{postID}"} title='Highlight this post'>No.</a>" +
+            "<a href=#{Build.path boardID, threadID, postID} title='Highlight this post'>No.</a>" +
             "<a href='#{
               if g.VIEW is 'thread' and g.THREADID is threadID
                 "javascript:quote(#{postID})"
               else
-                "/#{boardID}/thread/#{threadID}#q#{postID}"
+                Build.path boardID, threadID, postID, 'q'
               }' title='Quote this post'>#{postID}</a>" +
             sticky + closed + replyLink +
           '</span>' +
@@ -218,11 +223,11 @@ Build =
 
       '</div>'
 
+    # Fix quote pathnames in index or cross-{board,thread} posts
     for quote in $$ '.quotelink', container
       href = quote.getAttribute 'href'
-      continue if href[0] is '/' # Cross-board quote, or board link
-      href = "#{threadID}#{href}" if href[0] is '#'
-      quote.href = "/#{boardID}/thread/#{href}" # Fix pathnames
+      continue unless href[0] is '#'
+      quote.href = Build.path boardID, threadID, href[2..]
 
     container
 
@@ -234,7 +239,7 @@ Build =
     $.el 'a',
       className: 'summary'
       textContent: text.join ' '
-      href: "/#{boardID}/thread/#{threadID}"
+      href: Build.path boardID, threadID
   thread: (board, data) ->
     Build.spoilerRange[board] = data.custom_spoiler
 
