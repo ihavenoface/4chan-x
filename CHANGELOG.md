@@ -1,3 +1,5 @@
+### 3.13.10 - *2014-05-08*
+
 - Javascript injection in catalog.
 
 ### 3.13.9 - *2014-05-03*
