@@ -1,3 +1,5 @@
+- Javascript injection in catalog.
+
 ### 3.13.9 - *2014-05-03*
 
 - Various bugfixes.
