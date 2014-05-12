@@ -487,6 +487,11 @@ QR =
       err = 'No file selected.'
     else if post.file and thread.fileLimit
       err = 'Max limit of image replies has been reached.'
+    else if !post.file and /pic(ture)? related/i.test post.com
+      err = 'No file selected despite your post mentioning one.'
+    else for hook in QR.preSubmitHooks
+      if err = hook post, thread
+        break
 
     if QR.captcha.isEnabled and !err
       {challenge, response} = QR.captcha.getOne()
