@@ -1,3 +1,7 @@
+### 3.13.11 - *2014-06-01*
+
+- Various bugfixes.
+
 ### 3.13.10 - *2014-05-08*
 
 - Fix Javascript injection in catalog.
