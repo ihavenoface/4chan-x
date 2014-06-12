@@ -63,7 +63,6 @@ Config =
       <% if (type === 'userscript') { %>
       'Remember QR Size':             [false, 'Remember the size of the Quick reply.']
       <% } %>
-      'Remember Subject':             [false, 'Remember the subject field, instead of resetting after posting.']
       'Remember Spoiler':             [false, 'Remember the spoiler state, instead of resetting after posting.']
       'Markdown':                     [false, 'Code, italic, bold, italic bold, double struck - `, *, **, ***, ||, respectively. _ can be used instead of *']
       'Hide Original Post Form':      [true,  'Hide the normal post form.']
