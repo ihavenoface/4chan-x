@@ -1,3 +1,5 @@
+- Removed the `Download Link` feature on Chrome/Opera as it is not working as intended anymore.
+
 ### 3.13.11 - *2014-06-01*
 
 - Various bugfixes.
