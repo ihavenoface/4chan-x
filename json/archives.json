@@ -6,8 +6,8 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
-  "boards": ["a", "biz", "co", "diy", "gd", "jp", "m", "sci", "sp", "tg", "tv", "vg", "vp", "vr", "wsg"],
-  "files": ["a", "biz", "gd", "diy", "jp", "m", "sci", "tg", "vg", "vp", "vr", "wsg"]
+  "boards": ["a", "biz", "c", "co", "diy", "gd", "int", "jp", "m", "out", "po", "sci", "sp", "tg", "tv", "vg", "vp", "vr", "wsg"],
+  "files": ["a", "biz", "c", "co", "diy", "gd", "jp", "m", "po", "sci", "tg", "vg", "vp", "vr", "wsg"]
 }, {
   "uid": 1,
   "convert": {},
@@ -18,16 +18,6 @@
   "software": "foolfuuka",
   "boards": ["u"],
   "files": ["u"]
-}, {
-  "uid": 2,
-  "convert": {},
-  "name": "The Dark Cave",
-  "domain": "archive.thedarkcave.org",
-  "http": true,
-  "https": true,
-  "software": "foolfuuka",
-  "boards": ["c", "int", "out", "po"],
-  "files": ["c", "po"]
 }, {
   "uid": 3,
   "convert": {},
@@ -62,8 +52,8 @@
   "uid": 8,
   "convert": {},
   "name": "Rebecca Black Tech",
-  "domain": "archive.rebeccablacktech.com",
-  "http": true,
+  "domain": "rbt.asia",
+  "http": false,
   "https": true,
   "software": "fuuka",
   "boards": ["cgl", "g", "mu", "w"],
@@ -77,12 +67,12 @@
   "https": false,
   "software": "fuuka",
   "boards": ["an", "fit", "k", "mlp", "r9k", "toy"],
-  "files": ["an", "fit", "k", "r9k", "toy"]
+  "files": ["an", "fit", "k", "mlp", "r9k", "toy"]
 }, {
   "uid": 10,
   "convert": {},
   "name": "warosu",
-  "domain": "fuuka.warosu.org",
+  "domain": "warosu.org",
   "http": false,
   "https": true,
   "software": "fuuka",
@@ -109,16 +99,6 @@
   "boards": ["t"],
   "files": ["t"]
 }, {
-  "uid": 17,
-  "convert": {},
-  "name": "installgentoo.com",
-  "domain": "chan.installgentoo.com",
-  "http": true,
-  "https": false,
-  "software": "foolfuuka",
-  "boards": ["g", "t"],
-  "files": ["g", "t"]
-}, {
   "uid": 13,
   "convert": {},
   "name": "Foolz Beta",
@@ -127,8 +107,8 @@
   "https": true,
   "withCredentials": true,
   "software": "foolfuuka",
-  "boards": ["a", "biz", "co", "d", "diy", "gd", "jp", "m", "s4s", "sci", "sp", "tg", "tv", "u", "vg", "vp", "vr", "wsg"],
-  "files": ["a", "biz", "d", "diy", "gd", "jp", "m", "s4s", "sci", "tg", "u", "vg", "vp", "vr", "wsg"]
+  "boards": ["a", "biz", "c", "co", "d", "diy", "gd", "int", "jp", "m", "out", "po", "s4s", "sci", "sp", "tg", "tv", "u", "vg", "vp", "vr", "wsg"],
+  "files": ["a", "biz", "c", "co", "d", "diy", "gd", "jp", "m", "po", "s4s", "sci", "tg", "u", "vg", "vp", "vr", "wsg"]
 }, {
   "uid": 19,
   "convert": {},
@@ -137,6 +117,6 @@
   "http": true,
   "https": false,
   "software": "foolfuuka",
-  "boards": ["v", "vg", "g"],
-  "files": ["v", "vg", "g"]
+  "boards": ["v", "vg"],
+  "files": ["v", "vg"]
 }]
