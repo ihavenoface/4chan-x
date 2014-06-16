@@ -12,5 +12,5 @@ Report =
     $.on $('form'), 'submit', (e) ->
       e.preventDefault()
       response = field.value.trim()
-      field.value = "#{response} #{response}" unless /\s/.test response
+      field.value = response
       @submit()
