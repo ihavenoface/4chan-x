@@ -1,3 +1,4 @@
+- Domain has been moved from 4chan-x.no-ip.org to 4chan-x.serverbros.eu.
 - Removed the `Download Link` feature on Chrome/Opera as it is not working as intended anymore.
 
 ### 3.13.11 - *2014-06-01*
