@@ -6,8 +6,7 @@ Settings =
       textContent: '<%= meta.name %> Settings'
       href:        'javascript:;'
     $.on link, 'click', Settings.open
-    $.event 'AddMenuEntry',
-      type: 'header'
+    Header.menu.addEntry
       el: link
       order: 111
 
@@ -19,8 +18,7 @@ Settings =
     Settings.addSection 'Archives', Settings.archives
     Settings.addSection 'Keybinds', Settings.keybinds
     Settings.addSection 'Refresh',  Settings.refresh
-    $.on d, 'AddSettingsSection',   Settings.addSection
-    $.on d, 'OpenSettings',         (e) -> Settings.open e.detail
+    $.on d, 'OpenSettings', (e) -> Settings.open e.detail
 
     settings = JSON.parse(localStorage.getItem '4chan-settings') or {}
     return if settings.disableAll
@@ -66,8 +64,6 @@ Settings =
 
   sections: []
   addSection: (title, open) ->
-    if typeof title isnt 'string'
-      {title, open} = title.detail
     hyphenatedTitle = title.toLowerCase().replace /\s+/g, '-'
     Settings.sections.push {title, hyphenatedTitle, open}
   openSection: ->

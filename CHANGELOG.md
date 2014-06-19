@@ -1,3 +1,5 @@
+- Compatibility fixes for Greasemonkey v2.
+
 ### 3.13.12 - *2014-06-16*
 
 - Domain has been moved from 4chan-x.no-ip.org to 4chan-x.serverbros.eu.
