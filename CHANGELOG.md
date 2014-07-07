@@ -1,3 +1,5 @@
+- Yet another domain change: From 4chan-x.serverbros.eu to 4chan-x.cf
+
 ### 3.13.13 - *2014-06-22*
 
 - Compatibility fixes for Greasemonkey v2.
