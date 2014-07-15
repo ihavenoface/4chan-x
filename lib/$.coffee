@@ -247,15 +247,15 @@ $.set = do ->
       set key, val
     return
 
-  $.clear = (cb) ->
-    items = {}
-    count = 2
-    done  = ->
-      if chrome.runtime.lastError
-        c.error chrome.runtime.lastError.message
-        return
-      cb?() unless --count
-    chrome.storage.local.clear done
+$.clear = (cb) ->
+  items = {}
+  count = 2
+  done  = ->
+    if chrome.runtime.lastError
+      c.error chrome.runtime.lastError.message
+      return
+    cb?() unless --count
+  chrome.storage.local.clear done
 <% } else { %>
 # http://wiki.greasespot.net/Main_Page
 $.sync = do ->
