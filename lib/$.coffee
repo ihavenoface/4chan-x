@@ -256,7 +256,6 @@ $.set = do ->
         return
       cb?() unless --count
     chrome.storage.local.clear done
-    chrome.storage.sync.clear  done
 <% } else { %>
 # http://wiki.greasespot.net/Main_Page
 $.sync = do ->
