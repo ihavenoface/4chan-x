@@ -455,7 +455,6 @@ QR =
     # Use it to extend the QR's functionalities, or for XTRM RICE.
     $.event 'QRDialogCreation', null, dialog
 
-  preSubmitHooks: []
   submit: (e, dismiss) ->
     e?.preventDefault()
 
@@ -495,9 +494,6 @@ QR =
         """
       $.on ($ 'button', err), 'click', ->
         QR.submit null, true
-    else for hook in QR.preSubmitHooks
-      if err = hook post, thread
-        break
 
     if QR.captcha.isEnabled and !err
       {challenge, response} = QR.captcha.getOne()
