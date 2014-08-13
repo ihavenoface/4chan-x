@@ -30,6 +30,7 @@
   "files": ["adv", "f", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"]
 }, {
   "uid": 4,
+  "convert": {},
   "name": "Nyafuu",
   "domain": "archive.nyafuu.org",
   "http": true,
@@ -52,7 +53,7 @@
   "convert": {},
   "name": "Rebecca Black Tech",
   "domain": "archive.rebeccablacktech.com",
-  "http": true,
+  "http": false,
   "https": true,
   "software": "fuuka",
   "boards": ["cgl", "g", "mu", "w"],
@@ -109,6 +110,7 @@
   "files": ["v", "vg"]
 }, {
   "uid": 20,
+  "convert": {},
   "name": "/v/idya archive",
   "domain": "archive.vidya.moe",
   "http": true,
