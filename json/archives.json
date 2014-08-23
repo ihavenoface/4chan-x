@@ -1,23 +1,23 @@
 [{
   "uid": 0,
   "convert": {},
-  "name": "Foolz",
-  "domain": "archive.foolz.us",
+  "name": "Moe",
+  "domain": "archive.moe",
   "http": true,
   "https": true,
   "software": "foolfuuka",
-  "boards": ["a", "biz", "c", "co", "diy", "gd", "int", "jp", "m", "out", "po", "sci", "sp", "tg", "tv", "vg", "vp", "vr", "wsg"],
-  "files": ["a", "biz", "c", "co", "diy", "gd", "jp", "m", "po", "sci", "tg", "vg", "vp", "vr", "wsg"]
+  "boards": ["a", "biz", "c", "co", "diy", "gd", "i", "int", "jp", "m", "mlp", "out", "po", "s4s", "sci", "sp", "tg", "tv", "v", "vg", "vp", "vr", "wsg"],
+  "files": ["a", "biz", "c", "co", "diy", "gd", "i", "jp", "m", "po", "s4s", "sci", "tg", "v", "vg", "vp", "vr", "wsg"]
 }, {
   "uid": 1,
   "convert": {},
-  "name": "NSFW Foolz",
-  "domain": "nsfw.foolz.us",
+  "name": "NSFW Moe",
+  "domain": "nsfw.archive.moe",
   "http": true,
   "https": true,
   "software": "foolfuuka",
-  "boards": ["u"],
-  "files": ["u"]
+  "boards": ["h", "u"],
+  "files": ["h", "u"]
 }, {
   "uid": 3,
   "convert": {},
@@ -46,8 +46,8 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
-  "boards": ["d", "i", "lgbt", "e", "wg"],
-  "files": ["d", "i", "lgbt", "e", "wg"]
+  "boards": ["d", "e", "i", "lgbt", "t", "u"],
+  "files": ["d", "e", "i", "lgbt", "t", "u"]
 }, {
   "uid": 8,
   "convert": {},
@@ -77,7 +77,7 @@
   "https": true,
   "software": "fuuka",
   "boards": ["3", "biz", "cgl", "ck", "diy", "fa", "g", "ic", "jp", "lit", "sci", "tg", "vr"],
-  "files": ["3", "biz", "cgl", "ck", "diy", "fa", "ic", "jp", "lit", "sci", "tg", "vr"]
+  "files": ["3", "biz", "cgl", "ck", "diy", "fa", "g", "ic", "jp", "lit", "sci", "tg", "vr"]
 }, {
   "uid": 15,
   "convert": {},
@@ -98,35 +98,4 @@
   "software": "foolfuuka",
   "boards": ["t"],
   "files": ["t"]
-}, {
-  "uid": 19,
-  "convert": {},
-  "name": "Deniable Plausibility",
-  "domain": "boards.deniableplausibility.net",
-  "http": true,
-  "https": false,
-  "software": "foolfuuka",
-  "boards": ["v", "vg"],
-  "files": ["v", "vg"]
-}, {
-  "uid": 20,
-  "convert": {},
-  "name": "/v/idya archive",
-  "domain": "archive.vidya.moe",
-  "http": true,
-  "https": true,
-  "software": "foolfuuka",
-  "boards": ["v"],
-  "files": ["v"]
-}, {
-  "uid": 13,
-  "convert": {},
-  "name": "Foolz Beta",
-  "domain": "beta.foolz.us",
-  "http": true,
-  "https": true,
-  "withCredentials": true,
-  "software": "foolfuuka",
-  "boards": ["a", "biz", "c", "co", "d", "diy", "gd", "h", "i", "int", "jp", "m", "out", "po", "s4s", "sci", "sp", "tg", "tv", "u", "v", "vg", "vp", "vr", "wsg"],
-  "files": ["a", "biz", "c", "co", "d", "diy", "gd", "h", "i", "jp", "m", "po", "s4s", "sci", "tg", "u", "v", "vg", "vp", "vr", "wsg"]
 }]
