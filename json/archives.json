@@ -29,16 +29,6 @@
   "boards": ["adv", "f", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"],
   "files": ["adv", "f", "hr", "o", "pol", "s4s", "tg", "trv", "tv", "x"]
 }, {
-  "uid": 4,
-  "convert": {},
-  "name": "Nyafuu",
-  "domain": "archive.nyafuu.org",
-  "http": true,
-  "https": true,
-  "software": "foolfuuka",
-  "boards": ["c", "e", "w", "wg"],
-  "files": ["c", "e", "w", "wg"]
-}, {
   "uid": 5,
   "convert": {},
   "name": "Love is Over",
@@ -46,8 +36,8 @@
   "http": true,
   "https": true,
   "software": "foolfuuka",
-  "boards": ["d", "e", "i", "lgbt", "t", "u"],
-  "files": ["d", "e", "i", "lgbt", "t", "u"]
+  "boards": ["c", "d", "e", "i", "lgbt", "t", "u", "w", "wg"],
+  "files": ["c", "d", "e", "i", "lgbt", "t", "u", "w", "wg"]
 }, {
   "uid": 8,
   "convert": {},
