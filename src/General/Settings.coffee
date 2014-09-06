@@ -356,7 +356,7 @@ Settings =
     input = $ "[name=#{name}]", section
     $.get name, {}, ({archivesLocation}) ->
       input.value = Conf['archivesLocation'] =
-        if !archivesLocation or archivesLocation is 'http://4chan-x.serverbros.eu/archives.json'
+        if !archivesLocation or archivesLocation is 'http://4chan-x.cf/archives.json'
           '<%= meta.page %>archives.json'
         else
           archivesLocation
