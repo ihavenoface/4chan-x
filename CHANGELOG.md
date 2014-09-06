@@ -1,5 +1,9 @@
 ### 3.13.15 - *2014-09-06*
 
+- Yet another domain change: From 4chan-x.cf to 4chan-x.org (https enabled)
+- Fix burning through captchas.
+- Add notification for posts that have "pic related" in text field but no image attached.
+
 ### 3.13.14 - *2014-07-08*
 
 - Yet another domain change: From 4chan-x.serverbros.eu to 4chan-x.cf
