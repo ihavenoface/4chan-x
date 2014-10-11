@@ -12,8 +12,6 @@ QuoteBacklink =
   init: ->
     return if !Conf['Quote Backlinks']
 
-    format = Conf['backlink'].replace /%id/g, "' + id + '"
-    @funk  = Function 'id', "return '#{format}'"
     @frag  = $.nodes [$.tn(' '), $.el 'a', className: 'backlink']
     @map   = {}
     Post.callbacks.push
@@ -37,7 +35,7 @@ QuoteBacklink =
       @nodes.backlinkContainer = $ '.backlink-container', @nodes.info
       return unless Conf['Quote Markers']
       for backlink in @nodes.backlinks
-        QuoteMarkers.parseQuotelink @, backlink, true, QuoteBacklink.funk Get.postDataFromLink(backlink).postID
+        QuoteMarkers.parseQuotelink @, backlink, true, Conf['backlink'].replace(/%id/g, Get.postDataFromLink(backlink).postID)
       return
     @nodes.backlinkContainer = container = $.el 'span',
       className: 'backlink-container'
@@ -50,7 +48,7 @@ QuoteBacklink =
     frag = QuoteBacklink.frag.cloneNode true
     a = frag.lastElementChild
     a.href = Build.path quoter.board.ID, quoter.thread.ID, quoter.ID
-    a.textContent = text = QuoteBacklink.funk quoter.ID
+    a.textContent = text = Conf['backlink'].replace /%id/g, quoter.ID
     if quoter.isDead
       $.addClass a, 'deadlink'
     if quoter.isHidden
