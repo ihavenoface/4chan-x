@@ -131,7 +131,7 @@ Main =
     return if !Main.isThisPageLegit() or $.hasClass doc, 'fourchan-x'
     # disable the mobile layout
     $('link[href*=mobile]', d.head)?.disabled = true
-    $.addClass doc, 'fourchan-x', '<% if (type === 'crx') { %>blink<% } else { %>gecko<% } %>'
+    $.addClass doc, 'fourchan-x', 'ihavenoface', '<% if (type === 'crx') { %>blink<% } else { %>gecko<% } %>'
     $.addStyle Main.css
 
     style          = 'yotsuba-b'
